@@ -5,6 +5,7 @@ import TacticsBoard from './components/TacticsBoard';
 import MatchDay from './components/MatchDay';
 import VideoAnalyser from './components/VideoAnalyser';
 import SettingsModal from './components/SettingsModal';
+import { useAuth } from './context/AuthProvider';
 
 // Default Roster to populate the app initially so it is ready to use
 const DEFAULT_ROSTER = [
@@ -22,6 +23,7 @@ const DEFAULT_ROSTER = [
 ];
 
 export default function App() {
+  const { logout } = useAuth();
   const [activeTab, setActiveTab] = useState(0); // 0: Squad, 1: Training, 2: Tactics, 3: Match Day, 4: Video
   const [squad, setSquad] = useState(() => {
     const saved = localStorage.getItem('coachcore_squad');
@@ -223,8 +225,35 @@ export default function App() {
           <h1 className="brand-logo">COACHCORE</h1>
         </div>
 
-        {/* Top-right area completely clear */}
-        <div></div>
+        {/* Top-right area */}
+        <div>
+          <button 
+            onClick={logout}
+            style={{
+              background: 'transparent',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: '#8d939e',
+              padding: '4px 10px',
+              borderRadius: '4px',
+              fontSize: '0.75rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              textTransform: 'uppercase',
+              letterSpacing: '0.02em',
+              transition: 'color 0.2s, border-color 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#e63946';
+              e.currentTarget.style.borderColor = 'rgba(230, 57, 70, 0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#8d939e';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            }}
+          >
+            Logout
+          </button>
+        </div>
       </header>
 
       {/* Floating toast alerts */}

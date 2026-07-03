@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { deletePlayerFromFirestore, bulkDeletePlayersFromFirestore, archivePlayersInFirestore } from '../firebaseHelpers';
+import { useAuth } from '../context/AuthProvider';
 
 export default function SquadHub({ 
   squad, 
@@ -10,6 +11,7 @@ export default function SquadHub({
   videoClips = [], 
   onSelectClipForReview 
 }) {
+  const { currentUser } = useAuth();
   const [csvText, setCsvText] = useState('');
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -90,23 +92,21 @@ export default function SquadHub({
   const handleDelete = async (playerId) => {
     try {
       // 1. Firebase Integration: Await the Firestore database operation
-      await deletePlayerFromFirestore(playerId);
-      
-      // 2. UI State Sync: Immediately remove the deleted player from the screen
-      if (typeof onRemovePlayer === 'function') {
-        onRemovePlayer(playerId);
-      }
-      
-      // Close modal details
-      setIsDetailOpen(false);
-      setDetailPlayer(null);
-      setIsDeleteConfirmOpen(false);
-
+      await deletePlayerFromFirestore(playerId, currentUser?.uid);
     } catch (error) {
-      // 3. Error Handling: Log error and reset confirmation state so the UI doesn't freeze
+      // 3. Error Handling: Log error
       console.error("Failed to delete player from Firestore:", error);
-      setIsDeleteConfirmOpen(false);
     }
+
+    // 2. UI State Sync: Immediately remove the deleted player from the screen
+    if (typeof onRemovePlayer === 'function') {
+      onRemovePlayer(playerId);
+    }
+    
+    // Close modal details
+    setIsDetailOpen(false);
+    setDetailPlayer(null);
+    setIsDeleteConfirmOpen(false);
   };
 
   const handleToggleSelect = (playerId) => {

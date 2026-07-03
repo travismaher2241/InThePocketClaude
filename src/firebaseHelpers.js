@@ -1,19 +1,95 @@
 import { app } from "./firebaseConfig";
-import { getFirestore, doc, deleteDoc, writeBatch } from "firebase/firestore";
+import { 
+  getFirestore, 
+  doc, 
+  deleteDoc, 
+  writeBatch, 
+  collection, 
+  addDoc, 
+  query, 
+  where, 
+  getDocs, 
+  getDoc,
+  updateDoc
+} from "firebase/firestore";
 
 const db = getFirestore(app);
 
 /**
- * Deletes a single player document from the Firestore database.
- * @param {string} playerId 
+ * Fetches all active players owned by the authenticated user from Firestore.
+ * @param {string} uid 
+ * @returns {Promise<object[]>}
  */
-export async function deletePlayerFromFirestore(playerId) {
-  const playerRef = doc(db, "players", playerId);
-  await deleteDoc(playerRef);
+export async function getPlayers(uid) {
+  if (!uid) return [];
+  const playersRef = collection(db, "players");
+  const q = query(playersRef, where("ownerId", "==", uid));
+  const querySnapshot = await getDocs(q);
+  
+  const players = [];
+  querySnapshot.forEach((doc) => {
+    players.push({ id: doc.id, ...doc.data() });
+  });
+  return players;
 }
 
 /**
- * Deletes multiple player documents from the Firestore database in a single batch.
+ * Adds a new player document to Firestore, linking it to the user's ownerId.
+ * @param {object} player 
+ * @param {string} uid 
+ * @returns {Promise<string>} docId
+ */
+export async function addPlayer(player, uid) {
+  if (!uid) throw new Error("Authenticated user uid is required to add players.");
+  const playersRef = collection(db, "players");
+  const docRef = await addDoc(playersRef, {
+    ...player,
+    ownerId: uid
+  });
+  return docRef.id;
+}
+
+/**
+ * Updates a player document in Firestore after verifying the ownerId.
+ * @param {string} playerId 
+ * @param {object} updatedFields 
+ * @param {string} uid 
+ */
+export async function updatePlayerInFirestore(playerId, updatedFields, uid) {
+  if (!uid) throw new Error("Authenticated user uid is required to update players.");
+  const playerRef = doc(db, "players", playerId);
+  const docSnap = await getDoc(playerRef);
+  
+  if (docSnap.exists()) {
+    if (docSnap.data().ownerId === uid) {
+      await updateDoc(playerRef, updatedFields);
+    } else {
+      throw new Error("Unauthorized: You do not own this player record.");
+    }
+  }
+}
+
+/**
+ * Deletes a single player document from Firestore after confirming ownerId.
+ * @param {string} playerId 
+ * @param {string} uid 
+ */
+export async function deletePlayerFromFirestore(playerId, uid) {
+  if (!uid) throw new Error("Authenticated user uid is required to delete players.");
+  const playerRef = doc(db, "players", playerId);
+  const docSnap = await getDoc(playerRef);
+  
+  if (docSnap.exists()) {
+    if (docSnap.data().ownerId === uid) {
+      await deleteDoc(playerRef);
+    } else {
+      throw new Error("Unauthorized: You do not own this player record.");
+    }
+  }
+}
+
+/**
+ * Deletes multiple player documents from Firestore in a single batch.
  * @param {string[]} playerIds 
  */
 export async function bulkDeletePlayersFromFirestore(playerIds) {
