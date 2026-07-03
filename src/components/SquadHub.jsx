@@ -87,21 +87,26 @@ export default function SquadHub({
     setIsDetailEditing(false);
   };
 
-  const handleConfirmDelete = async (playerId) => {
-    // 1. Firebase Integration
+  const handleDelete = async (playerId) => {
     try {
+      // 1. Firebase Integration: Await the Firestore database operation
       await deletePlayerFromFirestore(playerId);
-    } catch (err) {
-      console.warn("Firestore delete failed, running local fallback:", err);
-    }
+      
+      // 2. UI State Sync: Immediately remove the deleted player from the screen
+      if (typeof onRemovePlayer === 'function') {
+        onRemovePlayer(playerId);
+      }
+      
+      // Close modal details
+      setIsDetailOpen(false);
+      setDetailPlayer(null);
+      setIsDeleteConfirmOpen(false);
 
-    // 2. Local State update
-    onRemovePlayer(playerId);
-    
-    // Close modal
-    setIsDetailOpen(false);
-    setDetailPlayer(null);
-    setIsDeleteConfirmOpen(false);
+    } catch (error) {
+      // 3. Error Handling: Log error and reset confirmation state so the UI doesn't freeze
+      console.error("Failed to delete player from Firestore:", error);
+      setIsDeleteConfirmOpen(false);
+    }
   };
 
   const handleToggleSelect = (playerId) => {
@@ -571,7 +576,7 @@ Harris Andrews,31,Back,Tape right shoulder`;
                       </p>
                       <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                         <button className="btn" onClick={() => setIsDeleteConfirmOpen(false)} style={{ padding: '4px 10px', fontSize: '0.75rem' }}>Cancel</button>
-                        <button className="btn" onClick={() => handleConfirmDelete(detailPlayer.id)} style={{ padding: '4px 10px', fontSize: '0.75rem', backgroundColor: '#e63946', color: '#ffffff', borderColor: '#e63946' }}>Confirm</button>
+                        <button className="btn" onClick={() => handleDelete(detailPlayer.id)} style={{ padding: '4px 10px', fontSize: '0.75rem', backgroundColor: '#e63946', color: '#ffffff', borderColor: '#e63946' }}>Confirm</button>
                       </div>
                     </div>
                   ) : (
