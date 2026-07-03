@@ -105,7 +105,7 @@ export default function SquadHub({
 
     // 2. UI State Sync: Remove all deleted IDs from the screen at once
     if (typeof onRemovePlayer === 'function') {
-      ids.forEach(id => onRemovePlayer(id));
+      onRemovePlayer(ids);
     }
     
     // Close detail modal if the currently viewed player was deleted

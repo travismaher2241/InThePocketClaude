@@ -157,11 +157,11 @@ export default function App() {
     showToast(`Updated player profile.`);
   };
 
-  const handleRemovePlayer = (id) => {
-    const player = squad.find(p => p.id === id);
-    setSquad(squad.filter(p => p.id !== id));
-    logSyncTransaction('PLAYER_REMOVE', { id, name: player?.name });
-    showToast(`Removed player from roster.`);
+  const handleRemovePlayer = (idOrIds) => {
+    const ids = Array.isArray(idOrIds) ? idOrIds : [idOrIds];
+    setSquad(prevSquad => prevSquad.filter(p => !ids.includes(p.id)));
+    logSyncTransaction('PLAYER_REMOVE_BATCH', { ids });
+    showToast(ids.length === 1 ? `Removed player from roster.` : `Removed ${ids.length} players from roster.`);
   };
 
   const handleImportCSV = (csvText) => {
