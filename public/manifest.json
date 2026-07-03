@@ -1,0 +1,17 @@
+{
+  "name": "CoachCore",
+  "short_name": "CoachCore",
+  "description": "AFL Tactical Board and Video Review Command Center",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050507",
+  "theme_color": "#e63946",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

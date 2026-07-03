@@ -1,0 +1,940 @@
+import React, { useState, useRef, useEffect } from 'react';
+import aflGroundImg from '../assets/AFL GROUND.png';
+import ContextualTaggingModal from './ContextualTaggingModal';
+
+export default function VideoAnalyser({
+  squad = [],
+  videoClips = [],
+  setVideoClips,
+  selectedReviewClip,
+  setSelectedReviewClip
+}) {
+  const [activeClip, setActiveClip] = useState(null);
+  
+  // Video Ingestion / Tagging states
+  const [taggingModalOpen, setTaggingModalOpen] = useState(false);
+  const [taggingClip, setTaggingClip] = useState(null);
+
+  const handleImportVideos = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    const newClips = files.map((file, idx) => ({
+      id: 'v_' + Date.now() + '_' + idx,
+      videoUrl: URL.createObjectURL(file),
+      fileName: file.name,
+      date: new Date().toISOString().split('T')[0],
+      drillName: file.name.substring(0, file.name.lastIndexOf('.')) || file.name,
+      playerIds: [], // Empty -> Pending Tagging
+      isPending: true,
+      drawings: []
+    }));
+
+    setVideoClips(prev => [...newClips, ...prev]);
+  };
+
+  const handleSaveTaggedClip = (tagData) => {
+    if (!taggingClip) return;
+
+    const updatedClips = videoClips.map(clip => 
+      clip.id === taggingClip.id 
+        ? {
+            ...clip,
+            date: tagData.date,
+            drillName: tagData.drillName,
+            playerIds: tagData.playerIds,
+            isPending: false
+          }
+        : clip
+    );
+
+    setVideoClips(updatedClips);
+    setTaggingModalOpen(false);
+    setTaggingClip(null);
+  };
+
+  const handleClipClick = (clip) => {
+    if (clip.isPending || clip.playerIds.length === 0) {
+      setTaggingClip(clip);
+      setTaggingModalOpen(true);
+    } else {
+      setActiveClip(clip);
+    }
+  };
+
+  // If a clip is selected globally (e.g. from player profile), load it immediately
+  useEffect(() => {
+    if (selectedReviewClip) {
+      // If it has no tags, show modal first, otherwise activate
+      if (selectedReviewClip.isPending || selectedReviewClip.playerIds.length === 0) {
+        setTaggingClip(selectedReviewClip);
+        setTaggingModalOpen(true);
+      } else {
+        setActiveClip(selectedReviewClip);
+      }
+      setSelectedReviewClip(null);
+    }
+  }, [selectedReviewClip]);
+
+  const [drawTool, setDrawTool] = useState('brush'); // 'brush', 'arrow', 'eraser'
+  const [isFrozen, setIsFrozen] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const canvasContainerRef = useRef(null);
+
+  // Drawing states
+  const drawings = useRef([]); // { type: 'brush'|'arrow', points: [] }
+  const startPos = useRef({ x: 0, y: 0 });
+  const lastPos = useRef({ x: 0, y: 0 });
+
+  // Mini Tactics Board Player Tokens state (only tagged players)
+  const [tokens, setTokens] = useState([]);
+  const [draggedTokenId, setDraggedTokenId] = useState(null);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const tacticsContainerRef = useRef(null);
+
+  // Populate Tactics Board tokens when a clip becomes active
+  useEffect(() => {
+    if (activeClip) {
+      // Find players tagged in this clip
+      const taggedPlayers = squad.filter(p => activeClip.playerIds.includes(p.id));
+      // Map to tokens positioned at template layout or center
+      const initialTokens = taggedPlayers.map((player, idx) => ({
+        id: player.id,
+        name: player.name,
+        label: player.jersey.toString(),
+        // Stagger positions near the center
+        x: 400 + (idx % 4) * 60,
+        y: 200 + Math.floor(idx / 4) * 60,
+        team: idx % 2 === 0 ? 'white' : 'black'
+      }));
+      setTokens(initialTokens);
+      
+      // Clear drawings
+      drawings.current = [];
+      setIsFrozen(false);
+    }
+  }, [activeClip, squad]);
+
+  // Handle Video Player freeze frame toggle
+  const handleToggleFreeze = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    
+    if (isFrozen) {
+      // Unfreeze
+      video.play();
+      setIsFrozen(false);
+      drawings.current = [];
+      clearCanvas();
+    } else {
+      // Freeze (pause video & activate drawing overlay)
+      video.pause();
+      setIsFrozen(true);
+      // Wait for canvas element to render
+      setTimeout(() => {
+        resizeCanvas();
+      }, 50);
+    }
+  };
+
+  // Canvas drawings resizing
+  const resizeCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    redrawCanvas();
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const redrawCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+    // Normalize coordinates relative to actual rendering width
+    const scaleX = canvas.width / 1000;
+    const scaleY = canvas.height / 600;
+    ctx.scale(scaleX, scaleY);
+
+    drawings.current.forEach((item) => {
+      ctx.beginPath();
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = item.color || '#ff7a00'; // Sherrin Orange chalk
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      if (item.type === 'brush' && item.points.length > 0) {
+        ctx.moveTo(item.points[0].x, item.points[0].y);
+        for (let i = 1; i < item.points.length; i++) {
+          ctx.lineTo(item.points[i].x, item.points[i].y);
+        }
+        ctx.stroke();
+      } else if (item.type === 'arrow' && item.points.length === 2) {
+        drawArrow(ctx, item.points[0].x, item.points[0].y, item.points[1].x, item.points[1].y);
+      }
+    });
+
+    ctx.restore();
+  };
+
+  const drawArrow = (ctx, fromX, fromY, toX, toY) => {
+    ctx.beginPath();
+    ctx.moveTo(fromX, fromY);
+    ctx.lineTo(toX, toY);
+    ctx.stroke();
+
+    const angle = Math.atan2(toY - fromY, toX - fromX);
+    const headLength = 14;
+    ctx.beginPath();
+    ctx.moveTo(toX, toY);
+    ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+    ctx.closePath();
+    ctx.fillStyle = ctx.strokeStyle;
+    ctx.fill();
+  };
+
+  const getCanvasCoords = (clientX, clientY) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const x = ((clientX - rect.left) / rect.width) * 1000;
+    const y = ((clientY - rect.top) / rect.height) * 600;
+    return { x, y };
+  };
+
+  // Drawing event handlers
+  const handleStartDraw = (e) => {
+    if (!isFrozen) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const { x, y } = getCanvasCoords(clientX, clientY);
+
+    setIsDrawing(true);
+    lastPos.current = { x, y };
+    startPos.current = { x, y };
+
+    if (drawTool === 'brush') {
+      drawings.current.push({
+        type: 'brush',
+        points: [{ x, y }],
+        color: '#ff7a00'
+      });
+    } else if (drawTool === 'eraser') {
+      eraseAt(x, y);
+    }
+  };
+
+  const handleDraw = (e) => {
+    if (!isDrawing || !isFrozen) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const { x, y } = getCanvasCoords(clientX, clientY);
+
+    if (drawTool === 'brush') {
+      const activeLine = drawings.current[drawings.current.length - 1];
+      if (activeLine && activeLine.type === 'brush') {
+        activeLine.points.push({ x, y });
+      }
+      redrawCanvas();
+    } else if (drawTool === 'eraser') {
+      eraseAt(x, y);
+    } else if (drawTool === 'arrow') {
+      redrawCanvas();
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      ctx.save();
+      ctx.scale(canvas.width / 1000, canvas.height / 600);
+      ctx.strokeStyle = '#ff7a00';
+      ctx.lineWidth = 4;
+      drawArrow(ctx, startPos.current.x, startPos.current.y, x, y);
+      ctx.restore();
+    }
+
+    lastPos.current = { x, y };
+  };
+
+  const handleEndDraw = (e) => {
+    if (!isDrawing || !isFrozen) return;
+    setIsDrawing(false);
+
+    if (drawTool === 'arrow') {
+      const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+      const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+      const { x, y } = getCanvasCoords(clientX, clientY);
+
+      drawings.current.push({
+        type: 'arrow',
+        points: [startPos.current, { x, y }],
+        color: '#ff7a00'
+      });
+      redrawCanvas();
+    }
+  };
+
+  const eraseAt = (x, y) => {
+    const radius = 30;
+    drawings.current = drawings.current.filter((item) => {
+      if (item.type === 'brush') {
+        return !item.points.some(p => Math.hypot(p.x - x, p.y - y) < radius);
+      } else if (item.type === 'arrow') {
+        const startNear = Math.hypot(item.points[0].x - x, item.points[0].y - y) < radius;
+        const endNear = Math.hypot(item.points[1].x - x, item.points[1].y - y) < radius;
+        return !startNear && !endNear;
+      }
+      return true;
+    });
+    redrawCanvas();
+  };
+
+  // Mini Tactics Board Coordinates and dragging
+  const getTacticsCoords = (clientX, clientY) => {
+    const container = tacticsContainerRef.current;
+    if (!container) return { x: 0, y: 0 };
+    const rect = container.getBoundingClientRect();
+    const x = ((clientX - rect.left) / rect.width) * 1000;
+    const y = ((clientY - rect.top) / rect.height) * 600;
+    return { x, y };
+  };
+
+  const handleTokenStartDrag = (e, tokenId) => {
+    e.stopPropagation();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const { x: touchX, y: touchY } = getTacticsCoords(clientX, clientY);
+    
+    setDraggedTokenId(tokenId);
+    const token = tokens.find(t => t.id === tokenId);
+    if (token) {
+      dragOffset.current = {
+        x: touchX - token.x,
+        y: touchY - token.y
+      };
+    }
+  };
+
+  const handleTokenMove = (e) => {
+    if (!draggedTokenId) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const { x: touchX, y: touchY } = getTacticsCoords(clientX, clientY);
+
+    const newX = touchX - dragOffset.current.x;
+    const newY = touchY - dragOffset.current.y;
+
+    const boundedX = Math.max(16, Math.min(984, newX));
+    const boundedY = Math.max(16, Math.min(584, newY));
+
+    setTokens(tokens.map(t => t.id === draggedTokenId ? { ...t, x: boundedX, y: boundedY } : t));
+  };
+
+  const handleTokenEndDrag = () => {
+    setDraggedTokenId(null);
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%', width: '100%', paddingBottom: '30px' }}>
+      
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2 className="scoreboard-font" style={{ color: 'var(--color-video)', margin: 0 }}>Video Analyser</h2>
+        </div>
+        {activeClip && (
+          <button 
+            className="btn" 
+            onClick={() => setActiveClip(null)}
+            style={{ fontSize: '0.8rem', fontWeight: '700', padding: '6px 12px' }}
+          >
+            ← Back to Directory
+          </button>
+        )}
+      </div>
+
+      {!activeClip ? (
+        /* INGESTION & INBOX & REVIEW LISTING */
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          
+          {/* 1. Ingestion / Import Action Bar */}
+          <div style={{
+            backgroundColor: '#12141c',
+            border: '1px solid rgba(255, 255, 255, 0.05)',
+            borderRadius: '12px',
+            padding: '24px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center'
+          }}>
+            <h3 className="scoreboard-font" style={{ color: '#ffffff', margin: 0, fontSize: '1.25rem', letterSpacing: '0.05em' }}>
+              VIDEO INGESTION CHANNEL
+            </h3>
+            <p style={{ fontSize: '0.8rem', color: '#8d939e', maxWidth: '380px', margin: '0 auto', lineHeight: '1.4' }}>
+              Bulk upload match recordings, training sessions, or scrimmage clips to evaluate squad structure.
+            </p>
+            
+            <input 
+              type="file" 
+              accept="video/*" 
+              multiple 
+              id="bulk-video-import" 
+              onChange={handleImportVideos} 
+              style={{ display: 'none' }} 
+            />
+            <label 
+              htmlFor="bulk-video-import"
+              style={{
+                backgroundColor: '#e63946', // Sherrin Orange/Red
+                color: '#ffffff',
+                fontFamily: 'var(--font-family-locker)',
+                fontSize: '1.1rem',
+                fontWeight: '700',
+                textTransform: 'uppercase',
+                padding: '12px 28px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                letterSpacing: '0.03em',
+                transition: 'opacity 0.2s',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginTop: '6px'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+            >
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/>
+              </svg>
+              Import Match Vision
+            </label>
+          </div>
+
+          <style>{`
+            @media(min-width: 600px) {
+              .video-directory-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+              }
+            }
+            @media(min-width: 960px) {
+              .video-directory-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+              }
+            }
+          `}</style>
+
+          {/* 2. Ingestion Inbox (Pending Tagging) */}
+          {(() => {
+            const pendingClips = videoClips.filter(c => c.isPending || c.playerIds.length === 0);
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <span style={{ fontSize: '0.75rem', color: '#e63946', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#e63946', display: 'inline-block' }} />
+                  Ingestion Inbox (Pending Tagging: {pendingClips.length})
+                </span>
+
+                {pendingClips.length === 0 ? (
+                  <div style={{ 
+                    border: '1px dashed rgba(255,255,255,0.05)', 
+                    borderRadius: '8px', 
+                    padding: '24px', 
+                    textAlign: 'center', 
+                    color: 'var(--text-muted)',
+                    fontSize: '0.8rem',
+                    backgroundColor: 'rgba(255, 255, 255, 0.01)'
+                  }}>
+                    Inbox clear. All clips are tagged and registered.
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }} className="video-directory-grid">
+                    {pendingClips.map((clip) => (
+                      <div 
+                        key={clip.id}
+                        onClick={() => handleClipClick(clip)}
+                        style={{
+                          backgroundColor: 'rgba(230, 57, 70, 0.03)',
+                          border: '1px solid rgba(230, 57, 70, 0.15)',
+                          borderRadius: '8px',
+                          padding: '16px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '8px',
+                          transition: 'border-color 0.2s, background-color 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = '#e63946';
+                          e.currentTarget.style.backgroundColor = 'rgba(230, 57, 70, 0.06)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = 'rgba(230, 57, 70, 0.15)';
+                          e.currentTarget.style.backgroundColor = 'rgba(230, 57, 70, 0.03)';
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span className="scoreboard-font" style={{ fontSize: '0.75rem', fontWeight: '700', color: '#e63946' }}>
+                            PENDING TAGS
+                          </span>
+                          <span style={{ fontSize: '0.75rem', color: '#8d939e' }}>{clip.date}</span>
+                        </div>
+                        <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff' }}>
+                          {clip.drillName}
+                        </div>
+                        <span style={{ fontSize: '0.75rem', color: '#8d939e', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          ⚠️ Click here to tag players & categorize drill
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* 3. Analysis Video Library (Tagged) */}
+          {(() => {
+            const taggedClips = videoClips.filter(c => !c.isPending && c.playerIds.length > 0);
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
+                <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
+                  Analysis Library ({taggedClips.length})
+                </span>
+
+                {taggedClips.length === 0 ? (
+                  <div style={{ 
+                    border: '1px dashed rgba(255,255,255,0.05)', 
+                    borderRadius: '8px', 
+                    padding: '30px', 
+                    textAlign: 'center', 
+                    color: 'var(--text-muted)',
+                    fontSize: '0.85rem'
+                  }}>
+                    No tagged clips available. Tag pending segments to construct your review playlist.
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }} className="video-directory-grid">
+                    {taggedClips.map((clip) => {
+                      const taggedPlayers = squad.filter(p => clip.playerIds.includes(p.id));
+                      return (
+                        <div 
+                          key={clip.id}
+                          onClick={() => handleClipClick(clip)}
+                          style={{
+                            backgroundColor: '#1c1f26',
+                            border: '1px solid rgba(255, 255, 255, 0.05)',
+                            borderRadius: '8px',
+                            padding: '16px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '10px',
+                            transition: 'border-color 0.2s, background-color 0.2s'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--color-video)';
+                            e.currentTarget.style.backgroundColor = 'rgba(255, 122, 0, 0.02)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                            e.currentTarget.style.backgroundColor = '#1c1f26';
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--color-video)' }}>
+                              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                              </svg>
+                              <span className="scoreboard-font" style={{ fontSize: '0.75rem', fontWeight: '700' }}>READY FOR REVIEW</span>
+                            </div>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{clip.date}</span>
+                          </div>
+
+                          <div style={{ fontSize: '1rem', fontWeight: '700', color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {clip.drillName}
+                          </div>
+
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                            {taggedPlayers.slice(0, 5).map(p => (
+                              <div 
+                                key={p.id}
+                                className="scoreboard-font"
+                                style={{
+                                  width: '20px',
+                                  height: '20px',
+                                  borderRadius: '50%',
+                                  backgroundColor: 'rgba(255, 122, 0, 0.1)',
+                                  border: '1px solid rgba(255, 122, 0, 0.25)',
+                                  color: 'var(--color-video)',
+                                  fontSize: '0.65rem',
+                                  fontWeight: '700',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}
+                                title={p.name}
+                              >
+                                {p.jersey}
+                              </div>
+                            ))}
+                            {taggedPlayers.length > 5 && (
+                              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', paddingLeft: '4px', alignSelf: 'center' }}>
+                                +{taggedPlayers.length - 5} more
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+        </div>
+      ) : (
+        /* SPLIT SCREEN VIDEO REVIEW WORKSPACE */
+        <div 
+          style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '1fr', 
+            gap: '20px', 
+            width: '100%' 
+          }}
+          className="analyser-workspace-layout"
+        >
+          <style>{`
+            @media(min-width: 900px) {
+              .analyser-workspace-layout {
+                grid-template-columns: 1.1fr 0.9fr !important;
+              }
+            }
+          `}</style>
+
+          {/* LEFT PANEL: HTML5 Video Annotator Viewport */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
+                Video Feed & Annotation
+              </span>
+              
+              {/* Freeze Button */}
+              <button 
+                onClick={handleToggleFreeze}
+                style={{
+                  backgroundColor: isFrozen ? 'rgba(230, 57, 70, 0.15)' : 'rgba(255, 122, 0, 0.15)',
+                  border: '1px solid',
+                  borderColor: isFrozen ? '#e63946' : 'var(--color-video)',
+                  color: isFrozen ? '#e63946' : 'var(--color-video)',
+                  fontSize: '0.7rem',
+                  fontWeight: '700',
+                  textTransform: 'uppercase',
+                  padding: '4px 10px',
+                  borderRadius: '12px',
+                  cursor: 'pointer'
+                }}
+              >
+                {isFrozen ? 'Unfreeze Video' : 'Freeze Frame & Sketch'}
+              </button>
+            </div>
+
+            {/* Video + Canvas Stack */}
+            <div 
+              ref={canvasContainerRef}
+              style={{
+                position: 'relative',
+                width: '100%',
+                aspectRatio: '16/9',
+                backgroundColor: '#000000',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                border: '1px solid rgba(255, 255, 255, 0.05)',
+                userSelect: 'none'
+              }}
+            >
+              <video 
+                ref={videoRef}
+                src={activeClip.videoUrl}
+                controls={!isFrozen} // hide native controls when frozen
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                onError={(e) => {
+                  // Fallback to sample MP4 if ObjectURL expired
+                  if (videoRef.current && videoRef.current.src !== 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4') {
+                    videoRef.current.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4';
+                  }
+                }}
+              />
+
+              {/* Transparent Overlay drawing canvas for annotations */}
+              {isFrozen && (
+                <canvas 
+                  ref={canvasRef}
+                  onMouseDown={handleStartDraw}
+                  onMouseMove={handleDraw}
+                  onMouseUp={handleEndDraw}
+                  onTouchStart={handleStartDraw}
+                  onTouchMove={handleDraw}
+                  onTouchEnd={handleEndDraw}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    cursor: 'crosshair',
+                    zIndex: 10
+                  }}
+                />
+              )}
+            </div>
+
+            {/* Drawing shelf (only visible when frozen) */}
+            {isFrozen && (
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+                alignSelf: 'center',
+                backgroundColor: '#1c1f26',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                padding: '6px 12px',
+                borderRadius: '20px',
+                alignItems: 'center'
+              }}>
+                <span style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700' }}>
+                  Chalk Tools:
+                </span>
+                
+                {/* Brush */}
+                <button 
+                  onClick={() => setDrawTool('brush')}
+                  style={{
+                    padding: '4px 8px',
+                    fontSize: '0.7rem',
+                    fontFamily: 'var(--font-family-locker)',
+                    fontWeight: '700',
+                    textTransform: 'uppercase',
+                    backgroundColor: drawTool === 'brush' ? 'rgba(255, 122, 0, 0.15)' : 'transparent',
+                    color: drawTool === 'brush' ? 'var(--color-video)' : '#8d939e',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Brush
+                </button>
+
+                {/* Arrow */}
+                <button 
+                  onClick={() => setDrawTool('arrow')}
+                  style={{
+                    padding: '4px 8px',
+                    fontSize: '0.7rem',
+                    fontFamily: 'var(--font-family-locker)',
+                    fontWeight: '700',
+                    textTransform: 'uppercase',
+                    backgroundColor: drawTool === 'arrow' ? 'rgba(255, 122, 0, 0.15)' : 'transparent',
+                    color: drawTool === 'arrow' ? 'var(--color-video)' : '#8d939e',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Arrow
+                </button>
+
+                {/* Eraser */}
+                <button 
+                  onClick={() => setDrawTool('eraser')}
+                  style={{
+                    padding: '4px 8px',
+                    fontSize: '0.7rem',
+                    fontFamily: 'var(--font-family-locker)',
+                    fontWeight: '700',
+                    textTransform: 'uppercase',
+                    backgroundColor: drawTool === 'eraser' ? 'rgba(255, 122, 0, 0.15)' : 'transparent',
+                    color: drawTool === 'eraser' ? 'var(--color-video)' : '#8d939e',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Eraser
+                </button>
+
+                <div style={{ width: '1px', height: '12px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
+
+                <button 
+                  onClick={() => { drawings.current = []; redrawCanvas(); }}
+                  style={{
+                    padding: '4px 8px',
+                    fontSize: '0.7rem',
+                    fontFamily: 'var(--font-family-locker)',
+                    fontWeight: '700',
+                    textTransform: 'uppercase',
+                    backgroundColor: 'transparent',
+                    color: '#e63946',
+                    border: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Reset drawings
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT PANEL: mini Tactics Whiteboard for spatial alignment */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
+                Tactical Structural Alignment
+              </span>
+              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
+                Drag tokens to review spacing
+              </span>
+            </div>
+
+            <div 
+              ref={tacticsContainerRef}
+              onMouseMove={handleTokenMove}
+              onTouchMove={handleTokenMove}
+              onMouseUp={handleTokenEndDrag}
+              onTouchEnd={handleTokenEndDrag}
+              style={{
+                position: 'relative',
+                backgroundColor: '#1a3c34',
+                border: '1px solid rgba(255, 255, 255, 0.05)',
+                borderRadius: '12px',
+                width: '100%',
+                aspectRatio: '5/3',
+                overflow: 'hidden',
+                userSelect: 'none',
+                boxShadow: '0 8px 16px rgba(0,0,0,0.3)'
+              }}
+            >
+              {/* AFL Ground Image */}
+              <img 
+                src={aflGroundImg}
+                alt="AFL Ground"
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  pointerEvents: 'none',
+                  objectFit: 'fill'
+                }}
+              />
+
+              {/* Whiteboard grid lines placeholder or transparent overlay */}
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 5, pointerEvents: 'none' }} />
+
+              {/* Drag tokens representing involved players */}
+              {tokens.map((token) => {
+                const isWhite = token.team === 'white';
+                const isDragging = draggedTokenId === token.id;
+
+                return (
+                  <div
+                    key={token.id}
+                    onMouseDown={(e) => handleTokenStartDrag(e, token.id)}
+                    onTouchStart={(e) => handleTokenStartDrag(e, token.id)}
+                    style={{
+                      position: 'absolute',
+                      left: `${(token.x / 1000) * 100}%`,
+                      top: `${(token.y / 600) * 100}%`,
+                      transform: 'translate(-50%, -50%)',
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '50%',
+                      backgroundColor: isWhite ? '#ffffff' : '#000000',
+                      border: isWhite ? '1.5px solid #000000' : '1.5px solid #ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: isWhite ? '#000000' : '#ffffff',
+                      fontSize: '0.7rem',
+                      fontWeight: '800',
+                      cursor: isDragging ? 'grabbing' : 'grab',
+                      zIndex: isDragging ? 100 : 10,
+                      userSelect: 'none',
+                      fontFamily: 'var(--font-family-body)',
+                      scale: isDragging ? '1.15' : '1',
+                      boxShadow: 'none',
+                      transition: isDragging ? 'none' : 'transform 0.1s ease'
+                    }}
+                    title={token.name}
+                  >
+                    {token.label}
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Involved Players List info */}
+            <div style={{ 
+              backgroundColor: '#1c1f26', 
+              border: '1px solid rgba(255, 255, 255, 0.05)', 
+              borderRadius: '8px', 
+              padding: '12px' 
+            }}>
+              <span style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700' }}>
+                Tagged Players in Drill:
+              </span>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+                {tokens.length === 0 ? (
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                    No players tagged.
+                  </span>
+                ) : (
+                  tokens.map(t => (
+                    <div 
+                      key={t.id}
+                      style={{ 
+                        backgroundColor: 'rgba(255, 255, 255, 0.03)', 
+                        border: '1px solid rgba(255, 255, 255, 0.05)', 
+                        padding: '4px 8px', 
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <span className="scoreboard-font" style={{ color: 'var(--color-video)' }}>#{t.label}</span>
+                      <span style={{ color: '#ffffff', fontWeight: '600' }}>{t.name.split(' ')[1] || t.name}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Smart Tagging Contextual Modal */}
+      <ContextualTaggingModal 
+        isOpen={taggingModalOpen}
+        onClose={() => { setTaggingModalOpen(false); setTaggingClip(null); }}
+        drillName={taggingClip ? taggingClip.drillName : ''}
+        squad={squad}
+        onSave={handleSaveTaggedClip}
+      />
+    </div>
+  );
+}
