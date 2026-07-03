@@ -94,26 +94,24 @@ export default function SquadHub({
     if (ids.length === 0) return;
 
     try {
-      // 1. Firebase Integration: Execute deletions concurrently using Promise.all
-      await Promise.all(
-        ids.map(id => deletePlayerFromFirestore(id, currentUser?.uid))
-      );
+      // 1. Firebase Integration: Execute batch deletion and await success
+      await bulkDeletePlayersFromFirestore(ids, currentUser?.uid);
+      
+      // 2. UI State Sync: Update the UI state only after the batch commit is successful
+      if (typeof onRemovePlayer === 'function') {
+        onRemovePlayer(ids);
+      }
+      
+      // Close detail modal if the currently viewed player was deleted
+      if (detailPlayer && ids.includes(detailPlayer.id)) {
+        setIsDetailOpen(false);
+        setDetailPlayer(null);
+      }
     } catch (error) {
-      // 4. Error Handling: Catch error if any single delete fails
-      console.error("Failed to delete one or more players from Firestore:", error);
+      // 4. Error Handling: Catch error and log it without breaking the UI
+      console.error("Failed to delete players from Firestore:", error);
     }
 
-    // 2. UI State Sync: Remove all deleted IDs from the screen at once
-    if (typeof onRemovePlayer === 'function') {
-      onRemovePlayer(ids);
-    }
-    
-    // Close detail modal if the currently viewed player was deleted
-    if (detailPlayer && ids.includes(detailPlayer.id)) {
-      setIsDetailOpen(false);
-      setDetailPlayer(null);
-    }
-    
     // Reset selection and confirmation states
     setSelectedPlayerIds(new Set());
     setIsDeleteConfirmOpen(false);

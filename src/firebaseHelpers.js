@@ -88,11 +88,8 @@ export async function deletePlayerFromFirestore(playerId, uid) {
   }
 }
 
-/**
- * Deletes multiple player documents from Firestore in a single batch.
- * @param {string[]} playerIds 
- */
-export async function bulkDeletePlayersFromFirestore(playerIds) {
+export async function bulkDeletePlayersFromFirestore(playerIds, uid) {
+  if (!uid) throw new Error("Authenticated user uid is required for batch deletions.");
   const batch = writeBatch(db);
   playerIds.forEach((id) => {
     const playerRef = doc(db, "players", id);
