@@ -89,24 +89,36 @@ export default function SquadHub({
     setIsDetailEditing(false);
   };
 
-  const handleDelete = async (playerId) => {
+  const handleDelete = async (playerIds) => {
+    const ids = Array.isArray(playerIds) ? playerIds : [playerIds];
+    if (ids.length === 0) return;
+
     try {
-      // 1. Firebase Integration: Await the Firestore database operation
-      await deletePlayerFromFirestore(playerId, currentUser?.uid);
+      // 1. Firebase Integration: Execute deletions concurrently using Promise.all
+      await Promise.all(
+        ids.map(id => deletePlayerFromFirestore(id, currentUser?.uid))
+      );
     } catch (error) {
-      // 3. Error Handling: Log error
-      console.error("Failed to delete player from Firestore:", error);
+      // 4. Error Handling: Catch error if any single delete fails
+      console.error("Failed to delete one or more players from Firestore:", error);
     }
 
-    // 2. UI State Sync: Immediately remove the deleted player from the screen
+    // 2. UI State Sync: Remove all deleted IDs from the screen at once
     if (typeof onRemovePlayer === 'function') {
-      onRemovePlayer(playerId);
+      ids.forEach(id => onRemovePlayer(id));
     }
     
-    // Close modal details
-    setIsDetailOpen(false);
-    setDetailPlayer(null);
+    // Close detail modal if the currently viewed player was deleted
+    if (detailPlayer && ids.includes(detailPlayer.id)) {
+      setIsDetailOpen(false);
+      setDetailPlayer(null);
+    }
+    
+    // Reset selection and confirmation states
+    setSelectedPlayerIds(new Set());
     setIsDeleteConfirmOpen(false);
+    setIsBulkDeleteConfirmOpen(false);
+    setIsManageMode(false);
   };
 
   const handleToggleSelect = (playerId) => {
@@ -119,26 +131,6 @@ export default function SquadHub({
       }
       return next;
     });
-  };
-
-  const handleBulkDelete = async () => {
-    const ids = Array.from(selectedPlayerIds);
-    if (ids.length === 0) return;
-
-    // 1. Firebase Integration
-    try {
-      await bulkDeletePlayersFromFirestore(ids);
-    } catch (err) {
-      console.warn("Firestore bulk delete failed, running local fallback:", err);
-    }
-
-    // 2. Local State update
-    ids.forEach(id => onRemovePlayer(id));
-
-    // Reset State
-    setSelectedPlayerIds(new Set());
-    setIsBulkDeleteConfirmOpen(false);
-    setIsManageMode(false);
   };
 
   const handleBulkArchive = async () => {
@@ -463,7 +455,7 @@ Harris Andrews,31,Back,Tape right shoulder`;
               </p>
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                 <button className="btn" onClick={() => setIsBulkDeleteConfirmOpen(false)}>Cancel</button>
-                <button className="btn" onClick={handleBulkDelete} style={{ backgroundColor: '#e63946', color: '#ffffff', borderColor: '#e63946' }}>Delete {selectedPlayerIds.size}</button>
+                <button className="btn" onClick={() => handleDelete(Array.from(selectedPlayerIds))} style={{ backgroundColor: '#e63946', color: '#ffffff', borderColor: '#e63946' }}>Delete {selectedPlayerIds.size}</button>
               </div>
             </div>
           </div>
