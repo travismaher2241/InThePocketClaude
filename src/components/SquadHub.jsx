@@ -147,7 +147,9 @@ export default function SquadHub({
     }
 
     // 2. Local State update
-    ids.forEach(id => onRemovePlayer(id));
+    if (typeof onRemovePlayer === 'function') {
+      onRemovePlayer(ids);
+    }
 
     // Reset State
     setSelectedPlayerIds(new Set());
@@ -312,12 +314,11 @@ Harris Andrews,31,Back,Tape right shoulder`;
                       <input 
                         type="checkbox" 
                         checked={isSelected}
-                        onChange={() => handleToggleSelect(player.id)}
-                        onClick={(e) => e.stopPropagation()} // stop parent row click
+                        readOnly
                         style={{
                           width: '16px',
                           height: '16px',
-                          cursor: 'pointer',
+                          pointerEvents: 'none', // click passes through to the parent row
                           accentColor: 'var(--color-squad)'
                         }}
                       />
