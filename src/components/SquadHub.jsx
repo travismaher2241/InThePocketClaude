@@ -94,13 +94,10 @@ export default function SquadHub({
     if (ids.length === 0) return;
 
     try {
-      console.log("Attempting to delete IDs:", ids);
-      console.log("Current User UID:", currentUser?.uid);
-      
-      // 1. Firebase Integration: Execute batch deletion and await success
+      console.log("Calling Firebase batch delete with IDs:", ids);
       await bulkDeletePlayersFromFirestore(ids, currentUser?.uid);
       
-      // 2. UI State Sync: Update the UI state only after the batch commit is successful
+      console.log("Calling parent onRemovePlayer with IDs:", ids);
       if (typeof onRemovePlayer === 'function') {
         onRemovePlayer(ids);
       }
