@@ -1,10 +1,29 @@
 import React, { useState } from 'react';
+import { deletePlayerFromFirestore, bulkDeletePlayersFromFirestore, archivePlayersInFirestore } from '../firebaseHelpers';
 
-export default function SquadHub({ squad, onAddPlayer, onEditPlayer, onImportCSV, onRemovePlayer, videoClips = [], onSelectClipForReview }) {
-  const [selectedPlayerId, setSelectedPlayerId] = useState(null);
+export default function SquadHub({ 
+  squad, 
+  onAddPlayer, 
+  onEditPlayer, 
+  onImportCSV, 
+  onRemovePlayer, 
+  videoClips = [], 
+  onSelectClipForReview 
+}) {
   const [csvText, setCsvText] = useState('');
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
+
+  // Bulk Management State
+  const [isManageMode, setIsManageMode] = useState(false);
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState(new Set());
+  const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false);
+
+  // Player Detail Modal State
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [detailPlayer, setDetailPlayer] = useState(null);
+  const [isDetailEditing, setIsDetailEditing] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   // New Player Form State
   const [newName, setNewName] = useState('');
@@ -12,8 +31,7 @@ export default function SquadHub({ squad, onAddPlayer, onEditPlayer, onImportCSV
   const [newPosition, setNewPosition] = useState('Midfield');
   const [newMedical, setNewMedical] = useState('');
 
-  // Edit Player Form State
-  const [editId, setEditId] = useState(null);
+  // Edit Player Form State (inside Detail Modal)
   const [editName, setEditName] = useState('');
   const [editJersey, setEditJersey] = useState('');
   const [editPosition, setEditPosition] = useState('Midfield');
@@ -38,7 +56,7 @@ export default function SquadHub({ squad, onAddPlayer, onEditPlayer, onImportCSV
   };
 
   const handleEditClick = (player) => {
-    setEditId(player.id);
+    setIsDetailEditing(true);
     setEditName(player.name);
     setEditJersey(player.jersey);
     setEditPosition(player.position || 'Midfield');
@@ -47,14 +65,96 @@ export default function SquadHub({ squad, onAddPlayer, onEditPlayer, onImportCSV
 
   const handleEditSubmit = (e) => {
     e.preventDefault();
-    if (!editName.trim() || !editJersey) return;
-    onEditPlayer(editId, {
+    if (!editName.trim() || !editJersey || !detailPlayer) return;
+    
+    // Update locally
+    onEditPlayer(detailPlayer.id, {
       name: editName.trim(),
       jersey: parseInt(editJersey),
       position: editPosition,
       medical: editMedical.trim() || 'None'
     });
-    setEditId(null);
+
+    // Update state of modal
+    setDetailPlayer(prev => ({
+      ...prev,
+      name: editName.trim(),
+      jersey: parseInt(editJersey),
+      position: editPosition,
+      medical: editMedical.trim() || 'None'
+    }));
+
+    setIsDetailEditing(false);
+  };
+
+  const handleConfirmDelete = async (playerId) => {
+    // 1. Firebase Integration
+    try {
+      await deletePlayerFromFirestore(playerId);
+    } catch (err) {
+      console.warn("Firestore delete failed, running local fallback:", err);
+    }
+
+    // 2. Local State update
+    onRemovePlayer(playerId);
+    
+    // Close modal
+    setIsDetailOpen(false);
+    setDetailPlayer(null);
+    setIsDeleteConfirmOpen(false);
+  };
+
+  const handleToggleSelect = (playerId) => {
+    setSelectedPlayerIds(prev => {
+      const next = new Set(prev);
+      if (next.has(playerId)) {
+        next.delete(playerId);
+      } else {
+        next.add(playerId);
+      }
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selectedPlayerIds);
+    if (ids.length === 0) return;
+
+    // 1. Firebase Integration
+    try {
+      await bulkDeletePlayersFromFirestore(ids);
+    } catch (err) {
+      console.warn("Firestore bulk delete failed, running local fallback:", err);
+    }
+
+    // 2. Local State update
+    ids.forEach(id => onRemovePlayer(id));
+
+    // Reset State
+    setSelectedPlayerIds(new Set());
+    setIsBulkDeleteConfirmOpen(false);
+    setIsManageMode(false);
+  };
+
+  const handleBulkArchive = async () => {
+    const ids = Array.from(selectedPlayerIds);
+    if (ids.length === 0) return;
+
+    const playersToArchive = squad.filter(p => ids.includes(p.id));
+
+    // 1. Firebase Integration
+    try {
+      await archivePlayersInFirestore(playersToArchive);
+    } catch (err) {
+      console.warn("Firestore archive failed, running local fallback:", err);
+    }
+
+    // 2. Local State update
+    ids.forEach(id => onRemovePlayer(id));
+
+    // Reset State
+    setSelectedPlayerIds(new Set());
+    setIsManageMode(false);
   };
 
   const handleCsvSubmit = () => {
@@ -81,10 +181,11 @@ Harris Andrews,31,Back,Tape right shoulder`;
       width: '100%',
       maxWidth: '520px', 
       margin: '0 auto',
-      animation: 'fadeIn 0.25s ease-out'
+      animation: 'fadeIn 0.25s ease-out',
+      paddingBottom: isManageMode ? '80px' : '20px' // spacing for bottom bar
     }}>
       
-      {/* Header section with text action triggers */}
+      {/* Header section with actions */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <h2 
           style={{ 
@@ -103,7 +204,26 @@ Harris Andrews,31,Back,Tape right shoulder`;
         </h2>
         
         {/* Simple text link actions */}
-        <div style={{ display: 'flex', gap: '20px', alignItems: 'center', userSelect: 'none' }}>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', userSelect: 'none' }}>
+          <span 
+            onClick={() => {
+              setIsManageMode(!isManageMode);
+              setSelectedPlayerIds(new Set());
+            }}
+            style={{
+              fontFamily: 'var(--font-family-locker)',
+              fontSize: '1.1rem',
+              fontWeight: '700',
+              color: isManageMode ? 'var(--color-match)' : '#8d939e',
+              cursor: 'pointer',
+              textTransform: 'uppercase',
+              transition: 'color 0.2s ease'
+            }}
+            onMouseEnter={(e) => { if (!isManageMode) e.currentTarget.style.color = '#ffffff'; }}
+            onMouseLeave={(e) => { if (!isManageMode) e.currentTarget.style.color = '#8d939e'; }}
+          >
+            {isManageMode ? 'Cancel' : 'Manage'}
+          </span>
           <span 
             onClick={() => setIsImportOpen(true)}
             style={{
@@ -153,7 +273,7 @@ Harris Andrews,31,Back,Tape right shoulder`;
           </div>
         ) : (
           squad.map((player) => {
-            const isSelected = selectedPlayerId === player.id;
+            const isSelected = selectedPlayerIds.has(player.id);
             const attendanceRate = player.attendance && player.attendance.length > 0
               ? Math.round((player.attendance.filter(a => a.present).length / player.attendance.length) * 100)
               : 100;
@@ -164,13 +284,22 @@ Harris Andrews,31,Back,Tape right shoulder`;
                 key={player.id} 
                 style={{ 
                   borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-                  backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.01)' : 'transparent',
+                  backgroundColor: isSelected ? 'rgba(58, 134, 255, 0.02)' : 'transparent',
                   transition: 'background-color 0.2s ease'
                 }}
               >
                 {/* Main Manifest Row */}
                 <div 
-                  onClick={() => setSelectedPlayerId(isSelected ? null : player.id)}
+                  onClick={() => {
+                    if (isManageMode) {
+                      handleToggleSelect(player.id);
+                    } else {
+                      setDetailPlayer(player);
+                      setIsDetailOpen(true);
+                      setIsDetailEditing(false);
+                      setIsDeleteConfirmOpen(false);
+                    }
+                  }}
                   style={{ 
                     display: 'flex', 
                     alignItems: 'center', 
@@ -180,7 +309,23 @@ Harris Andrews,31,Back,Tape right shoulder`;
                     userSelect: 'none'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {/* Checkbox (Manage Mode) */}
+                    {isManageMode && (
+                      <input 
+                        type="checkbox" 
+                        checked={isSelected}
+                        onChange={() => handleToggleSelect(player.id)}
+                        onClick={(e) => e.stopPropagation()} // stop parent row click
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          cursor: 'pointer',
+                          accentColor: 'var(--color-squad)'
+                        }}
+                      />
+                    )}
+
                     {/* Industrial number box */}
                     <div 
                       className="scoreboard-font" 
@@ -211,12 +356,11 @@ Harris Andrews,31,Back,Tape right shoulder`;
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    {/* Small clean Att: 100% */}
                     <span style={{ fontSize: '0.8rem', color: '#8d939e', fontWeight: '500' }}>
                       Att: {attendanceRate}%
                     </span>
 
-                    {/* Subtle red dot if injured/has medical alert */}
+                    {/* Medical Alert Dot */}
                     {isInjured && (
                       <span 
                         style={{ 
@@ -230,7 +374,6 @@ Harris Andrews,31,Back,Tape right shoulder`;
                       />
                     )}
 
-                    {/* Simple chevron */}
                     <svg 
                       width="14" 
                       height="14" 
@@ -238,157 +381,253 @@ Harris Andrews,31,Back,Tape right shoulder`;
                       stroke="currentColor" 
                       strokeWidth="2.5" 
                       viewBox="0 0 24 24"
-                      style={{ 
-                        transform: isSelected ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.2s ease',
-                        color: '#8d939e'
-                      }}
+                      style={{ color: '#8d939e' }}
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
                     </svg>
                   </div>
                 </div>
-
-                {/* Inline drawer display sheets */}
-                {isSelected && (
-                  <div 
-                    style={{ 
-                      padding: '16px 20px', 
-                      backgroundColor: '#1c1f26', 
-                      borderRadius: '8px',
-                      marginBottom: '16px',
-                      border: '1px solid rgba(255, 255, 255, 0.05)',
-                      boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-                      animation: 'slideDown 0.2s ease-out',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '12px'
-                    }}
-                  >
-                    {editId !== player.id ? (
-                      <>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '16px' }}>
-                          <div>
-                            <div style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Position</div>
-                            <div style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: '600', marginTop: '2px' }}>{player.position}</div>
-                          </div>
-                          <div>
-                            <div style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Medical Status</div>
-                            <div style={{ fontSize: '0.9rem', color: isInjured ? '#e63946' : '#ffffff', fontWeight: '600', marginTop: '2px' }}>
-                              {player.medical || 'None'}
-                            </div>
-                          </div>
-                           <div>
-                            <div style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Match Play Time</div>
-                            <div style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: '600', marginTop: '2px' }}>
-                              TOG: {player.stats?.togMinutes || player.stats?.totalTime || 0}m | Bench: {player.stats?.benchMinutes || 0}m
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Video Analysis Clips */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '12px', marginTop: '4px' }}>
-                          <span style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>
-                            Video Analysis Clips
-                          </span>
-                          
-                          {videoClips.filter(c => c.playerIds.includes(player.id)).length === 0 ? (
-                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic', display: 'block', padding: '4px 0' }}>
-                              No highlight or correction clips tagged.
-                            </span>
-                          ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                              {videoClips.filter(c => c.playerIds.includes(player.id)).map(clip => (
-                                <div 
-                                  key={clip.id}
-                                  onClick={() => onSelectClipForReview && onSelectClipForReview(clip)}
-                                  style={{
-                                    backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                                    border: '1px solid rgba(255, 255, 255, 0.05)',
-                                    padding: '8px 12px',
-                                    borderRadius: '6px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    cursor: 'pointer',
-                                    transition: 'border-color 0.2s, background-color 0.2s'
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    e.currentTarget.style.borderColor = 'var(--color-video)';
-                                    e.currentTarget.style.backgroundColor = 'rgba(255, 122, 0, 0.02)';
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
-                                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)';
-                                  }}
-                                >
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ color: 'var(--color-video)' }}>
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                                    </svg>
-                                    <span style={{ fontSize: '0.8rem', color: '#ffffff', fontWeight: '600' }}>
-                                      {clip.drillName}
-                                    </span>
-                                  </div>
-                                  <span style={{ fontSize: '0.7rem', color: '#8d939e' }}>
-                                    {clip.date}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '8px' }}>
-                          <button className="btn" onClick={() => handleEditClick(player)} style={{ padding: '6px 12px', fontSize: '0.8rem', fontWeight: '600' }}>
-                            Edit Profile
-                          </button>
-                          <button className="btn" onClick={() => onRemovePlayer(player.id)} style={{ padding: '6px 12px', fontSize: '0.8rem', color: '#e63946', borderColor: 'rgba(230,57,70,0.1)', fontWeight: '600' }}>
-                            Delete Player
-                          </button>
-                        </div>
-                      </>
-                    ) : (
-                      /* Inline Profile Editing Form */
-                      <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                          <div className="form-group">
-                            <label style={{ fontSize: '0.75rem', fontWeight: '600' }}>Full Name</label>
-                            <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} required />
-                          </div>
-                          <div className="form-group">
-                            <label style={{ fontSize: '0.75rem', fontWeight: '600' }}>Jersey #</label>
-                            <input type="number" min="1" max="99" value={editJersey} onChange={(e) => setEditJersey(e.target.value)} required />
-                          </div>
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                          <div className="form-group">
-                            <label style={{ fontSize: '0.75rem', fontWeight: '600' }}>Primary Position</label>
-                            <select value={editPosition} onChange={(e) => setEditPosition(e.target.value)}>
-                              <option value="Forward">Forward</option>
-                              <option value="Midfield">Midfield</option>
-                              <option value="Back">Back</option>
-                              <option value="Bench">Bench</option>
-                            </select>
-                          </div>
-                          <div className="form-group">
-                            <label style={{ fontSize: '0.75rem', fontWeight: '600' }}>Medical Profile</label>
-                            <input type="text" value={editMedical} onChange={(e) => setEditMedical(e.target.value)} placeholder="Asthma, shoulder tape, allergy..." />
-                          </div>
-                        </div>
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
-                          <button type="button" className="btn" onClick={() => setEditId(null)} style={{ fontSize: '0.8rem', fontWeight: '600' }}>Cancel</button>
-                          <button type="submit" className="btn btn-squad" style={{ fontSize: '0.8rem', fontWeight: '600' }}>Save Profile</button>
-                        </div>
-                      </form>
-                    )}
-                  </div>
-                )}
               </div>
             );
           })
         )}
       </div>
+
+      {/* STICKY BOTTOM TOOLBAR (Manage Mode) */}
+      {isManageMode && (
+        <div style={{
+          position: 'fixed',
+          bottom: '64px', // fits perfectly above our bottom navigation bar
+          left: '0',
+          right: '0',
+          backgroundColor: 'rgba(14, 14, 18, 0.98)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          padding: '14px 20px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          zIndex: 99,
+          boxShadow: '0 -4px 16px rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(8px)'
+        }}>
+          <div style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '600' }}>
+            Selected: <span style={{ color: 'var(--color-squad)' }}>{selectedPlayerIds.size}</span>
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button 
+              className="btn" 
+              onClick={handleBulkArchive}
+              disabled={selectedPlayerIds.size === 0}
+              style={{ 
+                fontSize: '0.75rem', 
+                fontWeight: '700', 
+                padding: '6px 12px',
+                borderColor: selectedPlayerIds.size > 0 ? 'var(--color-video)' : 'rgba(255,255,255,0.05)',
+                color: selectedPlayerIds.size > 0 ? 'var(--color-video)' : 'var(--text-muted)'
+              }}
+            >
+              Archive Selected
+            </button>
+            <button 
+              className="btn" 
+              onClick={() => setIsBulkDeleteConfirmOpen(true)}
+              disabled={selectedPlayerIds.size === 0}
+              style={{ 
+                fontSize: '0.75rem', 
+                fontWeight: '700', 
+                padding: '6px 12px',
+                backgroundColor: selectedPlayerIds.size > 0 ? 'rgba(230, 57, 70, 0.15)' : 'transparent',
+                borderColor: selectedPlayerIds.size > 0 ? '#e63946' : 'rgba(255,255,255,0.05)',
+                color: selectedPlayerIds.size > 0 ? '#e63946' : 'var(--text-muted)'
+              }}
+            >
+              Delete Selected
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* BULK DELETE CONFIRMATION MODAL */}
+      {isBulkDeleteConfirmOpen && (
+        <div className="overlay-backdrop" style={{ zIndex: 1000 }}>
+          <div className="modal-content" style={{ maxWidth: '340px', textAlign: 'center' }}>
+            <div className="modal-body" style={{ padding: '24px' }}>
+              <h4 className="scoreboard-font" style={{ color: '#e63946', margin: '0 0 10px 0', fontSize: '1.1rem' }}>CONFIRM DELETION</h4>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4', margin: '0 0 20px 0' }}>
+                Are you sure you want to delete the **{selectedPlayerIds.size}** selected players? This action cannot be undone.
+              </p>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                <button className="btn" onClick={() => setIsBulkDeleteConfirmOpen(false)}>Cancel</button>
+                <button className="btn" onClick={handleBulkDelete} style={{ backgroundColor: '#e63946', color: '#ffffff', borderColor: '#e63946' }}>Delete {selectedPlayerIds.size}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* REUSABLE PLAYER DETAIL MODAL */}
+      {isDetailOpen && detailPlayer && (
+        <div className="overlay-backdrop" style={{ zIndex: 1000 }}>
+          <div className="modal-content" style={{ maxWidth: '440px' }}>
+            
+            {/* Modal Header */}
+            <div className="modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span className="scoreboard-font" style={{ color: 'var(--color-squad)', fontSize: '1.1rem', fontWeight: '700' }}>
+                  #{detailPlayer.jersey < 10 ? `0${detailPlayer.jersey}` : detailPlayer.jersey}
+                </span>
+                <h3 className="scoreboard-font" style={{ color: '#ffffff', margin: 0, fontSize: '1.1rem' }}>
+                  {detailPlayer.name}
+                </h3>
+              </div>
+              <button 
+                className="icon-btn" 
+                onClick={() => {
+                  setIsDetailOpen(false);
+                  setDetailPlayer(null);
+                  setIsDetailEditing(false);
+                }}
+              >
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="modal-body" style={{ padding: '20px' }}>
+              {!isDetailEditing ? (
+                /* Detail View */
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div>
+                      <div style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Position</div>
+                      <div style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: '600', marginTop: '2px' }}>{detailPlayer.position}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Medical Notes</div>
+                      <div style={{ fontSize: '0.9rem', color: (detailPlayer.medical && detailPlayer.medical !== 'None' && detailPlayer.medical !== '') ? '#e63946' : '#ffffff', fontWeight: '600', marginTop: '2px' }}>
+                        {detailPlayer.medical || 'None'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Match Play Time</div>
+                    <div style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: '600', marginTop: '2px' }}>
+                      TOG: {detailPlayer.stats?.togMinutes || detailPlayer.stats?.totalTime || 0}m | Bench: {detailPlayer.stats?.benchMinutes || 0}m
+                    </div>
+                  </div>
+
+                  {/* Highlights section inside modal */}
+                  <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '12px' }}>
+                    <span style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+                      Video Analysis Clips
+                    </span>
+                    {videoClips.filter(c => c.playerIds.includes(detailPlayer.id)).length === 0 ? (
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                        No highlight or correction clips tagged.
+                      </span>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '120px', overflowY: 'auto' }}>
+                        {videoClips.filter(c => c.playerIds.includes(detailPlayer.id)).map(clip => (
+                          <div 
+                            key={clip.id}
+                            onClick={() => {
+                              onSelectClipForReview && onSelectClipForReview(clip);
+                              setIsDetailOpen(false);
+                            }}
+                            style={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                              border: '1px solid rgba(255, 255, 255, 0.05)',
+                              padding: '8px 12px',
+                              borderRadius: '6px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <span style={{ fontSize: '0.8rem', color: '#ffffff', fontWeight: '600' }}>{clip.drillName}</span>
+                            <span style={{ fontSize: '0.7rem', color: '#8d939e' }}>{clip.date}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Inner Delete Confirmation */}
+                  {isDeleteConfirmOpen ? (
+                    <div style={{ 
+                      backgroundColor: 'rgba(230, 57, 70, 0.06)', 
+                      border: '1px solid rgba(230, 57, 70, 0.15)', 
+                      padding: '12px', 
+                      borderRadius: '6px', 
+                      textAlign: 'center',
+                      marginTop: '8px' 
+                    }}>
+                      <p style={{ margin: '0 0 10px 0', fontSize: '0.8rem', color: '#ffffff' }}>
+                        Are you sure you want to delete **{detailPlayer.name}**?
+                      </p>
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                        <button className="btn" onClick={() => setIsDeleteConfirmOpen(false)} style={{ padding: '4px 10px', fontSize: '0.75rem' }}>Cancel</button>
+                        <button className="btn" onClick={() => handleConfirmDelete(detailPlayer.id)} style={{ padding: '4px 10px', fontSize: '0.75rem', backgroundColor: '#e63946', color: '#ffffff', borderColor: '#e63946' }}>Confirm</button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Action footer buttons */
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '12px' }}>
+                      <button className="btn" onClick={() => handleEditClick(detailPlayer)}>
+                        Edit Profile
+                      </button>
+                      <button 
+                        className="btn" 
+                        onClick={() => setIsDeleteConfirmOpen(true)}
+                        style={{ color: '#e63946', borderColor: 'rgba(230,57,70,0.1)' }}
+                      >
+                        Delete Player
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* Inner Edit Form */
+                <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600' }}>Full Name</label>
+                      <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} required />
+                    </div>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600' }}>Jersey #</label>
+                      <input type="number" min="1" max="99" value={editJersey} onChange={(e) => setEditJersey(e.target.value)} required />
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600' }}>Primary Position</label>
+                      <select value={editPosition} onChange={(e) => setEditPosition(e.target.value)}>
+                        <option value="Forward">Forward</option>
+                        <option value="Midfield">Midfield</option>
+                        <option value="Back">Back</option>
+                        <option value="Bench">Bench</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600' }}>Medical Profile</label>
+                      <input type="text" value={editMedical} onChange={(e) => setEditMedical(e.target.value)} placeholder="Asthma, allergy..." />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '10px' }}>
+                    <button type="button" className="btn" onClick={() => setIsDetailEditing(false)}>Cancel</button>
+                    <button type="submit" className="btn btn-squad">Save Profile</button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* CSV Import Modal Backdrop overlay */}
       {isImportOpen && (
@@ -484,10 +723,6 @@ Harris Andrews,31,Back,Tape right shoulder`;
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
-        }
-        @keyframes slideDown {
-          from { transform: translateY(-10px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
         }
       `}</style>
     </div>
