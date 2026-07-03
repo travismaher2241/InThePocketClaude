@@ -89,13 +89,22 @@ export async function deletePlayerFromFirestore(playerId, uid) {
 }
 
 export async function bulkDeletePlayersFromFirestore(playerIds, uid) {
-  if (!uid) throw new Error("Authenticated user uid is required for batch deletions.");
+  if (!uid) throw new Error("UID required");
   const batch = writeBatch(db);
-  playerIds.forEach((id) => {
+  
+  for (const id of playerIds) {
     const playerRef = doc(db, "players", id);
+    // Add the delete to the batch
     batch.delete(playerRef);
-  });
-  await batch.commit();
+  }
+  
+  try {
+    await batch.commit();
+    console.log("Batch successfully deleted.");
+  } catch (error) {
+    console.error("Batch failed - check your Security Rules:", error);
+    throw error; // This will show you exactly which rule is blocking it
+  }
 }
 
 /**

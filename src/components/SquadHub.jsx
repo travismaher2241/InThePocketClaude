@@ -94,6 +94,9 @@ export default function SquadHub({
     if (ids.length === 0) return;
 
     try {
+      console.log("Attempting to delete IDs:", ids);
+      console.log("Current User UID:", currentUser?.uid);
+      
       // 1. Firebase Integration: Execute batch deletion and await success
       await bulkDeletePlayersFromFirestore(ids, currentUser?.uid);
       
