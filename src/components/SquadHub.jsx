@@ -94,29 +94,22 @@ export default function SquadHub({
     if (ids.length === 0) return;
 
     try {
-      console.log("Calling Firebase batch delete with IDs:", ids);
+      console.log("1. Batch Deleting from Firebase:", ids);
       await bulkDeletePlayersFromFirestore(ids, currentUser?.uid);
       
-      console.log("Calling parent onRemovePlayer with IDs:", ids);
-      if (typeof onRemovePlayer === 'function') {
-        onRemovePlayer(ids);
-      }
+      console.log("2. Syncing UI state for IDs:", ids);
+      // We wrap this in a functional update to guarantee we have the latest list
+      onRemovePlayer(ids);
       
-      // Close detail modal if the currently viewed player was deleted
-      if (detailPlayer && ids.includes(detailPlayer.id)) {
-        setIsDetailOpen(false);
-        setDetailPlayer(null);
-      }
-    } catch (error) {
-      // 4. Error Handling: Catch error and log it without breaking the UI
-      console.error("Failed to delete players from Firestore:", error);
-    }
+      // Force clear the selection set
+      setSelectedPlayerIds(new Set());
+      setIsDeleteConfirmOpen(false);
+      setIsBulkDeleteConfirmOpen(false);
+      setIsManageMode(false);
 
-    // Reset selection and confirmation states
-    setSelectedPlayerIds(new Set());
-    setIsDeleteConfirmOpen(false);
-    setIsBulkDeleteConfirmOpen(false);
-    setIsManageMode(false);
+    } catch (error) {
+      console.error("Critical failure during batch delete:", error);
+    }
   };
 
   const handleToggleSelect = (playerId) => {
