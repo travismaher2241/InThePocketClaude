@@ -371,17 +371,37 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
         <h2 className="scoreboard-font" style={{ color: 'var(--color-tactics)', margin: 0 }}>Tactics Board</h2>
         
         {/* High-End Hardware Control Strip at top (monochrome style) */}
-        <div style={{ 
-          display: 'flex', 
-          gap: '8px', 
-          backgroundColor: '#1c1f26', 
-          padding: '6px 12px', 
-          borderRadius: '20px', 
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
-          alignItems: 'center',
-          userSelect: 'none'
-        }}>
+        <div 
+          className="tactics-toolbar"
+          style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            backgroundColor: '#1c1f26', 
+            padding: '6px 12px', 
+            borderRadius: '20px', 
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
+            alignItems: 'center',
+            userSelect: 'none',
+            overflowX: 'auto',
+            maxWidth: '100%',
+            scrollbarWidth: 'none',
+            WebkitOverflowScrolling: 'touch',
+            paddingRight: '24px' // Ensure last element isn't cut off by the visual mask fade
+          }}
+        >
+          <style>{`
+            .tactics-toolbar::-webkit-scrollbar {
+              display: none;
+            }
+            @media (max-width: 550px) {
+              .tactics-toolbar {
+                mask-image: linear-gradient(to right, #000 82%, transparent 100%);
+                -webkit-mask-image: linear-gradient(to right, #000 82%, transparent 100%);
+              }
+            }
+          `}</style>
+
           {/* Brush */}
           <button 
             onClick={() => setTool('brush')}
@@ -398,8 +418,11 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '4px',
-              transition: 'color 0.2s, background-color 0.2s'
+              transition: 'color 0.2s, background-color 0.2s',
+              minWidth: '75px',
+              flexShrink: 0
             }}
           >
             <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -424,8 +447,11 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '4px',
-              transition: 'color 0.2s, background-color 0.2s'
+              transition: 'color 0.2s, background-color 0.2s',
+              minWidth: '75px',
+              flexShrink: 0
             }}
           >
             <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -450,8 +476,11 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '4px',
-              transition: 'color 0.2s, background-color 0.2s'
+              transition: 'color 0.2s, background-color 0.2s',
+              minWidth: '75px',
+              flexShrink: 0
             }}
             title="Drill marks fade away in 1.5 seconds automatically!"
           >
@@ -477,8 +506,11 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '4px',
-              transition: 'color 0.2s, background-color 0.2s'
+              transition: 'color 0.2s, background-color 0.2s',
+              minWidth: '70px',
+              flexShrink: 0
             }}
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -488,7 +520,7 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
             Ball
           </button>
 
-          <div style={{ width: '1px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }}></div>
+          <div style={{ width: '1px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.1)', flexShrink: 0 }}></div>
 
           {/* Eraser */}
           <button 
@@ -506,8 +538,11 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '4px',
-              transition: 'color 0.2s, background-color 0.2s'
+              transition: 'color 0.2s, background-color 0.2s',
+              minWidth: '80px',
+              flexShrink: 0
             }}
           >
             <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -530,7 +565,9 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
               border: 'none',
               borderRadius: '12px',
               cursor: 'pointer',
-              transition: 'opacity 0.2s'
+              transition: 'opacity 0.2s',
+              minWidth: '60px',
+              flexShrink: 0
             }}
             onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
             onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
