@@ -3,8 +3,6 @@ import React, { useState } from 'react';
 export default function SettingsModal({
   isOpen,
   onClose,
-  apiKey,
-  setApiKey,
   subscriptionTier,
   setSubscriptionTier,
   maxStintMinutes,
@@ -42,20 +40,6 @@ export default function SettingsModal({
             </select>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
               Simulates upgrading via RevenueCat in Google Play Store. Different tiers unlock tabs and operations.
-            </p>
-          </div>
-
-          {/* Gemini API Key */}
-          <div className="form-group" style={{ paddingTop: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
-            <label>Google AI Studio - Gemini API Key</label>
-            <input 
-              type="password" 
-              placeholder="AI25_..." 
-              value={apiKey} 
-              onChange={(e) => setApiKey(e.target.value)} 
-            />
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
-              Used for Tab 2: Training Lab. If left blank, the app will run in offline mode using high-fidelity local procedural templates.
             </p>
           </div>
 

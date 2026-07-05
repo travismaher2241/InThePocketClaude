@@ -55,7 +55,7 @@ export default function App() {
   };
 
   // Settings & Integrations states
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('coachcore_api_key') || '');
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
   const [subscriptionTier, setSubscriptionTier] = useState(() => localStorage.getItem('coachcore_tier') || 'Ultra'); // Default to Ultra for full capability demo
   const [maxStintMinutes, setMaxStintMinutes] = useState(() => Number(localStorage.getItem('coachcore_stint_limit')) || 5);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -79,9 +79,7 @@ export default function App() {
     localStorage.setItem('coachcore_squad', JSON.stringify(squad));
   }, [squad]);
 
-  useEffect(() => {
-    localStorage.setItem('coachcore_api_key', apiKey);
-  }, [apiKey]);
+
 
   useEffect(() => {
     localStorage.setItem('coachcore_tier', subscriptionTier);
@@ -330,12 +328,9 @@ export default function App() {
         )}
       </main>
 
-      {/* Settings Modal Drawer */}
       <SettingsModal 
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 
-        apiKey={apiKey} 
-        setApiKey={setApiKey} 
         subscriptionTier={subscriptionTier} 
         setSubscriptionTier={setSubscriptionTier} 
         maxStintMinutes={maxStintMinutes} 
