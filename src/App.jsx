@@ -374,6 +374,7 @@ export default function App() {
             setVideoClips={setVideoClips}
             selectedReviewClip={selectedReviewClip}
             setSelectedReviewClip={setSelectedReviewClip}
+            showToast={showToast}
           />
         )}
       </main>

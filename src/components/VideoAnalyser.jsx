@@ -7,9 +7,23 @@ export default function VideoAnalyser({
   videoClips = [],
   setVideoClips,
   selectedReviewClip,
-  setSelectedReviewClip
+  setSelectedReviewClip,
+  showToast
 }) {
   const [activeClip, setActiveClip] = useState(null);
+
+  const handleDeleteClip = (e, clipId) => {
+    e.stopPropagation();
+    if (window.confirm("Are you sure you want to permanently delete this video clip?")) {
+      setVideoClips(prev => prev.filter(c => c.id !== clipId));
+      if (activeClip && activeClip.id === clipId) {
+        setActiveClip(null);
+      }
+      if (showToast) {
+        showToast("Video clip deleted.");
+      }
+    }
+  };
   
   // Video Ingestion / Tagging states
   const [taggingModalOpen, setTaggingModalOpen] = useState(false);
@@ -353,13 +367,37 @@ export default function VideoAnalyser({
           <h2 className="scoreboard-font" style={{ color: 'var(--color-video)', margin: 0 }}>Video Analyser</h2>
         </div>
         {activeClip && (
-          <button 
-            className="btn" 
-            onClick={() => setActiveClip(null)}
-            style={{ fontSize: '0.8rem', fontWeight: '700', padding: '6px 12px' }}
-          >
-            ← Back to Directory
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button 
+              className="btn" 
+              onClick={(e) => handleDeleteClip(e, activeClip.id)}
+              style={{ 
+                fontSize: '0.8rem', 
+                fontWeight: '700', 
+                padding: '6px 12px',
+                backgroundColor: 'rgba(230, 57, 70, 0.1)',
+                borderColor: '#e63946',
+                color: '#e63946'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#e63946';
+                e.currentTarget.style.color = '#ffffff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(230, 57, 70, 0.1)';
+                e.currentTarget.style.color = '#e63946';
+              }}
+            >
+              Delete Video
+            </button>
+            <button 
+              className="btn" 
+              onClick={() => setActiveClip(null)}
+              style={{ fontSize: '0.8rem', fontWeight: '700', padding: '6px 12px' }}
+            >
+              ← Back to Directory
+            </button>
+          </div>
         )}
       </div>
 
@@ -489,7 +527,30 @@ export default function VideoAnalyser({
                           <span className="scoreboard-font" style={{ fontSize: '0.75rem', fontWeight: '700', color: '#e63946' }}>
                             PENDING TAGS
                           </span>
-                          <span style={{ fontSize: '0.75rem', color: '#8d939e' }}>{clip.date}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '0.75rem', color: '#8d939e' }}>{clip.date}</span>
+                            <button
+                              onClick={(e) => handleDeleteClip(e, clip.id)}
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: '#8d939e',
+                                cursor: 'pointer',
+                                padding: '4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'color 0.2s',
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.color = '#e63946'}
+                              onMouseLeave={(e) => e.currentTarget.style.color = '#8d939e'}
+                              title="Delete Video"
+                            >
+                              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                              </svg>
+                            </button>
+                          </div>
                         </div>
                         <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff' }}>
                           {clip.drillName}
@@ -560,7 +621,30 @@ export default function VideoAnalyser({
                               </svg>
                               <span className="scoreboard-font" style={{ fontSize: '0.75rem', fontWeight: '700' }}>READY FOR REVIEW</span>
                             </div>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{clip.date}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{clip.date}</span>
+                              <button
+                                onClick={(e) => handleDeleteClip(e, clip.id)}
+                                style={{
+                                  background: 'transparent',
+                                  border: 'none',
+                                  color: '#8d939e',
+                                  cursor: 'pointer',
+                                  padding: '4px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  transition: 'color 0.2s',
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.color = '#e63946'}
+                                onMouseLeave={(e) => e.currentTarget.style.color = '#8d939e'}
+                                title="Delete Video"
+                              >
+                                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                              </button>
+                            </div>
                           </div>
 
                           <div style={{ fontSize: '1rem', fontWeight: '700', color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
