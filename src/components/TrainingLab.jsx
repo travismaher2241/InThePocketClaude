@@ -609,7 +609,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
             <div className="form-group">
               <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>Age Group</label>
               <select value={ageGroup} disabled style={{ backgroundColor: 'rgba(255,255,255,0.03)', opacity: 0.8, cursor: 'not-allowed' }}>
-                <option value={ageGroup}>{ageGroup} (Inherited from Settings)</option>
+                <option value={ageGroup}>{ageGroup}</option>
               </select>
               <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
                 To customize the age group target, click the COACHCORE header in the top-left to update squad settings.
