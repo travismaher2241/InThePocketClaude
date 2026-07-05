@@ -233,7 +233,7 @@ export default function SquadHub({
       maxWidth: '520px', 
       margin: '0 auto',
       animation: 'fadeIn 0.25s ease-out',
-      paddingBottom: isManageMode ? '80px' : '20px' // spacing for bottom bar
+      paddingBottom: isManageMode ? '80px' : '90px' // spacing for bottom bar (increased to clear FAB on mobile)
     }}>
       
       {/* Header section with actions */}
@@ -255,7 +255,7 @@ export default function SquadHub({
         </h2>
         
         {/* Simple text link actions */}
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', userSelect: 'none' }}>
+        <div style={{ display: 'flex', gap: '24px', alignItems: 'center', userSelect: 'none' }}>
           <span 
             onClick={() => {
               setIsManageMode(!isManageMode);
@@ -291,22 +291,6 @@ export default function SquadHub({
           >
             Import
           </span>
-          <span 
-            onClick={() => setIsAddOpen(true)}
-            style={{
-              fontFamily: 'var(--font-family-locker)',
-              fontSize: '1.1rem',
-              fontWeight: '700',
-              color: 'var(--color-squad)',
-              cursor: 'pointer',
-              textTransform: 'uppercase',
-              transition: 'color 0.2s ease'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
-            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-squad)'}
-          >
-            + Add
-          </span>
         </div>
       </div>
 
@@ -320,7 +304,7 @@ export default function SquadHub({
       >
         {squad.length === 0 ? (
           <div style={{ border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '6px', padding: '40px 16px', textAlign: 'center', color: '#8d939e', fontSize: '0.9rem' }}>
-            No players added yet. Tap "+ Add" or "Import" in the header to register your squad roster.
+            No players added yet. Tap the "+" button at the bottom or "Import" in the header to register your squad roster.
           </div>
         ) : (
           squad.map((player) => {
@@ -828,6 +812,21 @@ export default function SquadHub({
             </form>
           </div>
         </div>
+      )}
+
+      {/* Floating Action Button (FAB) for adding players */}
+      {!isManageMode && (
+        <button 
+          className="fab-button" 
+          onClick={() => setIsAddOpen(true)}
+          title="Add Player"
+          aria-label="Add Player"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
       )}
 
       {/* Custom Keyframes Animation */}

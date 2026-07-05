@@ -221,6 +221,42 @@ body {
   background-color: var(--bg-surface-hover);
 }
 
+/* Floating Action Button (FAB) */
+.fab-button {
+  position: fixed;
+  bottom: 80px; /* 64px nav bar + 16px spacing */
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--color-squad);
+  color: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  z-index: 99;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s, box-shadow 0.2s;
+}
+
+@media (min-width: 568px) {
+  .fab-button {
+    right: calc(50vw - 260px + 24px); /* aligns with centered SquadHub container */
+  }
+}
+
+.fab-button:hover {
+  filter: brightness(1.1);
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(58, 134, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.fab-button:active {
+  transform: scale(0.95);
+}
+
 /* Bottom Navigation Bar Styles */
 .nav-bar {
   position: fixed;

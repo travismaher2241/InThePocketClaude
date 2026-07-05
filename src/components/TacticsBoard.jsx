@@ -1,29 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import aflGroundImg from '../assets/AFL GROUND.png';
 
-export default function TacticsBoard({ squad = [], subscriptionTier, triggerPaywall }) {
+export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPaywall }) {
   // Gate check: Tactics Board requires Ultra or Club tier
   const isGated = subscriptionTier !== 'Ultra' && subscriptionTier !== 'Club';
-
-  if (isGated) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }}>
-        <div>
-          <h2 className="scoreboard-font" style={{ color: 'var(--color-tactics)' }}>Tactics Board</h2>
-        </div>
-        <div className="paywall-container">
-          <div className="paywall-badge">ULTRA TIER REQUIRED</div>
-          <h3 className="paywall-title">Interactive Tactics Board</h3>
-          <p className="paywall-desc">
-            Upgrade to the Ultra Tier to unlock the full 1:1 scaled interactive AFL field canvas, self-fading laser guides, drawing tools, and custom drag-and-drop playbook tokens.
-          </p>
-          <button className="btn btn-match" onClick={() => triggerPaywall('Tactics Board access')}>
-            Upgrade Account Now
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   // Active drawing tool state
   const [tool, setTool] = useState('brush'); // 'brush', 'arrow', 'laser', 'eraser'
@@ -43,12 +23,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
 
   // Draggable Active Tokens on the board
   // Can contain players (team: 'white'|'black') or the ball (team: 'ball')
-  const [tokens, setTokens] = useState([
-    // Initialize with a few template player tokens
-    { id: 't1', x: 380, y: 200, label: '5', team: 'white', name: 'Dustin Martin' },
-    { id: 't2', x: 440, y: 300, label: '9', team: 'white', name: 'Marcus Bontempelli' },
-    { id: 't3', x: 560, y: 300, label: '14', team: 'black', name: 'Patrick Cripps' },
-  ]);
+  const [tokens, setTokens] = useState([]);
 
   const [draggedTokenId, setDraggedTokenId] = useState(null);
   const dragOffset = useRef({ x: 0, y: 0 }); // Virtual space offset
@@ -81,6 +56,26 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
     animFrameId = requestAnimationFrame(updateLaser);
     return () => cancelAnimationFrame(animFrameId);
   }, []);
+
+  if (isGated) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }}>
+        <div>
+          <h2 className="scoreboard-font" style={{ color: 'var(--color-tactics)' }}>Tactics Board</h2>
+        </div>
+        <div className="paywall-container">
+          <div className="paywall-badge">ULTRA TIER REQUIRED</div>
+          <h3 className="paywall-title">Interactive Tactics Board</h3>
+          <p className="paywall-desc">
+            Upgrade to the Ultra Tier to unlock the full 1:1 scaled interactive AFL field canvas, self-fading laser guides, drawing tools, and custom drag-and-drop playbook tokens.
+          </p>
+          <button className="btn btn-match" onClick={() => triggerPaywall('Tactics Board access')}>
+            Upgrade Account Now
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Main Draw function using virtual scaling
   const drawCanvas = () => {
@@ -321,20 +316,24 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
     }
   };
 
-  // Add player from Tray onto the canvas field
-  const spawnPlayerToken = (player, teamColor = 'white') => {
-    const isAlreadyOnBoard = tokens.some(t => t.name === player.name);
-    if (isAlreadyOnBoard) return; // Prevent duplicate tokens
-
+  // Spawn a generic token
+  const spawnGenericToken = (teamColor = 'white') => {
+    const teamTokens = tokens.filter(t => t.team === teamColor);
+    const nextNum = teamTokens.length + 1;
     const newToken = {
-      id: 'player_' + player.id + '_' + Date.now(),
-      x: 500, // Center
+      id: `token_${teamColor}_${Date.now()}`,
+      x: 500, // Spawn at center
       y: 300,
-      label: player.jersey.toString(),
+      label: nextNum.toString(),
       team: teamColor,
-      name: player.name
+      name: `Token ${nextNum}`
     };
     setTokens(prev => [...prev, newToken]);
+  };
+
+  // Clear all player tokens
+  const clearTokens = () => {
+    setTokens([]);
   };
 
   // Spawn/Toggle Ball Token on the field
@@ -356,43 +355,17 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
     }
   };
 
-  // HTML5 Drag Handlers for Drag-and-Drop from Tray onto field container
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    try {
-      const playerData = e.dataTransfer.getData('text/plain');
-      if (playerData) {
-        const { player, teamColor } = JSON.parse(playerData);
-        if (player) {
-          // Calculate drop coordinates relative to container size
-          const rect = containerRef.current.getBoundingClientRect();
-          const clientX = e.clientX;
-          const clientY = e.clientY;
-          const x = ((clientX - rect.left) / rect.width) * 1000;
-          const y = ((clientY - rect.top) / rect.height) * 600;
-
-          const newToken = {
-            id: 'player_' + player.id + '_' + Date.now(),
-            x: Math.max(20, Math.min(980, x)),
-            y: Math.max(20, Math.min(580, y)),
-            label: player.jersey.toString(),
-            team: teamColor,
-            name: player.name
-          };
-          setTokens(prev => [...prev, newToken]);
-        }
-      }
-    } catch (err) {
-      console.error("Drop handler parsing failed: ", err);
-    }
-  };
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%', width: '100%' }}>
+    <div 
+      style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '12px', 
+        height: '82vh', 
+        maxHeight: 'calc(100vh - 140px)', 
+        width: '100%' 
+      }}
+    >
       {/* Header section - Clean Minimalist Vibe */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <h2 className="scoreboard-font" style={{ color: 'var(--color-tactics)', margin: 0 }}>Tactics Board</h2>
@@ -567,276 +540,226 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
         </div>
       </div>
 
-      {/* Main Grid: Whiteboard Canvas (Left) + Player Tray Sidebar (Right) */}
+      {/* 1. Tactical Whiteboard Canvas Field container */}
       <div 
+        ref={containerRef}
+        onMouseMove={handleTokenMove}
+        onTouchMove={handleTokenMove}
+        onMouseUp={handleTokenEndDrag}
+        onTouchEnd={handleTokenEndDrag}
         style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr',
-          gap: '20px',
-          width: '100%'
+          position: 'relative',
+          backgroundColor: '#1a3c34', // Deep matte non-reflective green
+          border: '1px solid rgba(255, 255, 255, 0.05)',
+          borderRadius: '12px',
+          width: '100%',
+          flex: 1, // Take up remaining vertical space
+          minHeight: 0,
+          overflow: 'hidden',
+          cursor: draggedTokenId ? 'grabbing' : 'default',
+          boxShadow: '0 12px 24px rgba(0,0,0,0.3)',
+          userSelect: 'none',
+          touchAction: 'none' // Prevent browser scrolling and zooming
         }}
-        className="tactics-responsive-layout"
       >
-        <style>{`
-          @media(min-width: 900px) {
-            .tactics-responsive-layout {
-              grid-template-columns: 1.25fr 0.35fr !important;
-            }
-          }
-        `}</style>
-
-        {/* 1. Tactical Whiteboard Canvas Field container */}
-        <div 
-          ref={containerRef}
-          onMouseMove={handleTokenMove}
-          onTouchMove={handleTokenMove}
-          onMouseUp={handleTokenEndDrag}
-          onTouchEnd={handleTokenEndDrag}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
+        {/* 1:1 Scaled AFL Ground Image */}
+        <img 
+          src={aflGroundImg}
+          alt="AFL Ground"
           style={{
-            position: 'relative',
-            backgroundColor: '#1a3c34', // Deep matte non-reflective green
-            border: '1px solid rgba(255, 255, 255, 0.05)',
-            borderRadius: '12px',
+            position: 'absolute',
+            top: 0,
+            left: 0,
             width: '100%',
-            aspectRatio: '5/3',
-            overflow: 'hidden',
-            cursor: draggedTokenId ? 'grabbing' : 'default',
-            boxShadow: '0 12px 24px rgba(0,0,0,0.3)',
-            userSelect: 'none'
+            height: '100%',
+            pointerEvents: 'none',
+            objectFit: 'fill'
           }}
-        >
-          {/* 1:1 Scaled AFL Ground Image */}
-          <img 
-            src={aflGroundImg}
-            alt="AFL Ground"
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              pointerEvents: 'none',
-              objectFit: 'fill'
-            }}
-          />
+        />
 
-          {/* HTML5 drawing canvas */}
-          <canvas
-            ref={canvasRef}
-            onMouseDown={handleStartDraw}
-            onMouseMove={handleDraw}
-            onMouseUp={handleEndDraw}
-            onTouchStart={handleStartDraw}
-            onTouchMove={handleDraw}
-            onTouchEnd={handleEndDraw}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              zIndex: 5
-            }}
-          />
+        {/* HTML5 drawing canvas */}
+        <canvas
+          ref={canvasRef}
+          onMouseDown={handleStartDraw}
+          onMouseMove={handleDraw}
+          onMouseUp={handleEndDraw}
+          onTouchStart={handleStartDraw}
+          onTouchMove={handleDraw}
+          onTouchEnd={handleEndDraw}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            zIndex: 5,
+            touchAction: 'none' // Prevent browser scrolling and zooming
+          }}
+        />
 
-          {/* Active Player and Ball Tokens */}
-          {tokens.map((token) => {
-            const isBall = token.id === 'ball';
-            const isWhite = token.team === 'white';
-            const isDragging = draggedTokenId === token.id;
-            
-            // Render Ball Token differently (Sherrin orange marker)
-            if (isBall) {
-              return (
-                <div
-                  key={token.id}
-                  onMouseDown={(e) => handleTokenStartDrag(e, token)}
-                  onTouchStart={(e) => handleTokenStartDrag(e, token)}
-                  style={{
-                    position: 'absolute',
-                    left: `${(token.x / 1000) * 100}%`,
-                    top: `${(token.y / 600) * 100}%`,
-                    transform: 'translate(-50%, -50%)',
-                    width: '18px',
-                    height: '18px',
-                    borderRadius: '50%',
-                    backgroundColor: '#e65c00', // Sherrin Orange
-                    border: '1.5px dashed #ffffff', // white stitches look
-                    cursor: isDragging ? 'grabbing' : 'grab',
-                    zIndex: 99,
-                    userSelect: 'none',
-                    transition: isDragging ? 'none' : 'transform 0.1s ease',
-                    scale: isDragging ? '1.2' : '1',
-                    boxShadow: 'none'
-                  }}
-                  title="Footy Ball Marker. Drag to move."
-                />
-              );
-            }
-
+        {/* Active Player and Ball Tokens */}
+        {tokens.map((token) => {
+          const isBall = token.id === 'ball';
+          const isWhite = token.team === 'white';
+          const isDragging = draggedTokenId === token.id;
+          
+          // Render Ball Token differently (Sherrin orange marker)
+          if (isBall) {
             return (
               <div
                 key={token.id}
                 onMouseDown={(e) => handleTokenStartDrag(e, token)}
                 onTouchStart={(e) => handleTokenStartDrag(e, token)}
-                onDoubleClick={() => handleTokenDoubleClick(token.id)}
                 style={{
                   position: 'absolute',
                   left: `${(token.x / 1000) * 100}%`,
                   top: `${(token.y / 600) * 100}%`,
                   transform: 'translate(-50%, -50%)',
-                  width: '30px',
-                  height: '30px',
+                  width: '18px',
+                  height: '18px',
                   borderRadius: '50%',
-                  backgroundColor: isWhite ? '#ffffff' : '#000000',
-                  border: isWhite ? '1.5px solid #000000' : '1.5px solid #ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: isWhite ? '#000000' : '#ffffff',
-                  fontSize: '0.75rem',
-                  fontWeight: '800',
+                  backgroundColor: '#e65c00', // Sherrin Orange
+                  border: '1.5px dashed #ffffff', // white stitches look
                   cursor: isDragging ? 'grabbing' : 'grab',
-                  zIndex: isDragging ? 100 : 10,
+                  zIndex: 99,
                   userSelect: 'none',
-                  fontFamily: 'var(--font-family-body)',
                   transition: isDragging ? 'none' : 'transform 0.1s ease',
-                  scale: isDragging ? '1.15' : '1',
-                  boxShadow: 'none'
+                  scale: isDragging ? '1.2' : '1',
+                  boxShadow: 'none',
+                  touchAction: 'none' // Prevent browser scrolling and zooming
                 }}
-                title={`${token.name || 'Player'}. Drag off-field to return to tray.`}
-              >
-                {token.label}
-              </div>
+                title="Footy Ball Marker. Drag to move. Drag off-field to remove."
+              />
             );
-          })}
-        </div>
+          }
 
-        {/* 2. Roster Player Tray (Sidebar on desktop, horizontal drawer on mobile) */}
-        <div 
+          return (
+            <div
+              key={token.id}
+              onMouseDown={(e) => handleTokenStartDrag(e, token)}
+              onTouchStart={(e) => handleTokenStartDrag(e, token)}
+              onDoubleClick={() => handleTokenDoubleClick(token.id)}
+              style={{
+                position: 'absolute',
+                left: `${(token.x / 1000) * 100}%`,
+                top: `${(token.y / 600) * 100}%`,
+                transform: 'translate(-50%, -50%)',
+                width: '30px',
+                height: '30px',
+                borderRadius: '50%',
+                backgroundColor: isWhite ? '#ffffff' : '#000000',
+                border: isWhite ? '1.5px solid #000000' : '1.5px solid #ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: isWhite ? '#000000' : '#ffffff',
+                fontSize: '0.75rem',
+                fontWeight: '800',
+                cursor: isDragging ? 'grabbing' : 'grab',
+                zIndex: isDragging ? 100 : 10,
+                userSelect: 'none',
+                fontFamily: 'var(--font-family-body)',
+                transition: isDragging ? 'none' : 'transform 0.1s ease',
+                scale: isDragging ? '1.15' : '1',
+                boxShadow: 'none',
+                touchAction: 'none' // Prevent browser scrolling and zooming
+              }}
+              title="Drag off-field to remove. Double click to set label."
+            >
+              {token.label}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 2. Token Spawner Bar at the bottom */}
+      <div 
+        style={{
+          backgroundColor: '#1c1f26',
+          border: '1px solid rgba(255, 255, 255, 0.05)',
+          borderRadius: '16px',
+          padding: '10px 16px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '12px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
+          userSelect: 'none',
+          flexShrink: 0
+        }}
+      >
+        <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
+          Spawn:
+        </span>
+        <button
+          onClick={() => spawnGenericToken('white')}
           style={{
-            backgroundColor: '#1c1f26',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
+            padding: '6px 14px',
+            fontSize: '0.75rem',
+            fontFamily: 'var(--font-family-locker)',
+            fontWeight: '700',
+            textTransform: 'uppercase',
+            backgroundColor: '#ffffff',
+            color: '#000000',
+            border: 'none',
             borderRadius: '12px',
-            padding: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px',
-            maxHeight: '380px',
-            overflowY: 'auto'
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(255,255,255,0.1)',
+            transition: 'transform 0.1s, opacity 0.2s'
           }}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
-              Player Tray
-            </span>
-            <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: '600' }}>
-              Tap to Spawn or Drag
-            </span>
-          </div>
-
-          {/* Scrollable list of players */}
-          <div 
-            style={{ 
-              display: 'flex', 
-              flexDirection: 'row', 
-              gap: '8px', 
-              overflowX: 'auto',
-              paddingBottom: '8px'
-            }}
-            className="tray-scroll-responsive"
-          >
-            <style>{`
-              @media(min-width: 900px) {
-                .tray-scroll-responsive {
-                  flex-direction: column !important;
-                  overflow-x: visible !important;
-                }
-              }
-            `}</style>
-            
-            {squad.length === 0 ? (
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic', padding: '10px 0' }}>
-                No squad players registered.
-              </span>
-            ) : (
-              squad.map((player) => {
-                const isActive = tokens.some(t => t.name === player.name);
-                
-                // HTML5 DragStart data injection
-                const handleDragStart = (e, teamColor) => {
-                  e.dataTransfer.setData('text/plain', JSON.stringify({ player, teamColor }));
-                };
-
-                return (
-                  <div 
-                    key={player.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      backgroundColor: 'rgba(255,255,255,0.02)',
-                      border: '1px solid rgba(255,255,255,0.05)',
-                      borderRadius: '6px',
-                      padding: '8px 10px',
-                      opacity: isActive ? 0.35 : 1,
-                      transition: 'opacity 0.2s',
-                      flexShrink: 0,
-                      gap: '12px'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span className="scoreboard-font" style={{ fontSize: '0.8rem', color: 'var(--color-tactics)' }}>
-                        #{player.jersey}
-                      </span>
-                      <span style={{ fontSize: '0.85rem', fontWeight: '600', color: '#ffffff', whiteSpace: 'nowrap' }}>
-                        {player.name}
-                      </span>
-                    </div>
-
-                    {/* Spawn commands for team white/black */}
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      <button 
-                        onClick={() => !isActive && spawnPlayerToken(player, 'white')}
-                        draggable={!isActive}
-                        onDragStart={(e) => handleDragStart(e, 'white')}
-                        style={{
-                          width: '18px',
-                          height: '18px',
-                          borderRadius: '50%',
-                          backgroundColor: '#ffffff',
-                          border: '1px solid #000000',
-                          cursor: isActive ? 'not-allowed' : 'pointer'
-                        }}
-                        title="Spawn White magnet marker"
-                      />
-                      <button 
-                        onClick={() => !isActive && spawnPlayerToken(player, 'black')}
-                        draggable={!isActive}
-                        onDragStart={(e) => handleDragStart(e, 'black')}
-                        style={{
-                          width: '18px',
-                          height: '18px',
-                          borderRadius: '50%',
-                          backgroundColor: '#000000',
-                          border: '1px solid #ffffff',
-                          cursor: isActive ? 'not-allowed' : 'pointer'
-                        }}
-                        title="Spawn Black magnet marker"
-                      />
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
+          + White Token
+        </button>
+        <button
+          onClick={() => spawnGenericToken('black')}
+          style={{
+            padding: '6px 14px',
+            fontSize: '0.75rem',
+            fontFamily: 'var(--font-family-locker)',
+            fontWeight: '700',
+            textTransform: 'uppercase',
+            backgroundColor: '#000000',
+            color: '#ffffff',
+            border: '1px solid rgba(255,255,255,0.2)',
+            borderRadius: '12px',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+            transition: 'transform 0.1s, opacity 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+        >
+          + Black Token
+        </button>
+        
+        <div style={{ width: '1px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }}></div>
+        
+        <button
+          onClick={clearTokens}
+          style={{
+            padding: '6px 14px',
+            fontSize: '0.75rem',
+            fontFamily: 'var(--font-family-locker)',
+            fontWeight: '700',
+            textTransform: 'uppercase',
+            backgroundColor: 'rgba(230, 57, 70, 0.1)',
+            color: '#e63946',
+            border: 'none',
+            borderRadius: '12px',
+            cursor: 'pointer',
+            transition: 'opacity 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+        >
+          Clear Tokens
+        </button>
       </div>
       
-      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '-10px' }}>
-        💡 Tap a player magnet button to spawn, or drag-and-drop onto the whiteboard. Drag tokens off-field to return them to the tray.
+      <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '-4px', marginBottom: '0' }}>
+        💡 Tap white/black buttons to spawn generic tokens. Drag tokens anywhere. Drag off-field to remove. Double-click a token to rename it.
       </p>
     </div>
   );
