@@ -158,3 +158,41 @@ export async function updateSquadSettings(settings, uid) {
     updatedAt: new Date().toISOString()
   }, { merge: true });
 }
+
+/**
+ * Saves a completed training session to Firestore.
+ * @param {object} sessionData 
+ * @param {string} uid 
+ * @returns {Promise<string>} sessionId
+ */
+export async function saveTrainingSession(sessionData, uid) {
+  if (!uid) throw new Error("Authenticated user uid is required to save training sessions.");
+  const sessionsRef = collection(db, "training_sessions");
+  const docRef = await addDoc(sessionsRef, {
+    ...sessionData,
+    ownerId: uid,
+    createdAt: new Date().toISOString()
+  });
+  return docRef.id;
+}
+
+/**
+ * Fetches all training sessions for the user, sorted newest first.
+ * @param {string} uid 
+ * @returns {Promise<object[]>}
+ */
+export async function getTrainingSessions(uid) {
+  if (!uid) return [];
+  const sessionsRef = collection(db, "training_sessions");
+  const q = query(sessionsRef, where("ownerId", "==", uid));
+  const querySnapshot = await getDocs(q);
+  
+  const sessions = [];
+  querySnapshot.forEach((doc) => {
+    sessions.push({ id: doc.id, ...doc.data() });
+  });
+  
+  // Sort locally by createdAt desc to avoid composite index configuration requirement
+  sessions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  return sessions;
+}

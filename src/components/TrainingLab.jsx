@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ContextualTaggingModal from './ContextualTaggingModal';
+import { saveTrainingSession, getTrainingSessions } from '../firebaseHelpers';
+import { useAuth } from '../context/AuthProvider';
 
 // Hardcoded Local Drill Encyclopedia for high-fidelity fallback (Vector Layer 1)
 const LOCAL_DRILLS = {
@@ -64,8 +66,24 @@ export default function TrainingLab({
   onSaveVideoClip,
   squadSettings
 }) {
-  const [step, setStep] = useState('wizard'); // 'wizard', 'attendance', 'parameters', 'plan'
-  const [presentIds, setPresentIds] = useState([]);
+  const { currentUser } = useAuth();
+
+  // Tab & Lifecycle States
+  const [activeSubTab, setActiveSubTab] = useState('plan-builder'); // 'plan-builder', 'history'
+  const [historySessions, setHistorySessions] = useState([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [selectedSession, setSelectedSession] = useState(null);
+  const [showEndSessionModal, setShowEndSessionModal] = useState(false);
+  const [coachNotes, setCoachNotes] = useState('');
+
+  // Draft Preservation Load
+  const [draft] = useState(() => {
+    const saved = localStorage.getItem('coachcore_training_draft');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [step, setStep] = useState(draft?.step || 'wizard');
+  const [presentIds, setPresentIds] = useState(draft?.presentIds || []);
   
   // Video upload states
   const [taggingModalOpen, setTaggingModalOpen] = useState(false);
@@ -108,12 +126,15 @@ export default function TrainingLab({
       setAgeGroup(squadSettings.ageGroup);
     }
   }, [squadSettings]);
-  const [duration, setDuration] = useState(90);
-  const [focusAreas, setFocusAreas] = useState([]);
+  const [duration, setDuration] = useState(draft?.duration || 90);
+  const [focusAreas, setFocusAreas] = useState(draft?.focusAreas || []);
 
   useEffect(() => {
-    const list = AGE_FOCUS_MAP[ageGroup] || AGE_FOCUS_MAP['Seniors'];
-    setFocusAreas([list[0]]);
+    // Only prefill with the default if there were no draft focus areas loaded
+    if (focusAreas.length === 0) {
+      const list = AGE_FOCUS_MAP[ageGroup] || AGE_FOCUS_MAP['Seniors'];
+      setFocusAreas([list[0]]);
+    }
   }, [ageGroup]);
 
   const handleToggleFocus = (f) => {
@@ -129,13 +150,54 @@ export default function TrainingLab({
   };
 
   // Vector Layer 2: Custom playbooks RAG context input
-  const [customPlaybookText, setCustomPlaybookText] = useState('');
+  const [customPlaybookText, setCustomPlaybookText] = useState(draft?.customPlaybookText || '');
 
   // Generation status
   const [isGenerating, setIsGenerating] = useState(false);
-  const [planCards, setPlanCards] = useState([]); // Array of structured drill card objects
+  const [planCards, setPlanCards] = useState(draft?.planCards || []); // Array of structured drill card objects
   const [isFallback, setIsFallback] = useState(false);
   const [freeGensRemaining, setFreeGensRemaining] = useState(2);
+
+  // Sync draft parameters to localStorage on changes
+  useEffect(() => {
+    localStorage.setItem('coachcore_training_draft', JSON.stringify({
+      step,
+      presentIds,
+      duration,
+      focusAreas,
+      customPlaybookText,
+      planCards
+    }));
+  }, [step, presentIds, duration, focusAreas, customPlaybookText, planCards]);
+
+  const clearDraft = () => {
+    localStorage.removeItem('coachcore_training_draft');
+    setStep('wizard');
+    setPresentIds(squad.map(p => p.id));
+    setDuration(90);
+    const list = AGE_FOCUS_MAP[ageGroup] || AGE_FOCUS_MAP['Seniors'];
+    setFocusAreas([list[0]]);
+    setCustomPlaybookText('');
+    setPlanCards([]);
+  };
+
+  // Load completed session history from Firestore
+  useEffect(() => {
+    if (activeSubTab === 'history' && currentUser?.uid) {
+      const loadHistory = async () => {
+        setIsLoadingHistory(true);
+        try {
+          const sessions = await getTrainingSessions(currentUser.uid);
+          setHistorySessions(sessions);
+        } catch (err) {
+          console.error("Failed to load completed training sessions:", err);
+        } finally {
+          setIsLoadingHistory(false);
+        }
+      };
+      loadHistory();
+    }
+  }, [activeSubTab, currentUser]);
 
   // Late Arrival Modal states
   const [isLateModalOpen, setIsLateModalOpen] = useState(false);
@@ -318,6 +380,34 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
     }
   };
 
+  const handleEndSessionSubmit = async (e) => {
+    if (e) e.preventDefault();
+    if (!currentUser?.uid) return;
+
+    const sessionData = {
+      squadName: squadSettings?.squadName || 'My Squad',
+      ageGroup: ageGroup,
+      date: new Date().toISOString(),
+      duration: duration,
+      focusAreas: focusAreas,
+      drills: planCards,
+      notes: coachNotes,
+      playerCount: presentIds.length
+    };
+
+    try {
+      await saveTrainingSession(sessionData, currentUser.uid);
+      logSyncTransaction('TRAINING_SESSION_COMPLETED', { focus: focusAreas.join(", "), duration });
+      clearDraft();
+      setShowEndSessionModal(false);
+      setCoachNotes('');
+      setActiveSubTab('history'); // switch to history view to see completed session!
+    } catch (err) {
+      console.error("Failed to save completed training session:", err);
+      alert("Error: Failed to save completed training session to the cloud. Please try again.");
+    }
+  };
+
   return (
     <div style={{ 
       display: 'flex', 
@@ -329,8 +419,124 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       position: 'relative'
     }}>
       
-      {/* STEP 1: WIZARD SCREEN */}
-      {step === 'wizard' && (
+      {/* Sub-tab Navigation */}
+      <div style={{ display: 'flex', gap: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '12px', marginBottom: '24px' }}>
+        <span
+          onClick={() => {
+            setActiveSubTab('plan-builder');
+            setSelectedSession(null);
+          }}
+          style={{
+            fontFamily: 'var(--font-family-locker)',
+            fontSize: '1.1rem',
+            fontWeight: '700',
+            color: activeSubTab === 'plan-builder' ? 'var(--color-training)' : '#8d939e',
+            cursor: 'pointer',
+            textTransform: 'uppercase',
+            transition: 'color 0.2s ease',
+            borderBottom: activeSubTab === 'plan-builder' ? '2px solid var(--color-training)' : 'none',
+            paddingBottom: '4px'
+          }}
+        >
+          Generator
+        </span>
+        <span
+          onClick={() => {
+            setActiveSubTab('history');
+            setSelectedSession(null);
+          }}
+          style={{
+            fontFamily: 'var(--font-family-locker)',
+            fontSize: '1.1rem',
+            fontWeight: '700',
+            color: activeSubTab === 'history' ? 'var(--color-training)' : '#8d939e',
+            cursor: 'pointer',
+            textTransform: 'uppercase',
+            transition: 'color 0.2s ease',
+            borderBottom: activeSubTab === 'history' ? '2px solid var(--color-training)' : 'none',
+            paddingBottom: '4px'
+          }}
+        >
+          Session History
+        </span>
+      </div>
+
+      {activeSubTab === 'history' ? (
+        <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+          <h2 className="scoreboard-font" style={{ fontSize: '1.75rem', marginBottom: '16px', color: 'var(--text-primary)' }}>
+            Completed Sessions
+          </h2>
+          
+          {isLoadingHistory ? (
+            <div style={{ textAlign: 'center', padding: '40px' }}>
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                border: '3px solid rgba(230, 57, 70, 0.1)',
+                borderTopColor: 'var(--color-training)',
+                animation: 'spin 0.8s linear infinite',
+                margin: '0 auto 12px auto'
+              }} />
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Loading history...</span>
+            </div>
+          ) : historySessions.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', backgroundColor: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
+                No completed sessions found for this squad. Once you generate a plan, tap "End Session" to record it here!
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {historySessions.map((session) => (
+                <div
+                  key={session.id}
+                  onClick={() => setSelectedSession(session)}
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.02)',
+                    border: '1px solid rgba(255,255,255,0.05)',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    cursor: 'pointer',
+                    transition: 'border-color 0.2s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-training)'}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
+                      {new Date(session.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '700' }}>
+                      {session.duration} MINS
+                    </span>
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                    {session.focusAreas?.map((f, idx) => (
+                      <span key={idx} style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '12px', backgroundColor: 'rgba(230,57,70,0.1)', color: '#ffffff', border: '1px solid rgba(230,57,70,0.2)' }}>
+                        {f}
+                      </span>
+                    ))}
+                  </div>
+                  
+                  {session.notes && (
+                    <p style={{ fontSize: '0.8rem', color: '#8d939e', margin: '4px 0 0 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: '1.4' }}>
+                      <strong>Notes:</strong> {session.notes}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* STEP 1: WIZARD SCREEN */}
+          {step === 'wizard' && (
         <div 
           style={{
             width: '100%',
@@ -1003,7 +1209,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
             )}
           </div>
 
-          {/* Sticky Full-Width Footer Action (Remix Session) */}
+          {/* Sticky Full-Width Footer Action (Remix & End Session) */}
           <div 
             style={{
               position: 'fixed',
@@ -1017,21 +1223,49 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
               zIndex: 90
             }}
           >
-            <div style={{ maxWidth: '480px', margin: '0 auto' }}>
+            <div style={{ maxWidth: '480px', margin: '0 auto', display: 'flex', gap: '12px' }}>
               <button
                 onClick={() => runPlanGeneration()}
                 disabled={isGenerating}
                 style={{
-                  width: '100%',
+                  flex: 1,
+                  backgroundColor: 'transparent',
+                  color: '#ffffff',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '6px',
+                  padding: '14px',
+                  fontFamily: 'var(--font-family-locker)',
+                  fontSize: '1rem',
+                  fontWeight: '700',
+                  letterSpacing: '0.02em',
+                  textTransform: 'uppercase',
+                  cursor: isGenerating ? 'not-allowed' : 'pointer',
+                  opacity: isGenerating ? 0.6 : 1,
+                  transition: 'opacity 0.2s ease, transform 0.1s ease',
+                }}
+                onMouseDown={(e) => !isGenerating && (e.currentTarget.style.transform = 'scale(0.98)')}
+                onMouseUp={(e) => !isGenerating && (e.currentTarget.style.transform = 'none')}
+              >
+                Remix Session
+              </button>
+
+              <button
+                onClick={() => {
+                  setCoachNotes('');
+                  setShowEndSessionModal(true);
+                }}
+                disabled={isGenerating}
+                style={{
+                  flex: 1,
                   backgroundColor: 'var(--color-training)',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '6px',
                   padding: '14px',
                   fontFamily: 'var(--font-family-locker)',
-                  fontSize: '1.25rem',
+                  fontSize: '1rem',
                   fontWeight: '700',
-                  letterSpacing: '0.05em',
+                  letterSpacing: '0.02em',
                   textTransform: 'uppercase',
                   cursor: isGenerating ? 'not-allowed' : 'pointer',
                   boxShadow: '0 4px 12px rgba(230, 57, 70, 0.3)',
@@ -1042,12 +1276,14 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                 onMouseDown={(e) => !isGenerating && (e.currentTarget.style.transform = 'scale(0.98)')}
                 onMouseUp={(e) => !isGenerating && (e.currentTarget.style.transform = 'none')}
               >
-                Remix Session
+                End Session
               </button>
             </div>
           </div>
 
         </div>
+      )}
+        </>
       )}
 
       {/* Sticky Floating Action Button (Late Arrival Override) */}
@@ -1130,7 +1366,122 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
         squad={squad}
         onSave={handleSaveTaggedClip}
       />
+      {/* End Session Modal */}
+      {showEndSessionModal && (
+        <div className="overlay-backdrop" style={{ zIndex: 999 }}>
+          <div className="modal-content" style={{ maxWidth: '500px' }}>
+            <div className="modal-header">
+              <h3 className="scoreboard-font" style={{ color: 'var(--color-training)' }}>End Training Session</h3>
+              <button className="icon-btn" onClick={() => setShowEndSessionModal(false)}>
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={handleEndSessionSubmit}>
+              <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                  This will log this training session to Firestore. Review the stats and jot down any notes or tweaks for future sessions.
+                </p>
+                <div className="form-group">
+                  <label>Coach's Notes (Optional)</label>
+                  <textarea 
+                    value={coachNotes} 
+                    onChange={(e) => setCoachNotes(e.target.value)} 
+                    placeholder="e.g. Kick-in drills worked well, but marking drills need more physical contact next time..."
+                    rows="4"
+                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-light)', backgroundColor: 'var(--bg-floor)', color: '#ffffff', resize: 'vertical' }}
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn" onClick={() => setShowEndSessionModal(false)}>Cancel</button>
+                <button type="submit" className="btn btn-training">Complete & Log Session</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
+      {/* Session Detail Modal */}
+      {selectedSession && (
+        <div className="overlay-backdrop" style={{ zIndex: 999 }}>
+          <div className="modal-content" style={{ maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div className="modal-header">
+              <div>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '700', textTransform: 'uppercase' }}>
+                  Session Detail
+                </span>
+                <h3 className="scoreboard-font" style={{ color: 'var(--text-primary)', margin: '4px 0 0 0' }}>
+                  {new Date(selectedSession.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                </h3>
+              </div>
+              <button className="icon-btn" onClick={() => setSelectedSession(null)}>
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            
+            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '12px' }}>
+                <div>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', display: 'block', textTransform: 'uppercase' }}>Duration</span>
+                  <span style={{ fontSize: '1rem', fontWeight: '700', color: '#ffffff' }}>{selectedSession.duration} Mins</span>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', display: 'block', textTransform: 'uppercase' }}>Squad Target</span>
+                  <span style={{ fontSize: '1rem', fontWeight: '700', color: '#ffffff' }}>{selectedSession.squadName} ({selectedSession.ageGroup})</span>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', display: 'block', textTransform: 'uppercase' }}>Attendees</span>
+                  <span style={{ fontSize: '1rem', fontWeight: '700', color: '#ffffff' }}>{selectedSession.playerCount || 0} Players</span>
+                </div>
+              </div>
+
+              <div>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', textTransform: 'uppercase', marginBottom: '8px' }}>Focus Areas</span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {selectedSession.focusAreas?.map((f, idx) => (
+                    <span key={idx} style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: '14px', backgroundColor: 'rgba(230,57,70,0.15)', color: '#ffffff', border: '1px solid rgba(230,57,70,0.25)' }}>
+                      {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {selectedSession.notes && (
+                <div style={{ backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '6px', padding: '12px' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', textTransform: 'uppercase', marginBottom: '6px', fontWeight: '600' }}>Coach's Notes</span>
+                  <p style={{ fontSize: '0.85rem', color: '#d1d5db', margin: 0, whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{selectedSession.notes}</p>
+                </div>
+              )}
+
+              <div>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', textTransform: 'uppercase', marginBottom: '12px', fontWeight: '600' }}>Drills Executed</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {selectedSession.drills?.map((drill, idx) => (
+                    <div key={idx} style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
+                        <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#ffffff', fontFamily: 'var(--font-family-locker)', textTransform: 'uppercase' }}>{drill.title}</h4>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '700' }}>{drill.duration} Mins</span>
+                      </div>
+                      <p style={{ fontSize: '0.8rem', color: '#9ca3af', margin: '0 0 8px 0', lineHeight: '1.4' }}>{drill.instructions}</p>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '600' }}>
+                        Goal: <span style={{ color: '#d1d5db' }}>{drill.goal}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="modal-footer">
+              <button className="btn" onClick={() => setSelectedSession(null)} style={{ width: '100%' }}>Close Details</button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Animations */}
       <style>{`
         @keyframes fadeIn {
