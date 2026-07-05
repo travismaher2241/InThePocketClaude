@@ -6,6 +6,7 @@ import MatchDay from './components/MatchDay';
 import VideoAnalyser from './components/VideoAnalyser';
 import SettingsModal from './components/SettingsModal';
 import { useAuth } from './context/AuthProvider';
+import { addPlayer } from './firebaseHelpers';
 
 // Default Roster to populate the app initially so it is ready to use
 const DEFAULT_ROSTER = [
@@ -23,7 +24,7 @@ const DEFAULT_ROSTER = [
 ];
 
 export default function App() {
-  const { logout } = useAuth();
+  const { currentUser, logout } = useAuth();
   const [activeTab, setActiveTab] = useState(0); // 0: Squad, 1: Training, 2: Tactics, 3: Match Day, 4: Video
   const [squad, setSquad] = useState(() => {
     const saved = localStorage.getItem('coachcore_squad');
@@ -141,12 +142,21 @@ export default function App() {
   };
 
   // Squad Handlers
-  const handleAddPlayer = (newPlayer) => {
+  const handleAddPlayer = async (newPlayer) => {
+    let docId = 'player_' + Date.now() + '_' + Math.random().toString(36).substring(2, 5);
+    try {
+      if (currentUser?.uid) {
+        docId = await addPlayer(newPlayer, currentUser.uid);
+      }
+    } catch (err) {
+      console.warn("Firestore addPlayer failed, running local fallback:", err);
+    }
+
     const playerWithId = {
       ...newPlayer,
-      id: 'player_' + Date.now()
+      id: docId
     };
-    setSquad([...squad, playerWithId]);
+    setSquad(prevSquad => [...prevSquad, playerWithId]);
     logSyncTransaction('PLAYER_ADD', { name: newPlayer.name, jersey: newPlayer.jersey });
     showToast(`Added ${newPlayer.name} to the roster.`);
   };
