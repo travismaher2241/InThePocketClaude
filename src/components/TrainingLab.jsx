@@ -404,7 +404,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       setActiveSubTab('history'); // switch to history view to see completed session!
     } catch (err) {
       console.error("Failed to save completed training session:", err);
-      alert("Error: Failed to save completed training session to the cloud. Please try again.");
+      alert(`Error: Failed to save completed training session to the cloud. Details: ${err.message || err}`);
     }
   };
 
