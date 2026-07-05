@@ -272,13 +272,17 @@ export default function TrainingLab({
 
     if (isRealApiCall) {
       try {
-        const promptText = `Act as an elite AFL coach. Create a training plan for ${duration} minutes, specifically for ${playerCount} players. 
-The players belong to the "${ageGroup}" age group level. Ensure all warm-up instructions, skill drills, and match simulations are developmentally and physically appropriate for the ${ageGroup} category.
-The training session focuses on the following focus areas: ${focusAreas.join(", ")}. The plan must include three segments: warm-up, skill drills, and a game-based scenario, blending these specified skills cohesively.
-Format your output STRICTLY as a JSON array of exactly 3 objects. Do not include markdown code block markers. Each object must have these keys:
+        const promptText = `You are an elite Australian Rules Football (AFL) coach. You MUST generate 100% unique drills for every request. 
+Do not repeat standard baseline drills (like simple corridor handball waves or static lead-and-mark lanes). 
+Create a training plan for ${duration} minutes, specifically for ${playerCount} players. The players belong to the "${ageGroup}" age group level. 
+Every drill segment MUST directly teach the selected Focus Areas: ${focusAreas.join(", ")}. 
+The complexity, grid sizes (specified clearly in meters), setup descriptions, and terminology MUST be strictly tailored for the selected Age Group: "${ageGroup}". 
+
+The plan must include exactly three segments: a warm-up, core skill drills, and a game-based match simulation scenario.
+Ensure you return a JSON array containing exactly 3 objects. Each object must have these keys:
 "title": Title of the drill segment (e.g. "WARM-UP: DYNAMIC CORRIDOR ACTIVATION")
 "duration": The duration in minutes as a number
-"instructions": Detailed plain text directions
+"instructions": Detailed plain text directions including specific setup details (e.g., grids in meters, group sizes)
 "goal": Core focus/drill goal of the segment (short highlight)
 
 ${customPlaybookText ? `Use the following strategic playbook guidelines to shape the drills and tactics: "${customPlaybookText}"` : ''}`;
@@ -287,7 +291,24 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }]
+            contents: [{ parts: [{ text: promptText }] }],
+            generationConfig: {
+              temperature: 0.8,
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: "ARRAY",
+                items: {
+                  type: "OBJECT",
+                  properties: {
+                    title: { type: "STRING" },
+                    duration: { type: "NUMBER" },
+                    instructions: { type: "STRING" },
+                    goal: { type: "STRING" }
+                  },
+                  required: ["title", "duration", "instructions", "goal"]
+                }
+              }
+            }
           })
         });
         const data = await response.json();
@@ -295,7 +316,6 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
         
         if (contentText) {
           let cleanText = contentText.trim();
-          // Clean markdown wrappers if model output contains them
           if (cleanText.startsWith('```')) {
             cleanText = cleanText.replace(/^```json\s*/, '').replace(/```\s*$/, '');
           }
@@ -303,7 +323,21 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
           try {
             const parsed = JSON.parse(cleanText);
             if (Array.isArray(parsed) && parsed.length === 3) {
-              setPlanCards(parsed);
+              // Normalize parsed JSON to guarantee all keys exist and are uniquely mapped to their drill
+              const normalized = parsed.map((item, index) => {
+                const instructions = item.instructions || item.setup || item.directions || `Execute training drills for segment ${index + 1}.`;
+                const goal = item.goal || item.focus || item.target || `Master core skills for segment ${index + 1}.`;
+                const title = item.title || `DRILL SEGMENT ${index + 1}`;
+                const durationVal = Number(item.duration) || 30;
+                return {
+                  title,
+                  duration: durationVal,
+                  instructions,
+                  goal
+                };
+              });
+
+              setPlanCards(normalized);
               setIsFallback(false);
               setIsGenerating(false);
               if (subscriptionTier === 'Free') {
