@@ -25,6 +25,20 @@ const DEFAULT_ROSTER = [
 
 export default function App() {
   const { currentUser, logout } = useAuth();
+
+  // Temporary: Unregister any active service workers to clear the broken sw.js cache
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const registration of registrations) {
+          registration.unregister().then((success) => {
+            if (success) console.log("Successfully unregistered broken Service Worker");
+          });
+        }
+      });
+    }
+  }, []);
+
   const [activeTab, setActiveTab] = useState(0); // 0: Squad, 1: Training, 2: Tactics, 3: Match Day, 4: Video
   const [squad, setSquad] = useState(() => {
     const saved = localStorage.getItem('coachcore_squad');
