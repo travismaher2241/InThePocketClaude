@@ -407,39 +407,55 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
         }
       }
 
+      const config = getCurriculumConfig(ageGroup);
+      const isStations = playerCount > 15;
+      
+      let q2Instructions = "";
+      let q3Instructions = "";
+      
+      if (isStations) {
+        q2Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)\n\nSTATION A: ${drills[1].name.toUpperCase()}\n- Goal: ${drills[1].desc}\n- Setup: Split players into Station A grid. Maximize repetitions.\n- Execution: Active practice with high touch focus.\n- CHANGE IT Tip: Restrict to 2 bounces to speed up disposal.\n\nSTATION B: ${drills[0].name.toUpperCase()}\n- Goal: ${drills[0].desc}\n- Setup: Split players into Station B grid.\n- Execution: Practice quick handball release and leading.\n- CHANGE IT Tip: Increase grid width to practice sweeping into space.\n\nContact Rules: ${config.tackleRules}`;
+        
+        q3Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)\n\nSTATION A: ${drills[2].name.toUpperCase()}\n- Goal: ${drills[2].desc}\n- Setup: Half-field zone setup.\n- Execution: Midfielders practice clearances and transition play.\n- CHANGE IT Tip: Alter numbers (e.g. 4v3) to favor offensive flow.\n\nSTATION B: ${drills[1].name.toUpperCase()}\n- Goal: ${drills[1].desc}\n- Setup: Setup outer boundary grids.\n- Execution: Practice fast exit handballs and corridor switches.\n- CHANGE IT Tip: Restrict touches allowed before disposal.\n\nContact Rules: ${config.tackleRules}`;
+      } else {
+        q2Instructions = `${drills[1].desc}\n\n- Setup: ${groupingLabel} Split into offense vs defense spacing grids. Maximize repetitions (60+ touches target).\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Restrict ball-carriers to two bounces to increase disposal speed.`;
+        
+        q3Instructions = `${drills[2].desc}\n\n- Setup: ${groupingLabel} Focus on contest balance, outnumbering at the stoppage, and rapid corridor transition.\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Adjust numbers (e.g. 4v3) to favor offensive flow.`;
+      }
+
       const generatedFallbackCards = [
         {
           title: `PRE-GAME: FUN PLAY & EXPLORATION`,
           duration: preGameMins,
-          instructions: `Unstructured kick-to-kick and free handball grids. No active coaching. Emphasize player creativity, self-organization, and discovery. CHANGE IT Coaching Tip: Vary the space or add multi-balls to keep everyone active.`,
+          instructions: `Unstructured kick-to-kick and free handball grids. No active coaching. Emphasize player creativity, self-organization, and discovery.\n\nCHANGE IT Coaching Tip: Vary the space or add multi-balls to keep everyone active.\n\nContact Rules: ${config.tackleRules}`,
           goal: `Build warm-up touch and self-guided exploration.`,
           phase: `Contest`
         },
         {
           title: `QUARTER 1 WARM-UP: ${drills[0].name.toUpperCase()}`,
           duration: q1Mins,
-          instructions: `${drills[0].desc} Setup: ${groupingLabel}. Focus on clean hands and quick release. CHANGE IT Coaching Tip: Increase grid width to practice sweeping into space.`,
+          instructions: `${drills[0].desc}\n\n- Setup: ${groupingLabel}. Focus on clean hands and quick release.\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Increase grid width to practice sweeping into space.`,
           goal: `Activate movement patterns and build early confidence.`,
           phase: `Attack`
         },
         {
-          title: `QUARTER 2 SKILL ROTATIONS: ${drills[1].name.toUpperCase()}`,
+          title: `QUARTER 2 SKILL ROTATIONS`,
           duration: q2Mins,
-          instructions: `${drills[1].desc} Setup: Split into offense vs defense spacing grids. Maximize repetitions (60+ touches target). CHANGE IT Coaching Tip: Restrict ball-carriers to two bounces to increase disposal speed.`,
+          instructions: q2Instructions,
           goal: `Execute technical skill actions under decision-making constraints.`,
           phase: `Defence`
         },
         {
-          title: `QUARTER 3 TEAM TASK: ${drills[2].name.toUpperCase()}`,
+          title: `QUARTER 3 TEAM TASK`,
           duration: q3Mins,
-          instructions: `${drills[2].desc} Focus on contest balance, outnumbering at the stoppage, and rapid corridor transition. CHANGE IT Coaching Tip: Adjust numbers (e.g. 4v3) to favor offensive flow.`,
+          instructions: q3Instructions,
           goal: `Practice tactical transitions and team-based corridor resets.`,
           phase: `Contest`
         },
         {
           title: `QUARTER 4 GAME: CURRICULUM SSG`,
           duration: q4Mins,
-          instructions: `Play a small-sided match (such as End-to-End Keepings Off or The Exit Strategy) to test under game pressure. CHANGE IT Coaching Tip: Require 3 passes before scoring or reward 3 points for corridor transitions.`,
+          instructions: `Play a small-sided match (such as End-to-End Keepings Off or The Exit Strategy) to test under game pressure.\n\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Require 3 passes before scoring or reward 3 points for corridor transitions.\n\nCOACH'S LOGISTICS SUMMARY\n- Cones: 16x field cones (for grids and lanes)\n- Bibs: 2 sets of different colors (e.g., 8x red, 8x blue)\n- Balls: 1 ball per pair (8-10 footballs minimum)`,
           goal: `Test execution and adaptability under matchday pressure.`,
           phase: `Attack`
         }
@@ -1273,7 +1289,8 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                       fontFamily: 'var(--font-family-body)',
                       fontSize: '0.925rem',
                       color: '#d1d5db',
-                      lineHeight: '1.5'
+                      lineHeight: '1.5',
+                      whiteSpace: 'pre-wrap'
                     }}
                   >
                     {card.instructions.replace(/[#*`[\]]/g, '')}
