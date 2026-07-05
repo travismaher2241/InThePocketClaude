@@ -25,6 +25,36 @@ const LOCAL_DRILLS = {
   ]
 };
 
+const AGE_FOCUS_MAP = {
+  'U8': ['Basic Kicking', 'Handballing', 'Marking', 'Ground Balls', 'Fun & Games', 'Basic Positioning'],
+  'U10': ['Basic Kicking', 'Handballing', 'Marking', 'Ground Balls', 'Fun & Games', 'Basic Positioning'],
+  'U12': ['Contested Possessions', 'Tackling Technique', 'Clearances', 'Forward Entries', 'Man-on-Man Defense'],
+  'U14': ['Contested Possessions', 'Tackling Technique', 'Clearances', 'Forward Entries', 'Man-on-Man Defense'],
+  'U16': ['Corridor Transitions', 'Stoppage Defensive Spacing', 'Kick-In Strategies', 'Zone Defense', 'Match Simulation', 'Switch of Play'],
+  'U18': ['Corridor Transitions', 'Stoppage Defensive Spacing', 'Kick-In Strategies', 'Zone Defense', 'Match Simulation', 'Switch of Play'],
+  'Seniors': ['Corridor Transitions', 'Stoppage Defensive Spacing', 'Kick-In Strategies', 'Zone Defense', 'Match Simulation', 'Switch of Play'],
+  'Veterans (Over 35s)': ['Corridor Transitions', 'Stoppage Defensive Spacing', 'Kick-In Strategies', 'Zone Defense', 'Match Simulation', 'Switch of Play']
+};
+
+function getLocalDrillKey(focusArea) {
+  const map = {
+    'Basic Kicking': 'Corridor Transitions',
+    'Handballing': 'Corridor Transitions',
+    'Marking': 'Corridor Transitions',
+    'Forward Entries': 'Corridor Transitions',
+    'Switch of Play': 'Corridor Transitions',
+    'Clearances': 'Stoppage Defensive Spacing',
+    'Basic Positioning': 'Stoppage Defensive Spacing',
+    'Zone Defense': 'Stoppage Defensive Spacing',
+    'Man-on-Man Defense': 'Kick-In Strategies',
+    'Tackling Technique': 'Contested Possessions',
+    'Ground Balls': 'Contested Possessions',
+    'Fun & Games': 'Contested Possessions',
+    'Match Simulation': 'Contested Possessions'
+  };
+  return map[focusArea] || focusArea;
+}
+
 export default function TrainingLab({
   squad,
   subscriptionTier,
@@ -79,7 +109,24 @@ export default function TrainingLab({
     }
   }, [squadSettings]);
   const [duration, setDuration] = useState(90);
-  const [focus, setFocus] = useState('Corridor Transitions');
+  const [focusAreas, setFocusAreas] = useState([]);
+
+  useEffect(() => {
+    const list = AGE_FOCUS_MAP[ageGroup] || AGE_FOCUS_MAP['Seniors'];
+    setFocusAreas([list[0]]);
+  }, [ageGroup]);
+
+  const handleToggleFocus = (f) => {
+    setFocusAreas((prev) => {
+      if (prev.includes(f)) {
+        if (prev.length === 1) return prev;
+        return prev.filter(item => item !== f);
+      } else {
+        if (prev.length >= 3) return prev;
+        return [...prev, f];
+      }
+    });
+  };
 
   // Vector Layer 2: Custom playbooks RAG context input
   const [customPlaybookText, setCustomPlaybookText] = useState('');
@@ -165,7 +212,7 @@ export default function TrainingLab({
       try {
         const promptText = `Act as an elite AFL coach. Create a training plan for ${duration} minutes, specifically for ${playerCount} players. 
 The players belong to the "${ageGroup}" age group level. Ensure all warm-up instructions, skill drills, and match simulations are developmentally and physically appropriate for the ${ageGroup} category.
-The focus is ${focus}. The plan must include three segments: warm-up, skill drills, and a game-based scenario.
+The training session focuses on the following focus areas: ${focusAreas.join(", ")}. The plan must include three segments: warm-up, skill drills, and a game-based scenario, blending these specified skills cohesively.
 Format your output STRICTLY as a JSON array of exactly 3 objects. Do not include markdown code block markers. Each object must have these keys:
 "title": Title of the drill segment (e.g. "WARM-UP: DYNAMIC CORRIDOR ACTIVATION")
 "duration": The duration in minutes as a number
@@ -200,7 +247,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
               if (subscriptionTier === 'Free') {
                 setFreeGensRemaining(prev => prev - 1);
               }
-              logSyncTransaction('GEMINI_API_PLAN_GEN', { focus, duration, playerCount });
+              logSyncTransaction('GEMINI_API_PLAN_GEN', { focus: focusAreas.join(", "), duration, playerCount });
               return;
             }
           } catch (jsonErr) {
@@ -215,7 +262,9 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
     // Procedural Fallback Engine (Runs locally)
     setTimeout(() => {
       setIsFallback(true);
-      const drills = LOCAL_DRILLS[focus] || LOCAL_DRILLS['Corridor Transitions'];
+      const firstFocus = focusAreas[0] || 'Corridor Transitions';
+      const resolvedKey = getLocalDrillKey(firstFocus);
+      const drills = LOCAL_DRILLS[resolvedKey] || LOCAL_DRILLS['Corridor Transitions'];
       
       const warmupMins = Math.round(duration * 0.2);
       const skillMins = Math.round(duration * 0.4);
@@ -259,7 +308,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       if (subscriptionTier === 'Free') {
         setFreeGensRemaining(prev => prev - 1);
       }
-      logSyncTransaction('LOCAL_FALLBACK_PLAN_GEN', { focus, duration, playerCount });
+      logSyncTransaction('LOCAL_FALLBACK_PLAN_GEN', { focus: focusAreas.join(", "), duration, playerCount });
     }, 1500);
   };
 
@@ -626,13 +675,34 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
             </div>
 
             <div className="form-group">
-              <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>Focus Area</label>
-              <select value={focus} onChange={(e) => setFocus(e.target.value)}>
-                <option value="Corridor Transitions">Corridor Transitions</option>
-                <option value="Stoppage Defensive Spacing">Stoppage Defensive Spacing</option>
-                <option value="Kick-In Strategies">Kick-In Strategies</option>
-                <option value="Contested Possessions">Contested Possessions</option>
-              </select>
+              <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>
+                Focus Areas (Select 1 to 3)
+              </label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+                {(AGE_FOCUS_MAP[ageGroup] || AGE_FOCUS_MAP['Seniors']).map((f) => {
+                  const isSelected = focusAreas.includes(f);
+                  return (
+                    <button
+                      key={f}
+                      type="button"
+                      onClick={() => handleToggleFocus(f)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '20px',
+                        border: isSelected ? '1px solid var(--color-training)' : '1px solid rgba(255, 255, 255, 0.1)',
+                        backgroundColor: isSelected ? 'rgba(230, 57, 70, 0.2)' : 'rgba(0,0,0,0.3)',
+                        color: isSelected ? '#ffffff' : '#8d939e',
+                        fontSize: '0.8rem',
+                        fontWeight: isSelected ? '700' : '500',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      {f}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="form-group">
