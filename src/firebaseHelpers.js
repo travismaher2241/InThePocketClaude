@@ -196,3 +196,22 @@ export async function getTrainingSessions(uid) {
   sessions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   return sessions;
 }
+
+/**
+ * Deletes a completed training session document from Firestore after confirming ownerId.
+ * @param {string} sessionId 
+ * @param {string} uid 
+ */
+export async function deleteSession(sessionId, uid) {
+  if (!uid) throw new Error("Authenticated user uid is required to delete sessions.");
+  const sessionRef = doc(db, "training_sessions", sessionId);
+  const docSnap = await getDoc(sessionRef);
+  
+  if (docSnap.exists()) {
+    if (docSnap.data().ownerId === uid) {
+      await deleteDoc(sessionRef);
+    } else {
+      throw new Error("Unauthorized: You do not own this training session.");
+    }
+  }
+}

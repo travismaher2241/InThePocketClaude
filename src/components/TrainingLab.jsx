@@ -1,31 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ContextualTaggingModal from './ContextualTaggingModal';
-import { saveTrainingSession, getTrainingSessions } from '../firebaseHelpers';
+import { saveTrainingSession, getTrainingSessions, deleteSession } from '../firebaseHelpers';
 import { useAuth } from '../context/AuthProvider';
-
-// Hardcoded Local Drill Encyclopedia for high-fidelity fallback (Vector Layer 1)
-const LOCAL_DRILLS = {
-  'Corridor Transitions': [
-    { name: 'Warm-up: Corridor Handball Waves', durationPct: 0.2, desc: 'Players form three running lanes down the corridor. Deliver quick, short handpasses in stride. Emphasize visual eye contact and continuous voice communication.' },
-    { name: 'Skill Drill: Fat-Side Clearance Leads', durationPct: 0.4, desc: 'Position sweepers in the center corridor. Kickers from the defensive arcs must spot leads running hard into space. Clog center space to increase interception pressure.' },
-    { name: 'Game Scenario: Inside 50 corridor challenge', durationPct: 0.4, desc: '10v10 scrim match. Teams must transition the ball through the center corridor. Penalize boundary line clearances. Force handpass chains before kicking inside 50m.' }
-  ],
-  'Stoppage Defensive Spacing': [
-    { name: 'Warm-up: Stoppage Box Handballs', durationPct: 0.2, desc: 'Set up a 10m x 10m grid. Players work in tight quarters feeding handpasses to active runners while keeping body contact.' },
-    { name: 'Skill Drill: Boundary Throw-In Deflections', durationPct: 0.4, desc: 'Simulate boundary throws. Ruckmen fight for tap control while midfielders establish defensive blocking structures to prevent clearances.' },
-    { name: 'Game Scenario: Scrimmage clearances', durationPct: 0.4, desc: 'Half-field game starting from center bounce clearances. Reward midfielders who layer defensive sweeps behind the immediate ball clearance pack.' }
-  ],
-  'Kick-In Strategies': [
-    { name: 'Warm-up: Lead and Chip Waves', durationPct: 0.2, desc: 'Kickers take turns running out of the goal square and chipping 15m passes to dynamic boundary leads.' },
-    { name: 'Skill Drill: 15m Zone Clog Breakout', durationPct: 0.4, desc: 'Fullbacks kick out against a structured 15-meter zone wall. Practice fat-side switches and boundary line punch outs.' },
-    { name: 'Game Scenario: Kick-in transition match', durationPct: 0.4, desc: 'Start all plays from goal square kick-ins. The attacking team scores by clearing the center line, while the defending team scores on turnovers.' }
-  ],
-  'Contested Possessions': [
-    { name: 'Warm-up: Ground Ball Scramble', durationPct: 0.2, desc: 'Roll ball into a 2v2 grid. Players protect the drop zone, use hips to shield opponents, and sweep the ball out.' },
-    { name: 'Skill Drill: High Contact Tackle Bags', durationPct: 0.4, desc: 'Midfielders take physical contact from tackle bags and recycle the ball to supporting runners under high pressure.' },
-    { name: 'Game Scenario: Small-Sided Box Battle', durationPct: 0.4, desc: '4v4 scrimmage in a 25m x 25m grid. Keep possession using only contested handpasses. Continuous tackle pressure.' }
-  ]
-};
+import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS } from '../data/curriculumKnowledge';
 
 const AGE_FOCUS_MAP = {
   'U8': ['Basic Kicking', 'Handballing', 'Marking', 'Ground Balls', 'Fun & Games', 'Basic Positioning'],
@@ -50,7 +27,7 @@ function getLocalDrillKey(focusArea) {
     'Zone Defense': 'Stoppage Defensive Spacing',
     'Man-on-Man Defense': 'Kick-In Strategies',
     'Tackling Technique': 'Contested Possessions',
-    'Ground Balls': 'Contested Possessions',
+    'Ground Balls': 'Ground Balls',
     'Fun & Games': 'Contested Possessions',
     'Match Simulation': 'Contested Possessions'
   };
@@ -126,7 +103,7 @@ export default function TrainingLab({
       setAgeGroup(squadSettings.ageGroup);
     }
   }, [squadSettings]);
-  const [duration, setDuration] = useState(draft?.duration || 90);
+  const [duration, setDuration] = useState(draft?.duration || 70);
   const [focusAreas, setFocusAreas] = useState(draft?.focusAreas || []);
 
   useEffect(() => {
@@ -174,7 +151,7 @@ export default function TrainingLab({
     localStorage.removeItem('coachcore_training_draft');
     setStep('wizard');
     setPresentIds(squad.map(p => p.id));
-    setDuration(90);
+    setDuration(70);
     const list = AGE_FOCUS_MAP[ageGroup] || AGE_FOCUS_MAP['Seniors'];
     setFocusAreas([list[0]]);
     setCustomPlaybookText('');
@@ -272,18 +249,64 @@ export default function TrainingLab({
 
     if (isRealApiCall) {
       try {
+        const config = getCurriculumConfig(ageGroup);
+        const weeklyThemesText = config.themes.map(t => `- Week ${t.week} Theme: "${t.theme}" (Goal: ${t.goal})`).join('\n');
+        
+        // Find prescribed drills and small-sided games that are relevant
+        const relevantDrills = PRESCRIBED_DRILLS.filter(d => 
+          focusAreas.some(f => d.name.toLowerCase().includes(f.toLowerCase()) || d.goal.toLowerCase().includes(f.toLowerCase()))
+        );
+        const relevantSSGs = SMALL_SIDED_GAMES.filter(g => 
+          focusAreas.some(f => g.name.toLowerCase().includes(f.toLowerCase()) || g.goal.toLowerCase().includes(f.toLowerCase()))
+        );
+
+        let injectedDrillsText = "";
+        if (relevantDrills.length > 0) {
+          injectedDrillsText += `\nPrescribed Club Drills (Use these as reference/candidates for skill rotations/tasks if applicable):\n` +
+            relevantDrills.map(d => `- Drill: "${d.name}"\n  Goal: ${d.goal}\n  Setup: ${d.setup}\n  Execution: ${d.execution}\n  CHANGE IT Tip: ${d.changeIt}`).join('\n');
+        }
+        
+        let injectedSSGsText = "";
+        if (relevantSSGs.length > 0) {
+          injectedSSGsText += `\nCurriculum Small-Sided Games (Use these as candidates for the Quarter 4 Game segment if applicable):\n` +
+            relevantSSGs.map(g => `- Game: "${g.name}"\n  Goal: ${g.goal}\n  Setup: ${g.setup}\n  Execution: ${g.execution}\n  CHANGE IT Tip: ${g.changeIt}`).join('\n');
+        }
+
         const promptText = `You are an elite Australian Rules Football (AFL) coach. You MUST generate 100% unique drills for every request. 
-Do not repeat standard baseline drills (like simple corridor handball waves or static lead-and-mark lanes). 
+Do not repeat standard baseline drills. Every plan must strictly adhere to these coaching standards:
+
+1. Game-Sense Philosophy: Every activity must follow the "Game-Sense Approach" where skills are taught in tactical contexts (Penetration, Possession, Support, Delay, etc.). No static "skill reps" or queues.
+2. Age-Group & Curriculum Alignment (Curriculum Mapping):
+   - Selected Age Group: "${ageGroup}" (Targeting Level: ${config.level})
+   - Development Stage: ${config.stage}
+   - Learning Focus: ${config.learningFocus}
+   - Contact & Tackle Rules: ${config.tackleRules}
+   Every segment must respect these contact/tackle rules and be appropriately complex for this stage of player development.
+3. Three Phases of the Game: Every drill must explicitly target one or more of the three phases: ATTACK, DEFENCE, or CONTEST. Titles and goals must use AFL Principles of Play terms (e.g. Penetration, Depth, Balance, Outnumber).
+4. CHANGE IT Framework: The "instructions" field for every drill must conclude with a specific "CHANGE IT Coaching Tip" showing how to modify the drill (Area, Numbers, Rules, Equipment, Time) to adjust difficulty.
+5. High Touch Objective: Prioritize high-touch (60+ touches per player), high-energy drills. If a drill has long lines, do not use it.
+6. Curriculum Weekly Schedules (Align the session with these curriculum themes and goals):
+${weeklyThemesText}
+${injectedDrillsText}${injectedSSGsText}
+
 Create a training plan for ${duration} minutes, specifically for ${playerCount} players. The players belong to the "${ageGroup}" age group level. 
 Every drill segment MUST directly teach the selected Focus Areas: ${focusAreas.join(", ")}. 
-The complexity, grid sizes (specified clearly in meters), setup descriptions, and terminology MUST be strictly tailored for the selected Age Group: "${ageGroup}". 
+The complexity, grid sizes (in meters), setup descriptions, and terminology MUST be strictly tailored for the selected Age Group: "${ageGroup}".
 
-The plan must include exactly three segments: a warm-up, core skill drills, and a game-based match simulation scenario.
-Ensure you return a JSON array containing exactly 3 objects. Each object must have these keys:
-"title": Title of the drill segment (e.g. "WARM-UP: DYNAMIC CORRIDOR ACTIVATION")
-"duration": The duration in minutes as a number
-"instructions": Detailed plain text directions including specific setup details (e.g., grids in meters, group sizes)
-"goal": Core focus/drill goal of the segment (short highlight)
+The plan must include exactly five segments representing the curriculum structure:
+1. PRE-GAME: Unstructured play and exploration (duration should be approx 20% of session time, e.g. 15 mins for a 70-minute session).
+2. QUARTER 1 WARM-UP: Fun warm-up with emphasis on fundamental movements (approx 15% of session time, e.g. 10 mins).
+3. QUARTER 2 SKILL ROTATIONS: Two rotations consisting of high-repetition skills and a decision-making task (approx 30% of session time, e.g. 20 mins).
+4. QUARTER 3 TEAM TASK: Practice applying skills to game situations when working as a team (approx 20% of session time, e.g. 15 mins).
+5. QUARTER 4 GAME: Match play with specific rule constraints to emphasize targeted skills (approx 15% of session time, e.g. 10 mins).
+
+Ensure the sum of the durations of these 5 segments equals exactly ${duration} minutes.
+Ensure you return a JSON array containing exactly 5 objects. Each object must have these keys:
+"title": Title of the drill segment (e.g. "QUARTER 1 WARM-UP: DYNAMIC CORRIDOR ACTIVATION")
+"duration": The duration in minutes as a number (e.g. 15, 10, 20, 15, 10)
+"instructions": Detailed plain text directions including specific setup details (e.g., grids in meters, group sizes) and the CHANGE IT Coaching Tip
+"goal": Core focus/drill goal of the segment (short highlight using curriculum principles)
+"phase": The primary phase of the game this drill targets (must be exactly one of: "Attack", "Defence", or "Contest")
 
 ${customPlaybookText ? `Use the following strategic playbook guidelines to shape the drills and tactics: "${customPlaybookText}"` : ''}`;
 
@@ -303,9 +326,10 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                     title: { type: "STRING" },
                     duration: { type: "NUMBER" },
                     instructions: { type: "STRING" },
-                    goal: { type: "STRING" }
+                    goal: { type: "STRING" },
+                    phase: { type: "STRING" }
                   },
-                  required: ["title", "duration", "instructions", "goal"]
+                  required: ["title", "duration", "instructions", "goal", "phase"]
                 }
               }
             }
@@ -322,18 +346,20 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
           
           try {
             const parsed = JSON.parse(cleanText);
-            if (Array.isArray(parsed) && parsed.length === 3) {
+            if (Array.isArray(parsed) && parsed.length === 5) {
               // Normalize parsed JSON to guarantee all keys exist and are uniquely mapped to their drill
               const normalized = parsed.map((item, index) => {
                 const instructions = item.instructions || item.setup || item.directions || `Execute training drills for segment ${index + 1}.`;
                 const goal = item.goal || item.focus || item.target || `Master core skills for segment ${index + 1}.`;
                 const title = item.title || `DRILL SEGMENT ${index + 1}`;
-                const durationVal = Number(item.duration) || 30;
+                const durationVal = Number(item.duration) || 15;
+                const phase = item.phase || "Contest";
                 return {
                   title,
                   duration: durationVal,
                   instructions,
-                  goal
+                  goal,
+                  phase
                 };
               });
 
@@ -362,9 +388,12 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       const resolvedKey = getLocalDrillKey(firstFocus);
       const drills = LOCAL_DRILLS[resolvedKey] || LOCAL_DRILLS['Corridor Transitions'];
       
-      const warmupMins = Math.round(duration * 0.2);
-      const skillMins = Math.round(duration * 0.4);
-      const scenarioMins = duration - warmupMins - skillMins;
+      // Calculate scaled durations if total session is not 70 mins
+      const preGameMins = Math.max(5, Math.round(duration * (15/70)));
+      const q1Mins = Math.max(5, Math.round(duration * (10/70)));
+      const q2Mins = Math.max(10, Math.round(duration * (20/70)));
+      const q3Mins = Math.max(10, Math.round(duration * (15/70)));
+      const q4Mins = duration - preGameMins - q1Mins - q2Mins - q3Mins;
 
       // Groupings math
       let groupingLabel = "Split players into even lines.";
@@ -380,22 +409,39 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
 
       const generatedFallbackCards = [
         {
-          title: `WARM-UP: ${drills[0].name.toUpperCase()}`,
-          duration: warmupMins,
-          instructions: `${drills[0].desc} Setup: ${groupingLabel}`,
-          goal: `Activate touch, running lanes, and vocal triggers.`
+          title: `PRE-GAME: FUN PLAY & EXPLORATION`,
+          duration: preGameMins,
+          instructions: `Unstructured kick-to-kick and free handball grids. No active coaching. Emphasize player creativity, self-organization, and discovery. CHANGE IT Coaching Tip: Vary the space or add multi-balls to keep everyone active.`,
+          goal: `Build warm-up touch and self-guided exploration.`,
+          phase: `Contest`
         },
         {
-          title: `CORE SKILL DRILL: ${drills[1].name.toUpperCase()}`,
-          duration: skillMins,
-          instructions: `${drills[1].desc} Setup: Split into offense vs defense spacing grids.`,
-          goal: `Master spatial ball movement under moderate defensive pressure.`
+          title: `QUARTER 1 WARM-UP: ${drills[0].name.toUpperCase()}`,
+          duration: q1Mins,
+          instructions: `${drills[0].desc} Setup: ${groupingLabel}. Focus on clean hands and quick release. CHANGE IT Coaching Tip: Increase grid width to practice sweeping into space.`,
+          goal: `Activate movement patterns and build early confidence.`,
+          phase: `Attack`
         },
         {
-          title: `GAME SCENARIO: ${drills[2].name.toUpperCase()}`,
-          duration: scenarioMins,
-          instructions: `${drills[2].desc} Focus on rapid rotations and clean clearance execution.`,
-          goal: `Simulate high-pressure matchday transition speed.`
+          title: `QUARTER 2 SKILL ROTATIONS: ${drills[1].name.toUpperCase()}`,
+          duration: q2Mins,
+          instructions: `${drills[1].desc} Setup: Split into offense vs defense spacing grids. Maximize repetitions (60+ touches target). CHANGE IT Coaching Tip: Restrict ball-carriers to two bounces to increase disposal speed.`,
+          goal: `Execute technical skill actions under decision-making constraints.`,
+          phase: `Defence`
+        },
+        {
+          title: `QUARTER 3 TEAM TASK: ${drills[2].name.toUpperCase()}`,
+          duration: q3Mins,
+          instructions: `${drills[2].desc} Focus on contest balance, outnumbering at the stoppage, and rapid corridor transition. CHANGE IT Coaching Tip: Adjust numbers (e.g. 4v3) to favor offensive flow.`,
+          goal: `Practice tactical transitions and team-based corridor resets.`,
+          phase: `Contest`
+        },
+        {
+          title: `QUARTER 4 GAME: CURRICULUM SSG`,
+          duration: q4Mins,
+          instructions: `Play a small-sided match (such as End-to-End Keepings Off or The Exit Strategy) to test under game pressure. CHANGE IT Coaching Tip: Require 3 passes before scoring or reward 3 points for corridor transitions.`,
+          goal: `Test execution and adaptability under matchday pressure.`,
+          phase: `Attack`
         }
       ];
 
@@ -439,6 +485,22 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
     } catch (err) {
       console.error("Failed to save completed training session:", err);
       alert(`Error: Failed to save completed training session to the cloud. Details: ${err.message || err}`);
+    }
+  };
+
+  const handleDeleteSession = async (sessionId, e) => {
+    if (e) e.stopPropagation();
+    if (!currentUser?.uid) return;
+
+    if (window.confirm("Are you sure you want to permanently delete this completed training session?")) {
+      try {
+        await deleteSession(sessionId, currentUser.uid);
+        setHistorySessions(prev => prev.filter(s => s.id !== sessionId));
+        logSyncTransaction('TRAINING_SESSION_DELETED', { sessionId });
+      } catch (err) {
+        console.error("Failed to delete session:", err);
+        alert(`Error: Failed to delete session. Details: ${err.message || err}`);
+      }
     }
   };
 
@@ -540,13 +602,36 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                   onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-training)'}
                   onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
                       {new Date(session.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '700' }}>
-                      {session.duration} MINS
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '700' }}>
+                        {session.duration} MINS
+                      </span>
+                      <button
+                        onClick={(e) => handleDeleteSession(session.id, e)}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#e63946',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '4px',
+                          borderRadius: '4px',
+                          transition: 'background-color 0.2s',
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(230, 57, 70, 0.1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                        title="Delete this completed session"
+                      >
+                        <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                   
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
@@ -908,6 +993,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
             <div className="form-group">
               <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>Duration (Minutes)</label>
               <select value={duration} onChange={(e) => setDuration(Number(e.target.value))}>
+                <option value="70">70 Minutes (AFL Curriculum Prescribed)</option>
                 <option value="60">60 Minutes</option>
                 <option value="90">90 Minutes</option>
                 <option value="120">120 Minutes</option>
@@ -1148,10 +1234,37 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                       fontSize: '0.85rem',
                       color: 'var(--color-match)', // Sherrin Yellow accent for stats
                       fontWeight: '700',
-                      letterSpacing: '0.05em'
+                      letterSpacing: '0.05em',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
                     }}
                   >
-                    {card.duration} MINS | {presentIds.length} PLAYERS
+                    <span>{card.duration} MINS | {presentIds.length} PLAYERS</span>
+                    {card.phase && (
+                      <span 
+                        style={{
+                          fontSize: '0.7rem',
+                          backgroundColor: card.phase.toUpperCase() === 'ATTACK' ? 'rgba(58, 134, 255, 0.15)' : 
+                                           card.phase.toUpperCase() === 'DEFENCE' ? 'rgba(230, 57, 70, 0.15)' : 
+                                           'rgba(255, 183, 3, 0.15)',
+                          color: card.phase.toUpperCase() === 'ATTACK' ? '#3a86ff' : 
+                                 card.phase.toUpperCase() === 'DEFENCE' ? '#e63946' : 
+                                 '#ffb703',
+                          border: `1px solid ${
+                            card.phase.toUpperCase() === 'ATTACK' ? 'rgba(58, 134, 255, 0.3)' : 
+                            card.phase.toUpperCase() === 'DEFENCE' ? 'rgba(230, 57, 70, 0.3)' : 
+                            'rgba(255, 183, 3, 0.3)'
+                          }`,
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          textTransform: 'uppercase',
+                          fontWeight: '700'
+                        }}
+                      >
+                        {card.phase}
+                      </span>
+                    )}
                   </div>
 
                   {/* Instructions */}
@@ -1496,9 +1609,33 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {selectedSession.drills?.map((drill, idx) => (
                     <div key={idx} style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '16px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                         <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#ffffff', fontFamily: 'var(--font-family-locker)', textTransform: 'uppercase' }}>{drill.title}</h4>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '700' }}>{drill.duration} Mins</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {drill.phase && (
+                            <span style={{
+                              fontSize: '0.65rem',
+                              backgroundColor: drill.phase.toUpperCase() === 'ATTACK' ? 'rgba(58, 134, 255, 0.15)' : 
+                                               drill.phase.toUpperCase() === 'DEFENCE' ? 'rgba(230, 57, 70, 0.15)' : 
+                                               'rgba(255, 183, 3, 0.15)',
+                              color: drill.phase.toUpperCase() === 'ATTACK' ? '#3a86ff' : 
+                                     drill.phase.toUpperCase() === 'DEFENCE' ? '#e63946' : 
+                                     '#ffb703',
+                              border: `1px solid ${
+                                drill.phase.toUpperCase() === 'ATTACK' ? 'rgba(58, 134, 255, 0.3)' : 
+                                drill.phase.toUpperCase() === 'DEFENCE' ? 'rgba(230, 57, 70, 0.3)' : 
+                                'rgba(255, 183, 3, 0.3)'
+                              }`,
+                              padding: '1px 6px',
+                              borderRadius: '3px',
+                              textTransform: 'uppercase',
+                              fontWeight: '700'
+                            }}>
+                              {drill.phase}
+                            </span>
+                          )}
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '700' }}>{drill.duration} Mins</span>
+                        </div>
                       </div>
                       <p style={{ fontSize: '0.8rem', color: '#9ca3af', margin: '0 0 8px 0', lineHeight: '1.4' }}>{drill.instructions}</p>
                       <div style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '600' }}>
