@@ -8,20 +8,8 @@ import SettingsModal from './components/SettingsModal';
 import { useAuth } from './context/AuthProvider';
 import { addPlayer } from './firebaseHelpers';
 
-// Default Roster to populate the app initially so it is ready to use
-const DEFAULT_ROSTER = [
-  { id: 'p1', name: 'Dustin Martin', jersey: 4, position: 'Forward', medical: 'Asthma inhaler in bag', attendance: [], stats: { totalTime: 420, stints: 8 } },
-  { id: 'p2', name: 'Marcus Bontempelli', jersey: 4, position: 'Midfield', medical: 'None', attendance: [], stats: { totalTime: 360, stints: 6 } },
-  { id: 'p3', name: 'Patrick Cripps', jersey: 9, position: 'Midfield', medical: 'Left knee brace', attendance: [], stats: { totalTime: 480, stints: 9 } },
-  { id: 'p4', name: 'Nick Daicos', jersey: 35, position: 'Midfield', medical: 'None', attendance: [], stats: { totalTime: 240, stints: 4 } },
-  { id: 'p5', name: 'Jeremy Cameron', jersey: 5, position: 'Forward', medical: 'Allergic to nuts', attendance: [], stats: { totalTime: 540, stints: 11 } },
-  { id: 'p6', name: 'Harris Andrews', jersey: 31, position: 'Back', medical: 'Tape right shoulder', attendance: [], stats: { totalTime: 600, stints: 10 } },
-  { id: 'p7', name: 'Tom Stewart', jersey: 44, position: 'Back', medical: 'None', attendance: [], stats: { totalTime: 510, stints: 9 } },
-  { id: 'p8', name: 'Max Gawn', jersey: 11, position: 'Bench', medical: 'None', attendance: [], stats: { totalTime: 300, stints: 5 } },
-  { id: 'p9', name: 'Christian Petracca', jersey: 5, position: 'Bench', medical: 'None', attendance: [], stats: { totalTime: 330, stints: 6 } },
-  { id: 'p10', name: 'Charlie Curnow', jersey: 30, position: 'Bench', medical: 'None', attendance: [], stats: { totalTime: 400, stints: 7 } },
-  { id: 'p11', name: 'Zak Butters', jersey: 9, position: 'Bench', medical: 'None', attendance: [], stats: { totalTime: 280, stints: 5 } },
-];
+// Empty default roster to allow clean user data entry
+const DEFAULT_ROSTER = [];
 
 export default function App() {
   const { currentUser, logout } = useAuth();
