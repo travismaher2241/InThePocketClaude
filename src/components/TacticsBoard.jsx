@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import aflGroundImg from '../assets/AFL GROUND.png';
+import { hasAccess } from '../firebaseHelpers';
 
 export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPaywall }) {
-  // Gate check: Tactics Board requires Ultra or Club tier
-  const isGated = subscriptionTier !== 'Ultra' && subscriptionTier !== 'Club';
+  // Gate check: Tactics Board requires Ultra or B2B tier
+  const isGated = !hasAccess(subscriptionTier, 'ultra');
 
   // Active drawing tool state
   const [tool, setTool] = useState('brush'); // 'brush', 'arrow', 'laser', 'eraser'

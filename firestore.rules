@@ -16,6 +16,10 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
 
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
     match /training_sessions/{sessionId} {
       allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;

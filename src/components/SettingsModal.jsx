@@ -144,10 +144,10 @@ export default function SettingsModal({
                     onChange={(e) => setSubscriptionTier(e.target.value)}
                     style={{ fontWeight: '600', color: 'var(--color-match)' }}
                   >
-                    <option value="Free">Free Tier (Roster & 2 AI generations)</option>
-                    <option value="Pro">Pro Tier (Unlimited AI + Late Override + RAG Uploads)</option>
-                    <option value="Ultra">Ultra Tier (Tactics Board + FootyFlow Alerts + Poster Downloads)</option>
-                    <option value="Club">B2B Club Tier (Organizational Roster Sync)</option>
+                    <option value="Free">Free (Roster Import & 2 Free AI Generations)</option>
+                    <option value="Pro">Pro (Full AI Training, Late-Arrivals, Custom File RAG)</option>
+                    <option value="Ultra">Ultra (Tactics Board, Playbook Export, FootyFlow Clock, Poster Downloads)</option>
+                    <option value="B2B">B2B (Junior Club Master Package - Covers U8-U18)</option>
                   </select>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
                     Simulates upgrading via RevenueCat in Google Play Store. Different tiers unlock tabs and operations.

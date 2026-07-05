@@ -215,3 +215,128 @@ export async function deleteSession(sessionId, uid) {
     }
   }
 }
+
+const TIER_HIERARCHY = {
+  'free': 0,
+  'pro': 1,
+  'ultra': 2,
+  'b2b': 2,
+  'team': 2,
+  'club': 2
+};
+
+/**
+ * Validates if the user's tier has access to the required tier.
+ * @param {string} userTier 
+ * @param {string} requiredTier 
+ * @returns {boolean}
+ */
+export function hasAccess(userTier, requiredTier) {
+  const uTier = (userTier || 'free').toLowerCase();
+  const rTier = (requiredTier || 'free').toLowerCase();
+  
+  const userVal = TIER_HIERARCHY[uTier] ?? 0;
+  const reqVal = TIER_HIERARCHY[rTier] ?? 0;
+  
+  return userVal >= reqVal;
+}
+
+/**
+ * Fetches the user profile document from Firestore.
+ * If it doesn't exist, initializes it with Free tier.
+ * @param {string} uid 
+ * @returns {Promise<object>}
+ */
+export async function getUserProfile(uid) {
+  if (!uid) return null;
+  const userRef = doc(db, "users", uid);
+  const docSnap = await getDoc(userRef);
+  if (docSnap.exists()) {
+    return docSnap.data();
+  }
+  // Initialize default Free profile
+  const defaultProfile = {
+    subscriptionTier: "free",
+    isActive: true,
+    aiGensCount: 0,
+    createdAt: new Date().toISOString()
+  };
+  await setDoc(userRef, defaultProfile);
+  return defaultProfile;
+}
+
+/**
+ * Updates the user profile document in Firestore.
+ * @param {string} uid 
+ * @param {object} fields 
+ */
+export async function updateUserProfile(uid, fields) {
+  if (!uid) throw new Error("UID required to update profile");
+  const userRef = doc(db, "users", uid);
+  await setDoc(userRef, fields, { merge: true });
+}
+
+/**
+ * Backend-secured helper to generate training plans.
+ * Verifies subscription tier directly from Firestore database before calling Gemini.
+ * @param {string} uid 
+ * @param {string} promptText 
+ * @param {string} apiKey 
+ * @returns {Promise<object>}
+ */
+export async function generateAIPlanSecure(uid, promptText, apiKey) {
+  if (!uid) throw new Error("Authenticated user required.");
+  
+  // 1. Fetch user profile from Firestore to verify their subscription
+  const profile = await getUserProfile(uid);
+  if (!profile || !profile.isActive) {
+    throw new Error("Unauthorized: Inactive user profile.");
+  }
+  
+  const userTier = (profile.subscriptionTier || 'free').toLowerCase();
+  if (userTier === 'free') {
+    const currentCount = profile.aiGensCount || 0;
+    if (currentCount >= 2) {
+      throw new Error("Upgrade Required: Free tier is limited to exactly 2 AI generations.");
+    }
+    // Increment count on Firestore
+    await updateUserProfile(uid, { aiGensCount: currentCount + 1 });
+  } else {
+    if (!hasAccess(profile.subscriptionTier, "pro")) {
+      throw new Error("Unauthorized: Active Pro, Ultra, or B2B subscription required to generate AI plans.");
+    }
+  }
+  
+  // 2. Perform AI Generation
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: promptText }] }],
+      generationConfig: {
+        temperature: 0.8,
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "ARRAY",
+          items: {
+            type: "OBJECT",
+            properties: {
+              title: { type: "STRING" },
+              duration: { type: "NUMBER" },
+              instructions: { type: "STRING" },
+              goal: { type: "STRING" },
+              phase: { type: "STRING" }
+            },
+            required: ["title", "duration", "instructions", "goal", "phase"]
+          }
+        }
+      }
+    })
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Gemini API returned status ${response.status}`);
+  }
+  
+  return await response.json();
+}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ContextualTaggingModal from './ContextualTaggingModal';
+import { hasAccess } from '../firebaseHelpers';
 
 // Formal AFL Positional Layout Definitions (18 on-field positions)
 const FIELD_POSITIONS = [
@@ -247,6 +248,47 @@ export default function MatchDay({
     }
     return () => clearInterval(interval);
   }, [isPlaying, fieldAssignments, squad, activeMatchDayIds]);
+
+  const isGated = !hasAccess(subscriptionTier, 'ultra');
+
+  if (isGated) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }}>
+        <div>
+          <h2 className="scoreboard-font" style={{ color: 'var(--color-match)' }}>Match Day (FootyFlow)</h2>
+        </div>
+        <div className="paywall-container" style={{
+          backgroundColor: '#12141c',
+          border: '1px solid rgba(255, 255, 255, 0.05)',
+          borderRadius: '12px',
+          padding: '40px 24px',
+          textAlign: 'center',
+          marginTop: '20px',
+          maxWidth: '600px',
+          margin: '20px auto'
+        }}>
+          <div className="paywall-badge" style={{
+            backgroundColor: 'rgba(230, 57, 70, 0.1)',
+            border: '1.5px solid #e63946',
+            color: '#e63946',
+            padding: '4px 10px',
+            borderRadius: '12px',
+            fontSize: '0.75rem',
+            fontWeight: '700',
+            display: 'inline-block',
+            marginBottom: '16px'
+          }}>ULTRA TIER REQUIRED</div>
+          <h3 className="paywall-title" style={{ fontSize: '1.4rem', color: '#ffffff', margin: '0 0 10px 0', fontFamily: 'var(--font-family-locker)' }}>FootyFlow Match Rotation Manager</h3>
+          <p className="paywall-desc" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: '0 0 24px 0' }}>
+            Upgrade to the Ultra Tier to unlock live player stint timers, automatic visual rotation warnings (FootyFlow), squad interchange rotation boards, and high-res lineup downloads.
+          </p>
+          <button className="btn btn-match" style={{ backgroundColor: '#e63946', borderColor: '#e63946', color: '#ffffff', fontWeight: '700' }} onClick={() => triggerPaywall('Match Day (FootyFlow)')}>
+            Upgrade Account Now
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const toggleGameClock = () => {
     setIsPlaying(!isPlaying);

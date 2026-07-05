@@ -5,8 +5,9 @@ import TacticsBoard from './components/TacticsBoard';
 import MatchDay from './components/MatchDay';
 import VideoAnalyser from './components/VideoAnalyser';
 import SettingsModal from './components/SettingsModal';
+import SubscriptionPage from './components/SubscriptionPage';
 import { useAuth } from './context/AuthProvider';
-import { addPlayer, getPlayers, getSquadSettings, updateSquadSettings } from './firebaseHelpers';
+import { addPlayer, getPlayers, getSquadSettings, updateSquadSettings, getUserProfile, updateUserProfile } from './firebaseHelpers';
 
 // Empty default roster to allow clean user data entry
 const DEFAULT_ROSTER = [];
@@ -97,12 +98,23 @@ export default function App() {
 
           const dbSettings = await getSquadSettings(currentUser.uid);
           setSquadSettings(dbSettings);
+
+          const profile = await getUserProfile(currentUser.uid);
+          if (profile?.subscriptionTier) {
+            const tierLower = profile.subscriptionTier.toLowerCase();
+            let matchedTier = 'Free';
+            if (tierLower === 'pro') matchedTier = 'Pro';
+            else if (tierLower === 'ultra' || tierLower === 'team') matchedTier = 'Ultra';
+            else if (tierLower === 'b2b' || tierLower === 'club') matchedTier = 'B2B';
+            setSubscriptionTier(matchedTier);
+          }
         } catch (err) {
           console.error("Failed to load user data from Firestore:", err);
         }
       } else {
         setSquad([]);
         setSquadSettings({ squadName: 'My Squad', ageGroup: 'U14' });
+        setSubscriptionTier('Free');
       }
     };
     loadUserData();
@@ -172,6 +184,21 @@ export default function App() {
     } else {
       // In offline mode, transaction remains in queue silently
       setSyncQueue(prev => [...prev, newTx]);
+    }
+  };
+
+  const handleUpdateSubscriptionTier = async (newTier) => {
+    setSubscriptionTier(newTier);
+    if (currentUser?.uid) {
+      try {
+        const dbTier = newTier.toLowerCase();
+        await updateUserProfile(currentUser.uid, {
+          subscriptionTier: dbTier,
+          isActive: true
+        });
+      } catch (err) {
+        console.error("Failed to update user profile in Firestore:", err);
+      }
     }
   };
 
@@ -347,6 +374,7 @@ export default function App() {
             logSyncTransaction={logSyncTransaction} 
             onSaveVideoClip={(clip) => setVideoClips(prev => [clip, ...prev])}
             squadSettings={squadSettings}
+            setActiveTab={setActiveTab}
           />
         )}
         {activeTab === 2 && (
@@ -377,13 +405,22 @@ export default function App() {
             showToast={showToast}
           />
         )}
+        {activeTab === 5 && (
+          <SubscriptionPage 
+            currentUser={currentUser}
+            subscriptionTier={subscriptionTier}
+            onUpgrade={handleUpdateSubscriptionTier}
+            showToast={showToast}
+            setActiveTab={setActiveTab}
+          />
+        )}
       </main>
 
       <SettingsModal 
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 
         subscriptionTier={subscriptionTier} 
-        setSubscriptionTier={setSubscriptionTier} 
+        setSubscriptionTier={handleUpdateSubscriptionTier} 
         maxStintMinutes={maxStintMinutes} 
         setMaxStintMinutes={setMaxStintMinutes} 
         syncQueue={syncQueue}
@@ -414,9 +451,9 @@ export default function App() {
                 <button 
                   className="btn btn-primary" 
                   onClick={() => {
-                    setSubscriptionTier('Pro');
+                    handleUpdateSubscriptionTier('Pro');
                     setPaywallFeature(null);
-                    showToast("Simulated Upgrade: Pro Tier activated via RevenueCat SDK.");
+                    showToast("Simulated Upgrade: Welcome to Pro! You now have access to all of the amazing pro features in COACHCORE!");
                   }}
                   style={{ width: '100%', padding: '12px' }}
                 >
@@ -425,13 +462,24 @@ export default function App() {
                 <button 
                   className="btn btn-match" 
                   onClick={() => {
-                    setSubscriptionTier('Ultra');
+                    handleUpdateSubscriptionTier('Ultra');
                     setPaywallFeature(null);
-                    showToast("Simulated Upgrade: Ultra Tier activated via RevenueCat SDK.");
+                    showToast("Simulated Upgrade: Welcome to Ultra! You now have access to all of the amazing pro features in COACHCORE!");
                   }}
                   style={{ width: '100%', padding: '12px' }}
                 >
                   Activate Ultra Tier ($19.99/mo)
+                </button>
+                <button 
+                  className="btn" 
+                  onClick={() => {
+                    handleUpdateSubscriptionTier('B2B');
+                    setPaywallFeature(null);
+                    showToast("Simulated Upgrade: Welcome to B2B! You now have access to all of the amazing pro features in COACHCORE!");
+                  }}
+                  style={{ width: '100%', padding: '12px', borderColor: 'rgba(255, 183, 3, 0.4)', color: '#ffb703' }}
+                >
+                  Activate B2B Club Tier (Junior Club Package)
                 </button>
               </div>
 
@@ -483,6 +531,13 @@ export default function App() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 15a7 7 0 007-7h-2.128A3.001 3.001 0 0015 5h-6a3 3 0 00-1.872 1H5a7 7 0 007 7zm0 0v5m-4 0h8M5 8h2m10 0h2"/>
           </svg>
           <span className="nav-tab-label">Match Day</span>
+        </button>
+
+        <button className={`nav-tab ${activeTab === 5 ? 'active-tab-5' : ''}`} onClick={() => setActiveTab(5)}>
+          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span className="nav-tab-label">Upgrade</span>
         </button>
       </nav>
     </div>

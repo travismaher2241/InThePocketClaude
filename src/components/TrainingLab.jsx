@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ContextualTaggingModal from './ContextualTaggingModal';
-import { saveTrainingSession, getTrainingSessions, deleteSession } from '../firebaseHelpers';
+import { saveTrainingSession, getTrainingSessions, deleteSession, hasAccess, generateAIPlanSecure, getUserProfile } from '../firebaseHelpers';
 import { useAuth } from '../context/AuthProvider';
 import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS } from '../data/curriculumKnowledge';
 
@@ -41,7 +41,8 @@ export default function TrainingLab({
   triggerPaywall,
   logSyncTransaction,
   onSaveVideoClip,
-  squadSettings
+  squadSettings,
+  setActiveTab
 }) {
   const { currentUser } = useAuth();
 
@@ -52,6 +53,7 @@ export default function TrainingLab({
   const [selectedSession, setSelectedSession] = useState(null);
   const [showEndSessionModal, setShowEndSessionModal] = useState(false);
   const [coachNotes, setCoachNotes] = useState('');
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
   // Draft Preservation Load
   const [draft] = useState(() => {
@@ -133,7 +135,23 @@ export default function TrainingLab({
   const [isGenerating, setIsGenerating] = useState(false);
   const [planCards, setPlanCards] = useState(draft?.planCards || []); // Array of structured drill card objects
   const [isFallback, setIsFallback] = useState(false);
-  const [freeGensRemaining, setFreeGensRemaining] = useState(2);
+  const [aiGensUsed, setAiGensUsed] = useState(0);
+
+  useEffect(() => {
+    const fetchGensCount = async () => {
+      if (currentUser?.uid) {
+        try {
+          const profile = await getUserProfile(currentUser.uid);
+          if (profile) {
+            setAiGensUsed(profile.aiGensCount || 0);
+          }
+        } catch (err) {
+          console.error("Failed to fetch generations count: ", err);
+        }
+      }
+    };
+    fetchGensCount();
+  }, [currentUser]);
 
   // Sync draft parameters to localStorage on changes
   useEffect(() => {
@@ -229,10 +247,18 @@ export default function TrainingLab({
   const runPlanGeneration = async (overrideCount) => {
     const playerCount = overrideCount !== undefined ? overrideCount : presentIds.length;
 
-    // Check Monetization limitations for Free Tier
-    if (subscriptionTier === 'Free' && freeGensRemaining <= 0) {
-      triggerPaywall('AI Training Generator generations');
-      return;
+    // Check access using our Gatekeeper pattern
+    const userTierClean = (subscriptionTier || 'Free').toLowerCase();
+    if (userTierClean === 'free' || userTierClean === 'default') {
+      if (aiGensUsed >= 2) {
+        setIsUpgradeModalOpen(true);
+        return;
+      }
+    } else {
+      if (!hasAccess(subscriptionTier, 'Pro')) {
+        setIsUpgradeModalOpen(true);
+        return;
+      }
     }
 
     setIsGenerating(true);
@@ -304,32 +330,7 @@ Ensure you return a JSON array containing exactly 5 objects. Each object must ha
 
 ${customPlaybookText ? `Use the following strategic playbook guidelines to shape the drills and tactics: "${customPlaybookText}"` : ''}`;
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }],
-            generationConfig: {
-              temperature: 0.8,
-              responseMimeType: "application/json",
-              responseSchema: {
-                type: "ARRAY",
-                items: {
-                  type: "OBJECT",
-                  properties: {
-                    title: { type: "STRING" },
-                    duration: { type: "NUMBER" },
-                    instructions: { type: "STRING" },
-                    goal: { type: "STRING" },
-                    phase: { type: "STRING" }
-                  },
-                  required: ["title", "duration", "instructions", "goal", "phase"]
-                }
-              }
-            }
-          })
-        });
-        const data = await response.json();
+        const data = await generateAIPlanSecure(currentUser?.uid, promptText, apiKey);
         const contentText = data.candidates?.[0]?.content?.parts?.[0]?.text;
         
         if (contentText) {
@@ -360,8 +361,9 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
               setPlanCards(normalized);
               setIsFallback(false);
               setIsGenerating(false);
-              if (subscriptionTier === 'Free') {
-                setFreeGensRemaining(prev => prev - 1);
+              const userTierClean = (subscriptionTier || 'Free').toLowerCase();
+              if (userTierClean === 'free' || userTierClean === 'default') {
+                setAiGensUsed(prev => prev + 1);
               }
               logSyncTransaction('GEMINI_API_PLAN_GEN', { focus: focusAreas.join(", "), duration, playerCount });
               return;
@@ -457,15 +459,16 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
 
       setPlanCards(generatedFallbackCards);
       setIsGenerating(false);
-      if (subscriptionTier === 'Free') {
-        setFreeGensRemaining(prev => prev - 1);
+      const userTierClean = (subscriptionTier || 'Free').toLowerCase();
+      if (userTierClean === 'free' || userTierClean === 'default') {
+        setAiGensUsed(prev => prev + 1);
       }
       logSyncTransaction('LOCAL_FALLBACK_PLAN_GEN', { focus: focusAreas.join(", "), duration, playerCount });
     }, 1500);
   };
 
   const handlePlaybookFocus = () => {
-    if (subscriptionTier === 'Free') {
+    if (!hasAccess(subscriptionTier, 'pro')) {
       triggerPaywall("The Coach's Edge Custom Playbook Upload (RAG)");
     }
   };
@@ -1496,7 +1499,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       {(step === 'parameters' || step === 'plan') && (
         <button 
           onClick={() => {
-            if (subscriptionTier === 'Free') {
+            if (!hasAccess(subscriptionTier, 'pro')) {
               triggerPaywall("Mid-Session Late Arrival Override");
             } else {
               setIsLateModalOpen(true);
@@ -1712,6 +1715,71 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
           </div>
         </div>
       )}
+      {/* Upgrade Required Modal */}
+      {isUpgradeModalOpen && (
+        <div className="overlay-backdrop" style={{ zIndex: 1000 }}>
+          <div className="modal-content" style={{ maxWidth: '440px', textAlign: 'center' }}>
+            <div className="modal-body" style={{ padding: '36px 24px', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+              <div style={{
+                width: '60px',
+                height: '60px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(230, 57, 70, 0.1)',
+                border: '2.5px solid #e63946',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#e63946',
+                fontSize: '1.8rem',
+                marginBottom: '10px'
+              }}>
+                🔒
+              </div>
+              <h3 className="scoreboard-font" style={{ fontSize: '1.4rem', color: '#e63946', margin: 0 }}>
+                UPGRADE REQUIRED
+              </h3>
+              <p style={{ fontSize: '0.9rem', color: '#ffffff', lineHeight: '1.5' }}>
+                AI-driven Training Plan generation is an elite feature reserved for Pro and Team subscription tiers.
+              </p>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                Unlock unlimited AI generation, cloud tactical boards, drill synchronization, and team sync templates.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', marginTop: '10px' }}>
+                <button 
+                  className="btn btn-primary" 
+                  onClick={() => {
+                    setIsUpgradeModalOpen(false);
+                    if (setActiveTab) setActiveTab(5);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    fontWeight: '700',
+                    textTransform: 'uppercase',
+                    backgroundColor: '#e63946',
+                    borderColor: '#e63946'
+                  }}
+                >
+                  View Subscription Options
+                </button>
+                <button 
+                  className="btn" 
+                  onClick={() => setIsUpgradeModalOpen(false)}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    color: 'var(--text-secondary)'
+                  }}
+                >
+                  Maybe Later
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Animations */}
       <style>{`
         @keyframes fadeIn {
