@@ -150,7 +150,7 @@ export default function TrainingLab({
   const clearDraft = () => {
     localStorage.removeItem('coachcore_training_draft');
     setStep('wizard');
-    setPresentIds(squad.map(p => p.id));
+    setPresentIds([]);
     setDuration(70);
     const list = AGE_FOCUS_MAP[ageGroup] || AGE_FOCUS_MAP['Seniors'];
     setFocusAreas([list[0]]);
@@ -182,12 +182,6 @@ export default function TrainingLab({
   const [lateJersey, setLateJersey] = useState('');
   const [lateArrivalMessage, setLateArrivalMessage] = useState('');
 
-  // Initialize attendance with all players present by default
-  useEffect(() => {
-    if (squad.length > 0 && presentIds.length === 0) {
-      setPresentIds(squad.map(p => p.id));
-    }
-  }, [squad]);
 
   const togglePlayer = (id) => {
     if (presentIds.includes(id)) {
@@ -834,6 +828,52 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
             </h2>
           </div>
 
+          {squad.length > 0 && (
+            <div 
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0 0 16px 0',
+                fontSize: '0.85rem',
+                fontFamily: 'var(--font-family-body)',
+                color: 'var(--text-secondary)'
+              }}
+            >
+              <span>{presentIds.length} of {squad.length} selected</span>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <button
+                  onClick={() => setPresentIds(squad.map(p => p.id))}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--color-training)',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: '600',
+                    padding: 0
+                  }}
+                >
+                  Select All
+                </button>
+                <button
+                  onClick={() => setPresentIds([])}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: '600',
+                    padding: 0
+                  }}
+                >
+                  Clear All
+                </button>
+              </div>
+            </div>
+          )}
+
           <div 
             style={{ 
               display: 'flex', 
@@ -914,10 +954,11 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
             <div style={{ maxWidth: '480px', margin: '0 auto' }}>
               <button
                 onClick={handleConfirmAttendance}
+                disabled={presentIds.length === 0}
                 style={{
                   width: '100%',
-                  backgroundColor: 'var(--color-training)',
-                  color: '#ffffff',
+                  backgroundColor: presentIds.length === 0 ? 'var(--text-muted)' : 'var(--color-training)',
+                  color: presentIds.length === 0 ? 'rgba(255, 255, 255, 0.4)' : '#ffffff',
                   border: 'none',
                   borderRadius: '6px',
                   padding: '14px',
@@ -926,8 +967,9 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                   fontWeight: '700',
                   letterSpacing: '0.05em',
                   textTransform: 'uppercase',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(230, 57, 70, 0.3)'
+                  cursor: presentIds.length === 0 ? 'not-allowed' : 'pointer',
+                  boxShadow: presentIds.length === 0 ? 'none' : '0 4px 12px rgba(230, 57, 70, 0.3)',
+                  transition: 'all 0.2s ease'
                 }}
               >
                 Confirm Attendance
