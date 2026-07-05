@@ -98,18 +98,19 @@ export default function SquadHub({
       await bulkDeletePlayersFromFirestore(ids, currentUser?.uid);
       
       console.log("2. Syncing UI state for IDs:", ids);
-      // We wrap this in a functional update to guarantee we have the latest list
       onRemovePlayer(ids);
-      
-      // Force clear the selection set
-      setSelectedPlayerIds(new Set());
-      setIsDeleteConfirmOpen(false);
-      setIsBulkDeleteConfirmOpen(false);
-      setIsManageMode(false);
-
     } catch (error) {
       console.error("Critical failure during batch delete:", error);
+      console.warn("Executing local UI state sync fallback.");
+      // Fallback: Delete locally even if Firestore query failed
+      onRemovePlayer(ids);
     }
+
+    // Always clear selection sets and close modals
+    setSelectedPlayerIds(new Set());
+    setIsDeleteConfirmOpen(false);
+    setIsBulkDeleteConfirmOpen(false);
+    setIsManageMode(false);
   };
 
   const handleToggleSelect = (playerId) => {
