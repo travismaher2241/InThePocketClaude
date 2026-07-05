@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function SettingsModal({
   isOpen,
@@ -8,8 +8,28 @@ export default function SettingsModal({
   maxStintMinutes,
   setMaxStintMinutes,
   syncQueue,
-  clearSyncQueue
+  clearSyncQueue,
+  squadSettings,
+  onSaveSettings
 }) {
+  const [squadName, setSquadName] = useState(squadSettings?.squadName || 'My Squad');
+  const [ageGroup, setAgeGroup] = useState(squadSettings?.ageGroup || 'U14');
+
+  // Reset inputs when settings change or modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setSquadName(squadSettings?.squadName || 'My Squad');
+      setAgeGroup(squadSettings?.ageGroup || 'U14');
+    }
+  }, [isOpen, squadSettings]);
+
+  const handleSave = () => {
+    if (typeof onSaveSettings === 'function') {
+      onSaveSettings({ squadName, ageGroup });
+    }
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -25,8 +45,41 @@ export default function SettingsModal({
         </div>
 
         <div className="modal-body">
+          {/* Squad Info Settings */}
+          <div style={{ paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
+            <h3 style={{ fontSize: '0.90rem', marginBottom: '12px', color: 'var(--color-squad)', textTransform: 'uppercase', fontWeight: '700' }}>Squad Configuration</h3>
+            <div className="form-group" style={{ marginBottom: '12px' }}>
+              <label>Squad / Team Name</label>
+              <input 
+                type="text" 
+                value={squadName} 
+                onChange={(e) => setSquadName(e.target.value)} 
+                placeholder="e.g. U12 Jets"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Age Group</label>
+              <select 
+                value={ageGroup} 
+                onChange={(e) => setAgeGroup(e.target.value)}
+                style={{ fontWeight: '600' }}
+                required
+              >
+                <option value="U8">U8</option>
+                <option value="U10">U10</option>
+                <option value="U12">U12</option>
+                <option value="U14">U14</option>
+                <option value="U16">U16</option>
+                <option value="U18">U18</option>
+                <option value="Seniors">Seniors</option>
+                <option value="Veterans (Over 35s)">Veterans (Over 35s)</option>
+              </select>
+            </div>
+          </div>
+
           {/* Subscription Gating Selector */}
-          <div className="form-group" style={{ paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
+          <div className="form-group" style={{ paddingTop: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
             <label>Subscription Tier (RevenueCat Simulator)</label>
             <select 
               value={subscriptionTier} 
@@ -105,7 +158,7 @@ export default function SettingsModal({
         </div>
 
         <div className="modal-footer">
-          <button className="btn btn-primary" onClick={onClose} style={{ width: '100%' }}>
+          <button className="btn btn-primary" onClick={handleSave} style={{ width: '100%' }}>
             Save Settings & Return
           </button>
         </div>

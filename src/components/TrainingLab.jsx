@@ -31,7 +31,8 @@ export default function TrainingLab({
   apiKey,
   triggerPaywall,
   logSyncTransaction,
-  onSaveVideoClip
+  onSaveVideoClip,
+  squadSettings
 }) {
   const [step, setStep] = useState('wizard'); // 'wizard', 'attendance', 'parameters', 'plan'
   const [presentIds, setPresentIds] = useState([]);
@@ -70,7 +71,13 @@ export default function TrainingLab({
   };
   
   // Parameter selections
-  const [ageGroup, setAgeGroup] = useState('U14 Mixed');
+  const [ageGroup, setAgeGroup] = useState(squadSettings?.ageGroup || 'U14');
+
+  useEffect(() => {
+    if (squadSettings?.ageGroup) {
+      setAgeGroup(squadSettings.ageGroup);
+    }
+  }, [squadSettings]);
   const [duration, setDuration] = useState(90);
   const [focus, setFocus] = useState('Corridor Transitions');
 
@@ -156,7 +163,9 @@ export default function TrainingLab({
 
     if (isRealApiCall) {
       try {
-        const promptText = `Act as an elite AFL coach. Create a training plan for ${duration} minutes, specifically for ${playerCount} players. The focus is ${focus}. The plan must include three segments: warm-up, skill drills, and a game-based scenario.
+        const promptText = `Act as an elite AFL coach. Create a training plan for ${duration} minutes, specifically for ${playerCount} players. 
+The players belong to the "${ageGroup}" age group level. Ensure all warm-up instructions, skill drills, and match simulations are developmentally and physically appropriate for the ${ageGroup} category.
+The focus is ${focus}. The plan must include three segments: warm-up, skill drills, and a game-based scenario.
 Format your output STRICTLY as a JSON array of exactly 3 objects. Do not include markdown code block markers. Each object must have these keys:
 "title": Title of the drill segment (e.g. "WARM-UP: DYNAMIC CORRIDOR ACTIVATION")
 "duration": The duration in minutes as a number
@@ -599,20 +608,12 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="form-group">
               <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>Age Group</label>
-              <select value={ageGroup} onChange={(e) => setAgeGroup(e.target.value)}>
-                <option value="U8 Mixed">U8 Mixed</option>
-                <option value="U10 Mixed">U10 Mixed</option>
-                <option value="U12 Mixed">U12 Mixed</option>
-                <option value="U14 Mixed">U14 Mixed</option>
-                <option value="U12 Girls">U12 Girls</option>
-                <option value="U14 Girls">U14 Girls</option>
-                <option value="U16 Girls">U16 Girls</option>
-                <option value="U18 Girls">U18 Girls</option>
-                <option value="U16 Boys">U16 Boys</option>
-                <option value="U18 Boys">U18 Boys</option>
-                <option value="Senior Women">Senior Women</option>
-                <option value="Senior Men">Senior Men</option>
+              <select value={ageGroup} disabled style={{ backgroundColor: 'rgba(255,255,255,0.03)', opacity: 0.8, cursor: 'not-allowed' }}>
+                <option value={ageGroup}>{ageGroup} (Inherited from Settings)</option>
               </select>
+              <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                To customize the age group target, click the COACHCORE header in the top-left to update squad settings.
+              </p>
             </div>
 
             <div className="form-group">

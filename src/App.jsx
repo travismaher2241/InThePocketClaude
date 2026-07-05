@@ -6,7 +6,7 @@ import MatchDay from './components/MatchDay';
 import VideoAnalyser from './components/VideoAnalyser';
 import SettingsModal from './components/SettingsModal';
 import { useAuth } from './context/AuthProvider';
-import { addPlayer } from './firebaseHelpers';
+import { addPlayer, getPlayers, getSquadSettings, updateSquadSettings } from './firebaseHelpers';
 
 // Empty default roster to allow clean user data entry
 const DEFAULT_ROSTER = [];
@@ -73,6 +73,40 @@ export default function App() {
 
   // Paywall Modal state
   const [paywallFeature, setPaywallFeature] = useState(null);
+
+  const [squadSettings, setSquadSettings] = useState(() => {
+    const saved = localStorage.getItem('coachcore_squad_settings');
+    return saved ? JSON.parse(saved) : { squadName: 'My Squad', ageGroup: 'U14' };
+  });
+
+  useEffect(() => {
+    localStorage.setItem('coachcore_squad_settings', JSON.stringify(squadSettings));
+  }, [squadSettings]);
+
+  // Load squad and squad settings from Firestore when user logs in
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (currentUser?.uid) {
+        try {
+          const dbPlayers = await getPlayers(currentUser.uid);
+          if (dbPlayers.length > 0) {
+            setSquad(dbPlayers);
+          } else {
+            setSquad([]);
+          }
+
+          const dbSettings = await getSquadSettings(currentUser.uid);
+          setSquadSettings(dbSettings);
+        } catch (err) {
+          console.error("Failed to load user data from Firestore:", err);
+        }
+      } else {
+        setSquad([]);
+        setSquadSettings({ squadName: 'My Squad', ageGroup: 'U14' });
+      }
+    };
+    loadUserData();
+  }, [currentUser]);
 
   // Sync state changes to LocalStorage
   useEffect(() => {
@@ -217,6 +251,21 @@ export default function App() {
     }
   };
 
+  const handleSaveSettings = async (newSettings) => {
+    setSquadSettings(newSettings);
+    if (currentUser?.uid) {
+      try {
+        await updateSquadSettings(newSettings, currentUser.uid);
+        showToast("Squad settings saved successfully.");
+      } catch (err) {
+        console.error("Failed to save squad settings to Firestore:", err);
+        showToast("Error: Failed to save squad settings to cloud.");
+      }
+    } else {
+      showToast("Squad settings saved locally.");
+    }
+  };
+
   const triggerPaywall = (featureName) => {
     setPaywallFeature(featureName);
   };
@@ -297,6 +346,7 @@ export default function App() {
             triggerPaywall={triggerPaywall} 
             logSyncTransaction={logSyncTransaction} 
             onSaveVideoClip={(clip) => setVideoClips(prev => [clip, ...prev])}
+            squadSettings={squadSettings}
           />
         )}
         {activeTab === 2 && (
@@ -340,6 +390,8 @@ export default function App() {
           setSyncQueue([]);
           showToast("Sync transactions queue cleared.");
         }}
+        squadSettings={squadSettings}
+        onSaveSettings={handleSaveSettings}
       />
 
       {/* Interactive Paywall Gating Screen overlay */}

@@ -10,7 +10,8 @@ import {
   where, 
   getDocs, 
   getDoc,
-  updateDoc
+  updateDoc,
+  setDoc
 } from "firebase/firestore";
 
 const db = getFirestore(app);
@@ -126,4 +127,34 @@ export async function archivePlayersInFirestore(players) {
     batch.delete(playerRef);
   });
   await batch.commit();
+}
+
+/**
+ * Fetches the squad settings document for the authenticated user.
+ * @param {string} uid 
+ * @returns {Promise<object>}
+ */
+export async function getSquadSettings(uid) {
+  if (!uid) return { squadName: "My Squad", ageGroup: "U14" };
+  const docRef = doc(db, "squad_settings", uid);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    return docSnap.data();
+  }
+  return { squadName: "My Squad", ageGroup: "U14" };
+}
+
+/**
+ * Updates the squad settings document in Firestore for the authenticated user.
+ * @param {object} settings 
+ * @param {string} uid 
+ */
+export async function updateSquadSettings(settings, uid) {
+  if (!uid) throw new Error("Authenticated user uid is required to save squad settings.");
+  const docRef = doc(db, "squad_settings", uid);
+  await setDoc(docRef, {
+    ...settings,
+    ownerId: uid,
+    updatedAt: new Date().toISOString()
+  }, { merge: true });
 }

@@ -21,5 +21,9 @@ service cloud.firestore {
     match /archived_players/{archivedId} {
       allow read, write, delete: if request.auth != null && (resource == null || request.auth.uid == resource.data.ownerId);
     }
+
+    match /squad_settings/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
   }
 }
