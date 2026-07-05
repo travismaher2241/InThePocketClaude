@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { deletePlayerFromFirestore, bulkDeletePlayersFromFirestore, archivePlayersInFirestore } from '../firebaseHelpers';
 import { useAuth } from '../context/AuthProvider';
+import * as XLSX from 'xlsx';
 
 export default function SquadHub({ 
   squad, 
@@ -12,9 +13,10 @@ export default function SquadHub({
   onSelectClipForReview 
 }) {
   const { currentUser } = useAuth();
-  const [csvText, setCsvText] = useState('');
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [excelPlayers, setExcelPlayers] = useState([]);
+  const [excelFileName, setExcelFileName] = useState('');
 
   // Bulk Management State
   const [isManageMode, setIsManageMode] = useState(false);
@@ -148,20 +150,78 @@ export default function SquadHub({
     setIsManageMode(false);
   };
 
-  const handleCsvSubmit = () => {
-    if (!csvText.trim()) return;
-    onImportCSV(csvText);
-    setCsvText('');
-    setIsImportOpen(false);
+  const handleExcelUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setExcelFileName(file.name);
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const data = new Uint8Array(evt.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        
+        const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        const parsed = [];
+
+        rows.forEach((row, idx) => {
+          // Skip header if it matches name/number headers
+          if (idx === 0 && row.some(cell => typeof cell === 'string' && (cell.toLowerCase().includes('name') || cell.toLowerCase().includes('number') || cell.toLowerCase().includes('jersey')))) {
+            return;
+          }
+          
+          let name = '';
+          let jersey = null;
+
+          row.forEach(cell => {
+            if (typeof cell === 'string' && !name) {
+              name = cell.trim();
+            } else if (typeof cell === 'number' && jersey === null) {
+              jersey = Math.round(cell);
+            } else if (typeof cell === 'string' && !isNaN(parseInt(cell)) && jersey === null) {
+              jersey = parseInt(cell);
+            }
+          });
+
+          if (name && jersey !== null) {
+            parsed.push({
+              name,
+              jersey,
+              position: 'Bench', // default
+              medical: 'None'    // default
+            });
+          }
+        });
+
+        setExcelPlayers(parsed);
+      } catch (err) {
+        console.error("Failed to parse Excel file:", err);
+        alert("Failed to parse Excel file. Make sure it contains a column of Names and a column of Numbers.");
+      }
+    };
+    reader.readAsArrayBuffer(file);
   };
 
-  // Sample CSV for the user to quickly copy/paste
-  const sampleCsv = `Dustin Martin,4,Forward,Asthma inhaler in bag
-Marcus Bontempelli,4,Midfield,None
-Patrick Cripps,9,Midfield,Left knee brace
-Nick Daicos,35,Midfield,None
-Jeremy Cameron,5,Forward,Allergic to nuts
-Harris Andrews,31,Back,Tape right shoulder`;
+  const handleExcelSubmit = () => {
+    if (excelPlayers.length === 0) return;
+    
+    excelPlayers.forEach(player => {
+      onAddPlayer({
+        name: player.name,
+        jersey: player.jersey,
+        position: player.position,
+        medical: player.medical,
+        attendance: [],
+        stats: { totalTime: 0, stints: 0 }
+      });
+    });
+
+    setExcelPlayers([]);
+    setExcelFileName('');
+    setIsImportOpen(false);
+  };
 
   return (
     <div style={{ 
@@ -619,13 +679,17 @@ Harris Andrews,31,Back,Tape right shoulder`;
         </div>
       )}
 
-      {/* CSV Import Modal Backdrop overlay */}
+      {/* Excel Import Modal Backdrop overlay */}
       {isImportOpen && (
         <div className="overlay-backdrop">
           <div className="modal-content" style={{ maxWidth: '500px' }}>
             <div className="modal-header">
-              <h3 className="scoreboard-font" style={{ color: 'var(--color-squad)' }}>Import Roster CSV</h3>
-              <button className="icon-btn" onClick={() => setIsImportOpen(false)}>
+              <h3 className="scoreboard-font" style={{ color: 'var(--color-squad)' }}>Import Roster Excel</h3>
+              <button className="icon-btn" onClick={() => {
+                setIsImportOpen(false);
+                setExcelPlayers([]);
+                setExcelFileName('');
+              }}>
                 <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
@@ -633,30 +697,88 @@ Harris Andrews,31,Back,Tape right shoulder`;
             </div>
             <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <p style={{ fontSize: '0.8rem', color: '#8d939e', lineHeight: '1.4' }}>
-                Copy-paste raw CSV spreadsheet content below. The format should be: <strong>Name, Jersey, Position, MedicalNotes</strong> (one player per line).
+                Upload an Excel sheet (`.xlsx`, `.xls`) containing **Player Name** and **Player Number** (e.g. Jersey #) columns. Medical details and positions are not required during upload and can be edited later.
               </p>
-              <textarea 
-                rows="6" 
-                placeholder="Name,Jersey,Position,MedicalNotes" 
-                value={csvText} 
-                onChange={(e) => setCsvText(e.target.value)}
-                style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}
-              />
-              <div>
-                <span style={{ fontSize: '0.75rem', color: '#8d939e', display: 'block', marginBottom: '6px' }}>Sample CSV Format (Tap below to insert):</span>
-                <button 
-                  className="btn" 
-                  onClick={() => setCsvText(sampleCsv)} 
-                  style={{ display: 'block', width: '100%', fontSize: '0.75rem', padding: '8px', fontFamily: 'monospace', textAlign: 'left', backgroundColor: 'var(--bg-floor)', border: '1px solid rgba(255,255,255,0.05)' }}
-                >
-                  {sampleCsv.substring(0, 110)}...
-                </button>
+              
+              <div style={{
+                border: '2px dashed rgba(255, 255, 255, 0.1)',
+                borderRadius: '8px',
+                padding: '24px 16px',
+                textAlign: 'center',
+                backgroundColor: 'rgba(0,0,0,0.2)',
+                cursor: 'pointer',
+                position: 'relative'
+              }}>
+                <input 
+                  type="file" 
+                  accept=".xlsx, .xls"
+                  onChange={handleExcelUpload}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    opacity: 0,
+                    cursor: 'pointer'
+                  }}
+                />
+                <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ color: 'var(--color-squad)', marginBottom: '8px' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <div style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '600' }}>
+                  {excelFileName ? excelFileName : "Click or Drag & Drop Excel File"}
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#8d939e', marginTop: '4px' }}>
+                  Supports .xlsx, .xls spreadsheet formats
+                </div>
               </div>
+
+              {excelPlayers.length > 0 && (
+                <div>
+                  <span style={{ fontSize: '0.75rem', color: '#8d939e', display: 'block', marginBottom: '8px', fontWeight: '600', textTransform: 'uppercase' }}>
+                    Parsed Players Preview ({excelPlayers.length}):
+                  </span>
+                  <div style={{ 
+                    maxHeight: '180px', 
+                    overflowY: 'auto', 
+                    backgroundColor: 'rgba(0,0,0,0.3)', 
+                    borderRadius: '6px', 
+                    border: '1px solid rgba(255,255,255,0.05)',
+                    padding: '8px'
+                  }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', color: '#ffffff' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>
+                          <th style={{ padding: '6px 4px', color: '#8d939e', fontWeight: '600' }}>Name</th>
+                          <th style={{ padding: '6px 4px', color: '#8d939e', fontWeight: '600', textAlign: 'right' }}>Number</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {excelPlayers.map((p, i) => (
+                          <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                            <td style={{ padding: '6px 4px', fontWeight: '500' }}>{p.name}</td>
+                            <td style={{ padding: '6px 4px', fontWeight: '700', color: 'var(--color-squad)', textAlign: 'right' }}>#{p.jersey}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="modal-footer">
-              <button className="btn" onClick={() => setIsImportOpen(false)}>Cancel</button>
-              <button className="btn btn-squad" onClick={handleCsvSubmit} disabled={!csvText.trim()}>
-                Parse & Import
+              <button className="btn" onClick={() => {
+                setIsImportOpen(false);
+                setExcelPlayers([]);
+                setExcelFileName('');
+              }}>Cancel</button>
+              <button 
+                className="btn btn-squad" 
+                onClick={handleExcelSubmit} 
+                disabled={excelPlayers.length === 0}
+              >
+                Confirm & Import ({excelPlayers.length})
               </button>
             </div>
           </div>
