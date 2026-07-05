@@ -14,6 +14,7 @@ export default function SettingsModal({
 }) {
   const [squadName, setSquadName] = useState(squadSettings?.squadName || 'My Squad');
   const [ageGroup, setAgeGroup] = useState(squadSettings?.ageGroup || 'U14');
+  const [showDevSettings, setShowDevSettings] = useState(false);
 
   // Reset inputs when settings change or modal opens
   useEffect(() => {
@@ -78,25 +79,7 @@ export default function SettingsModal({
             </div>
           </div>
 
-          {/* Subscription Gating Selector */}
-          <div className="form-group" style={{ paddingTop: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
-            <label>Subscription Tier (RevenueCat Simulator)</label>
-            <select 
-              value={subscriptionTier} 
-              onChange={(e) => setSubscriptionTier(e.target.value)}
-              style={{ fontWeight: '600', color: 'var(--color-match)' }}
-            >
-              <option value="Free">Free Tier (Roster & 2 AI generations)</option>
-              <option value="Pro">Pro Tier (Unlimited AI + Late Override + RAG Uploads)</option>
-              <option value="Ultra">Ultra Tier (Tactics Board + FootyFlow Alerts + Poster Downloads)</option>
-              <option value="Club">B2B Club Tier (Organizational Roster Sync)</option>
-            </select>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
-              Simulates upgrading via RevenueCat in Google Play Store. Different tiers unlock tabs and operations.
-            </p>
-          </div>
-
-          {/* Max Stint limit */}
+          {/* Max Stint limit (User setting) */}
           <div className="form-group" style={{ paddingTop: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
             <label>FootyFlow Max Player Stint: {maxStintMinutes} Minutes</label>
             <input 
@@ -112,48 +95,111 @@ export default function SettingsModal({
             </p>
           </div>
 
-          {/* Offline Sync Log */}
-          <div style={{ paddingTop: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <label>Offline Sync Transaction Log ({syncQueue.length})</label>
-              {syncQueue.length > 0 && (
-                <button 
-                  className="btn" 
-                  onClick={clearSyncQueue} 
-                  style={{ padding: '2px 8px', fontSize: '0.7rem', border: '1px solid rgba(230, 57, 70, 0.3)', color: '#e63946' }}
-                >
-                  Clear Queue
-                </button>
-              )}
-            </div>
-            <div 
-              style={{ 
-                backgroundColor: 'var(--bg-floor)', 
-                border: '1px solid var(--border-light)', 
-                borderRadius: '6px', 
-                padding: '12px', 
-                height: '140px', 
-                overflowY: 'auto',
+          {/* Developer / Simulation Settings Collapsible */}
+          <div style={{ marginTop: '20px', borderTop: '1px dashed rgba(255,255,255,0.08)', paddingTop: '16px' }}>
+            <button 
+              type="button"
+              onClick={() => setShowDevSettings(!showDevSettings)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-secondary)',
                 fontSize: '0.75rem',
-                fontFamily: 'monospace'
+                fontWeight: '700',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: 0,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
               }}
             >
-              {syncQueue.length === 0 ? (
-                <div style={{ color: 'var(--text-muted)', textAlign: 'center', paddingTop: '48px' }}>
-                  No pending transactions. All changes are synced.
+              <svg 
+                width="10" 
+                height="10" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2.5" 
+                viewBox="0 0 24 24" 
+                style={{ 
+                  transform: showDevSettings ? 'rotate(90deg)' : 'none', 
+                  transition: 'transform 0.2s',
+                  color: 'var(--text-muted)'
+                }}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
+              </svg>
+              Developer / Simulation Settings
+            </button>
+
+            {showDevSettings && (
+              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                
+                {/* Subscription Gating Selector */}
+                <div className="form-group" style={{ paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
+                  <label>Subscription Tier (RevenueCat Simulator)</label>
+                  <select 
+                    value={subscriptionTier} 
+                    onChange={(e) => setSubscriptionTier(e.target.value)}
+                    style={{ fontWeight: '600', color: 'var(--color-match)' }}
+                  >
+                    <option value="Free">Free Tier (Roster & 2 AI generations)</option>
+                    <option value="Pro">Pro Tier (Unlimited AI + Late Override + RAG Uploads)</option>
+                    <option value="Ultra">Ultra Tier (Tactics Board + FootyFlow Alerts + Poster Downloads)</option>
+                    <option value="Club">B2B Club Tier (Organizational Roster Sync)</option>
+                  </select>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
+                    Simulates upgrading via RevenueCat in Google Play Store. Different tiers unlock tabs and operations.
+                  </p>
                 </div>
-              ) : (
-                syncQueue.map((item, idx) => (
-                  <div key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '4px', marginBottom: '4px' }}>
-                    <span style={{ color: 'var(--color-match)' }}>[{new Date(item.timestamp).toLocaleTimeString()}]</span>{' '}
-                    <span style={{ color: 'var(--color-squad)' }}>{item.type}</span> - {JSON.stringify(item.payload)}
+
+                {/* Offline Sync Log */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <label>Offline Sync Transaction Log ({syncQueue.length})</label>
+                    {syncQueue.length > 0 && (
+                      <button 
+                        className="btn" 
+                        onClick={clearSyncQueue} 
+                        style={{ padding: '2px 8px', fontSize: '0.7rem', border: '1px solid rgba(230, 57, 70, 0.3)', color: '#e63946' }}
+                      >
+                        Clear Queue
+                      </button>
+                    )}
                   </div>
-                ))
-              )}
-            </div>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
-              Simulates SQLite/Room local disk caching. Toggling the connection state to "Offline" queues data, then flushes it when "Online".
-            </p>
+                  <div 
+                    style={{ 
+                      backgroundColor: 'var(--bg-floor)', 
+                      border: '1px solid var(--border-light)', 
+                      borderRadius: '6px', 
+                      padding: '12px', 
+                      height: '140px', 
+                      overflowY: 'auto',
+                      fontSize: '0.75rem',
+                      fontFamily: 'monospace'
+                    }}
+                  >
+                    {syncQueue.length === 0 ? (
+                      <div style={{ color: 'var(--text-muted)', textAlign: 'center', paddingTop: '48px' }}>
+                        No pending transactions. All changes are synced.
+                      </div>
+                    ) : (
+                      syncQueue.map((item, idx) => (
+                        <div key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '4px', marginBottom: '4px' }}>
+                          <span style={{ color: 'var(--color-match)' }}>[{new Date(item.timestamp).toLocaleTimeString()}]</span>{' '}
+                          <span style={{ color: 'var(--color-squad)' }}>{item.type}</span> - {JSON.stringify(item.payload)}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
+                    Simulates SQLite/Room local disk caching. Toggling the connection state to "Offline" queues data, then flushes it when "Online".
+                  </p>
+                </div>
+
+              </div>
+            )}
           </div>
         </div>
 
