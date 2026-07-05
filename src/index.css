@@ -119,9 +119,28 @@ body {
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  background: linear-gradient(135deg, var(--text-primary) 30%, var(--text-secondary));
+  background: linear-gradient(
+    120deg, 
+    #8d939e 0%, 
+    #8d939e 40%, 
+    #ffffff 50%, 
+    #ffffff 55%, 
+    #8d939e 65%, 
+    #8d939e 100%
+  );
+  background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  animation: logoShimmer 4s linear infinite;
+}
+
+@keyframes logoShimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
 }
 
 .brand-badge {
