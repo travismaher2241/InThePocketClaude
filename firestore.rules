@@ -3,23 +3,13 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     match /players/{playerId} {
-      // Allow read if authenticated and the document doesn't exist yet, or matches the ownerId
-      allow read: if request.auth != null && (resource == null || request.auth.uid == resource.data.ownerId);
-      
-      // Allow create if authenticated and the ownerId is set to the user's uid
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
-      
-      // Allow update if authenticated and the ownerId matches, preventing ownerId spoofing
-      allow update: if request.auth != null 
-                    && (resource == null || request.auth.uid == resource.data.ownerId)
-                    && request.auth.uid == request.resource.data.ownerId;
-      
-      // Allow delete if authenticated and the document doesn't exist (no-op) or the user is the owner
-      allow delete: if request.auth != null && (resource == null || request.auth.uid == resource.data.ownerId);
     }
     
     match /archived_players/{archivedId} {
-      allow read, write, delete: if request.auth != null && (resource == null || request.auth.uid == resource.data.ownerId);
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
     }
 
     match /squad_settings/{uid} {
@@ -27,7 +17,8 @@ service cloud.firestore {
     }
 
     match /training_sessions/{sessionId} {
-      allow read, write: if request.auth != null;
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
     }
   }
 }
