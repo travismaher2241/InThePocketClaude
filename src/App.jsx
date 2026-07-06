@@ -430,6 +430,8 @@ export default function App() {
         }}
         squadSettings={squadSettings}
         onSaveSettings={handleSaveSettings}
+        isOnline={isOnline}
+        setIsOnline={setIsOnline}
       />
 
       {/* Interactive Paywall Gating Screen overlay */}

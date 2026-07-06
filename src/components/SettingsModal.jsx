@@ -10,17 +10,40 @@ export default function SettingsModal({
   syncQueue,
   clearSyncQueue,
   squadSettings,
-  onSaveSettings
+  onSaveSettings,
+  isOnline,
+  setIsOnline
 }) {
   const [squadName, setSquadName] = useState(squadSettings?.squadName || 'My Squad');
   const [ageGroup, setAgeGroup] = useState(squadSettings?.ageGroup || 'U14');
   const [showDevSettings, setShowDevSettings] = useState(false);
+  const [devClickCount, setDevClickCount] = useState(0);
+  const [isDevUnlocked, setIsDevUnlocked] = useState(() => {
+    return (
+      import.meta.env.DEV ||
+      localStorage.getItem('coachcore_dev_unlocked') === 'true'
+    );
+  });
+
+  const handleHeaderClick = () => {
+    if (isDevUnlocked) return;
+    setDevClickCount(prev => {
+      const next = prev + 1;
+      if (next >= 7) {
+        setIsDevUnlocked(true);
+        localStorage.setItem('coachcore_dev_unlocked', 'true');
+        return 0;
+      }
+      return next;
+    });
+  };
 
   // Reset inputs when settings change or modal opens
   useEffect(() => {
     if (isOpen) {
       setSquadName(squadSettings?.squadName || 'My Squad');
       setAgeGroup(squadSettings?.ageGroup || 'U14');
+      setDevClickCount(0); // Reset tap count on modal open
     }
   }, [isOpen, squadSettings]);
 
@@ -37,7 +60,17 @@ export default function SettingsModal({
     <div className="overlay-backdrop">
       <div className="modal-content" style={{ maxWidth: '600px' }}>
         <div className="modal-header">
-          <h2 className="scoreboard-font" style={{ color: 'var(--text-primary)' }}>Command Center Settings</h2>
+          <h2 
+            className="scoreboard-font" 
+            style={{ 
+              color: 'var(--text-primary)', 
+              cursor: isDevUnlocked ? 'default' : 'pointer',
+              userSelect: 'none'
+            }}
+            onClick={handleHeaderClick}
+          >
+            Command Center Settings
+          </h2>
           <button className="icon-btn" onClick={onClose} aria-label="Close">
             <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -96,111 +129,129 @@ export default function SettingsModal({
           </div>
 
           {/* Developer / Simulation Settings Collapsible */}
-          <div style={{ marginTop: '20px', borderTop: '1px dashed rgba(255,255,255,0.08)', paddingTop: '16px' }}>
-            <button 
-              type="button"
-              onClick={() => setShowDevSettings(!showDevSettings)}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--text-secondary)',
-                fontSize: '0.75rem',
-                fontWeight: '700',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: 0,
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em'
-              }}
-            >
-              <svg 
-                width="10" 
-                height="10" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2.5" 
-                viewBox="0 0 24 24" 
-                style={{ 
-                  transform: showDevSettings ? 'rotate(90deg)' : 'none', 
-                  transition: 'transform 0.2s',
-                  color: 'var(--text-muted)'
+          {isDevUnlocked && (
+            <div style={{ marginTop: '20px', borderTop: '1px dashed rgba(255,255,255,0.08)', paddingTop: '16px' }}>
+              <button 
+                type="button"
+                onClick={() => setShowDevSettings(!showDevSettings)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--text-secondary)',
+                  fontSize: '0.75rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: 0,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
                 }}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
-              </svg>
-              Developer / Simulation Settings
-            </button>
+                <svg 
+                  width="10" 
+                  height="10" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  viewBox="0 0 24 24" 
+                  style={{ 
+                    transform: showDevSettings ? 'rotate(90deg)' : 'none', 
+                    transition: 'transform 0.2s',
+                    color: 'var(--text-muted)'
+                  }}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
+                </svg>
+                Developer / Simulation Settings
+              </button>
 
-            {showDevSettings && (
-              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                
-                {/* Subscription Gating Selector */}
-                <div className="form-group" style={{ paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
-                  <label>Subscription Tier (RevenueCat Simulator)</label>
-                  <select 
-                    value={subscriptionTier} 
-                    onChange={(e) => setSubscriptionTier(e.target.value)}
-                    style={{ fontWeight: '600', color: 'var(--color-match)' }}
-                  >
-                    <option value="Free">Free (Roster Import & 2 Free AI Generations)</option>
-                    <option value="Pro">Pro (Full AI Training, Late-Arrivals, Custom File RAG)</option>
-                    <option value="Ultra">Ultra (Tactics Board, Playbook Export, FootyFlow Clock, Poster Downloads)</option>
-                    <option value="B2B">B2B (Junior Club Master Package - Covers U8-U18)</option>
-                  </select>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
-                    Simulates upgrading via RevenueCat in Google Play Store. Different tiers unlock tabs and operations.
-                  </p>
-                </div>
-
-                {/* Offline Sync Log */}
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <label>Offline Sync Transaction Log ({syncQueue.length})</label>
-                    {syncQueue.length > 0 && (
-                      <button 
-                        className="btn" 
-                        onClick={clearSyncQueue} 
-                        style={{ padding: '2px 8px', fontSize: '0.7rem', border: '1px solid rgba(230, 57, 70, 0.3)', color: '#e63946' }}
-                      >
-                        Clear Queue
-                      </button>
-                    )}
+              {showDevSettings && (
+                <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  
+                  {/* Subscription Gating Selector */}
+                  <div className="form-group" style={{ paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
+                    <label>Subscription Tier (RevenueCat Simulator)</label>
+                    <select 
+                      value={subscriptionTier} 
+                      onChange={(e) => setSubscriptionTier(e.target.value)}
+                      style={{ fontWeight: '600', color: 'var(--color-match)' }}
+                    >
+                      <option value="Free">Free (Roster Import & 2 Free AI Generations)</option>
+                      <option value="Pro">Pro (Full AI Training, Late-Arrivals, Custom File RAG)</option>
+                      <option value="Ultra">Ultra (Tactics Board, Playbook Export, FootyFlow Clock, Poster Downloads)</option>
+                      <option value="B2B">B2B (Junior Club Master Package - Covers U8-U18)</option>
+                    </select>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
+                      Simulates upgrading via RevenueCat in Google Play Store. Different tiers unlock tabs and operations.
+                    </p>
                   </div>
-                  <div 
-                    style={{ 
-                      backgroundColor: 'var(--bg-floor)', 
-                      border: '1px solid var(--border-light)', 
-                      borderRadius: '6px', 
-                      padding: '12px', 
-                      height: '140px', 
-                      overflowY: 'auto',
-                      fontSize: '0.75rem',
-                      fontFamily: 'monospace'
-                    }}
-                  >
-                    {syncQueue.length === 0 ? (
-                      <div style={{ color: 'var(--text-muted)', textAlign: 'center', paddingTop: '48px' }}>
-                        No pending transactions. All changes are synced.
-                      </div>
-                    ) : (
-                      syncQueue.map((item, idx) => (
-                        <div key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '4px', marginBottom: '4px' }}>
-                          <span style={{ color: 'var(--color-match)' }}>[{new Date(item.timestamp).toLocaleTimeString()}]</span>{' '}
-                          <span style={{ color: 'var(--color-squad)' }}>{item.type}</span> - {JSON.stringify(item.payload)}
+
+                  {/* Network Connection Simulator */}
+                  <div className="form-group" style={{ paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
+                    <label>Network Connection (Simulator)</label>
+                    <select 
+                      value={isOnline ? "Online" : "Offline"} 
+                      onChange={(e) => setIsOnline(e.target.value === "Online")}
+                      style={{ fontWeight: '600', color: isOnline ? '#2ecc71' : '#e63946' }}
+                    >
+                      <option value="Online">Online</option>
+                      <option value="Offline">Offline (Simulate Disconnection)</option>
+                    </select>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
+                      Toggles offline simulation state. Going offline queues transaction writes, which automatically flush when toggled back online.
+                    </p>
+                  </div>
+
+                  {/* Offline Sync Log */}
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <label>Offline Sync Transaction Log ({syncQueue.length})</label>
+                      {syncQueue.length > 0 && (
+                        <button 
+                          className="btn" 
+                          onClick={clearSyncQueue} 
+                          style={{ padding: '2px 8px', fontSize: '0.7rem', border: '1px solid rgba(230, 57, 70, 0.3)', color: '#e63946' }}
+                        >
+                          Clear Queue
+                        </button>
+                      )}
+                    </div>
+                    <div 
+                      style={{ 
+                        backgroundColor: 'var(--bg-floor)', 
+                        border: '1px solid var(--border-light)', 
+                        borderRadius: '6px', 
+                        padding: '12px', 
+                        height: '140px', 
+                        overflowY: 'auto',
+                        fontSize: '0.75rem',
+                        fontFamily: 'monospace'
+                      }}
+                    >
+                      {syncQueue.length === 0 ? (
+                        <div style={{ color: 'var(--text-muted)', textAlign: 'center', paddingTop: '48px' }}>
+                          No pending transactions. All changes are synced.
                         </div>
-                      ))
-                    )}
+                      ) : (
+                        syncQueue.map((item, idx) => (
+                          <div key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '4px', marginBottom: '4px' }}>
+                            <span style={{ color: 'var(--color-match)' }}>[{new Date(item.timestamp).toLocaleTimeString()}]</span>{' '}
+                            <span style={{ color: 'var(--color-squad)' }}>{item.type}</span> - {JSON.stringify(item.payload)}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
+                      Simulates SQLite/Room local disk caching. Toggling the connection state to "Offline" queues data, then flushes it when "Online".
+                    </p>
                   </div>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
-                    Simulates SQLite/Room local disk caching. Toggling the connection state to "Offline" queues data, then flushes it when "Online".
-                  </p>
-                </div>
 
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="modal-footer">
