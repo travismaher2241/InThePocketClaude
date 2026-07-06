@@ -29,6 +29,13 @@ export default function App() {
   }, []);
 
   const [activeTab, setActiveTab] = useState(0); // 0: Squad, 1: Training, 2: Tactics, 3: Match Day, 4: Video
+
+  // Reset scroll position to top when activeTab changes (forces window/container scroll reset)
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [activeTab]);
   const [squad, setSquad] = useState(() => {
     const saved = localStorage.getItem('coachcore_squad');
     return saved ? JSON.parse(saved) : DEFAULT_ROSTER;
@@ -352,8 +359,8 @@ export default function App() {
         </div>
       )}
 
-      {/* Main rendering pane */}
-      <main className="tab-content-container">
+      {/* Main rendering pane with hardware-accelerated transitions */}
+      <main className="tab-content-container tab-fade-in" key={activeTab}>
         {activeTab === 0 && (
           <SquadHub 
             squad={squad} 

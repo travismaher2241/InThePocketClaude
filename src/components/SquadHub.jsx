@@ -317,109 +317,97 @@ export default function SquadHub({
             return (
               <div 
                 key={player.id} 
+                className="player-row-card"
+                onClick={() => {
+                  if (isManageMode) {
+                    handleToggleSelect(player.id);
+                  } else {
+                    setDetailPlayer(player);
+                    setIsDetailOpen(true);
+                    setIsDetailEditing(false);
+                    setIsDeleteConfirmOpen(false);
+                  }
+                }}
                 style={{ 
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-                  backgroundColor: isSelected ? 'rgba(58, 134, 255, 0.02)' : 'transparent',
-                  transition: 'background-color 0.2s ease'
+                  backgroundColor: isSelected ? 'rgba(58, 134, 255, 0.08)' : 'transparent',
+                  borderColor: isSelected ? 'rgba(58, 134, 255, 0.2)' : 'transparent',
                 }}
               >
-                {/* Main Manifest Row */}
-                <div 
-                  onClick={() => {
-                    if (isManageMode) {
-                      handleToggleSelect(player.id);
-                    } else {
-                      setDetailPlayer(player);
-                      setIsDetailOpen(true);
-                      setIsDetailEditing(false);
-                      setIsDeleteConfirmOpen(false);
-                    }
-                  }}
-                  style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'space-between', 
-                    padding: '16px 0', 
-                    cursor: 'pointer',
-                    userSelect: 'none'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    {/* Checkbox (Manage Mode) */}
-                    {isManageMode && (
-                      <input 
-                        type="checkbox" 
-                        checked={isSelected}
-                        readOnly
-                        style={{
-                          width: '16px',
-                          height: '16px',
-                          pointerEvents: 'none', // click passes through to the parent row
-                          accentColor: 'var(--color-squad)'
-                        }}
-                      />
-                    )}
-
-                    {/* Industrial number box */}
-                    <div 
-                      className="scoreboard-font" 
-                      style={{ 
-                        fontSize: '0.95rem', 
-                        color: 'var(--color-squad)', 
-                        minWidth: '36px',
-                        textAlign: 'center',
-                        backgroundColor: 'rgba(58, 134, 255, 0.08)',
-                        padding: '4px 6px',
-                        borderRadius: '4px',
-                        border: '1px solid rgba(58, 134, 255, 0.15)',
-                        fontWeight: '700'
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  {/* Checkbox (Manage Mode) */}
+                  {isManageMode && (
+                    <input 
+                      type="checkbox" 
+                      checked={isSelected}
+                      readOnly
+                      style={{
+                        width: '16px',
+                        height: '16px',
+                        pointerEvents: 'none', // click passes through to the parent row
+                        accentColor: 'var(--color-squad)'
                       }}
-                    >
-                      #{player.jersey < 10 ? `0${player.jersey}` : player.jersey}
-                    </div>
+                    />
+                  )}
 
-                    {/* Name & Positional Info */}
-                    <div>
-                      <div style={{ fontWeight: '700', fontSize: '1.05rem', color: '#ffffff' }}>
-                        {player.name}
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: '#8d939e', marginTop: '2px', fontWeight: '500' }}>
-                        {player.position}
-                      </div>
-                    </div>
+                  {/* Industrial number box */}
+                  <div 
+                    className="scoreboard-font" 
+                    style={{ 
+                      fontSize: '0.95rem', 
+                      color: 'var(--color-squad)', 
+                      minWidth: '36px',
+                      textAlign: 'center',
+                      backgroundColor: 'rgba(58, 134, 255, 0.08)',
+                      padding: '4px 6px',
+                      borderRadius: '4px',
+                      border: '1px solid rgba(58, 134, 255, 0.15)',
+                      fontWeight: '700'
+                    }}
+                  >
+                    #{player.jersey < 10 ? `0${player.jersey}` : player.jersey}
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '0.8rem', color: '#8d939e', fontWeight: '500' }}>
-                      Att: {attendanceRate}%
-                    </span>
-
-                    {/* Medical Alert Dot */}
-                    {isInjured && (
-                      <span 
-                        style={{ 
-                          width: '6px', 
-                          height: '6px', 
-                          borderRadius: '50%', 
-                          backgroundColor: '#e63946', 
-                          display: 'inline-block' 
-                        }} 
-                        title={`Medical Alert: ${player.medical}`} 
-                      />
-                    )}
-
-                    <svg 
-                      width="14" 
-                      height="14" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="2.5" 
-                      viewBox="0 0 24 24"
-                      style={{ color: '#8d939e' }}
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
-                    </svg>
+                  {/* Name & Positional Info */}
+                  <div>
+                    <div style={{ fontWeight: '700', fontSize: '1.1rem', color: '#ffffff' }}>
+                      {player.name}
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: '#8d939e', marginTop: '2px', fontWeight: '500', opacity: 0.9 }}>
+                      {player.position}
+                    </div>
                   </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '500', opacity: 0.7 }}>
+                    Att: {attendanceRate}%
+                  </span>
+
+                  {/* Medical Alert Dot */}
+                  {isInjured && (
+                    <span 
+                      style={{ 
+                        width: '6px', 
+                        height: '6px', 
+                        borderRadius: '50%', 
+                        backgroundColor: '#e63946', 
+                        display: 'inline-block' 
+                      }} 
+                      title={`Medical Alert: ${player.medical}`} 
+                    />
+                  )}
+
+                  <svg 
+                    width="14" 
+                    height="14" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2.5" 
+                    viewBox="0 0 24 24"
+                    style={{ color: '#8d939e' }}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
+                  </svg>
                 </div>
               </div>
             );
@@ -487,7 +475,7 @@ export default function SquadHub({
           <div className="modal-content" style={{ maxWidth: '340px', textAlign: 'center' }}>
             <div className="modal-body" style={{ padding: '24px' }}>
               <h4 className="scoreboard-font" style={{ color: '#e63946', margin: '0 0 10px 0', fontSize: '1.1rem' }}>CONFIRM DELETION</h4>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4', margin: '0 0 20px 0' }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: '0 0 20px 0' }}>
                 Are you sure you want to delete the **{selectedPlayerIds.size}** selected players? This action cannot be undone.
               </p>
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
@@ -680,7 +668,7 @@ export default function SquadHub({
               </button>
             </div>
             <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <p style={{ fontSize: '0.8rem', color: '#8d939e', lineHeight: '1.4' }}>
+              <p style={{ fontSize: '0.85rem', color: '#8d939e', lineHeight: '1.5' }}>
                 Upload an Excel sheet (`.xlsx`, `.xls`) containing **Player Name** and **Player Number** (e.g. Jersey #) columns. Medical details and positions are not required during upload and can be edited later.
               </p>
               

@@ -44,6 +44,7 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.015'/%3E%3C/svg%3E");
   color: var(--text-primary);
   font-family: var(--font-family-body);
+  line-height: 1.5;
   overflow-x: hidden;
   min-height: 100vh;
   letter-spacing: -0.01em;
@@ -323,6 +324,30 @@ body {
 .nav-tab.active-tab-5::after {
   background-color: #e63946;
 }
+/* Player Row Card styling for Squad Hub list cards */
+.player-row-card {
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  border-radius: 8px;
+  padding: 14px 12px;
+  margin: 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+}
+
+.player-row-card:hover {
+  background-color: var(--bg-surface-hover);
+  border-color: rgba(255, 255, 255, 0.03);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
+}
+
+.player-row-card:active {
+  transform: translateY(0);
+}
 
 /* General Layout Containers & Content Switchers */
 .tab-content-container {
@@ -401,65 +426,88 @@ label {
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid transparent;
-  background: var(--bg-surface);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--border-light);
+  background: linear-gradient(180deg, var(--bg-surface) 0%, #15181f 100%);
   color: var(--text-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .btn:hover {
-  background-color: var(--bg-surface-hover);
+  background: linear-gradient(180deg, var(--bg-surface-hover) 0%, #1c202a 100%);
   border-color: var(--border-medium);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 .btn-primary {
-  background-color: var(--text-primary);
+  background: linear-gradient(180deg, var(--text-primary) 0%, #e2e4e8 100%);
   color: var(--bg-floor);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .btn-primary:hover {
-  background-color: #ffffff;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   transform: translateY(-1px);
 }
 
 .btn-squad {
-  background-color: rgba(58, 134, 255, 0.1);
+  background: linear-gradient(180deg, rgba(58, 134, 255, 0.15) 0%, rgba(58, 134, 255, 0.05) 100%);
   color: var(--color-squad);
-  border-color: rgba(58, 134, 255, 0.2);
+  border-color: rgba(58, 134, 255, 0.25);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .btn-squad:hover {
-  background-color: var(--color-squad);
+  background: linear-gradient(180deg, var(--color-squad) 0%, rgba(58, 134, 255, 0.85) 100%);
   color: #ffffff;
+  border-color: var(--color-squad);
+  box-shadow: 0 4px 10px rgba(58, 134, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .btn-training {
-  background-color: rgba(230, 57, 70, 0.1);
+  background: linear-gradient(180deg, rgba(230, 57, 70, 0.15) 0%, rgba(230, 57, 70, 0.05) 100%);
   color: var(--color-training);
-  border-color: rgba(230, 57, 70, 0.2);
+  border-color: rgba(230, 57, 70, 0.25);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .btn-training:hover {
-  background-color: var(--color-training);
+  background: linear-gradient(180deg, var(--color-training) 0%, rgba(230, 57, 70, 0.85) 100%);
   color: #ffffff;
+  border-color: var(--color-training);
+  box-shadow: 0 4px 10px rgba(230, 57, 70, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .btn-tactics {
-  background-color: rgba(42, 157, 143, 0.1);
+  background: linear-gradient(180deg, rgba(42, 157, 143, 0.15) 0%, rgba(42, 157, 143, 0.05) 100%);
   color: var(--color-tactics);
-  border-color: rgba(42, 157, 143, 0.2);
+  border-color: rgba(42, 157, 143, 0.25);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .btn-tactics:hover {
-  background-color: var(--color-tactics);
+  background: linear-gradient(180deg, var(--color-tactics) 0%, rgba(42, 157, 143, 0.85) 100%);
   color: #ffffff;
+  border-color: var(--color-tactics);
+  box-shadow: 0 4px 10px rgba(42, 157, 143, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .btn-match {
-  background-color: rgba(255, 183, 3, 0.1);
+  background: linear-gradient(180deg, rgba(255, 183, 3, 0.15) 0%, rgba(255, 183, 3, 0.05) 100%);
   color: var(--color-match);
-  border-color: rgba(255, 183, 3, 0.2);
+  border-color: rgba(255, 183, 3, 0.25);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .btn-match:hover {
-  background-color: var(--color-match);
+  background: linear-gradient(180deg, var(--color-match) 0%, rgba(255, 183, 3, 0.85) 100%);
   color: #000000;
+  border-color: var(--color-match);
+  box-shadow: 0 4px 10px rgba(255, 183, 3, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 /* Modals & Backdrop Drawers */
@@ -576,3 +624,22 @@ label {
   margin-bottom: 24px;
   max-width: 400px;
 }
+
+/* High-performance Tab Page Transitions (hardware accelerated via translate3d) */
+@keyframes tabFadeSlideIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.tab-fade-in {
+  animation: tabFadeSlideIn 180ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+

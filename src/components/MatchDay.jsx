@@ -38,11 +38,11 @@ const FIELD_POSITIONS = [
 const ALL_SLOTS = FIELD_POSITIONS;
 
 const getFontSizeForName = (name) => {
-  if (name.length > 12) return '0.55rem';
-  if (name.length > 10) return '0.6rem';
-  if (name.length > 8) return '0.65rem';
-  if (name.length > 6) return '0.72rem';
-  return '0.8rem';
+  if (name.length > 12) return '0.62rem';
+  if (name.length > 10) return '0.68rem';
+  if (name.length > 8) return '0.74rem';
+  if (name.length > 6) return '0.8rem';
+  return '0.9rem';
 };
 
 export default function MatchDay({
@@ -626,7 +626,9 @@ export default function MatchDay({
           <button 
             onClick={handleExportRotationStats}
             style={{
-              backgroundColor: isStatsExported ? 'rgba(42, 157, 143, 0.15)' : 'rgba(255, 122, 0, 0.15)',
+              background: isStatsExported 
+                ? 'linear-gradient(180deg, rgba(42, 157, 143, 0.22) 0%, rgba(42, 157, 143, 0.08) 100%)' 
+                : 'linear-gradient(180deg, rgba(255, 122, 0, 0.22) 0%, rgba(255, 122, 0, 0.08) 100%)',
               border: '1px solid',
               borderColor: isStatsExported ? '#2a9d8f' : 'var(--color-video)',
               color: isStatsExported ? '#2a9d8f' : 'var(--color-video)',
@@ -637,8 +639,20 @@ export default function MatchDay({
               padding: '6px 14px',
               borderRadius: '6px',
               cursor: 'pointer',
-              transition: 'all 0.2s',
-              userSelect: 'none'
+              transition: 'all 0.25s ease',
+              userSelect: 'none',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.4)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = isStatsExported 
+                ? '0 4px 8px rgba(42, 157, 143, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.1)' 
+                : '0 4px 8px rgba(255, 122, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
             }}
           >
             {isStatsExported ? 'Stats Exported' : 'Export Stats'}
@@ -924,7 +938,7 @@ export default function MatchDay({
               </div>
 
               {/* Grid slots (3 columns per row) */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
                 {row.posIds.map((posId) => {
                   const pos = FIELD_POSITIONS.find(p => p.id === posId);
                   const assignedPlayerId = fieldAssignments[posId];
@@ -955,28 +969,28 @@ export default function MatchDay({
                       className={warningClass}
                       style={{ 
                         backgroundColor: isSelected ? 'rgba(255,183,3,0.15)' : 'rgba(0, 0, 0, 0.4)', 
-                        border: selectedBenchId ? '1px dashed rgba(255, 183, 3, 0.4)' : '1px solid rgba(255, 255, 255, 0.05)', 
+                        border: selectedBenchId ? '1.5px dashed rgba(255, 183, 3, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)', 
                         borderRadius: '6px', 
-                        padding: '8px 4px',
+                        padding: '10px 6px',
                         textAlign: 'center',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
-                        minHeight: '62px',
+                        minHeight: '68px',
                         userSelect: 'none'
                       }}
                     >
                       {/* Position Code */}
-                      <div style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)', fontWeight: '700' }}>
+                      <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.5)', fontWeight: '800', letterSpacing: '0.02em' }}>
                         {pos.code}
                       </div>
                       
                       {player ? (
                         <>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', margin: '2px 0', width: '100%', minWidth: 0 }}>
-                            <span className="scoreboard-font" style={{ fontSize: '0.85rem', color: 'var(--color-match)', flexShrink: 0 }}>
+                            <span className="scoreboard-font" style={{ fontSize: '0.95rem', color: 'var(--color-match)', fontWeight: '800', flexShrink: 0 }}>
                               #{player.jersey}
                             </span>
                             <span style={{ 
@@ -994,7 +1008,12 @@ export default function MatchDay({
                             </span>
                           </div>
                           {/* Active Stint & TOG timer */}
-                          <div className="scoreboard-font" style={{ fontSize: '0.6rem', color: warningClass ? '#e63946' : 'rgba(255,255,255,0.3)' }}>
+                          <div className="scoreboard-font" style={{ 
+                            fontSize: '0.55rem', 
+                            color: warningClass ? '#e63946' : 'rgba(255,255,255,0.3)',
+                            opacity: warningClass ? 1 : 0.65,
+                            fontWeight: '600'
+                          }}>
                             {activeStintMin}m (TOG: {Math.round(togSec / 60)}m)
                           </div>
                         </>
@@ -1045,7 +1064,7 @@ export default function MatchDay({
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', 
-          gap: '10px',
+          gap: '12px',
           minHeight: '80px',
           alignItems: 'center'
         }}>
@@ -1076,7 +1095,7 @@ export default function MatchDay({
                     backgroundColor: isSelected ? 'rgba(255, 183, 3, 0.25)' : isAmberAlert ? 'rgba(255, 183, 3, 0.12)' : 'var(--bg-floor)', 
                     border: isSelected ? '2px solid var(--color-match)' : isAmberAlert ? '1.5px solid #ffb703' : '1px solid var(--border-light)', 
                     borderRadius: '8px', 
-                    padding: '10px 8px',
+                    padding: '12px 10px',
                     cursor: 'grab',
                     textAlign: 'center',
                     position: 'relative',
@@ -1096,7 +1115,7 @@ export default function MatchDay({
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', margin: '2px 0', width: '100%', minWidth: 0 }}>
-                    <span className="scoreboard-font" style={{ fontSize: '0.9rem', color: isAmberAlert ? '#ffb703' : 'var(--color-match)', flexShrink: 0 }}>
+                    <span className="scoreboard-font" style={{ fontSize: '0.95rem', color: isAmberAlert ? '#ffb703' : 'var(--color-match)', fontWeight: '800', flexShrink: 0 }}>
                       #{player.jersey}
                     </span>
                     <span style={{ 
@@ -1114,9 +1133,15 @@ export default function MatchDay({
                     </span>
                     {isAmberAlert && <span style={{ color: '#ffb703', fontSize: '0.8rem', flexShrink: 0 }}>⚠️</span>}
                   </div>
-                  <div className="scoreboard-font" style={{ fontSize: '0.65rem', color: isAmberAlert ? '#ffb703' : 'var(--text-secondary)', fontWeight: '600', lineHeight: '1.2' }}>
-                    B: {Math.floor(benchStintSec / 60)}m<br />
-                    TOG: {Math.round(togSec / 60)}m
+                  <div className="scoreboard-font" style={{ 
+                    fontSize: '0.6rem', 
+                    color: isAmberAlert ? '#ffb703' : 'var(--text-secondary)', 
+                    opacity: isAmberAlert ? 1 : 0.65,
+                    fontWeight: '600', 
+                    lineHeight: '1.35',
+                    marginTop: '2px'
+                  }}>
+                    B: {Math.floor(benchStintSec / 60)}m &bull; TOG: {Math.round(togSec / 60)}m
                   </div>
                 </div>
               );
