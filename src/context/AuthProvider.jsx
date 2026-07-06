@@ -4,7 +4,8 @@ import {
   onAuthStateChanged, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
-  signOut 
+  signOut,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 
 const AuthContext = createContext();
@@ -32,6 +33,11 @@ export function AuthProvider({ children }) {
     return signOut(auth);
   }
 
+  // Password reset function
+  function resetPassword(email) {
+    return sendPasswordResetEmail(auth, email);
+  }
+
   // Listen to Auth State Changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -47,6 +53,7 @@ export function AuthProvider({ children }) {
     login,
     signup,
     logout,
+    resetPassword,
     loading
   };
 
