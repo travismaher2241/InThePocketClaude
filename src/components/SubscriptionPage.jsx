@@ -47,6 +47,12 @@ export default function SubscriptionPage({
 
   const currentTierClean = (subscriptionTier || 'Free').toLowerCase();
 
+  const showProRecommended = currentTierClean === 'free';
+  const showB2BRecommended = currentTierClean === 'ultra';
+
+  const isProHighlighted = currentTierClean === 'free' || currentTierClean === 'pro';
+  const isB2BHighlighted = currentTierClean === 'ultra';
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', paddingBottom: '40px' }}>
       
@@ -81,7 +87,7 @@ export default function SubscriptionPage({
           transition: 'transform 0.2s ease-in-out'
         }}>
           <div>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.1em' }}>Retention & Onboarding</span>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.1em' }}>Retention & Onboarding</span>
             <h3 className="scoreboard-font" style={{ fontSize: '1.6rem', color: '#ffffff', margin: '4px 0 12px 0' }}>FREE</h3>
             <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: '20px' }}>
               <span style={{ fontSize: '2rem', fontWeight: '800', color: '#ffffff' }}>$0</span>
@@ -106,8 +112,8 @@ export default function SubscriptionPage({
           </button>
         </div>
 
-        {/* PRO TIER CARD (RECOMMENDED/HIGHLIGHTED) */}
-        <div style={{
+        {/* PRO TIER CARD */}
+        <div style={isProHighlighted ? {
           backgroundColor: '#161922',
           border: '2px solid #e63946',
           borderRadius: '12px',
@@ -117,24 +123,40 @@ export default function SubscriptionPage({
           justifyContent: 'space-between',
           position: 'relative',
           boxShadow: '0 8px 30px rgba(230, 57, 70, 0.15)',
-          transform: 'scale(1.02)'
+          transform: 'scale(1.02)',
+          transition: 'all 0.3s ease'
+        } : {
+          backgroundColor: '#12141c',
+          border: '1px solid rgba(255, 255, 255, 0.05)',
+          borderRadius: '12px',
+          padding: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          position: 'relative',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+          transform: 'none',
+          transition: 'all 0.3s ease'
         }}>
-          <div style={{
-            position: 'absolute',
-            top: '-12px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            backgroundColor: '#e63946',
-            color: '#ffffff',
-            padding: '2px 12px',
-            borderRadius: '12px',
-            fontSize: '0.65rem',
-            fontWeight: '800',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em'
-          }}>
-            RECOMMENDED
-          </div>
+          {showProRecommended && (
+            <div style={{
+              position: 'absolute',
+              top: '-12px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              backgroundColor: '#e63946',
+              color: '#ffffff',
+              padding: '2px 12px',
+              borderRadius: '12px',
+              fontSize: '0.65rem',
+              fontWeight: '800',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              zIndex: 5
+            }}>
+              RECOMMENDED
+            </div>
+          )}
           <div>
             <span style={{ fontSize: '0.7rem', color: '#e63946', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.1em' }}>The Efficiency Driver</span>
             <h3 className="scoreboard-font" style={{ fontSize: '1.6rem', color: '#ffffff', margin: '4px 0 12px 0' }}>PRO</h3>
@@ -153,8 +175,13 @@ export default function SubscriptionPage({
           </div>
           <button 
             onClick={() => handleOpenCheckout('Pro')}
-            className="btn btn-primary"
-            style={{ width: '100%', padding: '12px', backgroundColor: '#e63946', borderColor: '#e63946', fontWeight: '700' }}
+            className={isProHighlighted ? "btn btn-primary" : "btn"}
+            style={{ 
+              width: '100%', 
+              padding: '12px', 
+              fontWeight: '700',
+              ...(isProHighlighted ? { backgroundColor: '#e63946', borderColor: '#e63946' } : { borderColor: 'rgba(255, 255, 255, 0.1)' })
+            }}
           >
             {currentTierClean === 'pro' ? 'Active Plan' : 'Upgrade Pro Now'}
           </button>
@@ -198,7 +225,19 @@ export default function SubscriptionPage({
         </div>
 
         {/* B2B TIER CARD */}
-        <div style={{
+        <div style={isB2BHighlighted ? {
+          backgroundColor: '#1c1812',
+          border: '2px solid #ffb703',
+          borderRadius: '12px',
+          padding: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          position: 'relative',
+          boxShadow: '0 8px 30px rgba(255, 183, 3, 0.15)',
+          transform: 'scale(1.02)',
+          transition: 'all 0.3s ease'
+        } : {
           backgroundColor: '#12141c',
           border: '1px solid rgba(255, 255, 255, 0.05)',
           borderRadius: '12px',
@@ -207,8 +246,29 @@ export default function SubscriptionPage({
           flexDirection: 'column',
           justifyContent: 'space-between',
           position: 'relative',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+          boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+          transform: 'none',
+          transition: 'all 0.3s ease'
         }}>
+          {showB2BRecommended && (
+            <div style={{
+              position: 'absolute',
+              top: '-12px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              backgroundColor: '#ffb703',
+              color: '#0e0e12',
+              padding: '2px 12px',
+              borderRadius: '12px',
+              fontSize: '0.65rem',
+              fontWeight: '800',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              zIndex: 5
+            }}>
+              RECOMMENDED
+            </div>
+          )}
           <div>
             <span style={{ fontSize: '0.7rem', color: '#ffb703', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.1em' }}>Junior Club Master Package</span>
             <h3 className="scoreboard-font" style={{ fontSize: '1.6rem', color: '#ffffff', margin: '4px 0 12px 0' }}>B2B</h3>
@@ -227,8 +287,15 @@ export default function SubscriptionPage({
           </div>
           <button 
             onClick={() => handleOpenCheckout('B2B')}
-            className="btn"
-            style={{ width: '100%', padding: '12px', borderColor: 'rgba(255, 183, 3, 0.4)', color: '#ffb703', fontWeight: '700' }}
+            className={isB2BHighlighted ? "btn btn-match" : "btn"}
+            style={{ 
+              width: '100%', 
+              padding: '12px', 
+              fontWeight: '700',
+              color: '#ffb703',
+              borderColor: 'rgba(255, 183, 3, 0.4)',
+              ...(isB2BHighlighted ? { backgroundColor: '#ffb703', color: '#0e0e12', borderColor: '#ffb703' } : {})
+            }}
           >
             {currentTierClean === 'b2b' ? 'Active Plan' : 'Purchase Club Package'}
           </button>
