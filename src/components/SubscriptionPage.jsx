@@ -52,9 +52,9 @@ export default function SubscriptionPage({
       
       {/* Header */}
       <div style={{ textAlign: 'center', margin: '10px 0' }}>
-        <h2 className="scoreboard-font" style={{ color: 'var(--color-video)', margin: 0, fontSize: '1.8rem', letterSpacing: '0.05em' }}>MONETIZATION COMMAND</h2>
+        <h2 className="scoreboard-font" style={{ color: 'var(--color-video)', margin: 0, fontSize: '1.8rem', letterSpacing: '0.05em' }}>ACCOUNT & SUBSCRIPTION COMMAND</h2>
         <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '6px', maxWidth: '600px', margin: '6px auto' }}>
-          Gated monetization tier management. Select a level to synchronize permissions and features via the RevenueCat payload simulator.
+          Gated account monetization tier management. Select a level to synchronize permissions and features via the RevenueCat payload simulator.
         </p>
       </div>
 

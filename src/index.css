@@ -267,7 +267,7 @@ body {
   background-color: rgba(14, 14, 18, 0.98);
   border-top: 1px solid var(--border-light);
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   z-index: 100;
   backdrop-filter: blur(12px);
 }
