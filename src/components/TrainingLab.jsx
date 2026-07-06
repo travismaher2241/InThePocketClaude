@@ -274,22 +274,22 @@ export default function TrainingLab({
         
         // Find prescribed drills and small-sided games that are relevant
         const relevantDrills = PRESCRIBED_DRILLS.filter(d => 
-          focusAreas.some(f => d.name.toLowerCase().includes(f.toLowerCase()) || d.goal.toLowerCase().includes(f.toLowerCase()))
+          d && d.name && d.goal && focusAreas.some(f => d.name.toLowerCase().includes(f.toLowerCase()) || d.goal.toLowerCase().includes(f.toLowerCase()))
         );
         const relevantSSGs = SMALL_SIDED_GAMES.filter(g => 
-          focusAreas.some(f => g.name.toLowerCase().includes(f.toLowerCase()) || g.goal.toLowerCase().includes(f.toLowerCase()))
+          g && g.name && g.goal && focusAreas.some(f => g.name.toLowerCase().includes(f.toLowerCase()) || g.goal.toLowerCase().includes(f.toLowerCase()))
         );
 
         let injectedDrillsText = "";
         if (relevantDrills.length > 0) {
           injectedDrillsText += `\nPrescribed Club Drills (Use these as reference/candidates for skill rotations/tasks if applicable):\n` +
-            relevantDrills.map(d => `- Drill: "${d.name}"\n  Goal: ${d.goal}\n  Setup: ${d.setup}\n  Execution: ${d.execution}\n  CHANGE IT Tip: ${d.changeIt}`).join('\n');
+            relevantDrills.map(d => `- Drill: "${d.name || ''}"\n  Goal: ${d.goal || ''}\n  Setup: ${d.setup || ''}\n  Execution: ${d.execution || ''}\n  CHANGE IT Tip: ${d.changeIt || ''}`).join('\n');
         }
         
         let injectedSSGsText = "";
         if (relevantSSGs.length > 0) {
           injectedSSGsText += `\nCurriculum Small-Sided Games (Use these as candidates for the Quarter 4 Game segment if applicable):\n` +
-            relevantSSGs.map(g => `- Game: "${g.name}"\n  Goal: ${g.goal}\n  Setup: ${g.setup}\n  Execution: ${g.execution}\n  CHANGE IT Tip: ${g.changeIt}`).join('\n');
+            relevantSSGs.map(g => `- Game: "${g.name || ''}"\n  Goal: ${g.goal || ''}\n  Setup: ${g.setup || ''}\n  Execution: ${g.execution || ''}\n  CHANGE IT Tip: ${g.changeIt || ''}`).join('\n');
         }
 
         const promptText = `You are an elite Australian Rules Football (AFL) coach. You MUST generate 100% unique drills for every request. 
@@ -373,7 +373,12 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
           }
         }
       } catch (err) {
-        console.error("Gemini API request failed, falling back to local engine: ", err);
+        console.error("Gemini API request failed: ", err);
+        if (err.message && (err.message.includes("Upgrade Required") || err.message.includes("Unauthorized"))) {
+          setIsGenerating(false);
+          setIsUpgradeModalOpen(true);
+          return;
+        }
       }
     }
 
@@ -406,17 +411,27 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       const config = getCurriculumConfig(ageGroup);
       const isStations = playerCount > 15;
       
+      // Safe fallback variables for drills array to prevent crash on undefined or missing parameters
+      const drill0Name = drills?.[0]?.name ? drills[0].name.toUpperCase() : "FUNDAMENTAL SKILLS";
+      const drill0Desc = drills?.[0]?.desc || "Practice fundamental AFL disposal, movement, and marking techniques.";
+      
+      const drill1Name = drills?.[1]?.name ? drills[1].name.toUpperCase() : "DECISION MAKING TASK";
+      const drill1Desc = drills?.[1]?.desc || "Execute advanced skills under game-like pressure and spatial constraints.";
+      
+      const drill2Name = drills?.[2]?.name ? drills[2].name.toUpperCase() : "GAME SENSE CHALLENGE";
+      const drill2Desc = drills?.[2]?.desc || "Apply tactical principles in a competitive small-sided match environment.";
+
       let q2Instructions = "";
       let q3Instructions = "";
       
       if (isStations) {
-        q2Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)\n\nSTATION A: ${drills[1].name.toUpperCase()}\n- Goal: ${drills[1].desc}\n- Setup: Split players into Station A grid. Maximize repetitions.\n- Execution: Active practice with high touch focus.\n- CHANGE IT Tip: Restrict to 2 bounces to speed up disposal.\n\nSTATION B: ${drills[0].name.toUpperCase()}\n- Goal: ${drills[0].desc}\n- Setup: Split players into Station B grid.\n- Execution: Practice quick handball release and leading.\n- CHANGE IT Tip: Increase grid width to practice sweeping into space.\n\nContact Rules: ${config.tackleRules}`;
+        q2Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)\n\nSTATION A: ${drill1Name}\n- Goal: ${drill1Desc}\n- Setup: Split players into Station A grid. Maximize repetitions.\n- Execution: Active practice with high touch focus.\n- CHANGE IT Tip: Restrict to 2 bounces to speed up disposal.\n\nSTATION B: ${drill0Name}\n- Goal: ${drill0Desc}\n- Setup: Split players into Station B grid.\n- Execution: Practice quick handball release and leading.\n- CHANGE IT Tip: Increase grid width to practice sweeping into space.\n\nContact Rules: ${config.tackleRules}`;
         
-        q3Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)\n\nSTATION A: ${drills[2].name.toUpperCase()}\n- Goal: ${drills[2].desc}\n- Setup: Half-field zone setup.\n- Execution: Midfielders practice clearances and transition play.\n- CHANGE IT Tip: Alter numbers (e.g. 4v3) to favor offensive flow.\n\nSTATION B: ${drills[1].name.toUpperCase()}\n- Goal: ${drills[1].desc}\n- Setup: Setup outer boundary grids.\n- Execution: Practice fast exit handballs and corridor switches.\n- CHANGE IT Tip: Restrict touches allowed before disposal.\n\nContact Rules: ${config.tackleRules}`;
+        q3Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)\n\nSTATION A: ${drill2Name}\n- Goal: ${drill2Desc}\n- Setup: Half-field zone setup.\n- Execution: Midfielders practice clearances and transition play.\n- CHANGE IT Tip: Alter numbers (e.g. 4v3) to favor offensive flow.\n\nSTATION B: ${drill1Name}\n- Goal: ${drill1Desc}\n- Setup: Setup outer boundary grids.\n- Execution: Practice fast exit handballs and corridor switches.\n- CHANGE IT Tip: Restrict touches allowed before disposal.\n\nContact Rules: ${config.tackleRules}`;
       } else {
-        q2Instructions = `${drills[1].desc}\n\n- Setup: ${groupingLabel} Split into offense vs defense spacing grids. Maximize repetitions (60+ touches target).\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Restrict ball-carriers to two bounces to increase disposal speed.`;
+        q2Instructions = `${drill1Desc}\n\n- Setup: ${groupingLabel} Split into offense vs defense spacing grids. Maximize repetitions (60+ touches target).\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Restrict ball-carriers to two bounces to increase disposal speed.`;
         
-        q3Instructions = `${drills[2].desc}\n\n- Setup: ${groupingLabel} Focus on contest balance, outnumbering at the stoppage, and rapid corridor transition.\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Adjust numbers (e.g. 4v3) to favor offensive flow.`;
+        q3Instructions = `${drill2Desc}\n\n- Setup: ${groupingLabel} Focus on contest balance, outnumbering at the stoppage, and rapid corridor transition.\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Adjust numbers (e.g. 4v3) to favor offensive flow.`;
       }
 
       const generatedFallbackCards = [
@@ -428,9 +443,9 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
           phase: `Contest`
         },
         {
-          title: `QUARTER 1 WARM-UP: ${drills[0].name.toUpperCase()}`,
+          title: `QUARTER 1 WARM-UP: ${drill0Name}`,
           duration: q1Mins,
-          instructions: `${drills[0].desc}\n\n- Setup: ${groupingLabel}. Focus on clean hands and quick release.\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Increase grid width to practice sweeping into space.`,
+          instructions: `${drill0Desc}\n\n- Setup: ${groupingLabel}. Focus on clean hands and quick release.\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Increase grid width to practice sweeping into space.`,
           goal: `Activate movement patterns and build early confidence.`,
           phase: `Attack`
         },
@@ -1285,7 +1300,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                       lineHeight: '1.2'
                     }}
                   >
-                    {card.title.replace(/[#*`[\]]/g, '')} {/* Cleans any residual markdown symbols */}
+                    {(card.title || 'DRILL SEGMENT').replace(/[#*`[\]]/g, '')} {/* Cleans any residual markdown symbols */}
                   </h3>
 
                   {/* Quick Stats */}
@@ -1338,7 +1353,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                       whiteSpace: 'pre-wrap'
                     }}
                   >
-                    {card.instructions.replace(/[#*`[\]]/g, '')}
+                    {(card.instructions || 'Execute drill segment.').replace(/[#*`[\]]/g, '')}
                   </p>
 
                   {/* Focus Goal Accent Block (Sherrin Red Highlight) */}
@@ -1369,7 +1384,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                         fontWeight: '700' 
                       }}
                     >
-                      {card.goal.replace(/[#*`[\]]/g, '')}
+                      {(card.goal || 'Master core skills.').replace(/[#*`[\]]/g, '')}
                     </span>
                   </div>
 

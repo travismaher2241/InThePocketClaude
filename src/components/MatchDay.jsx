@@ -38,8 +38,10 @@ const FIELD_POSITIONS = [
 const ALL_SLOTS = FIELD_POSITIONS;
 
 const getFontSizeForName = (name) => {
-  if (name.length > 8) return '0.7rem';
-  if (name.length > 6) return '0.75rem';
+  if (name.length > 12) return '0.55rem';
+  if (name.length > 10) return '0.6rem';
+  if (name.length > 8) return '0.65rem';
+  if (name.length > 6) return '0.72rem';
   return '0.8rem';
 };
 
@@ -973,7 +975,7 @@ export default function MatchDay({
                       
                       {player ? (
                         <>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', margin: '2px 0', width: '100%' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', margin: '2px 0', width: '100%', minWidth: 0 }}>
                             <span className="scoreboard-font" style={{ fontSize: '0.85rem', color: 'var(--color-match)', flexShrink: 0 }}>
                               #{player.jersey}
                             </span>
@@ -984,7 +986,9 @@ export default function MatchDay({
                               overflow: 'hidden', 
                               textOverflow: 'ellipsis', 
                               whiteSpace: 'nowrap', 
-                              maxWidth: '65px' 
+                              flex: 1,
+                              minWidth: 0,
+                              textAlign: 'center'
                             }} title={player.name.split(' ')[0]}>
                               {player.name.split(' ')[0]}
                             </span>
@@ -1091,7 +1095,7 @@ export default function MatchDay({
                     }
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', margin: '2px 0', width: '100%' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', margin: '2px 0', width: '100%', minWidth: 0 }}>
                     <span className="scoreboard-font" style={{ fontSize: '0.9rem', color: isAmberAlert ? '#ffb703' : 'var(--color-match)', flexShrink: 0 }}>
                       #{player.jersey}
                     </span>
@@ -1102,7 +1106,9 @@ export default function MatchDay({
                       overflow: 'hidden', 
                       textOverflow: 'ellipsis', 
                       whiteSpace: 'nowrap', 
-                      maxWidth: '60px' 
+                      flex: 1,
+                      minWidth: 0,
+                      textAlign: 'center'
                     }} title={player.name.split(' ')[0]}>
                       {player.name.split(' ')[0]}
                     </span>

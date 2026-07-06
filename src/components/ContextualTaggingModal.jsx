@@ -7,11 +7,11 @@ export default function ContextualTaggingModal({
   squad = [],
   onSave
 }) {
-  if (!isOpen) return null;
-
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [customDrillName, setCustomDrillName] = useState(drillName);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState([]);
+
+  if (!isOpen) return null;
 
   const togglePlayerSelection = (id) => {
     setSelectedPlayerIds(prev => 

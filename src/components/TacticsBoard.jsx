@@ -385,6 +385,7 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
             alignItems: 'center',
             userSelect: 'none',
             overflowX: 'auto',
+            overflowY: 'hidden',
             maxWidth: '100%',
             scrollbarWidth: 'none',
             WebkitOverflowScrolling: 'touch',
