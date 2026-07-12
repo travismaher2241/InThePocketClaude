@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { deletePlayerFromFirestore, bulkDeletePlayersFromFirestore, archivePlayersInFirestore } from '../firebaseHelpers';
 import { useAuth } from '../context/AuthProvider';
 import * as XLSX from 'xlsx';
@@ -40,6 +40,43 @@ export default function SquadHub({
   const [editJersey, setEditJersey] = useState('');
   const [editPosition, setEditPosition] = useState('Midfield');
   const [editMedical, setEditMedical] = useState('');
+
+  // Search & Sort State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('name'); // 'name' or 'number'
+  const [sortDirection, setSortDirection] = useState('asc'); // 'asc' or 'desc'
+
+  const handleSortChange = (type) => {
+    if (sortBy === type) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(type);
+      setSortDirection('asc');
+    }
+  };
+
+  const filteredAndSortedSquad = useMemo(() => {
+    let result = [...squad];
+
+    // Filter by name
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(player => player.name.toLowerCase().includes(q));
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      let comparison = 0;
+      if (sortBy === 'name') {
+        comparison = a.name.localeCompare(b.name);
+      } else if (sortBy === 'number') {
+        comparison = (a.jersey || 0) - (b.jersey || 0);
+      }
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+
+    return result;
+  }, [squad, searchQuery, sortBy, sortDirection]);
 
   const handleAddSubmit = (e) => {
     e.preventDefault();
@@ -294,6 +331,82 @@ export default function SquadHub({
         </div>
       </div>
 
+      {/* Search & Sort Controls */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '8px' }}>
+        {/* Search Input Container */}
+        <div style={{ position: 'relative', width: '100%' }}>
+          <input
+            type="text"
+            className="search-input-field"
+            placeholder="Search players by name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {/* Search Icon */}
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            viewBox="0 0 24 24"
+            style={{
+              position: 'absolute',
+              left: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: '#8d939e',
+              pointerEvents: 'none'
+            }}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          {/* Clear Button */}
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                color: '#8d939e',
+                cursor: 'pointer',
+                padding: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {/* Sort Controls */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600', letterSpacing: '0.05em' }}>Sort By:</span>
+          <button
+            type="button"
+            className={`sort-btn ${sortBy === 'name' ? 'active' : ''}`}
+            onClick={() => handleSortChange('name')}
+          >
+            Name {sortBy === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
+          </button>
+          <button
+            type="button"
+            className={`sort-btn ${sortBy === 'number' ? 'active' : ''}`}
+            onClick={() => handleSortChange('number')}
+          >
+            Jersey # {sortBy === 'number' && (sortDirection === 'asc' ? '↑' : '↓')}
+          </button>
+        </div>
+      </div>
+
       {/* Full-width player list directory (etched manifest style) */}
       <div 
         style={{ 
@@ -302,12 +415,14 @@ export default function SquadHub({
           borderTop: '1px solid rgba(255, 255, 255, 0.05)'
         }}
       >
-        {squad.length === 0 ? (
+        {filteredAndSortedSquad.length === 0 ? (
           <div style={{ border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '6px', padding: '40px 16px', textAlign: 'center', color: '#8d939e', fontSize: '0.9rem' }}>
-            No players added yet. Tap the "+" button at the bottom or "Import" in the header to register your squad roster.
+            {squad.length === 0 
+              ? 'No players added yet. Tap the "+" button at the bottom or "Import" in the header to register your squad roster.'
+              : 'No players match your search criteria.'}
           </div>
         ) : (
-          squad.map((player) => {
+          filteredAndSortedSquad.map((player) => {
             const isSelected = selectedPlayerIds.has(player.id);
             const attendanceRate = player.attendance && player.attendance.length > 0
               ? Math.round((player.attendance.filter(a => a.present).length / player.attendance.length) * 100)
@@ -817,11 +932,51 @@ export default function SquadHub({
         </button>
       )}
 
-      {/* Custom Keyframes Animation */}
+      {/* Custom Keyframes Animation & Styles */}
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
+        }
+        .search-input-field {
+          width: 100%;
+          background-color: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 8px;
+          padding: 10px 12px 10px 38px;
+          font-size: 0.85rem;
+          color: #ffffff;
+          outline: none;
+          transition: all 0.2s ease;
+        }
+        .search-input-field:focus {
+          border-color: var(--color-squad);
+          background-color: rgba(255, 255, 255, 0.06);
+          box-shadow: 0 0 0 2px rgba(58, 134, 255, 0.15);
+        }
+        .sort-btn {
+          background-color: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 6px;
+          color: #8d939e;
+          padding: 6px 12px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          transition: all 0.2s ease;
+        }
+        .sort-btn:hover {
+          background-color: rgba(255, 255, 255, 0.05);
+          color: #ffffff;
+          border-color: rgba(255, 255, 255, 0.15);
+        }
+        .sort-btn.active {
+          background-color: rgba(58, 134, 255, 0.12);
+          border-color: var(--color-squad);
+          color: #ffffff;
         }
       `}</style>
     </div>
