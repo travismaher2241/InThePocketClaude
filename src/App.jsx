@@ -38,12 +38,12 @@ export default function App() {
     document.body.scrollTop = 0;
   }, [activeTab]);
   const [squad, setSquad] = useState(() => {
-    const saved = localStorage.getItem('coachcore_squad');
+    const saved = localStorage.getItem('inthepocket_squad');
     return saved ? JSON.parse(saved) : DEFAULT_ROSTER;
   });
 
   const [videoClips, setVideoClips] = useState(() => {
-    const saved = localStorage.getItem('coachcore_videoclips');
+    const saved = localStorage.getItem('inthepocket_videoclips');
     return saved ? JSON.parse(saved) : [
       {
         id: 'v_seed_1',
@@ -65,14 +65,14 @@ export default function App() {
 
   // Settings & Integrations states
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-  const [subscriptionTier, setSubscriptionTier] = useState(() => localStorage.getItem('coachcore_tier') || 'Ultra'); // Default to Ultra for full capability demo
-  const [maxStintMinutes, setMaxStintMinutes] = useState(() => Number(localStorage.getItem('coachcore_stint_limit')) || 5);
+  const [subscriptionTier, setSubscriptionTier] = useState(() => localStorage.getItem('inthepocket_tier') || 'Ultra'); // Default to Ultra for full capability demo
+  const [maxStintMinutes, setMaxStintMinutes] = useState(() => Number(localStorage.getItem('inthepocket_stint_limit')) || 5);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Connection & Offline Sync states
   const [isOnline, setIsOnline] = useState(true);
   const [syncQueue, setSyncQueue] = useState(() => {
-    const saved = localStorage.getItem('coachcore_sync_queue');
+    const saved = localStorage.getItem('inthepocket_sync_queue');
     return saved ? JSON.parse(saved) : [];
   });
   const [isSyncing, setIsSyncing] = useState(false);
@@ -84,12 +84,12 @@ export default function App() {
   const [paywallFeature, setPaywallFeature] = useState(null);
 
   const [squadSettings, setSquadSettings] = useState(() => {
-    const saved = localStorage.getItem('coachcore_squad_settings');
+    const saved = localStorage.getItem('inthepocket_squad_settings');
     return saved ? JSON.parse(saved) : { squadName: 'My Squad', ageGroup: 'U14' };
   });
 
   useEffect(() => {
-    localStorage.setItem('coachcore_squad_settings', JSON.stringify(squadSettings));
+    localStorage.setItem('inthepocket_squad_settings', JSON.stringify(squadSettings));
   }, [squadSettings]);
 
   // Load squad and squad settings from Firestore when user logs in
@@ -130,25 +130,25 @@ export default function App() {
 
   // Sync state changes to LocalStorage
   useEffect(() => {
-    localStorage.setItem('coachcore_squad', JSON.stringify(squad));
+    localStorage.setItem('inthepocket_squad', JSON.stringify(squad));
   }, [squad]);
 
 
 
   useEffect(() => {
-    localStorage.setItem('coachcore_tier', subscriptionTier);
+    localStorage.setItem('inthepocket_tier', subscriptionTier);
   }, [subscriptionTier]);
 
   useEffect(() => {
-    localStorage.setItem('coachcore_stint_limit', maxStintMinutes.toString());
+    localStorage.setItem('inthepocket_stint_limit', maxStintMinutes.toString());
   }, [maxStintMinutes]);
 
   useEffect(() => {
-    localStorage.setItem('coachcore_sync_queue', JSON.stringify(syncQueue));
+    localStorage.setItem('inthepocket_sync_queue', JSON.stringify(syncQueue));
   }, [syncQueue]);
 
   useEffect(() => {
-    localStorage.setItem('coachcore_videoclips', JSON.stringify(videoClips));
+    localStorage.setItem('inthepocket_videoclips', JSON.stringify(videoClips));
   }, [videoClips]);
 
   // Handle Online status change synchronization flushes

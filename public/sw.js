@@ -1,4 +1,4 @@
-const CACHE_NAME = 'coachcore-v2';
+const CACHE_NAME = 'inthepocket-v2';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();

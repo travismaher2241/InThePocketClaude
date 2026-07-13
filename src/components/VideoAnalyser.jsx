@@ -2,6 +2,79 @@ import React, { useState, useRef, useEffect } from 'react';
 import aflGroundImg from '../assets/AFL GROUND.png';
 import ContextualTaggingModal from './ContextualTaggingModal';
 
+// WebM Duration fixer helper to ensure iOS/Safari compatibility
+function fixWebmDuration(blob, duration, callback) {
+  const reader = new FileReader();
+  reader.onload = function() {
+    const arrayBuffer = reader.result;
+    const uint8 = new Uint8Array(arrayBuffer);
+    
+    let segmentInfoOffset = -1;
+    for (let i = 0; i < uint8.length - 4; i++) {
+      if (uint8[i] === 0x15 && uint8[i+1] === 0x49 && uint8[i+2] === 0xA9 && uint8[i+3] === 0x66) {
+        segmentInfoOffset = i;
+        break;
+      }
+    }
+    
+    if (segmentInfoOffset === -1) {
+      callback(blob);
+      return;
+    }
+    
+    let durationOffset = -1;
+    const limit = Math.min(uint8.length - 2, segmentInfoOffset + 200);
+    for (let i = segmentInfoOffset + 4; i < limit; i++) {
+      if (uint8[i] === 0x44 && uint8[i+1] === 0x89) {
+        durationOffset = i;
+        break;
+      }
+    }
+    
+    if (durationOffset !== -1) {
+      const len = uint8[durationOffset + 2];
+      if (len === 0x88) {
+        const view = new DataView(arrayBuffer, durationOffset + 3, 8);
+        view.setFloat64(0, duration, false);
+      } else if (len === 0x84) {
+        const view = new DataView(arrayBuffer, durationOffset + 3, 4);
+        view.setFloat32(0, duration, false);
+      }
+      callback(new Blob([arrayBuffer], { type: blob.type }));
+    } else {
+      let timecodeScaleOffset = -1;
+      for (let i = segmentInfoOffset + 4; i < limit - 3; i++) {
+        if (uint8[i] === 0x2A && uint8[i+1] === 0xD7 && uint8[i+2] === 0xB1) {
+          timecodeScaleOffset = i;
+          break;
+        }
+      }
+      
+      if (timecodeScaleOffset !== -1) {
+        const tcLen = uint8[timecodeScaleOffset + 3];
+        const insertAt = timecodeScaleOffset + 4 + tcLen;
+        
+        const durBlock = new Uint8Array(11);
+        durBlock[0] = 0x44;
+        durBlock[1] = 0x89;
+        durBlock[2] = 0x88;
+        const view = new DataView(durBlock.buffer, 3, 8);
+        view.setFloat64(0, duration, false);
+        
+        const newUint8 = new Uint8Array(uint8.length + durBlock.length);
+        newUint8.set(uint8.subarray(0, insertAt), 0);
+        newUint8.set(durBlock, insertAt);
+        newUint8.set(uint8.subarray(insertAt), insertAt + durBlock.length);
+        
+        callback(new Blob([newUint8.buffer], { type: blob.type }));
+      } else {
+        callback(blob);
+      }
+    }
+  };
+  reader.readAsArrayBuffer(blob);
+}
+
 export default function VideoAnalyser({
   squad = [],
   videoClips = [],
@@ -90,7 +163,7 @@ export default function VideoAnalyser({
     }
   }, [selectedReviewClip]);
 
-  const [drawTool, setDrawTool] = useState('brush'); // 'brush', 'arrow', 'eraser'
+  const [drawTool, setDrawTool] = useState('brush'); // 'brush', 'arrow', 'text', 'eraser'
   const [isFrozen, setIsFrozen] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
   const videoRef = useRef(null);
@@ -98,9 +171,29 @@ export default function VideoAnalyser({
   const canvasContainerRef = useRef(null);
 
   // Drawing states
-  const drawings = useRef([]); // { type: 'brush'|'arrow', points: [] }
+  const drawings = useRef([]); // { type: 'brush'|'arrow'|'text', points: [], text: '', x, y, timestamp }
   const startPos = useRef({ x: 0, y: 0 });
   const lastPos = useRef({ x: 0, y: 0 });
+
+  // Floating text overlay states
+  const [activeTextInput, setActiveTextInput] = useState(null);
+  const [textInputValue, setTextInputValue] = useState('');
+
+  // Export states
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState(0);
+
+  // Sync back helper
+  const saveDrawings = (newDrawings) => {
+    drawings.current = newDrawings;
+    if (activeClip && setVideoClips) {
+      setVideoClips(prev => prev.map(clip => 
+        clip.id === activeClip.id 
+          ? { ...clip, drawings: newDrawings }
+          : clip
+      ));
+    }
+  };
 
   // Mini Tactics Board Player Tokens state (only tagged players)
   const [tokens, setTokens] = useState([]);
@@ -108,7 +201,7 @@ export default function VideoAnalyser({
   const dragOffset = useRef({ x: 0, y: 0 });
   const tacticsContainerRef = useRef(null);
 
-  // Populate Tactics Board tokens when a clip becomes active
+  // Populate Tactics Board tokens and load drawings when a clip becomes active
   useEffect(() => {
     if (activeClip) {
       // Find players tagged in this clip
@@ -125,9 +218,13 @@ export default function VideoAnalyser({
       }));
       setTokens(initialTokens);
       
-      // Clear drawings
-      drawings.current = [];
+      // Load drawings from clip
+      drawings.current = activeClip.drawings || [];
       setIsFrozen(false);
+
+      setTimeout(() => {
+        resizeCanvas();
+      }, 100);
     }
   }, [activeClip, squad]);
 
@@ -140,7 +237,6 @@ export default function VideoAnalyser({
       // Unfreeze
       video.play();
       setIsFrozen(false);
-      drawings.current = [];
       clearCanvas();
     } else {
       // Freeze (pause video & activate drawing overlay)
@@ -176,6 +272,10 @@ export default function VideoAnalyser({
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    const video = videoRef.current;
+    if (!video) return;
+    const curTime = video.currentTime;
+
     ctx.save();
     // Normalize coordinates relative to actual rendering width
     const scaleX = canvas.width / 1000;
@@ -183,41 +283,127 @@ export default function VideoAnalyser({
     ctx.scale(scaleX, scaleY);
 
     drawings.current.forEach((item) => {
-      ctx.beginPath();
-      ctx.lineWidth = 4;
-      ctx.strokeStyle = item.color || '#ff7a00'; // Sherrin Orange chalk
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+      const itemTime = item.timestamp || 0;
+      // Indefinite annotation visibility once currentTime >= item.timestamp
+      if (curTime >= itemTime - 0.05) {
+        if (item.type === 'brush' && item.points.length > 0) {
+          // 1. Outline
+          ctx.save();
+          ctx.beginPath();
+          ctx.lineWidth = 10;
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.75)';
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.moveTo(item.points[0].x, item.points[0].y);
+          for (let i = 1; i < item.points.length; i++) {
+            ctx.lineTo(item.points[i].x, item.points[i].y);
+          }
+          ctx.stroke();
+          ctx.restore();
 
-      if (item.type === 'brush' && item.points.length > 0) {
-        ctx.moveTo(item.points[0].x, item.points[0].y);
-        for (let i = 1; i < item.points.length; i++) {
-          ctx.lineTo(item.points[i].x, item.points[i].y);
+          // 2. Inner Stroke
+          ctx.save();
+          ctx.beginPath();
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = item.color || '#ff7a00';
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.moveTo(item.points[0].x, item.points[0].y);
+          for (let i = 1; i < item.points.length; i++) {
+            ctx.lineTo(item.points[i].x, item.points[i].y);
+          }
+          ctx.stroke();
+          ctx.restore();
+        } else if (item.type === 'arrow' && item.points.length === 2) {
+          drawArrow(ctx, item.points[0].x, item.points[0].y, item.points[1].x, item.points[1].y, 6);
+        } else if (item.type === 'text') {
+          drawText(ctx, item.text, item.x, item.y, item.color || '#ff7a00');
         }
-        ctx.stroke();
-      } else if (item.type === 'arrow' && item.points.length === 2) {
-        drawArrow(ctx, item.points[0].x, item.points[0].y, item.points[1].x, item.points[1].y);
       }
     });
 
     ctx.restore();
   };
 
-  const drawArrow = (ctx, fromX, fromY, toX, toY) => {
+  const drawArrow = (ctx, fromX, fromY, toX, toY, width = 6) => {
+    const angle = Math.atan2(toY - fromY, toX - fromX);
+    const headLength = width * 3.5;
+
+    // 1. Draw black outline border (thicker)
+    ctx.save();
     ctx.beginPath();
     ctx.moveTo(fromX, fromY);
     ctx.lineTo(toX, toY);
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.75)';
+    ctx.lineWidth = width + 4;
+    ctx.lineCap = 'round';
     ctx.stroke();
 
-    const angle = Math.atan2(toY - fromY, toX - fromX);
-    const headLength = 14;
+    ctx.beginPath();
+    ctx.moveTo(toX, toY);
+    ctx.lineTo(toX - (headLength + 2) * Math.cos(angle - Math.PI / 6), toY - (headLength + 2) * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(toX - (headLength + 2) * Math.cos(angle + Math.PI / 6), toY - (headLength + 2) * Math.sin(angle + Math.PI / 6));
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+    ctx.fill();
+    ctx.restore();
+
+    // 2. Draw main orange colored arrow (inner)
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(fromX, fromY);
+    ctx.lineTo(toX, toY);
+    ctx.strokeStyle = '#ff7a00';
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
     ctx.beginPath();
     ctx.moveTo(toX, toY);
     ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
     ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
     ctx.closePath();
-    ctx.fillStyle = ctx.strokeStyle;
+    ctx.fillStyle = '#ff7a00';
     ctx.fill();
+    ctx.restore();
+  };
+
+  const drawText = (ctx, text, x, y, color = '#ff7a00') => {
+    ctx.save();
+    ctx.font = 'bold 20px "Chakra Petch", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const textWidth = ctx.measureText(text).width;
+    const paddingX = 12;
+    const paddingY = 8;
+    const boxWidth = textWidth + paddingX * 2;
+    const boxHeight = 20 + paddingY * 2;
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+    ctx.fillRect(x - boxWidth / 2, y - boxHeight / 2, boxWidth, boxHeight);
+
+    ctx.fillStyle = color;
+    ctx.fillText(text, x, y);
+    ctx.restore();
+  };
+
+  const saveTextAnnotation = () => {
+    if (textInputValue.trim() && activeTextInput) {
+      const curTime = videoRef.current ? videoRef.current.currentTime : 0;
+      drawings.current.push({
+        type: 'text',
+        text: textInputValue.trim(),
+        x: activeTextInput.canvasX,
+        y: activeTextInput.canvasY,
+        color: '#ff7a00',
+        timestamp: curTime
+      });
+      redrawCanvas();
+      saveDrawings(drawings.current);
+    }
+    setActiveTextInput(null);
+    setTextInputValue('');
   };
 
   const getCanvasCoords = (clientX, clientY) => {
@@ -236,15 +422,26 @@ export default function VideoAnalyser({
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     const { x, y } = getCanvasCoords(clientX, clientY);
 
+    if (drawTool === 'text') {
+      const rect = canvasContainerRef.current.getBoundingClientRect();
+      const percentX = ((clientX - rect.left) / rect.width) * 100;
+      const percentY = ((clientY - rect.top) / rect.height) * 100;
+      setActiveTextInput({ percentX, percentY, canvasX: x, canvasY: y });
+      setTextInputValue('');
+      return;
+    }
+
     setIsDrawing(true);
     lastPos.current = { x, y };
     startPos.current = { x, y };
 
     if (drawTool === 'brush') {
+      const curTime = videoRef.current ? videoRef.current.currentTime : 0;
       drawings.current.push({
         type: 'brush',
         points: [{ x, y }],
-        color: '#ff7a00'
+        color: '#ff7a00',
+        timestamp: curTime
       });
     } else if (drawTool === 'eraser') {
       eraseAt(x, y);
@@ -271,9 +468,7 @@ export default function VideoAnalyser({
       const ctx = canvas.getContext('2d');
       ctx.save();
       ctx.scale(canvas.width / 1000, canvas.height / 600);
-      ctx.strokeStyle = '#ff7a00';
-      ctx.lineWidth = 4;
-      drawArrow(ctx, startPos.current.x, startPos.current.y, x, y);
+      drawArrow(ctx, startPos.current.x, startPos.current.y, x, y, 6);
       ctx.restore();
     }
 
@@ -289,13 +484,17 @@ export default function VideoAnalyser({
       const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
       const { x, y } = getCanvasCoords(clientX, clientY);
 
+      const curTime = videoRef.current ? videoRef.current.currentTime : 0;
       drawings.current.push({
         type: 'arrow',
         points: [startPos.current, { x, y }],
-        color: '#ff7a00'
+        color: '#ff7a00',
+        timestamp: curTime
       });
       redrawCanvas();
     }
+
+    saveDrawings(drawings.current);
   };
 
   const eraseAt = (x, y) => {
@@ -307,10 +506,278 @@ export default function VideoAnalyser({
         const startNear = Math.hypot(item.points[0].x - x, item.points[0].y - y) < radius;
         const endNear = Math.hypot(item.points[1].x - x, item.points[1].y - y) < radius;
         return !startNear && !endNear;
+      } else if (item.type === 'text') {
+        return Math.hypot(item.x - x, item.y - y) >= radius;
       }
       return true;
     });
     redrawCanvas();
+    saveDrawings(drawings.current);
+  };
+
+  const playbackLoopRef = useRef(null);
+
+  const startPlaybackRenderLoop = () => {
+    if (playbackLoopRef.current) cancelAnimationFrame(playbackLoopRef.current);
+    
+    const loop = () => {
+      const video = videoRef.current;
+      if (video && !video.paused) {
+        redrawCanvas();
+        playbackLoopRef.current = requestAnimationFrame(loop);
+      }
+    };
+    playbackLoopRef.current = requestAnimationFrame(loop);
+  };
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handlePlay = () => {
+      startPlaybackRenderLoop();
+    };
+    const handlePause = () => {
+      if (playbackLoopRef.current) {
+        cancelAnimationFrame(playbackLoopRef.current);
+      }
+      redrawCanvas();
+    };
+    const handleTimeUpdate = () => {
+      redrawCanvas();
+    };
+
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handlePause);
+    video.addEventListener('timeupdate', handleTimeUpdate);
+
+    redrawCanvas();
+
+    return () => {
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('pause', handlePause);
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+      if (playbackLoopRef.current) {
+        cancelAnimationFrame(playbackLoopRef.current);
+      }
+    };
+  }, [activeClip]);
+
+  useEffect(() => {
+    window.addEventListener('resize', resizeCanvas);
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+    };
+  }, []);
+
+  const handleExportStill = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = video.videoWidth || 1920;
+    exportCanvas.height = video.videoHeight || 1080;
+    const exportCtx = exportCanvas.getContext('2d');
+
+    exportCtx.drawImage(video, 0, 0, exportCanvas.width, exportCanvas.height);
+
+    exportCtx.save();
+    exportCtx.scale(exportCanvas.width / 1000, exportCanvas.height / 600);
+
+    const curTime = video.currentTime;
+
+    drawings.current.forEach((item) => {
+      const itemTime = item.timestamp || 0;
+      if (curTime >= itemTime - 0.05) {
+        if (item.type === 'brush' && item.points.length > 0) {
+          exportCtx.save();
+          exportCtx.beginPath();
+          exportCtx.lineWidth = 10;
+          exportCtx.strokeStyle = 'rgba(0, 0, 0, 0.75)';
+          exportCtx.lineCap = 'round';
+          exportCtx.lineJoin = 'round';
+          exportCtx.moveTo(item.points[0].x, item.points[0].y);
+          for (let i = 1; i < item.points.length; i++) {
+            exportCtx.lineTo(item.points[i].x, item.points[i].y);
+          }
+          exportCtx.stroke();
+          exportCtx.restore();
+
+          exportCtx.save();
+          exportCtx.beginPath();
+          exportCtx.lineWidth = 4;
+          exportCtx.strokeStyle = item.color || '#ff7a00';
+          exportCtx.lineCap = 'round';
+          exportCtx.lineJoin = 'round';
+          exportCtx.moveTo(item.points[0].x, item.points[0].y);
+          for (let i = 1; i < item.points.length; i++) {
+            exportCtx.lineTo(item.points[i].x, item.points[i].y);
+          }
+          exportCtx.stroke();
+          exportCtx.restore();
+        } else if (item.type === 'arrow' && item.points.length === 2) {
+          drawArrow(exportCtx, item.points[0].x, item.points[0].y, item.points[1].x, item.points[1].y, 6);
+        } else if (item.type === 'text') {
+          drawText(exportCtx, item.text, item.x, item.y, item.color || '#ff7a00');
+        }
+      }
+    });
+
+    exportCtx.restore();
+
+    const dataUrl = exportCanvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = `still-frame-${activeClip.drillName.replace(/\s+/g, '_')}-${Date.now()}.png`;
+    link.href = dataUrl;
+    link.click();
+    
+    if (showToast) {
+      showToast("Still frame exported successfully!");
+    }
+  };
+
+  const handleExportVideo = () => {
+    if (!activeClip) return;
+    setIsExporting(true);
+    setExportProgress(0);
+
+    const video = videoRef.current;
+    if (!video) {
+      setIsExporting(false);
+      return;
+    }
+
+    const renderVideo = document.createElement('video');
+    renderVideo.src = activeClip.videoUrl;
+    renderVideo.crossOrigin = "anonymous";
+    renderVideo.muted = true;
+    renderVideo.playsInline = true;
+
+    renderVideo.onloadedmetadata = () => {
+      const width = renderVideo.videoWidth || 1280;
+      const height = renderVideo.videoHeight || 720;
+      
+      const renderCanvas = document.createElement('canvas');
+      renderCanvas.width = width;
+      renderCanvas.height = height;
+      const renderCtx = renderCanvas.getContext('2d');
+
+      const stream = renderCanvas.captureStream(30); // 30 FPS
+      
+      let options = { mimeType: 'video/webm;codecs=vp9' };
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options = { mimeType: 'video/webm;codecs=vp8' };
+      }
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options = { mimeType: 'video/webm' };
+      }
+      
+      const recorder = new MediaRecorder(stream, options);
+      const chunks = [];
+      
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const rawBlob = new Blob(chunks, { type: options.mimeType });
+        
+        fixWebmDuration(rawBlob, renderVideo.duration * 1000, (fixedBlob) => {
+          const url = URL.createObjectURL(fixedBlob);
+          const a = document.createElement('a');
+          a.download = `annotated-${activeClip.drillName.replace(/\s+/g, '_')}-${Date.now()}.webm`;
+          a.href = url;
+          a.click();
+          
+          setIsExporting(false);
+          setExportProgress(0);
+          if (showToast) {
+            showToast("Annotated video exported successfully!");
+          }
+        });
+      };
+
+      recorder.start();
+      
+      const fps = 30;
+      const duration = renderVideo.duration;
+      let currentTime = 0;
+
+      const renderNextFrame = () => {
+        if (currentTime > duration) {
+          setTimeout(() => {
+            recorder.stop();
+          }, 200);
+          return;
+        }
+
+        renderVideo.currentTime = currentTime;
+      };
+
+      renderVideo.onseeked = () => {
+        renderCtx.drawImage(renderVideo, 0, 0, width, height);
+
+        renderCtx.save();
+        renderCtx.scale(width / 1000, height / 600);
+
+        drawings.current.forEach((item) => {
+          const itemTime = item.timestamp || 0;
+          if (currentTime >= itemTime - 0.05) {
+            if (item.type === 'brush' && item.points.length > 0) {
+              renderCtx.save();
+              renderCtx.beginPath();
+              renderCtx.lineWidth = 10;
+              renderCtx.strokeStyle = 'rgba(0, 0, 0, 0.75)';
+              renderCtx.lineCap = 'round';
+              renderCtx.lineJoin = 'round';
+              renderCtx.moveTo(item.points[0].x, item.points[0].y);
+              for (let i = 1; i < item.points.length; i++) {
+                renderCtx.lineTo(item.points[i].x, item.points[i].y);
+              }
+              renderCtx.stroke();
+              renderCtx.restore();
+
+              renderCtx.save();
+              renderCtx.beginPath();
+              renderCtx.lineWidth = 4;
+              renderCtx.strokeStyle = item.color || '#ff7a00';
+              renderCtx.lineCap = 'round';
+              renderCtx.lineJoin = 'round';
+              renderCtx.moveTo(item.points[0].x, item.points[0].y);
+              for (let i = 1; i < item.points.length; i++) {
+                renderCtx.lineTo(item.points[i].x, item.points[i].y);
+              }
+              renderCtx.stroke();
+              renderCtx.restore();
+            } else if (item.type === 'arrow' && item.points.length === 2) {
+              drawArrow(renderCtx, item.points[0].x, item.points[0].y, item.points[1].x, item.points[1].y, 6);
+            } else if (item.type === 'text') {
+              drawText(renderCtx, item.text, item.x, item.y, item.color || '#ff7a00');
+            }
+          }
+        });
+        renderCtx.restore();
+
+        const progress = Math.min(99, Math.round((currentTime / duration) * 100));
+        setExportProgress(progress);
+
+        setTimeout(() => {
+          currentTime += 1 / fps;
+          renderNextFrame();
+        }, 33);
+      };
+
+      renderNextFrame();
+    };
+
+    renderVideo.onerror = (e) => {
+      console.error("Failed to load export video stream: ", e);
+      setIsExporting(false);
+      if (showToast) {
+        showToast("Error rendering video export.");
+      }
+    };
   };
 
   // Mini Tactics Board Coordinates and dragging
@@ -716,24 +1183,64 @@ export default function VideoAnalyser({
                 Video Feed & Annotation
               </span>
               
-              {/* Freeze Button */}
-              <button 
-                onClick={handleToggleFreeze}
-                style={{
-                  backgroundColor: isFrozen ? 'rgba(230, 57, 70, 0.15)' : 'rgba(255, 122, 0, 0.15)',
-                  border: '1px solid',
-                  borderColor: isFrozen ? '#e63946' : 'var(--color-video)',
-                  color: isFrozen ? '#e63946' : 'var(--color-video)',
-                  fontSize: '0.7rem',
-                  fontWeight: '700',
-                  textTransform: 'uppercase',
-                  padding: '4px 10px',
-                  borderRadius: '12px',
-                  cursor: 'pointer'
-                }}
-              >
-                {isFrozen ? 'Unfreeze Video' : 'Freeze Frame & Sketch'}
-              </button>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                {/* Freeze Button */}
+                <button 
+                  onClick={handleToggleFreeze}
+                  style={{
+                    backgroundColor: isFrozen ? 'rgba(230, 57, 70, 0.15)' : 'rgba(255, 122, 0, 0.15)',
+                    border: '1px solid',
+                    borderColor: isFrozen ? '#e63946' : 'var(--color-video)',
+                    color: isFrozen ? '#e63946' : 'var(--color-video)',
+                    fontSize: '0.7rem',
+                    fontWeight: '700',
+                    textTransform: 'uppercase',
+                    padding: '4px 10px',
+                    borderRadius: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {isFrozen ? 'Unfreeze Video' : 'Freeze Frame & Sketch'}
+                </button>
+
+                {/* Export Still Button */}
+                {isFrozen && (
+                  <button 
+                    onClick={handleExportStill}
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      color: '#ffffff',
+                      fontSize: '0.7rem',
+                      fontWeight: '700',
+                      textTransform: 'uppercase',
+                      padding: '4px 10px',
+                      borderRadius: '12px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Export Still
+                  </button>
+                )}
+
+                {/* Export Video Button */}
+                <button 
+                  onClick={handleExportVideo}
+                  style={{
+                    backgroundColor: 'rgba(255, 122, 0, 0.15)',
+                    border: '1px solid var(--color-video)',
+                    color: 'var(--color-video)',
+                    fontSize: '0.7rem',
+                    fontWeight: '700',
+                    textTransform: 'uppercase',
+                    padding: '4px 10px',
+                    borderRadius: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Export Video with Feedback
+                </button>
+              </div>
             </div>
 
             {/* Video + Canvas Stack */}
@@ -756,31 +1263,64 @@ export default function VideoAnalyser({
                 controls={!isFrozen} // hide native controls when frozen
                 style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                 onError={(e) => {
-                  // Fallback to sample MP4 if ObjectURL expired
                   if (videoRef.current && videoRef.current.src !== 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4') {
                     videoRef.current.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4';
                   }
                 }}
               />
 
-              {/* Transparent Overlay drawing canvas for annotations */}
-              {isFrozen && (
-                <canvas 
-                  ref={canvasRef}
-                  onMouseDown={handleStartDraw}
-                  onMouseMove={handleDraw}
-                  onMouseUp={handleEndDraw}
-                  onTouchStart={handleStartDraw}
-                  onTouchMove={handleDraw}
-                  onTouchEnd={handleEndDraw}
+              {/* Transparent Overlay drawing canvas for annotations - ALWAYS in the DOM */}
+              <canvas 
+                ref={canvasRef}
+                onMouseDown={handleStartDraw}
+                onMouseMove={handleDraw}
+                onMouseUp={handleEndDraw}
+                onTouchStart={handleStartDraw}
+                onTouchMove={handleDraw}
+                onTouchEnd={handleEndDraw}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  cursor: isFrozen ? 'crosshair' : 'default',
+                  zIndex: 10,
+                  pointerEvents: isFrozen ? 'auto' : 'none'
+                }}
+              />
+
+              {/* Floating text input overlay for Text Tool */}
+              {activeTextInput && (
+                <input
+                  type="text"
+                  autoFocus
+                  value={textInputValue}
+                  onChange={(e) => setTextInputValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      saveTextAnnotation();
+                    } else if (e.key === 'Escape') {
+                      setActiveTextInput(null);
+                    }
+                  }}
+                  onBlur={saveTextAnnotation}
                   style={{
                     position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    cursor: 'crosshair',
-                    zIndex: 10
+                    left: `${activeTextInput.percentX}%`,
+                    top: `${activeTextInput.percentY}%`,
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 100,
+                    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                    color: '#ff7a00',
+                    border: '1px solid var(--color-video)',
+                    borderRadius: '4px',
+                    padding: '6px 12px',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    outline: 'none',
+                    fontFamily: '"Chakra Petch", sans-serif',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.5)'
                   }}
                 />
               )}
@@ -838,6 +1378,25 @@ export default function VideoAnalyser({
                   }}
                 >
                   Arrow
+                </button>
+
+                {/* Text */}
+                <button 
+                  onClick={() => setDrawTool('text')}
+                  style={{
+                    padding: '4px 8px',
+                    fontSize: '0.7rem',
+                    fontFamily: 'var(--font-family-locker)',
+                    fontWeight: '700',
+                    textTransform: 'uppercase',
+                    backgroundColor: drawTool === 'text' ? 'rgba(255, 122, 0, 0.15)' : 'transparent',
+                    color: drawTool === 'text' ? 'var(--color-video)' : '#8d939e',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Text
                 </button>
 
                 {/* Eraser */}
@@ -1019,6 +1578,60 @@ export default function VideoAnalyser({
         squad={squad}
         onSave={handleSaveTaggedClip}
       />
+
+      {/* Deterministic Video Export Progress Overlay */}
+      {isExporting && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.85)',
+          zIndex: 9999,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#ffffff',
+          fontFamily: '"Chakra Petch", sans-serif'
+        }}>
+          <div style={{
+            backgroundColor: '#12141c',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '12px',
+            padding: '30px',
+            width: '340px',
+            textAlign: 'center',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.5)'
+          }}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '1.1rem', letterSpacing: '0.05em', color: 'var(--color-video)' }}>
+              RENDERING VIDEO FEEDBACK
+            </h3>
+            <div style={{
+              height: '8px',
+              width: '100%',
+              backgroundColor: '#1c1f26',
+              borderRadius: '4px',
+              overflow: 'hidden',
+              margin: '20px 0 10px 0'
+            }}>
+              <div style={{
+                height: '100%',
+                width: `${exportProgress}%`,
+                backgroundColor: '#ff7a00',
+                transition: 'width 0.1s ease-out'
+              }} />
+            </div>
+            <div style={{ fontSize: '0.85rem', color: '#8d939e', marginBottom: '20px' }}>
+              Progress: {exportProgress}%
+            </div>
+            <p style={{ fontSize: '0.75rem', color: '#e63946', margin: '0 0 10px 0', fontStyle: 'italic' }}>
+              Rendering frame-by-frame. Please do not close this tab.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

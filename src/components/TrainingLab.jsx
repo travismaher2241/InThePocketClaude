@@ -196,7 +196,7 @@ export default function TrainingLab({
 
   // Draft Preservation Load
   const [draft] = useState(() => {
-    const saved = localStorage.getItem('coachcore_training_draft');
+    const saved = localStorage.getItem('inthepocket_training_draft');
     return saved ? JSON.parse(saved) : null;
   });
 
@@ -298,7 +298,7 @@ export default function TrainingLab({
 
   // Sync draft parameters to localStorage on changes
   useEffect(() => {
-    localStorage.setItem('coachcore_training_draft', JSON.stringify({
+    localStorage.setItem('inthepocket_training_draft', JSON.stringify({
       step,
       presentIds,
       duration,
@@ -309,7 +309,7 @@ export default function TrainingLab({
   }, [step, presentIds, duration, focusAreas, customPlaybookText, planCards]);
 
   const clearDraft = () => {
-    localStorage.removeItem('coachcore_training_draft');
+    localStorage.removeItem('inthepocket_training_draft');
     setStep('wizard');
     setPresentIds([]);
     setDuration(70);

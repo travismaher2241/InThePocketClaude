@@ -30,9 +30,9 @@ export default function Login() {
         if (!sanitizedCode) {
           throw new Error('Tester nickname must contain letters or numbers.');
         }
-        const virtualEmail = `${sanitizedCode}@tester.coachcore.com`;
+        const virtualEmail = `${sanitizedCode}@tester.inthepocket.com.au`;
         // Using a secure virtual password for all virtual tester accounts
-        const virtualPassword = `CoachCoreTesterAccess2026!`;
+        const virtualPassword = `InThePocketTesterAccess2026!`;
 
         try {
           // Attempt to log in the tester

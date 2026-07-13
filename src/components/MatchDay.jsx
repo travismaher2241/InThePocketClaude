@@ -108,7 +108,7 @@ export default function MatchDay({
 
   // Match Day Squad Selector states
   const [activeMatchDayIds, setActiveMatchDayIds] = useState(() => {
-    const saved = localStorage.getItem('coachcore_active_matchday_ids');
+    const saved = localStorage.getItem('inthepocket_active_matchday_ids');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -120,7 +120,7 @@ export default function MatchDay({
 
   // Sync activeMatchDayIds state to LocalStorage
   useEffect(() => {
-    localStorage.setItem('coachcore_active_matchday_ids', JSON.stringify(activeMatchDayIds));
+    localStorage.setItem('inthepocket_active_matchday_ids', JSON.stringify(activeMatchDayIds));
   }, [activeMatchDayIds]);
 
   // Keep activeMatchDayIds in sync with squad prop changes
