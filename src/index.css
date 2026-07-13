@@ -114,33 +114,49 @@ body {
   gap: 8px;
 }
 
-.brand-logo {
-  font-family: var(--font-family-board);
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  background: linear-gradient(
-    120deg, 
-    #8d939e 0%, 
-    #8d939e 40%, 
-    #FFA066 50%, 
-    #FFA066 55%, 
-    #8d939e 65%, 
-    #8d939e 100%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: logoShimmer 4s linear infinite;
+.brand-logo-container {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  border-radius: 4px;
+  animation: greenGlow 3s ease-in-out infinite;
 }
 
-@keyframes logoShimmer {
+.brand-logo-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 255, 0, 0) 0%,
+    rgba(0, 255, 0, 0.55) 50%,
+    rgba(0, 255, 0, 0) 100%
+  );
+  transform: skewX(-20deg);
+  animation: greenShimmer 4s ease-in-out infinite;
+}
+
+@keyframes greenShimmer {
   0% {
-    background-position: 200% center;
+    left: -150%;
+  }
+  50% {
+    left: -150%;
   }
   100% {
-    background-position: -200% center;
+    left: 150%;
+  }
+}
+
+@keyframes greenGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(0, 255, 0, 0.25));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.7));
   }
 }
 

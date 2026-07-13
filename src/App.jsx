@@ -316,15 +316,18 @@ export default function App() {
           style={{ cursor: 'pointer', userSelect: 'none' }}
           title="Tap logo to open settings"
         >
-          <img 
-            src={inThePocketLogo} 
-            alt="In The Pocket" 
-            style={{ 
-              height: '32px', 
-              objectFit: 'contain',
-              borderRadius: '4px'
-            }} 
-          />
+          <div className="brand-logo-container">
+            <img 
+              src={inThePocketLogo} 
+              alt="In The Pocket" 
+              style={{ 
+                height: '46px', 
+                objectFit: 'contain',
+                borderRadius: '4px',
+                display: 'block'
+              }} 
+            />
+          </div>
         </div>
 
         {/* Top-right area */}
