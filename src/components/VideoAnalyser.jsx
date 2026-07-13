@@ -249,13 +249,14 @@ export default function VideoAnalyser({
     }
   };
 
-  // Canvas drawings resizing
+  // Canvas drawings resizing with High-DPI support
   const resizeCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
     redrawCanvas();
   };
 
@@ -327,61 +328,76 @@ export default function VideoAnalyser({
 
   const drawArrow = (ctx, fromX, fromY, toX, toY, width = 6) => {
     const angle = Math.atan2(toY - fromY, toX - fromX);
-    const headLength = width * 3.5;
+    const headLength = width * 5.0; // Significantly larger arrowhead
 
-    // 1. Draw black outline border (thicker)
+    // 1. Draw black outline border (thicker, wrapping line and arrowhead perimeter)
     ctx.save();
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.85)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+    ctx.lineWidth = width + 6;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
     ctx.beginPath();
     ctx.moveTo(fromX, fromY);
     ctx.lineTo(toX, toY);
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.75)';
-    ctx.lineWidth = width + 4;
-    ctx.lineCap = 'round';
     ctx.stroke();
 
     ctx.beginPath();
     ctx.moveTo(toX, toY);
-    ctx.lineTo(toX - (headLength + 2) * Math.cos(angle - Math.PI / 6), toY - (headLength + 2) * Math.sin(angle - Math.PI / 6));
-    ctx.lineTo(toX - (headLength + 2) * Math.cos(angle + Math.PI / 6), toY - (headLength + 2) * Math.sin(angle + Math.PI / 6));
+    ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 5), toY - headLength * Math.sin(angle - Math.PI / 5));
+    ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 5), toY - headLength * Math.sin(angle + Math.PI / 5));
     ctx.closePath();
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
     ctx.fill();
+    ctx.stroke();
     ctx.restore();
 
     // 2. Draw main orange colored arrow (inner)
     ctx.save();
+    ctx.strokeStyle = '#ff7a00';
+    ctx.fillStyle = '#ff7a00';
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
     ctx.beginPath();
     ctx.moveTo(fromX, fromY);
     ctx.lineTo(toX, toY);
-    ctx.strokeStyle = '#ff7a00';
-    ctx.lineWidth = width;
-    ctx.lineCap = 'round';
     ctx.stroke();
 
     ctx.beginPath();
     ctx.moveTo(toX, toY);
-    ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
-    ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+    ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 5), toY - headLength * Math.sin(angle - Math.PI / 5));
+    ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 5), toY - headLength * Math.sin(angle + Math.PI / 5));
     ctx.closePath();
-    ctx.fillStyle = '#ff7a00';
     ctx.fill();
     ctx.restore();
   };
 
   const drawText = (ctx, text, x, y, color = '#ff7a00') => {
     ctx.save();
-    ctx.font = 'bold 20px "Chakra Petch", sans-serif';
+    ctx.font = 'bold 24px "Arial Black", Impact, sans-serif'; // Bold, heavy, readable font
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     const textWidth = ctx.measureText(text).width;
-    const paddingX = 12;
-    const paddingY = 8;
+    const paddingX = 18; // Increased padding for breathing room
+    const paddingY = 12; // Increased padding for breathing room
+    const fontSize = 24;
     const boxWidth = textWidth + paddingX * 2;
-    const boxHeight = 20 + paddingY * 2;
+    const boxHeight = fontSize + paddingY * 2;
 
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
-    ctx.fillRect(x - boxWidth / 2, y - boxHeight / 2, boxWidth, boxHeight);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.75)'; // Higher contrast backing
+    ctx.beginPath();
+    const rectX = x - boxWidth / 2;
+    const rectY = y - boxHeight / 2;
+    const radius = 6;
+    if (ctx.roundRect) {
+      ctx.roundRect(rectX, rectY, boxWidth, boxHeight, radius);
+    } else {
+      ctx.rect(rectX, rectY, boxWidth, boxHeight);
+    }
+    ctx.fill();
 
     ctx.fillStyle = color;
     ctx.fillText(text, x, y);
