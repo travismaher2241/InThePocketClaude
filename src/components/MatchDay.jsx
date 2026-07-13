@@ -5,7 +5,7 @@ import { hasAccess } from '../firebaseHelpers';
 // Formal AFL Positional Layout Definitions (18 on-field positions)
 const FIELD_POSITIONS = [
   // FORWARDS
-  { id: 'pos_fp_l', name: 'Back Pocket', line: 'Forwards', code: 'BP' },
+  { id: 'pos_fp_l', name: 'Forward Pocket', line: 'Forwards', code: 'FP' },
   { id: 'pos_ff', name: 'Full Forward', line: 'Forwards', code: 'FF' },
   { id: 'pos_fp_r', name: 'Forward Pocket', line: 'Forwards', code: 'FP' },
 
