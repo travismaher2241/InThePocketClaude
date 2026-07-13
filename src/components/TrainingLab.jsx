@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ContextualTaggingModal from './ContextualTaggingModal';
 import { saveTrainingSession, getTrainingSessions, deleteSession, hasAccess, generateAIPlanSecure, getUserProfile } from '../firebaseHelpers';
 import { useAuth } from '../context/AuthProvider';
-import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS } from '../data/curriculumKnowledge';
+import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS, AFL_PRE_GAME_WARMUPS } from '../data/curriculumKnowledge';
 
 const AGE_FOCUS_MAP = {
   'U8': ['Basic Kicking', 'Handballing', 'Marking', 'Ground Balls', 'Fun & Games', 'Basic Positioning'],
@@ -319,9 +319,9 @@ export default function TrainingLab({
     setPlanCards([]);
   };
 
-  // Load completed session history from Firestore
+  // Load completed session history from Firestore on mount/user change to enable repetition penalty checks
   useEffect(() => {
-    if (activeSubTab === 'history' && currentUser?.uid) {
+    if (currentUser?.uid) {
       const loadHistory = async () => {
         setIsLoadingHistory(true);
         try {
@@ -335,7 +335,7 @@ export default function TrainingLab({
       };
       loadHistory();
     }
-  }, [activeSubTab, currentUser]);
+  }, [currentUser]);
 
   // Late Arrival Modal states
   const [isLateModalOpen, setIsLateModalOpen] = useState(false);
@@ -391,6 +391,27 @@ export default function TrainingLab({
     const playerCount = overrideCount !== undefined ? overrideCount : presentIds.length;
     const group1 = Math.floor(playerCount / 2);
     const group2 = playerCount - group1;
+
+    // Get a randomized Pre-Game drill avoiding repetition
+    let lastPreGameName = "";
+    if (historySessions && historySessions.length > 0) {
+      const sortedHistory = [...historySessions].sort((a, b) => new Date(b.date) - new Date(a.date));
+      const lastSession = sortedHistory[0];
+      const lastPreGameDrill = lastSession?.drills?.[0];
+      if (lastPreGameDrill) {
+        lastPreGameName = lastPreGameDrill.title || lastPreGameDrill.name || '';
+      }
+    }
+
+    let preGamePool = [...AFL_PRE_GAME_WARMUPS];
+    if (lastPreGameName) {
+      const cleanLast = lastPreGameName.toLowerCase();
+      const filtered = preGamePool.filter(w => !cleanLast.includes(w.name.toLowerCase()) && !w.name.toLowerCase().includes(cleanLast));
+      if (filtered.length > 0) {
+        preGamePool = filtered;
+      }
+    }
+    const selectedPreGameDrill = preGamePool[Math.floor(Math.random() * preGamePool.length)];
 
     // Check access using our Gatekeeper pattern
     const userTierClean = (subscriptionTier || 'Free').toLowerCase();
@@ -464,6 +485,11 @@ export default function TrainingLab({
 `;
         }
 
+        let lastPreGameNegativePrompt = "";
+        if (lastPreGameName) {
+          lastPreGameNegativePrompt = `\nCRITICAL Repetition Constraint: The Pre-Game / Warm-Up drill in the user's previous training session was: "${lastPreGameName.replace(/[#*`[\]]/g, '')}". You MUST NOT choose or generate this exact drill again for Segment 1. Ensure you choose a different type of activity to provide variation.`;
+        }
+
         const promptText = `You are an elite Australian Rules Football (AFL) coach. You MUST generate 100% unique drills for every request. 
 Do not repeat standard baseline drills. Every plan must strictly adhere to these coaching standards:
 
@@ -481,13 +507,19 @@ Do not repeat standard baseline drills. Every plan must strictly adhere to these
 ${weeklyThemesText}
 ${stationPromptRules}
 ${injectedDrillsText}${injectedSSGsText}
+${lastPreGameNegativePrompt}
 
 Create a training plan for ${duration} minutes, specifically for ${playerCount} players. The players belong to the "${ageGroup}" age group level. 
 Every drill segment MUST directly teach the selected Focus Areas: ${focusAreas.join(", ")}. 
 The complexity, grid sizes (in meters), setup descriptions, and terminology MUST be strictly tailored for the selected Age Group: "${ageGroup}".
 
 The plan must include exactly five segments representing the curriculum structure:
-1. PRE-GAME: Unstructured play and exploration (duration should be approx 20% of session time, e.g. 15 mins for a 70-minute session).
+1. PRE-GAME: You MUST select a completely different pre-game or warm-up activity than the standard unstructured kick-to-kick. Vary the focus between ground balls, evasive movement, handballing, and dynamic stretching. Use the following selected activity (or a creative variation of it) as the foundation for the Segment 1 instructions, goal, and phase:
+   - Activity Name: "${selectedPreGameDrill.name}"
+   - Goal: ${selectedPreGameDrill.goal}
+   - Description: ${selectedPreGameDrill.desc}
+   - CHANGE IT Tip: ${selectedPreGameDrill.coachingTip}
+   (duration should be approx 20% of session time, e.g. 15 mins for a 70-minute session).
 2. QUARTER 1 WARM-UP: Fun warm-up with emphasis on fundamental movements (approx 15% of session time, e.g. 10 mins).
 3. ${q2PromptDesc}
 4. ${q3PromptDesc}
@@ -653,11 +685,11 @@ COACH'S LOGISTICS SUMMARY
 
       const generatedFallbackCards = [
         {
-          title: `PRE-GAME: FUN PLAY & EXPLORATION`,
+          title: `PRE-GAME: ${selectedPreGameDrill.name.toUpperCase()}`,
           duration: preGameMins,
-          instructions: `Unstructured kick-to-kick and free handball grids. No active coaching. Emphasize player creativity, self-organization, and discovery.\n\nCHANGE IT Coaching Tip: Vary the space or add multi-balls to keep everyone active.`,
-          goal: `Build warm-up touch and self-guided exploration.`,
-          phase: `Contest`
+          instructions: `${selectedPreGameDrill.desc}\n\nCHANGE IT Coaching Tip: ${selectedPreGameDrill.coachingTip}`,
+          goal: selectedPreGameDrill.goal,
+          phase: selectedPreGameDrill.phase
         },
         {
           title: `QUARTER 1 WARM-UP: ${drill0Name}`,
