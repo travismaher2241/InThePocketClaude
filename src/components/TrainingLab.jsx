@@ -127,6 +127,52 @@ function getLocalDrillSetup(drillName, groupSize) {
   return `Split players into a group size of ${groupSize} players. Custom design drill setup for this sub-group.`;
 }
 
+function parseStationCards(card, group1, group2) {
+  const text = card.instructions || '';
+  const isSplit = text.includes('STRUCTURE: ROTATION-BASED STATIONS');
+  
+  if (!isSplit) {
+    return [card];
+  }
+  
+  let stationAContent = '';
+  let stationBContent = '';
+  let switchContent = '';
+  
+  // Extract Station A, Station B, and The Switch content
+  const matchA = text.match(/(?:Station|STATION)\s+A:\s*([\s\S]*?)(?=(?:Station|STATION)\s+B:|(?:The|THE)\s+(?:Switch|SWITCH):|$)/i);
+  const matchB = text.match(/(?:Station|STATION)\s+B:\s*([\s\S]*?)(?=(?:The|THE)\s+(?:Switch|SWITCH):|$)/i);
+  const matchSwitch = text.match(/(?:The|THE)\s+(?:Switch|SWITCH):\s*([\s\S]*?$)/i);
+  
+  if (matchA) stationAContent = matchA[1].trim();
+  if (matchB) stationBContent = matchB[1].trim();
+  if (matchSwitch) switchContent = matchSwitch[1].trim();
+  
+  if (!stationAContent || !stationBContent) {
+    return [card];
+  }
+  
+  const cardA = {
+    ...card,
+    isSubCard: true,
+    stationLabel: 'STATION A',
+    playerLabel: `${group1} PLAYERS`,
+    instructions: stationAContent,
+    switchLabel: switchContent
+  };
+  
+  const cardB = {
+    ...card,
+    isSubCard: true,
+    stationLabel: 'STATION B',
+    playerLabel: `${group2} PLAYERS`,
+    instructions: stationBContent,
+    switchLabel: switchContent
+  };
+  
+  return [cardA, cardB];
+}
+
 export default function TrainingLab({
   squad,
   subscriptionTier,
@@ -548,6 +594,15 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       const drill2Name = drills?.[2]?.name ? drills[2].name.toUpperCase() : "GAME SENSE CHALLENGE";
       const drill2Desc = drills?.[2]?.desc || "Apply tactical principles in a competitive small-sided match environment.";
 
+      const shouldShowContact = (drillName, drillDesc) => {
+        const text = `${drillName} ${drillDesc}`.toLowerCase();
+        return text.includes('tackle') || text.includes('defender') || text.includes('defence') || text.includes('pressure') || text.includes('scrimmage') || text.includes(' battle') || text.includes('contest') || text.includes(' v ');
+      };
+
+      const drill0Contact = shouldShowContact(drill0Name, drill0Desc) ? `\n- Contact Rules: ${config.tackleRules}` : '';
+      const drill1Contact = shouldShowContact(drill1Name, drill1Desc) ? `\n- Contact Rules: ${config.tackleRules}` : '';
+      const drill2Contact = shouldShowContact(drill2Name, drill2Desc) ? `\n- Contact Rules: ${config.tackleRules}` : '';
+
       let q2Instructions = "";
       let q3Instructions = "";
       let q4Instructions = "";
@@ -556,16 +611,16 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
         const q2Half = Math.round(q2Mins / 2);
         q2Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)
 
-Station A: ${drill1Name}, Goal: ${drill1Desc}, Setup: ${getLocalDrillSetup(drill1Name, group1)}
-Station B: ${drill0Name}, Goal: ${drill0Desc}, Setup: ${getLocalDrillSetup(drill0Name, group2)}
+Station A: ${drill1Name}, Goal: ${drill1Desc}, Setup: ${getLocalDrillSetup(drill1Name, group1)}${shouldShowContact(drill1Name, drill1Desc) ? `\n  - Contact Rules: ${config.tackleRules}` : ''}
+Station B: ${drill0Name}, Goal: ${drill0Desc}, Setup: ${getLocalDrillSetup(drill0Name, group2)}${shouldShowContact(drill0Name, drill0Desc) ? `\n  - Contact Rules: ${config.tackleRules}` : ''}
 
 The Switch: Switch stations at the ${q2Half}-minute mark.`;
         
         const q3Half = Math.round(q3Mins / 2);
         q3Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)
 
-Station A: ${drill2Name}, Goal: ${drill2Desc}, Setup: ${getLocalDrillSetup(drill2Name, group1)}
-Station B: ${drill1Name}, Goal: ${drill1Desc}, Setup: ${getLocalDrillSetup(drill1Name, group2)}
+Station A: ${drill2Name}, Goal: ${drill2Desc}, Setup: ${getLocalDrillSetup(drill2Name, group1)}${shouldShowContact(drill2Name, drill2Desc) ? `\n  - Contact Rules: ${config.tackleRules}` : ''}
+Station B: ${drill1Name}, Goal: ${drill1Desc}, Setup: ${getLocalDrillSetup(drill1Name, group2)}${shouldShowContact(drill1Name, drill1Desc) ? `\n  - Contact Rules: ${config.tackleRules}` : ''}
 
 The Switch: Switch stations at the ${q3Half}-minute mark.`;
 
@@ -581,9 +636,9 @@ CONSOLIDATED EQUIPMENT STAGING LIST (Parallel Stations Active)
 - Bibs: Distinct colors assigned to each sub-group to avoid mid-session swaps (${group1}x Yellow bibs for Group 1, ${group2}x Orange bibs for Group 2)
 - Balls: ${ballsCount}x footballs minimum (ensuring high touch-rates across both stations)`;
       } else {
-        q2Instructions = `${drill1Desc}\n\n- Setup: ${groupingLabel} Split into offense vs defense spacing grids. Maximize repetitions (60+ touches target).\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Restrict ball-carriers to two bounces to increase disposal speed.`;
+        q2Instructions = `${drill1Desc}\n\n- Setup: ${groupingLabel} Split into offense vs defense spacing grids. Maximize repetitions (60+ touches target).${drill1Contact}\n- CHANGE IT Coaching Tip: Restrict ball-carriers to two bounces to increase disposal speed.`;
         
-        q3Instructions = `${drill2Desc}\n\n- Setup: ${groupingLabel} Focus on contest balance, outnumbering at the stoppage, and rapid corridor transition.\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Adjust numbers (e.g. 4v3) to favor offensive flow.`;
+        q3Instructions = `${drill2Desc}\n\n- Setup: ${groupingLabel} Focus on contest balance, outnumbering at the stoppage, and rapid corridor transition.${drill2Contact}\n- CHANGE IT Coaching Tip: Adjust numbers (e.g. 4v3) to favor offensive flow.`;
 
         q4Instructions = `Play a small-sided match (such as End-to-End Keepings Off or The Exit Strategy) to test under game pressure.
 
@@ -600,14 +655,14 @@ COACH'S LOGISTICS SUMMARY
         {
           title: `PRE-GAME: FUN PLAY & EXPLORATION`,
           duration: preGameMins,
-          instructions: `Unstructured kick-to-kick and free handball grids. No active coaching. Emphasize player creativity, self-organization, and discovery.\n\nCHANGE IT Coaching Tip: Vary the space or add multi-balls to keep everyone active.\n\nContact Rules: ${config.tackleRules}`,
+          instructions: `Unstructured kick-to-kick and free handball grids. No active coaching. Emphasize player creativity, self-organization, and discovery.\n\nCHANGE IT Coaching Tip: Vary the space or add multi-balls to keep everyone active.`,
           goal: `Build warm-up touch and self-guided exploration.`,
           phase: `Contest`
         },
         {
           title: `QUARTER 1 WARM-UP: ${drill0Name}`,
           duration: q1Mins,
-          instructions: `${drill0Desc}\n\n- Setup: ${groupingLabel}. Focus on clean hands and quick release.\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Increase grid width to practice sweeping into space.`,
+          instructions: `${drill0Desc}\n\n- Setup: ${groupingLabel}. Focus on clean hands and quick release.${drill0Contact}\n- CHANGE IT Coaching Tip: Increase grid width to practice sweeping into space.`,
           goal: `Activate movement patterns and build early confidence.`,
           phase: `Attack`
         },
@@ -1459,168 +1514,217 @@ COACH'S LOGISTICS SUMMARY
                 </span>
               </div>
             ) : (
-              planCards.map((card, idx) => (
-                <div 
-                  key={idx}
-                  style={{
-                    backgroundColor: '#1c1f26', // Lighter tactile slate-gray card
-                    border: '1px solid rgba(255, 255, 255, 0.05)', // Subtle thin border
-                    borderRadius: '10px',
-                    padding: '24px 20px',
-                    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.25)', // Soft panel lift shadow
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                    animation: 'fadeIn 0.3s ease-out'
-                  }}
-                >
-                  {/* Headline (Locker Font, bold, clean) */}
-                  <h3 
-                    style={{
-                      fontFamily: 'var(--font-family-locker)',
-                      fontSize: '1.5rem',
-                      fontWeight: '700',
-                      color: '#ffffff',
-                      letterSpacing: '-0.01em',
-                      lineHeight: '1.2'
-                    }}
-                  >
-                    {(card.title || 'DRILL SEGMENT').replace(/[#*`[\]]/g, '')} {/* Cleans any residual markdown symbols */}
-                  </h3>
-
-                  {/* Quick Stats */}
+              (() => {
+                const displayedCards = [];
+                planCards.forEach((card, index) => {
+                  const parsed = parseStationCards(card, group1, group2);
+                  parsed.forEach(sub => {
+                    sub.originalIndex = index;
+                    displayedCards.push(sub);
+                  });
+                });
+                return displayedCards.map((card, idx) => (
                   <div 
+                    key={idx}
                     style={{
-                      fontFamily: 'var(--font-family-board)',
-                      fontSize: '0.85rem',
-                      color: 'var(--color-match)', // Sherrin Yellow accent for stats
-                      fontWeight: '700',
-                      letterSpacing: '0.05em',
+                      backgroundColor: '#1c1f26', // Lighter tactile slate-gray card
+                      border: '1px solid rgba(255, 255, 255, 0.05)', // Subtle thin border
+                      borderLeft: card.isSubCard 
+                        ? (card.stationLabel === 'STATION A' ? '4px solid #ffb703' : '4px solid #fb8500') 
+                        : '1px solid rgba(255, 255, 255, 0.05)',
+                      borderRadius: '10px',
+                      padding: '24px 20px',
+                      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.25)', // Soft panel lift shadow
                       display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
+                      flexDirection: 'column',
+                      gap: '12px',
+                      animation: 'fadeIn 0.3s ease-out'
                     }}
                   >
-                    <span>
-                      {card.duration} MINS | {
-                        (presentIds.length > 15 && (idx === 2 || idx === 3)) 
-                          ? `${group1} & ${group2} PLAYERS` 
-                          : `${presentIds.length} PLAYERS`
-                      }
-                    </span>
-                    {card.phase && (
+                    {/* Headline (Locker Font, bold, clean) */}
+                    <h3 
+                      style={{
+                        fontFamily: 'var(--font-family-locker)',
+                        fontSize: '1.5rem',
+                        fontWeight: '700',
+                        color: '#ffffff',
+                        letterSpacing: '-0.01em',
+                        lineHeight: '1.2'
+                      }}
+                    >
+                      {(card.title || 'DRILL SEGMENT').replace(/[#*`[\]]/g, '')}
+                      {card.isSubCard && (
+                        <span style={{ 
+                          color: card.stationLabel === 'STATION A' ? '#ffb703' : '#fb8500',
+                          fontSize: '1.1rem',
+                          marginLeft: '8px',
+                          fontWeight: '800',
+                          fontFamily: 'var(--font-family-board)'
+                        }}>
+                          [{card.stationLabel}]
+                        </span>
+                      )}
+                    </h3>
+
+                    {/* Quick Stats */}
+                    <div 
+                      style={{
+                        fontFamily: 'var(--font-family-board)',
+                        fontSize: '0.85rem',
+                        color: 'var(--color-match)', // Sherrin Yellow accent for stats
+                        fontWeight: '700',
+                        letterSpacing: '0.05em',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <span>
+                        {card.duration} MINS | {
+                          card.isSubCard 
+                            ? card.playerLabel 
+                            : `${presentIds.length} PLAYERS`
+                        }
+                      </span>
+                      {card.phase && (
+                        <span 
+                          style={{
+                            fontSize: '0.7rem',
+                            backgroundColor: card.phase.toUpperCase() === 'ATTACK' ? 'rgba(58, 134, 255, 0.15)' : 
+                                             card.phase.toUpperCase() === 'DEFENCE' ? 'rgba(230, 57, 70, 0.15)' : 
+                                             'rgba(255, 183, 3, 0.15)',
+                            color: card.phase.toUpperCase() === 'ATTACK' ? '#3a86ff' : 
+                                   card.phase.toUpperCase() === 'DEFENCE' ? '#e63946' : 
+                                   '#ffb703',
+                            border: `1px solid ${
+                              card.phase.toUpperCase() === 'ATTACK' ? 'rgba(58, 134, 255, 0.3)' : 
+                              card.phase.toUpperCase() === 'DEFENCE' ? 'rgba(230, 57, 70, 0.3)' : 
+                              'rgba(255, 183, 3, 0.3)'
+                            }`,
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            textTransform: 'uppercase',
+                            fontWeight: '700'
+                          }}
+                        >
+                          {card.phase}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Instructions */}
+                    <p 
+                      style={{
+                        fontFamily: 'var(--font-family-body)',
+                        fontSize: '0.925rem',
+                        color: '#d1d5db',
+                        lineHeight: '1.5',
+                        whiteSpace: 'pre-wrap'
+                      }}
+                    >
+                      {(card.instructions || 'Execute drill segment.').replace(/[#*`[\]]/g, '')}
+                    </p>
+
+                    {/* Focus Goal Accent Block (Sherrin Red Highlight) */}
+                    <div 
+                      style={{
+                        borderLeft: '3px solid var(--color-training)', // Vertical KB Sherrin Red bar
+                        paddingLeft: '12px',
+                        marginTop: '6px'
+                      }}
+                    >
                       <span 
-                        style={{
-                          fontSize: '0.7rem',
-                          backgroundColor: card.phase.toUpperCase() === 'ATTACK' ? 'rgba(58, 134, 255, 0.15)' : 
-                                           card.phase.toUpperCase() === 'DEFENCE' ? 'rgba(230, 57, 70, 0.15)' : 
-                                           'rgba(255, 183, 3, 0.15)',
-                          color: card.phase.toUpperCase() === 'ATTACK' ? '#3a86ff' : 
-                                 card.phase.toUpperCase() === 'DEFENCE' ? '#e63946' : 
-                                 '#ffb703',
-                          border: `1px solid ${
-                            card.phase.toUpperCase() === 'ATTACK' ? 'rgba(58, 134, 255, 0.3)' : 
-                            card.phase.toUpperCase() === 'DEFENCE' ? 'rgba(230, 57, 70, 0.3)' : 
-                            'rgba(255, 183, 3, 0.3)'
-                          }`,
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          textTransform: 'uppercase',
-                          fontWeight: '700'
+                        style={{ 
+                          fontSize: '0.7rem', 
+                          color: '#8d939e', 
+                          textTransform: 'uppercase', 
+                          display: 'block', 
+                          fontWeight: '600',
+                          letterSpacing: '0.02em',
+                          marginBottom: '2px'
                         }}
                       >
-                        {card.phase}
+                        Drill Focus Goal
                       </span>
+                      <span 
+                        style={{ 
+                          fontSize: '0.85rem', 
+                          color: 'var(--color-training)', 
+                          fontWeight: '700' 
+                        }}
+                      >
+                        {(card.goal || 'Master core skills.').replace(/[#*`[\]]/g, '')}
+                      </span>
+                    </div>
+
+                    {/* Rotation indicator for stations */}
+                    {card.isSubCard && card.switchLabel && (
+                      <div 
+                        style={{
+                          backgroundColor: 'rgba(58, 134, 255, 0.08)',
+                          border: '1px dashed rgba(58, 134, 255, 0.25)',
+                          borderRadius: '6px',
+                          padding: '10px 12px',
+                          marginTop: '4px',
+                          fontSize: '0.85rem',
+                          fontFamily: 'var(--font-family-body)',
+                          color: '#3a86ff',
+                          fontWeight: '600',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}
+                      >
+                        <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Rotation: {card.switchLabel.replace(/[#*`[\]]/g, '')}</span>
+                      </div>
                     )}
-                  </div>
 
-                  {/* Instructions */}
-                  <p 
-                    style={{
-                      fontFamily: 'var(--font-family-body)',
-                      fontSize: '0.925rem',
-                      color: '#d1d5db',
-                      lineHeight: '1.5',
-                      whiteSpace: 'pre-wrap'
-                    }}
-                  >
-                    {(card.instructions || 'Execute drill segment.').replace(/[#*`[\]]/g, '')}
-                  </p>
-
-                  {/* Focus Goal Accent Block (Sherrin Red Highlight) */}
-                  <div 
-                    style={{
-                      borderLeft: '3px solid var(--color-training)', // Vertical KB Sherrin Red bar
-                      paddingLeft: '12px',
-                      marginTop: '6px'
-                    }}
-                  >
-                    <span 
-                      style={{ 
-                        fontSize: '0.7rem', 
-                        color: '#8d939e', 
-                        textTransform: 'uppercase', 
-                        display: 'block', 
-                        fontWeight: '600',
-                        letterSpacing: '0.02em',
-                        marginBottom: '2px'
-                      }}
-                    >
-                      Drill Focus Goal
-                    </span>
-                    <span 
-                      style={{ 
-                        fontSize: '0.85rem', 
-                        color: 'var(--color-training)', 
-                        fontWeight: '700' 
-                      }}
-                    >
-                      {(card.goal || 'Master core skills.').replace(/[#*`[\]]/g, '')}
-                    </span>
+                    {/* Video Capture/Upload Trigger */}
+                    <div style={{ 
+                      display: 'flex', 
+                      gap: '8px', 
+                      marginTop: '12px', 
+                      borderTop: '1px solid rgba(255, 255, 255, 0.05)', 
+                      paddingTop: '12px',
+                      justifyContent: 'flex-end'
+                    }}>
+                      <input 
+                        type="file" 
+                        accept="video/*" 
+                        id={`drill-video-${idx}`} 
+                        onChange={(e) => handleDrillVideoUpload(e, (card.title + (card.stationLabel ? ' ' + card.stationLabel : '')).replace(/[#*`[\]]/g, ''))}
+                        style={{ display: 'none' }} 
+                      />
+                      <label 
+                        htmlFor={`drill-video-${idx}`}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          fontSize: '0.75rem',
+                          fontWeight: '700',
+                          color: 'var(--color-video)',
+                          textTransform: 'uppercase',
+                          fontFamily: 'var(--font-family-locker)',
+                          cursor: 'pointer',
+                          letterSpacing: '0.02em',
+                          transition: 'opacity 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.opacity = '0.75'}
+                        onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                      >
+                        <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                        Record/Upload Video
+                      </label>
+                    </div>
                   </div>
-
-                  {/* Video Capture/Upload Trigger */}
-                  <div style={{ 
-                    display: 'flex', 
-                    gap: '8px', 
-                    marginTop: '12px', 
-                    borderTop: '1px solid rgba(255, 255, 255, 0.05)', 
-                    paddingTop: '12px',
-                    justifyContent: 'flex-end'
-                  }}>
-                    <input 
-                      type="file" 
-                      accept="video/*" 
-                      id={`drill-video-${idx}`} 
-                      onChange={(e) => handleDrillVideoUpload(e, card.title.replace(/[#*`[\]]/g, ''))}
-                      style={{ display: 'none' }} 
-                    />
-                    <label 
-                      htmlFor={`drill-video-${idx}`}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        fontSize: '0.75rem',
-                        fontWeight: '700',
-                        color: 'var(--color-video)',
-                        textTransform: 'uppercase',
-                        fontFamily: 'var(--font-family-locker)',
-                        cursor: 'pointer',
-                        letterSpacing: '0.02em',
-                        transition: 'opacity 0.2s'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.75'}
-                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-                    >
-                      <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                      </svg>
-                      Record/Upload Video
-                    </label>
-                  </div>
-                </div>
-              ))
+                ));
+              })()
             )}
           </div>
 
