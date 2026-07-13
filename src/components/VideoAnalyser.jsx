@@ -170,14 +170,24 @@ export default function VideoAnalyser({
   const canvasRef = useRef(null);
   const canvasContainerRef = useRef(null);
 
-  // Drawing states
-  const drawings = useRef([]); // { type: 'brush'|'arrow'|'text', points: [], text: '', x, y, timestamp }
+  // Drawing states using freeze-frame structures:
+  // Array of: { freezeTimestamp: number, freezeDuration: number, annotations: [...] }
+  const drawings = useRef([]); 
   const startPos = useRef({ x: 0, y: 0 });
   const lastPos = useRef({ x: 0, y: 0 });
 
   // Floating text overlay states
   const [activeTextInput, setActiveTextInput] = useState(null);
   const [textInputValue, setTextInputValue] = useState('');
+
+  // Active color for drawing tools
+  const [activeColor, setActiveColor] = useState('#ffffff');
+
+  // Text dragging state (contains { sessionIndex, annotationIndex })
+  const [draggedTextIndex, setDraggedTextIndex] = useState(null);
+
+  // Auto-pause evaluator refs
+  const lastTriggeredFreezeTimestampRef = useRef(null);
 
   // Export states
   const [isExporting, setIsExporting] = useState(false);
@@ -267,6 +277,19 @@ export default function VideoAnalyser({
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
 
+  const getOrCreateActiveSession = (currentTime) => {
+    let session = drawings.current.find(s => Math.abs(s.freezeTimestamp - currentTime) < 0.2);
+    if (!session) {
+      session = {
+        freezeTimestamp: currentTime,
+        freezeDuration: 6.0,
+        annotations: []
+      };
+      drawings.current.push(session);
+    }
+    return session;
+  };
+
   const redrawCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -275,18 +298,24 @@ export default function VideoAnalyser({
 
     const video = videoRef.current;
     if (!video) return;
+    
+    // Only render annotations when paused or during active holds
+    if (!video.paused) return;
+
     const curTime = video.currentTime;
 
-    ctx.save();
-    // Normalize coordinates relative to actual rendering width
-    const scaleX = canvas.width / 1000;
-    const scaleY = canvas.height / 600;
-    ctx.scale(scaleX, scaleY);
+    // Find the session active at this paused timestamp
+    const activeSession = drawings.current.find(s => 
+      Math.abs(s.freezeTimestamp - curTime) < 0.5
+    );
 
-    drawings.current.forEach((item) => {
-      const itemTime = item.timestamp || 0;
-      // Indefinite annotation visibility once currentTime >= item.timestamp
-      if (curTime >= itemTime - 0.05) {
+    if (activeSession) {
+      ctx.save();
+      const scaleX = canvas.width / 1000;
+      const scaleY = canvas.height / 600;
+      ctx.scale(scaleX, scaleY);
+
+      activeSession.annotations.forEach((item) => {
         if (item.type === 'brush' && item.points.length > 0) {
           // 1. Outline
           ctx.save();
@@ -306,7 +335,7 @@ export default function VideoAnalyser({
           ctx.save();
           ctx.beginPath();
           ctx.lineWidth = 4;
-          ctx.strokeStyle = item.color || '#ff7a00';
+          ctx.strokeStyle = item.color || '#ffffff';
           ctx.lineCap = 'round';
           ctx.lineJoin = 'round';
           ctx.moveTo(item.points[0].x, item.points[0].y);
@@ -315,18 +344,18 @@ export default function VideoAnalyser({
           }
           ctx.stroke();
           ctx.restore();
-        } else if (item.type === 'arrow' && item.points.length === 2) {
-          drawArrow(ctx, item.points[0].x, item.points[0].y, item.points[1].x, item.points[1].y, 6);
+        } else if (item.type === 'arrow') {
+          drawArrow(ctx, item.startX, item.startY, item.endX, item.endY, 6, item.color || '#ffffff');
         } else if (item.type === 'text') {
-          drawText(ctx, item.text, item.x, item.y, item.color || '#ff7a00');
+          drawText(ctx, item.text, item.x, item.y, item.color || '#ffffff');
         }
-      }
-    });
+      });
 
-    ctx.restore();
+      ctx.restore();
+    }
   };
 
-  const drawArrow = (ctx, fromX, fromY, toX, toY, width = 6) => {
+  const drawArrow = (ctx, fromX, fromY, toX, toY, width = 6, color = '#ffffff') => {
     const angle = Math.atan2(toY - fromY, toX - fromX);
     const headLength = width * 5.0; // Significantly larger arrowhead
 
@@ -352,10 +381,10 @@ export default function VideoAnalyser({
     ctx.stroke();
     ctx.restore();
 
-    // 2. Draw main orange colored arrow (inner)
+    // 2. Draw main color arrow (inner)
     ctx.save();
-    ctx.strokeStyle = '#ff7a00';
-    ctx.fillStyle = '#ff7a00';
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
     ctx.lineWidth = width;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -374,7 +403,7 @@ export default function VideoAnalyser({
     ctx.restore();
   };
 
-  const drawText = (ctx, text, x, y, color = '#ff7a00') => {
+  const drawText = (ctx, text, x, y, color = '#ffffff') => {
     ctx.save();
     ctx.font = 'bold 24px "Arial Black", Impact, sans-serif'; // Bold, heavy, readable font
     ctx.textAlign = 'center';
@@ -387,7 +416,7 @@ export default function VideoAnalyser({
     const boxWidth = textWidth + paddingX * 2;
     const boxHeight = fontSize + paddingY * 2;
 
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.75)'; // Higher contrast backing
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.65)'; // Higher contrast backing
     ctx.beginPath();
     const rectX = x - boxWidth / 2;
     const rectY = y - boxHeight / 2;
@@ -407,13 +436,13 @@ export default function VideoAnalyser({
   const saveTextAnnotation = () => {
     if (textInputValue.trim() && activeTextInput) {
       const curTime = videoRef.current ? videoRef.current.currentTime : 0;
-      drawings.current.push({
+      const session = getOrCreateActiveSession(curTime);
+      session.annotations.push({
         type: 'text',
         text: textInputValue.trim(),
         x: activeTextInput.canvasX,
         y: activeTextInput.canvasY,
-        color: '#ff7a00',
-        timestamp: curTime
+        color: activeColor
       });
       redrawCanvas();
       saveDrawings(drawings.current);
@@ -438,6 +467,36 @@ export default function VideoAnalyser({
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     const { x, y } = getCanvasCoords(clientX, clientY);
 
+    // Bounding-box text hit detection for drag controls
+    const curTime = videoRef.current ? videoRef.current.currentTime : 0;
+    const activeSession = drawings.current.find(s => Math.abs(s.freezeTimestamp - curTime) < 0.5);
+    
+    if (activeSession) {
+      const hitIdx = activeSession.annotations.findIndex((item) => {
+        if (item.type !== 'text') return false;
+        const charWidth = 14;
+        const boxWidth = item.text.length * charWidth + 36;
+        const boxHeight = 48;
+        const left = item.x - boxWidth / 2;
+        const right = item.x + boxWidth / 2;
+        const top = item.y - boxHeight / 2;
+        const bottom = item.y + boxHeight / 2;
+        return x >= left && x <= right && y >= top && y <= bottom;
+      });
+
+      if (hitIdx !== -1) {
+        const sessionIdx = drawings.current.indexOf(activeSession);
+        setDraggedTextIndex({ sessionIndex: sessionIdx, annotationIndex: hitIdx });
+        const item = activeSession.annotations[hitIdx];
+        dragOffset.current = {
+          x: x - item.x,
+          y: y - item.y
+        };
+        setIsDrawing(false);
+        return;
+      }
+    }
+
     if (drawTool === 'text') {
       const rect = canvasContainerRef.current.getBoundingClientRect();
       const percentX = ((clientX - rect.left) / rect.width) * 100;
@@ -452,12 +511,11 @@ export default function VideoAnalyser({
     startPos.current = { x, y };
 
     if (drawTool === 'brush') {
-      const curTime = videoRef.current ? videoRef.current.currentTime : 0;
-      drawings.current.push({
+      const session = getOrCreateActiveSession(curTime);
+      session.annotations.push({
         type: 'brush',
         points: [{ x, y }],
-        color: '#ff7a00',
-        timestamp: curTime
+        color: activeColor
       });
     } else if (drawTool === 'eraser') {
       eraseAt(x, y);
@@ -465,15 +523,29 @@ export default function VideoAnalyser({
   };
 
   const handleDraw = (e) => {
-    if (!isDrawing || !isFrozen) return;
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     const { x, y } = getCanvasCoords(clientX, clientY);
 
+    if (draggedTextIndex !== null) {
+      const { sessionIndex, annotationIndex } = draggedTextIndex;
+      const item = drawings.current[sessionIndex].annotations[annotationIndex];
+      item.x = Math.max(20, Math.min(980, x - dragOffset.current.x));
+      item.y = Math.max(20, Math.min(580, y - dragOffset.current.y));
+      redrawCanvas();
+      return;
+    }
+
+    if (!isDrawing || !isFrozen) return;
+
     if (drawTool === 'brush') {
-      const activeLine = drawings.current[drawings.current.length - 1];
-      if (activeLine && activeLine.type === 'brush') {
-        activeLine.points.push({ x, y });
+      const curTime = videoRef.current ? videoRef.current.currentTime : 0;
+      const session = drawings.current.find(s => Math.abs(s.freezeTimestamp - curTime) < 0.5);
+      if (session) {
+        const activeLine = session.annotations[session.annotations.length - 1];
+        if (activeLine && activeLine.type === 'brush') {
+          activeLine.points.push({ x, y });
+        }
       }
       redrawCanvas();
     } else if (drawTool === 'eraser') {
@@ -484,7 +556,7 @@ export default function VideoAnalyser({
       const ctx = canvas.getContext('2d');
       ctx.save();
       ctx.scale(canvas.width / 1000, canvas.height / 600);
-      drawArrow(ctx, startPos.current.x, startPos.current.y, x, y, 6);
+      drawArrow(ctx, startPos.current.x, startPos.current.y, x, y, 6, activeColor);
       ctx.restore();
     }
 
@@ -492,6 +564,12 @@ export default function VideoAnalyser({
   };
 
   const handleEndDraw = (e) => {
+    if (draggedTextIndex !== null) {
+      setDraggedTextIndex(null);
+      saveDrawings(drawings.current);
+      return;
+    }
+
     if (!isDrawing || !isFrozen) return;
     setIsDrawing(false);
 
@@ -501,11 +579,14 @@ export default function VideoAnalyser({
       const { x, y } = getCanvasCoords(clientX, clientY);
 
       const curTime = videoRef.current ? videoRef.current.currentTime : 0;
-      drawings.current.push({
+      const session = getOrCreateActiveSession(curTime);
+      session.annotations.push({
         type: 'arrow',
-        points: [startPos.current, { x, y }],
-        color: '#ff7a00',
-        timestamp: curTime
+        startX: startPos.current.x,
+        startY: startPos.current.y,
+        endX: x,
+        endY: y,
+        color: activeColor
       });
       redrawCanvas();
     }
@@ -515,35 +596,28 @@ export default function VideoAnalyser({
 
   const eraseAt = (x, y) => {
     const radius = 30;
-    drawings.current = drawings.current.filter((item) => {
-      if (item.type === 'brush') {
-        return !item.points.some(p => Math.hypot(p.x - x, p.y - y) < radius);
-      } else if (item.type === 'arrow') {
-        const startNear = Math.hypot(item.points[0].x - x, item.points[0].y - y) < radius;
-        const endNear = Math.hypot(item.points[1].x - x, item.points[1].y - y) < radius;
-        return !startNear && !endNear;
-      } else if (item.type === 'text') {
-        return Math.hypot(item.x - x, item.y - y) >= radius;
-      }
-      return true;
-    });
-    redrawCanvas();
-    saveDrawings(drawings.current);
-  };
-
-  const playbackLoopRef = useRef(null);
-
-  const startPlaybackRenderLoop = () => {
-    if (playbackLoopRef.current) cancelAnimationFrame(playbackLoopRef.current);
+    const curTime = videoRef.current ? videoRef.current.currentTime : 0;
+    const activeSession = drawings.current.find(s => Math.abs(s.freezeTimestamp - curTime) < 0.5);
     
-    const loop = () => {
-      const video = videoRef.current;
-      if (video && !video.paused) {
-        redrawCanvas();
-        playbackLoopRef.current = requestAnimationFrame(loop);
-      }
-    };
-    playbackLoopRef.current = requestAnimationFrame(loop);
+    if (activeSession) {
+      activeSession.annotations = activeSession.annotations.filter((item) => {
+        if (item.type === 'brush') {
+          return !item.points.some(p => Math.hypot(p.x - x, p.y - y) < radius);
+        } else if (item.type === 'arrow') {
+          const startNear = Math.hypot(item.startX - x, item.startY - y) < radius;
+          const endNear = Math.hypot(item.endX - x, item.endY - y) < radius;
+          return !startNear && !endNear;
+        } else if (item.type === 'text') {
+          return Math.hypot(item.x - x, item.y - y) >= radius;
+        }
+        return true;
+      });
+
+      // Filter out empty sessions
+      drawings.current = drawings.current.filter(s => s.annotations.length > 0);
+      redrawCanvas();
+      saveDrawings(drawings.current);
+    }
   };
 
   useEffect(() => {
@@ -551,21 +625,52 @@ export default function VideoAnalyser({
     if (!video) return;
 
     const handlePlay = () => {
-      startPlaybackRenderLoop();
-    };
-    const handlePause = () => {
-      if (playbackLoopRef.current) {
-        cancelAnimationFrame(playbackLoopRef.current);
-      }
       redrawCanvas();
     };
+    
+    const handlePause = () => {
+      redrawCanvas();
+    };
+
     const handleTimeUpdate = () => {
+      if (video.paused) {
+        redrawCanvas();
+        return;
+      }
+
+      const curTime = video.currentTime;
+
+      // Auto pause at freeze-frame timestamps
+      const sessionToFreeze = drawings.current.find(session => 
+        Math.abs(curTime - session.freezeTimestamp) < 0.25 &&
+        lastTriggeredFreezeTimestampRef.current !== session.freezeTimestamp
+      );
+
+      if (sessionToFreeze) {
+        video.pause();
+        lastTriggeredFreezeTimestampRef.current = sessionToFreeze.freezeTimestamp;
+        redrawCanvas();
+
+        // Auto resume playback after freezeDuration
+        setTimeout(() => {
+          if (videoRef.current && videoRef.current.paused && Math.abs(videoRef.current.currentTime - sessionToFreeze.freezeTimestamp) < 0.5) {
+            videoRef.current.play();
+          }
+        }, sessionToFreeze.freezeDuration * 1000);
+      } else {
+        redrawCanvas();
+      }
+    };
+
+    const handleSeeking = () => {
+      lastTriggeredFreezeTimestampRef.current = null;
       redrawCanvas();
     };
 
     video.addEventListener('play', handlePlay);
     video.addEventListener('pause', handlePause);
     video.addEventListener('timeupdate', handleTimeUpdate);
+    video.addEventListener('seeking', handleSeeking);
 
     redrawCanvas();
 
@@ -573,9 +678,7 @@ export default function VideoAnalyser({
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
       video.removeEventListener('timeupdate', handleTimeUpdate);
-      if (playbackLoopRef.current) {
-        cancelAnimationFrame(playbackLoopRef.current);
-      }
+      video.removeEventListener('seeking', handleSeeking);
     };
   }, [activeClip]);
 
@@ -602,10 +705,10 @@ export default function VideoAnalyser({
     exportCtx.scale(exportCanvas.width / 1000, exportCanvas.height / 600);
 
     const curTime = video.currentTime;
+    const activeSession = drawings.current.find(s => Math.abs(s.freezeTimestamp - curTime) < 0.5);
 
-    drawings.current.forEach((item) => {
-      const itemTime = item.timestamp || 0;
-      if (curTime >= itemTime - 0.05) {
+    if (activeSession) {
+      activeSession.annotations.forEach((item) => {
         if (item.type === 'brush' && item.points.length > 0) {
           exportCtx.save();
           exportCtx.beginPath();
@@ -623,7 +726,7 @@ export default function VideoAnalyser({
           exportCtx.save();
           exportCtx.beginPath();
           exportCtx.lineWidth = 4;
-          exportCtx.strokeStyle = item.color || '#ff7a00';
+          exportCtx.strokeStyle = item.color || '#ffffff';
           exportCtx.lineCap = 'round';
           exportCtx.lineJoin = 'round';
           exportCtx.moveTo(item.points[0].x, item.points[0].y);
@@ -632,13 +735,13 @@ export default function VideoAnalyser({
           }
           exportCtx.stroke();
           exportCtx.restore();
-        } else if (item.type === 'arrow' && item.points.length === 2) {
-          drawArrow(exportCtx, item.points[0].x, item.points[0].y, item.points[1].x, item.points[1].y, 6);
+        } else if (item.type === 'arrow') {
+          drawArrow(exportCtx, item.startX, item.startY, item.endX, item.endY, 6, item.color || '#ffffff');
         } else if (item.type === 'text') {
-          drawText(exportCtx, item.text, item.x, item.y, item.color || '#ff7a00');
+          drawText(exportCtx, item.text, item.x, item.y, item.color || '#ffffff');
         }
-      }
-    });
+      });
+    }
 
     exportCtx.restore();
 
@@ -696,10 +799,23 @@ export default function VideoAnalyser({
         if (e.data.size > 0) chunks.push(e.data);
       };
 
+      const fps = 30;
+      const duration = renderVideo.duration;
+      const totalStretchedDuration = duration + drawings.current.reduce((acc, s) => acc + s.freezeDuration, 0);
+      const totalStretchedFrames = Math.round(totalStretchedDuration * fps);
+      let compiledFramesCount = 0;
+      let currentTime = 0;
+      let currentHoldFrames = 0;
+      let activeHoldSession = null;
+      
+      const sortedSessions = [...drawings.current].sort((a, b) => a.freezeTimestamp - b.freezeTimestamp);
+      let nextSessionIdx = 0;
+
       recorder.onstop = () => {
         const rawBlob = new Blob(chunks, { type: options.mimeType });
+        const totalStretchedDurationMs = totalStretchedDuration * 1000;
         
-        fixWebmDuration(rawBlob, renderVideo.duration * 1000, (fixedBlob) => {
+        fixWebmDuration(rawBlob, totalStretchedDurationMs, (fixedBlob) => {
           const url = URL.createObjectURL(fixedBlob);
           const a = document.createElement('a');
           a.download = `annotated-${activeClip.drillName.replace(/\s+/g, '_')}-${Date.now()}.webm`;
@@ -715,31 +831,37 @@ export default function VideoAnalyser({
       };
 
       recorder.start();
-      
-      const fps = 30;
-      const duration = renderVideo.duration;
-      let currentTime = 0;
 
       const renderNextFrame = () => {
-        if (currentTime > duration) {
+        if (currentTime > duration && !activeHoldSession) {
           setTimeout(() => {
             recorder.stop();
           }, 200);
           return;
         }
 
-        renderVideo.currentTime = currentTime;
+        const nextSession = sortedSessions[nextSessionIdx];
+        if (nextSession && currentTime >= nextSession.freezeTimestamp && !activeHoldSession) {
+          activeHoldSession = nextSession;
+          currentHoldFrames = Math.round(nextSession.freezeDuration * fps);
+        }
+
+        if (activeHoldSession && currentHoldFrames > 0) {
+          renderVideo.currentTime = activeHoldSession.freezeTimestamp;
+        } else {
+          renderVideo.currentTime = currentTime;
+        }
       };
 
-      renderVideo.onseeked = () => {
-        renderCtx.drawImage(renderVideo, 0, 0, width, height);
+      const stepNext = () => {
+        if (activeHoldSession && currentHoldFrames > 0) {
+          currentHoldFrames--;
+          
+          renderCtx.drawImage(renderVideo, 0, 0, width, height);
 
-        renderCtx.save();
-        renderCtx.scale(width / 1000, height / 600);
-
-        drawings.current.forEach((item) => {
-          const itemTime = item.timestamp || 0;
-          if (currentTime >= itemTime - 0.05) {
+          renderCtx.save();
+          renderCtx.scale(width / 1000, height / 600);
+          activeHoldSession.annotations.forEach((item) => {
             if (item.type === 'brush' && item.points.length > 0) {
               renderCtx.save();
               renderCtx.beginPath();
@@ -757,7 +879,7 @@ export default function VideoAnalyser({
               renderCtx.save();
               renderCtx.beginPath();
               renderCtx.lineWidth = 4;
-              renderCtx.strokeStyle = item.color || '#ff7a00';
+              renderCtx.strokeStyle = item.color || '#ffffff';
               renderCtx.lineCap = 'round';
               renderCtx.lineJoin = 'round';
               renderCtx.moveTo(item.points[0].x, item.points[0].y);
@@ -766,22 +888,78 @@ export default function VideoAnalyser({
               }
               renderCtx.stroke();
               renderCtx.restore();
-            } else if (item.type === 'arrow' && item.points.length === 2) {
-              drawArrow(renderCtx, item.points[0].x, item.points[0].y, item.points[1].x, item.points[1].y, 6);
+            } else if (item.type === 'arrow') {
+              drawArrow(renderCtx, item.startX, item.startY, item.endX, item.endY, 6, item.color || '#ffffff');
             } else if (item.type === 'text') {
-              drawText(renderCtx, item.text, item.x, item.y, item.color || '#ff7a00');
+              drawText(renderCtx, item.text, item.x, item.y, item.color || '#ffffff');
             }
+          });
+          renderCtx.restore();
+
+          compiledFramesCount++;
+          const progress = Math.min(99, Math.round((compiledFramesCount / totalStretchedFrames) * 100));
+          setExportProgress(progress);
+
+          if (currentHoldFrames <= 0) {
+            activeHoldSession = null;
+            nextSessionIdx++;
+            currentTime += 1 / fps;
           }
-        });
-        renderCtx.restore();
 
-        const progress = Math.min(99, Math.round((currentTime / duration) * 100));
-        setExportProgress(progress);
-
-        setTimeout(() => {
+          setTimeout(stepNext, 33);
+        } else {
           currentTime += 1 / fps;
           renderNextFrame();
-        }, 33);
+        }
+      };
+
+      renderVideo.onseeked = () => {
+        renderCtx.drawImage(renderVideo, 0, 0, width, height);
+
+        if (activeHoldSession) {
+          renderCtx.save();
+          renderCtx.scale(width / 1000, height / 600);
+          activeHoldSession.annotations.forEach((item) => {
+            if (item.type === 'brush' && item.points.length > 0) {
+              renderCtx.save();
+              renderCtx.beginPath();
+              renderCtx.lineWidth = 10;
+              renderCtx.strokeStyle = 'rgba(0, 0, 0, 0.75)';
+              renderCtx.lineCap = 'round';
+              renderCtx.lineJoin = 'round';
+              renderCtx.moveTo(item.points[0].x, item.points[0].y);
+              for (let i = 1; i < item.points.length; i++) {
+                renderCtx.lineTo(item.points[i].x, item.points[i].y);
+              }
+              renderCtx.stroke();
+              renderCtx.restore();
+
+              renderCtx.save();
+              renderCtx.beginPath();
+              renderCtx.lineWidth = 4;
+              renderCtx.strokeStyle = item.color || '#ffffff';
+              renderCtx.lineCap = 'round';
+              renderCtx.lineJoin = 'round';
+              renderCtx.moveTo(item.points[0].x, item.points[0].y);
+              for (let i = 1; i < item.points.length; i++) {
+                renderCtx.lineTo(item.points[i].x, item.points[i].y);
+              }
+              renderCtx.stroke();
+              renderCtx.restore();
+            } else if (item.type === 'arrow') {
+              drawArrow(renderCtx, item.startX, item.startY, item.endX, item.endY, 6, item.color || '#ffffff');
+            } else if (item.type === 'text') {
+              drawText(renderCtx, item.text, item.x, item.y, item.color || '#ffffff');
+            }
+          });
+          renderCtx.restore();
+        }
+
+        compiledFramesCount++;
+        const progress = Math.min(99, Math.round((compiledFramesCount / totalStretchedFrames) * 100));
+        setExportProgress(progress);
+
+        setTimeout(stepNext, 33);
       };
 
       renderNextFrame();
@@ -1328,8 +1506,8 @@ export default function VideoAnalyser({
                     transform: 'translate(-50%, -50%)',
                     zIndex: 100,
                     backgroundColor: 'rgba(0, 0, 0, 0.85)',
-                    color: '#ff7a00',
-                    border: '1px solid var(--color-video)',
+                    color: activeColor,
+                    border: `1px solid ${activeColor}`,
                     borderRadius: '4px',
                     padding: '6px 12px',
                     fontSize: '14px',
@@ -1433,6 +1611,40 @@ export default function VideoAnalyser({
                 >
                   Eraser
                 </button>
+
+                <div style={{ width: '1px', height: '12px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
+
+                <span style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700' }}>
+                  Color:
+                </span>
+
+                {[
+                  { name: 'Orange', value: '#ff7a00' },
+                  { name: 'White', value: '#ffffff' },
+                  { name: 'Yellow', value: '#ffeb3b' },
+                  { name: 'Red', value: '#e63946' },
+                  { name: 'Light Blue', value: '#00d2ff' },
+                  { name: 'Neon Green', value: '#39ff14' }
+                ].map(c => (
+                  <button
+                    key={c.value}
+                    onClick={() => setActiveColor(c.value)}
+                    title={c.name}
+                    style={{
+                      width: '14px',
+                      height: '14px',
+                      borderRadius: '50%',
+                      backgroundColor: c.value,
+                      border: activeColor === c.value ? '2px solid #ffffff' : '1px solid rgba(255,255,255,0.3)',
+                      cursor: 'pointer',
+                      padding: 0,
+                      outline: 'none',
+                      transform: activeColor === c.value ? 'scale(1.2)' : 'scale(1)',
+                      transition: 'transform 0.1s ease',
+                      flexShrink: 0
+                    }}
+                  />
+                ))}
 
                 <div style={{ width: '1px', height: '12px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
 
