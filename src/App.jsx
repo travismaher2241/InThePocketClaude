@@ -316,16 +316,15 @@ export default function App() {
           style={{ cursor: 'pointer', userSelect: 'none' }}
           title="Tap logo to open settings"
         >
-          <div className="brand-logo-container">
+          <div className="brand-logo-wrapper">
             <img 
               src={inThePocketLogo} 
               alt="In The Pocket" 
-              style={{ 
-                height: '46px', 
-                objectFit: 'contain',
-                borderRadius: '4px',
-                display: 'block'
-              }} 
+              className="brand-logo-img" 
+            />
+            <div 
+              className="brand-logo-shimmer" 
+              style={{ '--logo-url': `url(${inThePocketLogo})` }}
             />
           </div>
         </div>
