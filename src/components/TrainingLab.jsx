@@ -246,6 +246,8 @@ export default function TrainingLab({
   // Perform Gemini API generation or procedural fallback
   const runPlanGeneration = async (overrideCount) => {
     const playerCount = overrideCount !== undefined ? overrideCount : presentIds.length;
+    const group1 = Math.floor(playerCount / 2);
+    const group2 = playerCount - group1;
 
     // Check access using our Gatekeeper pattern
     const userTierClean = (subscriptionTier || 'Free').toLowerCase();
@@ -292,6 +294,28 @@ export default function TrainingLab({
             relevantSSGs.map(g => `- Game: "${g.name || ''}"\n  Goal: ${g.goal || ''}\n  Setup: ${g.setup || ''}\n  Execution: ${g.execution || ''}\n  CHANGE IT Tip: ${g.changeIt || ''}`).join('\n');
         }
 
+        const isStations = playerCount > 15;
+        let stationPromptRules = "";
+        if (isStations) {
+          stationPromptRules = `
+7. DYNAMIC STATION SPLIT RULES (Squad size is ${playerCount} which is > 15):
+   You MUST automatically divide the session into a 'Parallel Station' format for Q2 (Skill Rotations) and Q3 (Team Tasks).
+   - Sub-Group Math: Since the total squad size is ${playerCount}, you must divide them into two sub-groups: Group 1 = ${group1} players, Group 2 = ${group2} players.
+   - Use these sub-group numbers when selecting and formatting the specific drills for Station A and Station B, ensuring each drill setup and numbers work for ${group1} or ${group2} players respectively, NOT the total ${playerCount} players.
+   - Output Formatting for Q2 (Skill Rotations) and Q3 (Team Tasks) instructions MUST strictly follow this structure:
+     STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)
+     Station A: [Drill Name], Goal: [Goal], Setup: [Setup based on Group 1 size of ${group1} players].
+     Station B: [Drill Name], Goal: [Goal], Setup: [Setup based on Group 2 size of ${group2} players].
+     The Switch: Include a specific instruction on when to blow the whistle and rotate the groups (e.g. 'Switch stations at the 10-minute mark' if the segment duration is 20 minutes).
+   - Equipment Logistics: In the 5th segment (Quarter 4: GAME) instructions, at the very bottom, you MUST output a consolidated equipment staging list that accounts for both stations running at the same time (e.g. doubling the cone and football count) and assigning distinct bib colors to Group 1 (${group1} players) and Group 2 (${group2} players) to avoid mid-session swaps.
+`;
+        } else {
+          stationPromptRules = `
+7. STANDARD SINGLE-GROUP RULES (Squad size is ${playerCount} which is <= 15):
+   Run the standard single-group session plan. No station split is needed. Do not format the instructions into parallel stations.
+`;
+        }
+
         const promptText = `You are an elite Australian Rules Football (AFL) coach. You MUST generate 100% unique drills for every request. 
 Do not repeat standard baseline drills. Every plan must strictly adhere to these coaching standards:
 
@@ -307,6 +331,7 @@ Do not repeat standard baseline drills. Every plan must strictly adhere to these
 5. High Touch Objective: Prioritize high-touch (60+ touches per player), high-energy drills. If a drill has long lines, do not use it.
 6. Curriculum Weekly Schedules (Align the session with these curriculum themes and goals):
 ${weeklyThemesText}
+${stationPromptRules}
 ${injectedDrillsText}${injectedSSGsText}
 
 Create a training plan for ${duration} minutes, specifically for ${playerCount} players. The players belong to the "${ageGroup}" age group level. 
@@ -324,7 +349,7 @@ Ensure the sum of the durations of these 5 segments equals exactly ${duration} m
 Ensure you return a JSON array containing exactly 5 objects. Each object must have these keys:
 "title": Title of the drill segment (e.g. "QUARTER 1 WARM-UP: DYNAMIC CORRIDOR ACTIVATION")
 "duration": The duration in minutes as a number (e.g. 15, 10, 20, 15, 10)
-"instructions": Detailed plain text directions including specific setup details (e.g., grids in meters, group sizes) and the CHANGE IT Coaching Tip
+"instructions": Detailed plain text directions including specific setup details (e.g., grids in meters, group sizes) and the CHANGE IT Coaching Tip. Note that if Dynamic Station Split is active (squad size > 15), Q2 and Q3 instructions MUST follow the STRUCTURE: ROTATION-BASED STATIONS format, and Q4 instructions MUST include the consolidated equipment staging list at the very bottom.
 "goal": Core focus/drill goal of the segment (short highlight using curriculum principles)
 "phase": The primary phase of the game this drill targets (must be exactly one of: "Attack", "Defence", or "Contest")
 
@@ -423,15 +448,50 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
 
       let q2Instructions = "";
       let q3Instructions = "";
+      let q4Instructions = "";
       
       if (isStations) {
-        q2Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)\n\nSTATION A: ${drill1Name}\n- Goal: ${drill1Desc}\n- Setup: Split players into Station A grid. Maximize repetitions.\n- Execution: Active practice with high touch focus.\n- CHANGE IT Tip: Restrict to 2 bounces to speed up disposal.\n\nSTATION B: ${drill0Name}\n- Goal: ${drill0Desc}\n- Setup: Split players into Station B grid.\n- Execution: Practice quick handball release and leading.\n- CHANGE IT Tip: Increase grid width to practice sweeping into space.\n\nContact Rules: ${config.tackleRules}`;
+        const q2Half = Math.round(q2Mins / 2);
+        q2Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)
+
+Station A: ${drill1Name}, Goal: ${drill1Desc}, Setup: Split players into Station A grid (tailored for ${group1} players).
+Station B: ${drill0Name}, Goal: ${drill0Desc}, Setup: Split players into Station B grid (tailored for ${group2} players).
+
+The Switch: Switch stations at the ${q2Half}-minute mark.`;
         
-        q3Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)\n\nSTATION A: ${drill2Name}\n- Goal: ${drill2Desc}\n- Setup: Half-field zone setup.\n- Execution: Midfielders practice clearances and transition play.\n- CHANGE IT Tip: Alter numbers (e.g. 4v3) to favor offensive flow.\n\nSTATION B: ${drill1Name}\n- Goal: ${drill1Desc}\n- Setup: Setup outer boundary grids.\n- Execution: Practice fast exit handballs and corridor switches.\n- CHANGE IT Tip: Restrict touches allowed before disposal.\n\nContact Rules: ${config.tackleRules}`;
+        const q3Half = Math.round(q3Mins / 2);
+        q3Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)
+
+Station A: ${drill2Name}, Goal: ${drill2Desc}, Setup: Half-field zone setup (tailored for ${group1} players).
+Station B: ${drill1Name}, Goal: ${drill1Desc}, Setup: Setup outer boundary grids (tailored for ${group2} players).
+
+The Switch: Switch stations at the ${q3Half}-minute mark.`;
+
+        const conesCount = 32; // Doubled from 16
+        const ballsCount = Math.max(12, playerCount); // Doubled or scaled
+        q4Instructions = `Play a small-sided match (such as End-to-End Keepings Off or The Exit Strategy) to test under game pressure.
+
+- Contact Rules: ${config.tackleRules}
+- CHANGE IT Coaching Tip: Require 3 passes before scoring or reward 3 points for corridor transitions.
+
+CONSOLIDATED EQUIPMENT STAGING LIST (Parallel Stations Active)
+- Cones: ${conesCount}x field cones (for multiple grids/lanes)
+- Bibs: Distinct colors assigned to each sub-group to avoid mid-session swaps (${group1}x Yellow bibs for Group 1, ${group2}x Orange bibs for Group 2)
+- Balls: ${ballsCount}x footballs minimum (ensuring high touch-rates across both stations)`;
       } else {
         q2Instructions = `${drill1Desc}\n\n- Setup: ${groupingLabel} Split into offense vs defense spacing grids. Maximize repetitions (60+ touches target).\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Restrict ball-carriers to two bounces to increase disposal speed.`;
         
         q3Instructions = `${drill2Desc}\n\n- Setup: ${groupingLabel} Focus on contest balance, outnumbering at the stoppage, and rapid corridor transition.\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Adjust numbers (e.g. 4v3) to favor offensive flow.`;
+
+        q4Instructions = `Play a small-sided match (such as End-to-End Keepings Off or The Exit Strategy) to test under game pressure.
+
+- Contact Rules: ${config.tackleRules}
+- CHANGE IT Coaching Tip: Require 3 passes before scoring or reward 3 points for corridor transitions.
+
+COACH'S LOGISTICS SUMMARY
+- Cones: 16x field cones (for grids and lanes)
+- Bibs: 2 sets of different colors (e.g., 8x red, 8x blue)
+- Balls: 1 ball per pair (8-10 footballs minimum)`;
       }
 
       const generatedFallbackCards = [
@@ -466,7 +526,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
         {
           title: `QUARTER 4 GAME: CURRICULUM SSG`,
           duration: q4Mins,
-          instructions: `Play a small-sided match (such as End-to-End Keepings Off or The Exit Strategy) to test under game pressure.\n\n- Contact Rules: ${config.tackleRules}\n- CHANGE IT Coaching Tip: Require 3 passes before scoring or reward 3 points for corridor transitions.\n\nCOACH'S LOGISTICS SUMMARY\n- Cones: 16x field cones (for grids and lanes)\n- Bibs: 2 sets of different colors (e.g., 8x red, 8x blue)\n- Balls: 1 ball per pair (8-10 footballs minimum)`,
+          instructions: q4Instructions,
           goal: `Test execution and adaptability under matchday pressure.`,
           phase: `Attack`
         }
