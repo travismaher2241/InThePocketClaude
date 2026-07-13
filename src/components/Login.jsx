@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthProvider';
-import inThePocketLogo from '../assets/In The Pocket.jpg';
+import inThePocketLogo from '../assets/In The Pocket.png';
 
 export default function Login() {
   const { login, signup, resetPassword } = useAuth();

@@ -8,7 +8,7 @@ import SettingsModal from './components/SettingsModal';
 import SubscriptionPage from './components/SubscriptionPage';
 import { useAuth } from './context/AuthProvider';
 import { addPlayer, getPlayers, getSquadSettings, updateSquadSettings, getUserProfile, updateUserProfile } from './firebaseHelpers';
-import inThePocketLogo from './assets/In The Pocket.jpg';
+import inThePocketLogo from './assets/In The Pocket.png';
 
 // Empty default roster to allow clean user data entry
 const DEFAULT_ROSTER = [];
