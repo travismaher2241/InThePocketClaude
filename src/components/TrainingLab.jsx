@@ -34,6 +34,99 @@ function getLocalDrillKey(focusArea) {
   return map[focusArea] || focusArea;
 }
 
+function getLocalDrillSetup(drillName, groupSize) {
+  const nameLower = (drillName || '').toLowerCase();
+  
+  if (nameLower.includes('kick and mark')) {
+    if (groupSize % 2 === 0) {
+      return `Set up 2 lines of cones 20m apart. Split the ${groupSize} players into ${groupSize / 2} pairs. Players kick and mark continuously.`;
+    } else {
+      const half = Math.floor(groupSize / 2);
+      return `Set up 2 lines of cones 20m apart. Split the ${groupSize} players into ${half} pairs with 1 active floater passing the ball.`;
+    }
+  }
+  
+  if (nameLower.includes('inside 50 entry')) {
+    const attackers = Math.floor(groupSize / 2);
+    const defenders = groupSize - attackers - 1;
+    return `Set up a 50m entry zone. Split the ${groupSize} players into ${attackers} attackers, ${defenders} defenders, and 1 designated kicker starting at the 50m line.`;
+  }
+  
+  if (nameLower.includes('keepings off')) {
+    const playersPerSide = Math.floor((groupSize - 2) / 2);
+    const floaters = groupSize - (playersPerSide * 2);
+    return `Set up a 40m x 15m grid divided into 3 zones. Split the ${groupSize} players into a ${playersPerSide}v${playersPerSide} match in the center zone, with ${floaters} target players in the end zones.`;
+  }
+  
+  if (nameLower.includes('clean hands')) {
+    return `Set up a 5m x 5m grid. Split the ${groupSize} players into 1 center player and ${groupSize - 1} corner/outside players who receive and return handballs rapidly.`;
+  }
+  
+  if (nameLower.includes('midfield transition')) {
+    const teams = Math.floor(groupSize / 2);
+    const floaters = groupSize % 2 === 0 ? 0 : 1;
+    return `Set up a 40m x 60m field with goals. Split the ${groupSize} players into ${teams}v${teams} with ${floaters} floater midfielder(s) supporting transitions.`;
+  }
+  
+  if (nameLower.includes('exit strategy')) {
+    const playersPerSide = Math.floor((groupSize - 2) / 2);
+    const targetCount = groupSize - (playersPerSide * 2);
+    return `Set up a 20m x 20m central square. Split the ${groupSize} players into ${playersPerSide}v${playersPerSide} in the square, with ${targetCount} target players outside on the wings.`;
+  }
+  
+  if (nameLower.includes('lead and chip')) {
+    const half = Math.floor(groupSize / 2);
+    return `Set up goal square and boundary zones. Split the ${groupSize} players into ${half} kickers and ${groupSize - half} runners leading to the boundary.`;
+  }
+  
+  if (nameLower.includes('clog breakout')) {
+    const defenders = Math.floor(groupSize / 2);
+    const attackers = groupSize - defenders;
+    return `Set up 15m defensive wall. Split the ${groupSize} players into ${defenders} defenders forming the zone wall and ${attackers} fullbacks attempting to break out.`;
+  }
+  
+  if (nameLower.includes('4-gate transition') || nameLower.includes('switch 4-gate')) {
+    const teams = Math.floor(groupSize / 2);
+    const floaters = groupSize % 2 === 0 ? 0 : 1;
+    return `Set up a 50m x 40m grid with gates. Split the ${groupSize} players into ${teams}v${teams} (with ${floaters} floater) focused on switching wings.`;
+  }
+  
+  if (nameLower.includes('essential afl') || nameLower.includes('fundamentals')) {
+    const pairs = Math.floor(groupSize / 2);
+    const floaters = groupSize % 2 === 0 ? 0 : 1;
+    return `Set up 20m x 20m grids. Split the ${groupSize} players into ${pairs} pairs (with ${floaters} floater) working on disposal and ground ball gathers.`;
+  }
+  
+  if (nameLower.includes('lateral movement') || nameLower.includes('evade')) {
+    const groupsOfThree = Math.floor(groupSize / 3);
+    const floaters = groupSize - (groupsOfThree * 3);
+    return `Set up cones 5m apart. Split the ${groupSize} players into ${groupsOfThree} groups of 3 (1 attacker, 1 defender, 1 receiver) with ${floaters} floater(s).`;
+  }
+  
+  if (nameLower.includes('goal-face pressure') || nameLower.includes('quick shot')) {
+    const attackers = Math.floor(groupSize / 2);
+    const defenders = groupSize - attackers;
+    return `Set up goal corridor. Split the ${groupSize} players into ${attackers} attackers starting at 50m and ${defenders} defenders defending the goal face.`;
+  }
+  
+  if (nameLower.includes('ground ball & transition') || nameLower.includes('chaser')) {
+    const half = Math.floor(groupSize / 2);
+    return `Set up two cones 10m apart. Split the ${groupSize} players into ${half} attackers and ${groupSize - half} chasers competing for ground balls.`;
+  }
+  
+  if (nameLower.includes('handball grid')) {
+    return `Set up 5m x 5m grid. Split the ${groupSize} players into ${groupSize - 2} attackers keeping possession against 2 defenders.`;
+  }
+  
+  if (nameLower.includes('box battle') || nameLower.includes('scrimmage')) {
+    const teams = Math.floor(groupSize / 2);
+    const floaters = groupSize % 2 === 0 ? 0 : 1;
+    return `Set up a 25m x 25m grid. Split the ${groupSize} players into ${teams}v${teams} (with ${floaters} floater) scrimmage.`;
+  }
+  
+  return `Split players into a group size of ${groupSize} players. Custom design drill setup for this sub-group.`;
+}
+
 export default function TrainingLab({
   squad,
   subscriptionTier,
@@ -107,6 +200,10 @@ export default function TrainingLab({
   }, [squadSettings]);
   const [duration, setDuration] = useState(draft?.duration || 70);
   const [focusAreas, setFocusAreas] = useState(draft?.focusAreas || []);
+
+  const totalPlayersCount = presentIds.length;
+  const group1 = Math.floor(totalPlayersCount / 2);
+  const group2 = totalPlayersCount - group1;
 
   useEffect(() => {
     // Only prefill with the default if there were no draft focus areas loaded
@@ -296,6 +393,9 @@ export default function TrainingLab({
 
         const isStations = playerCount > 15;
         let stationPromptRules = "";
+        let q2PromptDesc = `QUARTER 2 SKILL ROTATIONS: Two rotations consisting of high-repetition skills and a decision-making task (approx 30% of session time, e.g. 20 mins).`;
+        let q3PromptDesc = `QUARTER 3 TEAM TASK: Practice applying skills to game situations when working as a team (approx 20% of session time, e.g. 15 mins).`;
+
         if (isStations) {
           stationPromptRules = `
 7. DYNAMIC STATION SPLIT RULES (Squad size is ${playerCount} which is > 15):
@@ -309,6 +409,8 @@ export default function TrainingLab({
      The Switch: Include a specific instruction on when to blow the whistle and rotate the groups (e.g. 'Switch stations at the 10-minute mark' if the segment duration is 20 minutes).
    - Equipment Logistics: In the 5th segment (Quarter 4: GAME) instructions, at the very bottom, you MUST output a consolidated equipment staging list that accounts for both stations running at the same time (e.g. doubling the cone and football count) and assigning distinct bib colors to Group 1 (${group1} players) and Group 2 (${group2} players) to avoid mid-session swaps.
 `;
+          q2PromptDesc = `QUARTER 2 SKILL ROTATIONS: Divide the session into parallel stations for Group 1 (${group1} players) and Group 2 (${group2} players) running concurrently (approx 30% of session time, e.g. 20 mins).`;
+          q3PromptDesc = `QUARTER 3 TEAM TASK: Divide the session into parallel stations for Group 1 (${group1} players) and Group 2 (${group2} players) running concurrently (approx 20% of session time, e.g. 15 mins).`;
         } else {
           stationPromptRules = `
 7. STANDARD SINGLE-GROUP RULES (Squad size is ${playerCount} which is <= 15):
@@ -341,8 +443,8 @@ The complexity, grid sizes (in meters), setup descriptions, and terminology MUST
 The plan must include exactly five segments representing the curriculum structure:
 1. PRE-GAME: Unstructured play and exploration (duration should be approx 20% of session time, e.g. 15 mins for a 70-minute session).
 2. QUARTER 1 WARM-UP: Fun warm-up with emphasis on fundamental movements (approx 15% of session time, e.g. 10 mins).
-3. QUARTER 2 SKILL ROTATIONS: Two rotations consisting of high-repetition skills and a decision-making task (approx 30% of session time, e.g. 20 mins).
-4. QUARTER 3 TEAM TASK: Practice applying skills to game situations when working as a team (approx 20% of session time, e.g. 15 mins).
+3. ${q2PromptDesc}
+4. ${q3PromptDesc}
 5. QUARTER 4 GAME: Match play with specific rule constraints to emphasize targeted skills (approx 15% of session time, e.g. 10 mins).
 
 Ensure the sum of the durations of these 5 segments equals exactly ${duration} minutes.
@@ -454,16 +556,16 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
         const q2Half = Math.round(q2Mins / 2);
         q2Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)
 
-Station A: ${drill1Name}, Goal: ${drill1Desc}, Setup: Split players into Station A grid (tailored for ${group1} players).
-Station B: ${drill0Name}, Goal: ${drill0Desc}, Setup: Split players into Station B grid (tailored for ${group2} players).
+Station A: ${drill1Name}, Goal: ${drill1Desc}, Setup: ${getLocalDrillSetup(drill1Name, group1)}
+Station B: ${drill0Name}, Goal: ${drill0Desc}, Setup: ${getLocalDrillSetup(drill0Name, group2)}
 
 The Switch: Switch stations at the ${q2Half}-minute mark.`;
         
         const q3Half = Math.round(q3Mins / 2);
         q3Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)
 
-Station A: ${drill2Name}, Goal: ${drill2Desc}, Setup: Half-field zone setup (tailored for ${group1} players).
-Station B: ${drill1Name}, Goal: ${drill1Desc}, Setup: Setup outer boundary grids (tailored for ${group2} players).
+Station A: ${drill2Name}, Goal: ${drill2Desc}, Setup: ${getLocalDrillSetup(drill2Name, group1)}
+Station B: ${drill1Name}, Goal: ${drill1Desc}, Setup: ${getLocalDrillSetup(drill1Name, group2)}
 
 The Switch: Switch stations at the ${q3Half}-minute mark.`;
 
@@ -1399,7 +1501,13 @@ COACH'S LOGISTICS SUMMARY
                       alignItems: 'center'
                     }}
                   >
-                    <span>{card.duration} MINS | {presentIds.length} PLAYERS</span>
+                    <span>
+                      {card.duration} MINS | {
+                        (presentIds.length > 15 && (idx === 2 || idx === 3)) 
+                          ? `${group1} & ${group2} PLAYERS` 
+                          : `${presentIds.length} PLAYERS`
+                      }
+                    </span>
                     {card.phase && (
                       <span 
                         style={{
