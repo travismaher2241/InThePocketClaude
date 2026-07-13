@@ -1242,21 +1242,44 @@ COACH'S LOGISTICS SUMMARY
         >
           {/* Header section */}
           <div>
-            <div 
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                marginBottom: '8px',
-                cursor: 'pointer',
-                color: 'var(--text-secondary)'
-              }}
-              onClick={() => setStep('parameters')}
-            >
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
-              </svg>
-              <span style={{ fontSize: '0.85rem', fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>Back</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <div 
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  color: 'var(--text-secondary)'
+                }}
+                onClick={() => setStep('parameters')}
+              >
+                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
+                </svg>
+                <span style={{ fontSize: '0.85rem', fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>Back</span>
+              </div>
+              <span
+                onClick={() => {
+                  if (window.confirm("Cancel this plan and restart? This will clear all current parameters.")) {
+                    clearDraft();
+                  }
+                }}
+                style={{
+                  fontSize: '0.85rem',
+                  fontFamily: 'var(--font-family-body)',
+                  fontWeight: '600',
+                  color: '#e63946',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                Cancel Plan
+              </span>
             </div>
             
             <h2 
@@ -1509,6 +1532,35 @@ COACH'S LOGISTICS SUMMARY
           >
             <div style={{ maxWidth: '480px', margin: '0 auto', display: 'flex', gap: '12px' }}>
               <button
+                onClick={() => {
+                  if (window.confirm("Cancel this plan and restart? This will clear all current parameters.")) {
+                    clearDraft();
+                  }
+                }}
+                disabled={isGenerating}
+                style={{
+                  flex: 1,
+                  backgroundColor: 'transparent',
+                  color: '#e63946',
+                  border: '1px solid rgba(230, 57, 70, 0.4)',
+                  borderRadius: '6px',
+                  padding: '12px 8px',
+                  fontFamily: 'var(--font-family-locker)',
+                  fontSize: '0.85rem',
+                  fontWeight: '700',
+                  letterSpacing: '0.02em',
+                  textTransform: 'uppercase',
+                  cursor: isGenerating ? 'not-allowed' : 'pointer',
+                  opacity: isGenerating ? 0.6 : 1,
+                  transition: 'opacity 0.2s ease, transform 0.1s ease',
+                }}
+                onMouseDown={(e) => !isGenerating && (e.currentTarget.style.transform = 'scale(0.98)')}
+                onMouseUp={(e) => !isGenerating && (e.currentTarget.style.transform = 'none')}
+              >
+                Cancel Plan
+              </button>
+
+              <button
                 onClick={() => runPlanGeneration()}
                 disabled={isGenerating}
                 style={{
@@ -1517,9 +1569,9 @@ COACH'S LOGISTICS SUMMARY
                   color: '#ffffff',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '6px',
-                  padding: '14px',
+                  padding: '12px 8px',
                   fontFamily: 'var(--font-family-locker)',
-                  fontSize: '1rem',
+                  fontSize: '0.85rem',
                   fontWeight: '700',
                   letterSpacing: '0.02em',
                   textTransform: 'uppercase',
@@ -1545,9 +1597,9 @@ COACH'S LOGISTICS SUMMARY
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '6px',
-                  padding: '14px',
+                  padding: '12px 8px',
                   fontFamily: 'var(--font-family-locker)',
-                  fontSize: '1rem',
+                  fontSize: '0.85rem',
                   fontWeight: '700',
                   letterSpacing: '0.02em',
                   textTransform: 'uppercase',
