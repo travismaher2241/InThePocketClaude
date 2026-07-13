@@ -1,6 +1,6 @@
 {
-  "name": "CoachCore",
-  "short_name": "CoachCore",
+  "name": "In The Pocket",
+  "short_name": "In The Pocket",
   "description": "AFL Tactical Board and Video Review Command Center",
   "start_url": "/",
   "display": "standalone",

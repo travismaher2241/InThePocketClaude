@@ -8,6 +8,7 @@ import SettingsModal from './components/SettingsModal';
 import SubscriptionPage from './components/SubscriptionPage';
 import { useAuth } from './context/AuthProvider';
 import { addPlayer, getPlayers, getSquadSettings, updateSquadSettings, getUserProfile, updateUserProfile } from './firebaseHelpers';
+import inThePocketLogo from './assets/In The Pocket.jpg';
 
 // Empty default roster to allow clean user data entry
 const DEFAULT_ROSTER = [];
@@ -315,7 +316,15 @@ export default function App() {
           style={{ cursor: 'pointer', userSelect: 'none' }}
           title="Tap logo to open settings"
         >
-          <h1 className="brand-logo">COACHCORE</h1>
+          <img 
+            src={inThePocketLogo} 
+            alt="In The Pocket" 
+            style={{ 
+              height: '32px', 
+              objectFit: 'contain',
+              borderRadius: '4px'
+            }} 
+          />
         </div>
 
         {/* Top-right area */}
@@ -462,7 +471,7 @@ export default function App() {
                   onClick={() => {
                     handleUpdateSubscriptionTier('Pro');
                     setPaywallFeature(null);
-                    showToast("Simulated Upgrade: Welcome to Pro! You now have access to all of the amazing pro features in COACHCORE!");
+                    showToast("Simulated Upgrade: Welcome to Pro! You now have access to all of the amazing pro features in In The Pocket!");
                   }}
                   style={{ width: '100%', padding: '12px' }}
                 >
@@ -473,7 +482,7 @@ export default function App() {
                   onClick={() => {
                     handleUpdateSubscriptionTier('Ultra');
                     setPaywallFeature(null);
-                    showToast("Simulated Upgrade: Welcome to Ultra! You now have access to all of the amazing pro features in COACHCORE!");
+                    showToast("Simulated Upgrade: Welcome to Ultra! You now have access to all of the amazing pro features in In The Pocket!");
                   }}
                   style={{ width: '100%', padding: '12px' }}
                 >
@@ -484,7 +493,7 @@ export default function App() {
                   onClick={() => {
                     handleUpdateSubscriptionTier('B2B');
                     setPaywallFeature(null);
-                    showToast("Simulated Upgrade: Welcome to B2B! You now have access to all of the amazing pro features in COACHCORE!");
+                    showToast("Simulated Upgrade: Welcome to B2B! You now have access to all of the amazing pro features in In The Pocket!");
                   }}
                   style={{ width: '100%', padding: '12px', borderColor: 'rgba(255, 183, 3, 0.4)', color: '#ffb703' }}
                 >

@@ -518,7 +518,7 @@ export default function SubscriptionPage({
                 margin: '10px 0',
                 fontWeight: '600'
               }}>
-                welcome to {successUpgrade.tier} "{successUpgrade.name}". You now have access to all of the amazing pro features in COACHCORE!
+                welcome to {successUpgrade.tier} "{successUpgrade.name}". You now have access to all of the amazing pro features in In The Pocket!
               </p>
 
               <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>

@@ -1367,7 +1367,7 @@ COACH'S LOGISTICS SUMMARY
                 <option value={ageGroup}>{ageGroup}</option>
               </select>
               <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                To customize the age group target, click the COACHCORE header in the top-left to update squad settings.
+                To customize the age group target, click the In The Pocket logo in the top-left to update squad settings.
               </p>
             </div>
 

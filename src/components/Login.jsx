@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthProvider';
+import inThePocketLogo from '../assets/In The Pocket.jpg';
 
 export default function Login() {
   const { login, signup, resetPassword } = useAuth();
@@ -87,9 +88,17 @@ export default function Login() {
         gap: '20px'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <h2 className="scoreboard-font" style={{ color: '#ffffff', margin: '0 0 4px 0', fontSize: '1.75rem', letterSpacing: '0.05em' }}>
-            COACHCORE
-          </h2>
+          <img 
+            src={inThePocketLogo} 
+            alt="In The Pocket" 
+            style={{ 
+              height: '44px', 
+              objectFit: 'contain',
+              borderRadius: '6px',
+              margin: '0 auto 8px auto',
+              display: 'block'
+            }} 
+          />
           <span style={{ fontSize: '0.75rem', color: 'var(--color-squad)', textTransform: 'uppercase', fontWeight: '700' }}>
             {isTesterMode ? 'Tester Sandbox' : isForgotPassword ? 'Reset Password' : isSignUp ? 'Create Coaching Account' : 'Command Center Access'}
           </span>
@@ -284,7 +293,7 @@ export default function Login() {
             </div>
           ) : (
             <div style={{ textAlign: 'center', fontSize: '0.8rem', color: '#8d939e', marginTop: '4px' }}>
-              {isSignUp ? 'Already have an account?' : 'New to CoachCore?'}{' '}
+              {isSignUp ? 'Already have an account?' : 'New to In The Pocket?'}{' '}
               <span 
                 onClick={() => { setError(''); setIsSignUp(!isSignUp); }}
                 style={{ color: 'var(--color-squad)', cursor: 'pointer', fontWeight: '600' }}
