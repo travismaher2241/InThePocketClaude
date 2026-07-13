@@ -509,6 +509,8 @@ ${stationPromptRules}
 ${injectedDrillsText}${injectedSSGsText}
 ${lastPreGameNegativePrompt}
 
+CRITICAL DEDUPLICATION RULE: You are generating a complete session plan. You must not repeat any drill, activity, or scenario. Every single station and quarter must contain a uniquely named drill. Cross-check your output before finalizing; if a drill title appears twice (e.g., repeating the warm-up in a station rotation, or repeating a station A drill in station B), you MUST replace the duplicate with a new, distinct drill from the database. All segments and concurrent stations (Station A and Station B) must be completely unique.
+
 Create a training plan for ${duration} minutes, specifically for ${playerCount} players. The players belong to the "${ageGroup}" age group level. 
 Every drill segment MUST directly teach the selected Focus Areas: ${focusAreas.join(", ")}. 
 The complexity, grid sizes (in meters), setup descriptions, and terminology MUST be strictly tailored for the selected Age Group: "${ageGroup}".
@@ -616,15 +618,69 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       const config = getCurriculumConfig(ageGroup);
       const isStations = playerCount > 15;
       
-      // Safe fallback variables for drills array to prevent crash on undefined or missing parameters
-      const drill0Name = drills?.[0]?.name ? drills[0].name.toUpperCase() : "FUNDAMENTAL SKILLS";
-      const drill0Desc = drills?.[0]?.desc || "Practice fundamental AFL disposal, movement, and marking techniques.";
+      // Deduplication Memory Tracking Array
+      const selectedDrills = [selectedPreGameDrill.name.toLowerCase()];
+
+      // Candidate pools
+      const allPrescribed = PRESCRIBED_DRILLS || [];
+      const allSSGs = SMALL_SIDED_GAMES || [];
+      const allLocal = Object.values(LOCAL_DRILLS).flat();
+      const entirePool = [...allPrescribed, ...allSSGs, ...allLocal];
+
+      const retrieveUniqueDrill = (candidates, selectedList, fallbackPool = []) => {
+        for (const c of candidates) {
+          if (!c) continue;
+          const nameLower = (c.name || c.title || '').toLowerCase();
+          if (nameLower && !selectedList.some(used => used.includes(nameLower) || nameLower.includes(used))) {
+            selectedList.push(nameLower);
+            return c;
+          }
+        }
+        for (const c of fallbackPool) {
+          if (!c) continue;
+          const nameLower = (c.name || c.title || '').toLowerCase();
+          if (nameLower && !selectedList.some(used => used.includes(nameLower) || nameLower.includes(used))) {
+            selectedList.push(nameLower);
+            return c;
+          }
+        }
+        // Absolute fallback: if everything is exhausted, just return the first candidate
+        if (candidates.length > 0 && candidates[0]) {
+          return candidates[0];
+        }
+        return fallbackPool[0] || { name: "AFL Drill", desc: "Practice core skill." };
+      };
+
+      const primaryQ1 = drills?.[0] || { name: 'Warm-up: AFL Kick and Mark Drill', desc: 'Practice fundamental AFL disposal, movement, and marking techniques.' };
+      const q1FilteredPool = entirePool.filter(d => d.name.toLowerCase().includes('warm-up') || d.name.toLowerCase().includes('fundamental') || d.name.toLowerCase().includes('kick and mark') || d.name.toLowerCase().includes('hands'));
+      const resolvedQ1Drill = retrieveUniqueDrill([primaryQ1], selectedDrills, q1FilteredPool);
       
-      const drill1Name = drills?.[1]?.name ? drills[1].name.toUpperCase() : "DECISION MAKING TASK";
-      const drill1Desc = drills?.[1]?.desc || "Execute advanced skills under game-like pressure and spatial constraints.";
+      const drill0Name = resolvedQ1Drill.name.toUpperCase();
+      const drill0Desc = resolvedQ1Drill.desc || resolvedQ1Drill.goal || "Practice fundamental skills.";
+
+      const primaryQ2A = drills?.[1] || { name: 'Decision Making Task', desc: 'Execute advanced skills under game-like pressure.' };
+      const resolvedQ2ADrill = retrieveUniqueDrill([primaryQ2A], selectedDrills, allPrescribed);
       
-      const drill2Name = drills?.[2]?.name ? drills[2].name.toUpperCase() : "GAME SENSE CHALLENGE";
-      const drill2Desc = drills?.[2]?.desc || "Apply tactical principles in a competitive small-sided match environment.";
+      const drill1Name = resolvedQ2ADrill.name.toUpperCase();
+      const drill1Desc = resolvedQ2ADrill.desc || resolvedQ2ADrill.goal || "Execute advanced skills under pressure.";
+
+      const primaryQ2B = drills?.[0] || { name: 'Fundamental Skills', desc: 'Practice fundamental skills.' };
+      const resolvedQ2BDrill = retrieveUniqueDrill([primaryQ2B], selectedDrills, allPrescribed);
+      
+      const drill0NameB = resolvedQ2BDrill.name.toUpperCase();
+      const drill0DescB = resolvedQ2BDrill.desc || resolvedQ2BDrill.goal || "Practice fundamental skills.";
+
+      const primaryQ3A = drills?.[2] || { name: 'Game Sense Challenge', desc: 'Apply tactical principles in a competitive environment.' };
+      const resolvedQ3ADrill = retrieveUniqueDrill([primaryQ3A], selectedDrills, allSSGs);
+      
+      const drill2Name = resolvedQ3ADrill.name.toUpperCase();
+      const drill2Desc = resolvedQ3ADrill.desc || resolvedQ3ADrill.goal || "Apply tactical principles.";
+
+      const primaryQ3B = drills?.[1] || { name: 'Decision Making Task', desc: 'Execute advanced skills under pressure.' };
+      const resolvedQ3BDrill = retrieveUniqueDrill([primaryQ3B], selectedDrills, allPrescribed);
+      
+      const drill1NameB = resolvedQ3BDrill.name.toUpperCase();
+      const drill1DescB = resolvedQ3BDrill.desc || resolvedQ3BDrill.goal || "Execute advanced skills under pressure.";
 
       const shouldShowContact = (drillName, drillDesc) => {
         const text = `${drillName} ${drillDesc}`.toLowerCase();
@@ -644,7 +700,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
         q2Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)
 
 Station A: ${drill1Name}, Goal: ${drill1Desc}, Setup: ${getLocalDrillSetup(drill1Name, group1)}${shouldShowContact(drill1Name, drill1Desc) ? `\n  - Contact Rules: ${config.tackleRules}` : ''}
-Station B: ${drill0Name}, Goal: ${drill0Desc}, Setup: ${getLocalDrillSetup(drill0Name, group2)}${shouldShowContact(drill0Name, drill0Desc) ? `\n  - Contact Rules: ${config.tackleRules}` : ''}
+Station B: ${drill0NameB}, Goal: ${drill0DescB}, Setup: ${getLocalDrillSetup(drill0NameB, group2)}${shouldShowContact(drill0NameB, drill0DescB) ? `\n  - Contact Rules: ${config.tackleRules}` : ''}
 
 The Switch: Switch stations at the ${q2Half}-minute mark.`;
         
@@ -652,7 +708,7 @@ The Switch: Switch stations at the ${q2Half}-minute mark.`;
         q3Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)
 
 Station A: ${drill2Name}, Goal: ${drill2Desc}, Setup: ${getLocalDrillSetup(drill2Name, group1)}${shouldShowContact(drill2Name, drill2Desc) ? `\n  - Contact Rules: ${config.tackleRules}` : ''}
-Station B: ${drill1Name}, Goal: ${drill1Desc}, Setup: ${getLocalDrillSetup(drill1Name, group2)}${shouldShowContact(drill1Name, drill1Desc) ? `\n  - Contact Rules: ${config.tackleRules}` : ''}
+Station B: ${drill1NameB}, Goal: ${drill1DescB}, Setup: ${getLocalDrillSetup(drill1NameB, group2)}${shouldShowContact(drill1NameB, drill1DescB) ? `\n  - Contact Rules: ${config.tackleRules}` : ''}
 
 The Switch: Switch stations at the ${q3Half}-minute mark.`;
 
