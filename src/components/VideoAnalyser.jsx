@@ -773,7 +773,7 @@ export default function VideoAnalyser({
     renderVideo.muted = true;
     renderVideo.playsInline = true;
 
-    renderVideo.onloadedmetadata = () => {
+    renderVideo.onloadedmetadata = async () => {
       const width = renderVideo.videoWidth || 1280;
       const height = renderVideo.videoHeight || 720;
       
@@ -804,9 +804,6 @@ export default function VideoAnalyser({
       const totalStretchedDuration = duration + drawings.current.reduce((acc, s) => acc + s.freezeDuration, 0);
       const totalStretchedFrames = Math.round(totalStretchedDuration * fps);
       let compiledFramesCount = 0;
-      let currentTime = 0;
-      let currentHoldFrames = 0;
-      let activeHoldSession = null;
       
       const sortedSessions = [...drawings.current].sort((a, b) => a.freezeTimestamp - b.freezeTimestamp);
       let nextSessionIdx = 0;
@@ -832,137 +829,103 @@ export default function VideoAnalyser({
 
       recorder.start();
 
-      const renderNextFrame = () => {
-        if (currentTime > duration && !activeHoldSession) {
-          setTimeout(() => {
-            recorder.stop();
-          }, 200);
-          return;
-        }
-
-        const nextSession = sortedSessions[nextSessionIdx];
-        if (nextSession && currentTime >= nextSession.freezeTimestamp && !activeHoldSession) {
-          activeHoldSession = nextSession;
-          currentHoldFrames = Math.round(nextSession.freezeDuration * fps);
-        }
-
-        if (activeHoldSession && currentHoldFrames > 0) {
-          renderVideo.currentTime = activeHoldSession.freezeTimestamp;
-        } else {
-          renderVideo.currentTime = currentTime;
-        }
+      const seekTo = (time) => {
+        return new Promise((resolve) => {
+          const onSeeked = () => {
+            renderVideo.removeEventListener('seeked', onSeeked);
+            resolve();
+          };
+          renderVideo.addEventListener('seeked', onSeeked);
+          renderVideo.currentTime = time;
+        });
       };
 
-      const stepNext = () => {
-        if (activeHoldSession && currentHoldFrames > 0) {
-          currentHoldFrames--;
+      let currentTime = 0;
+      
+      try {
+        while (currentTime <= duration) {
+          const nextSession = sortedSessions[nextSessionIdx];
           
-          renderCtx.drawImage(renderVideo, 0, 0, width, height);
-
-          renderCtx.save();
-          renderCtx.scale(width / 1000, height / 600);
-          activeHoldSession.annotations.forEach((item) => {
-            if (item.type === 'brush' && item.points.length > 0) {
+          if (nextSession && currentTime >= nextSession.freezeTimestamp) {
+            // Pause recorder during seek to prevent recording timeline drift
+            if (recorder.state === 'recording') recorder.pause();
+            await seekTo(nextSession.freezeTimestamp);
+            if (recorder.state === 'paused') recorder.resume();
+            
+            const holdFrames = Math.round(nextSession.freezeDuration * fps);
+            for (let f = 0; f < holdFrames; f++) {
+              renderCtx.drawImage(renderVideo, 0, 0, width, height);
+              
               renderCtx.save();
-              renderCtx.beginPath();
-              renderCtx.lineWidth = 10;
-              renderCtx.strokeStyle = 'rgba(0, 0, 0, 0.75)';
-              renderCtx.lineCap = 'round';
-              renderCtx.lineJoin = 'round';
-              renderCtx.moveTo(item.points[0].x, item.points[0].y);
-              for (let i = 1; i < item.points.length; i++) {
-                renderCtx.lineTo(item.points[i].x, item.points[i].y);
-              }
-              renderCtx.stroke();
+              renderCtx.scale(width / 1000, height / 600);
+              nextSession.annotations.forEach((item) => {
+                if (item.type === 'brush' && item.points.length > 0) {
+                  renderCtx.save();
+                  renderCtx.beginPath();
+                  renderCtx.lineWidth = 10;
+                  renderCtx.strokeStyle = 'rgba(0, 0, 0, 0.75)';
+                  renderCtx.lineCap = 'round';
+                  renderCtx.lineJoin = 'round';
+                  renderCtx.moveTo(item.points[0].x, item.points[0].y);
+                  for (let i = 1; i < item.points.length; i++) {
+                    renderCtx.lineTo(item.points[i].x, item.points[i].y);
+                  }
+                  renderCtx.stroke();
+                  renderCtx.restore();
+
+                  renderCtx.save();
+                  renderCtx.beginPath();
+                  renderCtx.lineWidth = 4;
+                  renderCtx.strokeStyle = item.color || '#ffffff';
+                  renderCtx.lineCap = 'round';
+                  renderCtx.lineJoin = 'round';
+                  renderCtx.moveTo(item.points[0].x, item.points[0].y);
+                  for (let i = 1; i < item.points.length; i++) {
+                    renderCtx.lineTo(item.points[i].x, item.points[i].y);
+                  }
+                  renderCtx.stroke();
+                  renderCtx.restore();
+                } else if (item.type === 'arrow') {
+                  drawArrow(renderCtx, item.startX, item.startY, item.endX, item.endY, 6, item.color || '#ffffff');
+                } else if (item.type === 'text') {
+                  drawText(renderCtx, item.text, item.x, item.y, item.color || '#ffffff');
+                }
+              });
               renderCtx.restore();
 
-              renderCtx.save();
-              renderCtx.beginPath();
-              renderCtx.lineWidth = 4;
-              renderCtx.strokeStyle = item.color || '#ffffff';
-              renderCtx.lineCap = 'round';
-              renderCtx.lineJoin = 'round';
-              renderCtx.moveTo(item.points[0].x, item.points[0].y);
-              for (let i = 1; i < item.points.length; i++) {
-                renderCtx.lineTo(item.points[i].x, item.points[i].y);
-              }
-              renderCtx.stroke();
-              renderCtx.restore();
-            } else if (item.type === 'arrow') {
-              drawArrow(renderCtx, item.startX, item.startY, item.endX, item.endY, 6, item.color || '#ffffff');
-            } else if (item.type === 'text') {
-              drawText(renderCtx, item.text, item.x, item.y, item.color || '#ffffff');
+              compiledFramesCount++;
+              setExportProgress(Math.min(99, Math.round((compiledFramesCount / totalStretchedFrames) * 100)));
+              
+              await new Promise(resolve => setTimeout(resolve, 33));
             }
-          });
-          renderCtx.restore();
-
-          compiledFramesCount++;
-          const progress = Math.min(99, Math.round((compiledFramesCount / totalStretchedFrames) * 100));
-          setExportProgress(progress);
-
-          if (currentHoldFrames <= 0) {
-            activeHoldSession = null;
+            
             nextSessionIdx++;
             currentTime += 1 / fps;
+          } else {
+            // Normal frame
+            if (recorder.state === 'recording') recorder.pause();
+            await seekTo(currentTime);
+            if (recorder.state === 'paused') recorder.resume();
+            
+            renderCtx.drawImage(renderVideo, 0, 0, width, height);
+            
+            compiledFramesCount++;
+            setExportProgress(Math.min(99, Math.round((compiledFramesCount / totalStretchedFrames) * 100)));
+            
+            await new Promise(resolve => setTimeout(resolve, 33));
+            
+            currentTime += 1 / fps;
           }
-
-          setTimeout(stepNext, 33);
-        } else {
-          currentTime += 1 / fps;
-          renderNextFrame();
         }
-      };
+      } catch (err) {
+        console.error("Error in rendering export loop:", err);
+      }
 
-      renderVideo.onseeked = () => {
-        renderCtx.drawImage(renderVideo, 0, 0, width, height);
-
-        if (activeHoldSession) {
-          renderCtx.save();
-          renderCtx.scale(width / 1000, height / 600);
-          activeHoldSession.annotations.forEach((item) => {
-            if (item.type === 'brush' && item.points.length > 0) {
-              renderCtx.save();
-              renderCtx.beginPath();
-              renderCtx.lineWidth = 10;
-              renderCtx.strokeStyle = 'rgba(0, 0, 0, 0.75)';
-              renderCtx.lineCap = 'round';
-              renderCtx.lineJoin = 'round';
-              renderCtx.moveTo(item.points[0].x, item.points[0].y);
-              for (let i = 1; i < item.points.length; i++) {
-                renderCtx.lineTo(item.points[i].x, item.points[i].y);
-              }
-              renderCtx.stroke();
-              renderCtx.restore();
-
-              renderCtx.save();
-              renderCtx.beginPath();
-              renderCtx.lineWidth = 4;
-              renderCtx.strokeStyle = item.color || '#ffffff';
-              renderCtx.lineCap = 'round';
-              renderCtx.lineJoin = 'round';
-              renderCtx.moveTo(item.points[0].x, item.points[0].y);
-              for (let i = 1; i < item.points.length; i++) {
-                renderCtx.lineTo(item.points[i].x, item.points[i].y);
-              }
-              renderCtx.stroke();
-              renderCtx.restore();
-            } else if (item.type === 'arrow') {
-              drawArrow(renderCtx, item.startX, item.startY, item.endX, item.endY, 6, item.color || '#ffffff');
-            } else if (item.type === 'text') {
-              drawText(renderCtx, item.text, item.x, item.y, item.color || '#ffffff');
-            }
-          });
-          renderCtx.restore();
+      setTimeout(() => {
+        if (recorder.state !== 'inactive') {
+          recorder.stop();
         }
-
-        compiledFramesCount++;
-        const progress = Math.min(99, Math.round((compiledFramesCount / totalStretchedFrames) * 100));
-        setExportProgress(progress);
-
-        setTimeout(stepNext, 33);
-      };
-
-      renderNextFrame();
+      }, 200);
     };
 
     renderVideo.onerror = (e) => {
