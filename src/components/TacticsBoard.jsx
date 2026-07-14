@@ -2,6 +2,75 @@ import React, { useState, useRef, useEffect } from 'react';
 import aflGroundImg from '../assets/AFL GROUND.png';
 import { hasAccess } from '../firebaseHelpers';
 
+// AFL Standard Positions by Zone
+const AFL_POSITIONS = {
+  forwards: {
+    title: 'Forwards',
+    roles: ['FF', 'FP', 'CHF', 'HFF']
+  },
+  midfield: {
+    title: 'Midfield / Ruck',
+    roles: ['C', 'WING', 'RUCK', 'RR', 'ROV']
+  },
+  backs: {
+    title: 'Backs',
+    roles: ['FB', 'BP', 'CHB', 'HBF']
+  }
+};
+
+// Tactical Initial Layout Helper
+const getDefaultTokens = () => {
+  const whiteTeam = [
+    // Backs
+    { id: 'white_fb', x: 120, y: 300, label: 'FB', team: 'white', name: 'Full Back' },
+    { id: 'white_bp1', x: 150, y: 120, label: 'BP', team: 'white', name: 'Back Pocket 1' },
+    { id: 'white_bp2', x: 150, y: 480, label: 'BP', team: 'white', name: 'Back Pocket 2' },
+    { id: 'white_chb', x: 280, y: 300, label: 'CHB', team: 'white', name: 'Centre Half Back' },
+    { id: 'white_hbf1', x: 320, y: 150, label: 'HBF', team: 'white', name: 'Half Back Flank 1' },
+    { id: 'white_hbf2', x: 320, y: 450, label: 'HBF', team: 'white', name: 'Half Back Flank 2' },
+    // Midfield / Ruck
+    { id: 'white_c', x: 500, y: 280, label: 'C', team: 'white', name: 'Centre' },
+    { id: 'white_wing1', x: 500, y: 80, label: 'WING', team: 'white', name: 'Wing 1' },
+    { id: 'white_wing2', x: 500, y: 520, label: 'WING', team: 'white', name: 'Wing 2' },
+    { id: 'white_ruck', x: 470, y: 270, label: 'RUCK', team: 'white', name: 'Ruck' },
+    { id: 'white_rr', x: 470, y: 330, label: 'RR', team: 'white', name: 'Ruck Rover' },
+    { id: 'white_rov', x: 490, y: 300, label: 'ROV', team: 'white', name: 'Rover' },
+    // Forwards
+    { id: 'white_chf', x: 720, y: 300, label: 'CHF', team: 'white', name: 'Centre Half Forward' },
+    { id: 'white_hff1', x: 680, y: 150, label: 'HFF', team: 'white', name: 'Half Forward Flank 1' },
+    { id: 'white_hff2', x: 680, y: 450, label: 'HFF', team: 'white', name: 'Half Forward Flank 2' },
+    { id: 'white_ff', x: 880, y: 300, label: 'FF', team: 'white', name: 'Full Forward' },
+    { id: 'white_fp1', x: 850, y: 120, label: 'FP', team: 'white', name: 'Forward Pocket 1' },
+    { id: 'white_fp2', x: 850, y: 480, label: 'FP', team: 'white', name: 'Forward Pocket 2' },
+  ];
+
+  const blackTeam = [
+    // Backs
+    { id: 'black_fb', x: 880, y: 305, label: 'FB', team: 'black', name: 'Full Back' },
+    { id: 'black_bp1', x: 850, y: 125, label: 'BP', team: 'black', name: 'Back Pocket 1' },
+    { id: 'black_bp2', x: 850, y: 485, label: 'BP', team: 'black', name: 'Back Pocket 2' },
+    { id: 'black_chb', x: 720, y: 305, label: 'CHB', team: 'black', name: 'Centre Half Back' },
+    { id: 'black_hbf1', x: 680, y: 155, label: 'HBF', team: 'black', name: 'Half Back Flank 1' },
+    { id: 'black_hbf2', x: 680, y: 455, label: 'HBF', team: 'black', name: 'Half Back Flank 2' },
+    // Midfield / Ruck
+    { id: 'black_c', x: 500, y: 320, label: 'C', team: 'black', name: 'Centre' },
+    { id: 'black_wing1', x: 500, y: 120, label: 'WING', team: 'black', name: 'Wing 1' },
+    { id: 'black_wing2', x: 500, y: 480, label: 'WING', team: 'black', name: 'Wing 2' },
+    { id: 'black_ruck', x: 530, y: 270, label: 'RUCK', team: 'black', name: 'Ruck' },
+    { id: 'black_rr', x: 530, y: 330, label: 'RR', team: 'black', name: 'Ruck Rover' },
+    { id: 'black_rov', x: 510, y: 300, label: 'ROV', team: 'black', name: 'Rover' },
+    // Forwards
+    { id: 'black_chf', x: 280, y: 305, label: 'CHF', team: 'black', name: 'Centre Half Forward' },
+    { id: 'black_hff1', x: 320, y: 155, label: 'HFF', team: 'black', name: 'Half Forward Flank 1' },
+    { id: 'black_hff2', x: 320, y: 455, label: 'HFF', team: 'black', name: 'Half Forward Flank 2' },
+    { id: 'black_ff', x: 120, y: 305, label: 'FF', team: 'black', name: 'Full Forward' },
+    { id: 'black_fp1', x: 150, y: 125, label: 'FP', team: 'black', name: 'Forward Pocket 1' },
+    { id: 'black_fp2', x: 150, y: 485, label: 'FP', team: 'black', name: 'Forward Pocket 2' },
+  ];
+
+  return [...whiteTeam, ...blackTeam];
+};
+
 export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPaywall }) {
   // Gate check: Tactics Board requires Ultra or B2B tier
   const isGated = !hasAccess(subscriptionTier, 'ultra');
@@ -22,9 +91,21 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
   // Laser guide fading lines (stored in virtual 1000x600 coordinates)
   const laserPoints = useRef([]); // { x, y, time }
 
-  // Draggable Active Tokens on the board
-  // Can contain players (team: 'white'|'black') or the ball (team: 'ball')
-  const [tokens, setTokens] = useState([]);
+  // Draggable Active Tokens on the board (initialized with standard AFL layout)
+  const [tokens, setTokens] = useState(() => getDefaultTokens());
+
+  // Context Menu State
+  const [contextMenu, setContextMenu] = useState(null); // { x, y, clientX, clientY, vx, vy, token }
+  const [menuTeam, setMenuTeam] = useState('white');
+
+  // Dropdown States for bottom toolbar
+  const [whiteDropdownOpen, setWhiteDropdownOpen] = useState(false);
+  const [blackDropdownOpen, setBlackDropdownOpen] = useState(false);
+
+  // Mobile touch long-press state tracking
+  const touchTimeout = useRef(null);
+  const touchStartPos = useRef({ x: 0, y: 0 });
+  const isLongPress = useRef(false);
 
   const [draggedTokenId, setDraggedTokenId] = useState(null);
   const dragOffset = useRef({ x: 0, y: 0 }); // Virtual space offset
@@ -171,6 +252,22 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     const { x, y } = getVirtualCoords(clientX, clientY);
 
+    // Context menu click handling: close dropdowns on canvas click
+    setWhiteDropdownOpen(false);
+    setBlackDropdownOpen(false);
+
+    // If it's a touch, start long-press timer for empty space context menu
+    if (e.touches) {
+      isLongPress.current = false;
+      touchStartPos.current = { x: clientX, y: clientY };
+      if (touchTimeout.current) clearTimeout(touchTimeout.current);
+      touchTimeout.current = setTimeout(() => {
+        isLongPress.current = true;
+        openContextMenu(clientX, clientY, x, y, null);
+        setIsDrawing(false); // Cancel drawing
+      }, 600);
+    }
+
     setIsDrawing(true);
     lastPos.current = { x, y };
     startPos.current = { x, y };
@@ -190,9 +287,20 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
   };
 
   const handleDraw = (e) => {
-    if (!isDrawing) return;
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    if (e.touches && touchTimeout.current) {
+      const dist = Math.hypot(clientX - touchStartPos.current.x, clientY - touchStartPos.current.y);
+      if (dist > 10) {
+        clearTimeout(touchTimeout.current);
+        touchTimeout.current = null;
+      }
+    }
+
+    if (isLongPress.current) return; // Don't draw if it was a long press
+
+    if (!isDrawing) return;
     const { x, y } = getVirtualCoords(clientX, clientY);
 
     if (tool === 'laser') {
@@ -218,6 +326,15 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
   };
 
   const handleEndDraw = (e) => {
+    if (touchTimeout.current) {
+      clearTimeout(touchTimeout.current);
+      touchTimeout.current = null;
+    }
+    if (isLongPress.current) {
+      isLongPress.current = false;
+      return;
+    }
+
     if (!isDrawing) return;
     setIsDrawing(false);
 
@@ -257,9 +374,75 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
     drawCanvas();
   };
 
+  // Context Menu Helpers
+  const openContextMenu = (clientX, clientY, vx, vy, token = null) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    
+    let x = clientX - rect.left;
+    let y = clientY - rect.top;
+    
+    // Adjust to prevent menu from going out of container bounds
+    const menuWidth = 240;
+    const menuHeight = token ? 290 : 340; // Approximate heights
+    
+    if (x + menuWidth > rect.width) {
+      x = rect.width - menuWidth - 10;
+    }
+    if (y + menuHeight > rect.height) {
+      y = rect.height - menuHeight - 10;
+    }
+    
+    x = Math.max(10, x);
+    y = Math.max(10, y);
+    
+    setContextMenu({
+      x,
+      y,
+      clientX,
+      clientY,
+      vx,
+      vy,
+      token
+    });
+  };
+
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+    const { x: vx, y: vy } = getVirtualCoords(clientX, clientY);
+    
+    // Check if right click was on a token
+    const token = findTokenAt(vx, vy);
+    openContextMenu(clientX, clientY, vx, vy, token);
+  };
+
+  const findTokenAt = (vx, vy) => {
+    return tokens.find(t => {
+      const radius = t.id === 'ball' ? 18 : 22; // virtual coordinate radius
+      return Math.hypot(t.x - vx, t.y - vy) < radius;
+    });
+  };
+
+  const spawnTokenAt = (role, teamColor, vx, vy) => {
+    const newToken = {
+      id: `token_${teamColor}_${Date.now()}`,
+      x: vx,
+      y: vy,
+      label: role,
+      team: teamColor,
+      name: `${teamColor.toUpperCase()} ${role}`
+    };
+    setTokens(prev => [...prev, newToken]);
+  };
+
   // Token Drag Event Handlers
   const handleTokenStartDrag = (e, token) => {
     e.stopPropagation();
+    // Only drag with left mouse button
+    if (e.button !== undefined && e.button !== 0) return;
+
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     const { x: touchX, y: touchY } = getVirtualCoords(clientX, clientY);
@@ -269,12 +452,35 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
       x: touchX - token.x,
       y: touchY - token.y
     };
+
+    // Long press timer for mobile devices on tokens
+    if (e.touches) {
+      isLongPress.current = false;
+      touchStartPos.current = { x: clientX, y: clientY };
+      if (touchTimeout.current) clearTimeout(touchTimeout.current);
+      touchTimeout.current = setTimeout(() => {
+        isLongPress.current = true;
+        setDraggedTokenId(null); // Cancel drag
+        openContextMenu(clientX, clientY, touchX, touchY, token);
+      }, 600);
+    }
   };
 
   const handleTokenMove = (e) => {
-    if (!draggedTokenId) return;
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    if (e.touches && touchTimeout.current) {
+      const dist = Math.hypot(clientX - touchStartPos.current.x, clientY - touchStartPos.current.y);
+      if (dist > 10) {
+        clearTimeout(touchTimeout.current);
+        touchTimeout.current = null;
+      }
+    }
+
+    if (isLongPress.current) return; // Don't drag if it was a long press
+
+    if (!draggedTokenId) return;
     const { x: touchX, y: touchY } = getVirtualCoords(clientX, clientY);
 
     const newX = touchX - dragOffset.current.x;
@@ -287,6 +493,15 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
   };
 
   const handleTokenEndDrag = () => {
+    if (touchTimeout.current) {
+      clearTimeout(touchTimeout.current);
+      touchTimeout.current = null;
+    }
+    if (isLongPress.current) {
+      isLongPress.current = false;
+      return;
+    }
+
     if (!draggedTokenId) return;
     
     const activeToken = tokens.find(t => t.id === draggedTokenId);
@@ -311,25 +526,20 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
   const handleTokenDoubleClick = (id) => {
     // Ball cannot be renamed
     if (id === 'ball') return;
-    const newLabel = prompt("Enter jersey number (max 3 characters):");
+    const token = tokens.find(t => t.id === id);
+    if (!token) return;
+    const newLabel = prompt("Enter position label (max 4 characters):", token.label);
     if (newLabel !== null) {
-      setTokens(tokens.map(t => t.id === id ? { ...t, label: newLabel.substring(0, 3) } : t));
+      setTokens(tokens.map(t => t.id === id ? { ...t, label: newLabel.substring(0, 4).toUpperCase() } : t));
     }
   };
 
-  // Spawn a generic token
-  const spawnGenericToken = (teamColor = 'white') => {
-    const teamTokens = tokens.filter(t => t.team === teamColor);
-    const nextNum = teamTokens.length + 1;
-    const newToken = {
-      id: `token_${teamColor}_${Date.now()}`,
-      x: 500, // Spawn at center
-      y: 300,
-      label: nextNum.toString(),
-      team: teamColor,
-      name: `Token ${nextNum}`
-    };
-    setTokens(prev => [...prev, newToken]);
+  // Helper for dynamic font sizes inside circles
+  const getTokenFontSize = (label) => {
+    if (!label) return '13px';
+    if (label.length <= 2) return '13px';
+    if (label.length === 3) return '11px';
+    return '9px';
   };
 
   // Clear all player tokens
@@ -355,6 +565,28 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
       setTokens(prev => [...prev, newBall]);
     }
   };
+
+  // Close menus/dropdowns on window level clicks
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (contextMenu && !e.target.closest('.tactics-context-menu')) {
+        setContextMenu(null);
+      }
+      if (whiteDropdownOpen && !e.target.closest('.tactics-toolbar-dropdown') && !e.target.closest('.white-player-btn')) {
+        setWhiteDropdownOpen(false);
+      }
+      if (blackDropdownOpen && !e.target.closest('.tactics-toolbar-dropdown') && !e.target.closest('.black-player-btn')) {
+        setBlackDropdownOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('touchstart', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+    };
+  }, [contextMenu, whiteDropdownOpen, blackDropdownOpen]);
 
   return (
     <div 
@@ -586,6 +818,7 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
         onTouchMove={handleTokenMove}
         onMouseUp={handleTokenEndDrag}
         onTouchEnd={handleTokenEndDrag}
+        onContextMenu={handleContextMenu}
         style={{
           position: 'relative',
           backgroundColor: '#1a3c34', // Deep matte non-reflective green
@@ -654,8 +887,8 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
                   left: `${(token.x / 1000) * 100}%`,
                   top: `${(token.y / 600) * 100}%`,
                   transform: 'translate(-50%, -50%)',
-                  width: '18px',
-                  height: '18px',
+                  width: '20px',
+                  height: '20px',
                   borderRadius: '50%',
                   backgroundColor: '#e65c00', // Sherrin Orange
                   border: '1.5px dashed #ffffff', // white stitches look
@@ -664,10 +897,10 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
                   userSelect: 'none',
                   transition: isDragging ? 'none' : 'transform 0.1s ease',
                   scale: isDragging ? '1.2' : '1',
-                  boxShadow: 'none',
+                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.4)',
                   touchAction: 'none' // Prevent browser scrolling and zooming
                 }}
-                title="Footy Ball Marker. Drag to move. Drag off-field to remove."
+                title="Footy Ball Marker. Drag to move. Right-click or drag off-field to remove."
               />
             );
           }
@@ -683,16 +916,16 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
                 left: `${(token.x / 1000) * 100}%`,
                 top: `${(token.y / 600) * 100}%`,
                 transform: 'translate(-50%, -50%)',
-                width: '30px',
-                height: '30px',
+                width: '34px',
+                height: '34px',
                 borderRadius: '50%',
                 backgroundColor: isWhite ? '#ffffff' : '#000000',
-                border: isWhite ? '1.5px solid #000000' : '1.5px solid #ffffff',
+                border: isWhite ? '2px solid #000000' : '2px solid #ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: isWhite ? '#000000' : '#ffffff',
-                fontSize: '0.75rem',
+                fontSize: getTokenFontSize(token.label),
                 fontWeight: '800',
                 cursor: isDragging ? 'grabbing' : 'grab',
                 zIndex: isDragging ? 100 : 10,
@@ -700,15 +933,225 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
                 fontFamily: 'var(--font-family-body)',
                 transition: isDragging ? 'none' : 'transform 0.1s ease',
                 scale: isDragging ? '1.15' : '1',
-                boxShadow: 'none',
+                boxShadow: isDragging ? '0 8px 16px rgba(0, 0, 0, 0.5)' : '0 4px 10px rgba(0, 0, 0, 0.4)',
                 touchAction: 'none' // Prevent browser scrolling and zooming
               }}
-              title="Drag off-field to remove. Double click to set label."
+              title="Drag off-field to remove. Right-click or long-press to edit."
             >
               {token.label}
             </div>
           );
         })}
+
+        {/* Canvas Context Menu Overlay */}
+        {contextMenu && (
+          <div 
+            className="tactics-context-menu"
+            style={{
+              position: 'absolute',
+              left: `${contextMenu.x}px`,
+              top: `${contextMenu.y}px`,
+              backgroundColor: 'rgba(28, 31, 38, 0.95)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              borderRadius: '12px',
+              padding: '12px',
+              zIndex: 1000,
+              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.6)',
+              width: '240px',
+              color: '#ffffff',
+              fontFamily: 'var(--font-family-body)',
+              userSelect: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}
+          >
+            {contextMenu.token ? (
+              // Token Modification Menu
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '6px' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', color: '#8d939e' }}>
+                    Edit Token ({contextMenu.token.label})
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
+                  <button
+                    onClick={() => {
+                      setTokens(prev => prev.filter(t => t.id !== contextMenu.token.id));
+                      setContextMenu(null);
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: '6px 10px',
+                      fontSize: '0.75rem',
+                      fontWeight: '700',
+                      backgroundColor: 'rgba(230, 57, 70, 0.15)',
+                      color: '#e63946',
+                      border: '1px solid rgba(230, 57, 70, 0.3)',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      textAlign: 'center',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(230, 57, 70, 0.25)'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(230, 57, 70, 0.15)'}
+                  >
+                    Delete
+                  </button>
+                  
+                  {contextMenu.token.id !== 'ball' && (
+                    <button
+                      onClick={() => {
+                        setTokens(prev => prev.map(t => t.id === contextMenu.token.id ? { ...t, team: t.team === 'white' ? 'black' : 'white' } : t));
+                        setContextMenu(null);
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '6px 10px',
+                        fontSize: '0.75rem',
+                        fontWeight: '700',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        color: '#ffffff',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
+                      onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'}
+                    >
+                      Team Color
+                    </button>
+                  )}
+                </div>
+
+                {contextMenu.token.id !== 'ball' && (
+                  <>
+                    <div style={{ fontSize: '0.7rem', fontWeight: '700', color: '#8d939e', marginTop: '6px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '6px' }}>
+                      Change Position
+                    </div>
+                    
+                    {Object.entries(AFL_POSITIONS).map(([key, zone]) => (
+                      <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', color: '#8d939e', marginTop: '2px' }}>
+                          {zone.title}
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                          {zone.roles.map(role => (
+                            <button
+                              key={role}
+                              onClick={() => {
+                                setTokens(prev => prev.map(t => t.id === contextMenu.token.id ? { ...t, label: role, name: `${t.team.toUpperCase()} ${role}` } : t));
+                                setContextMenu(null);
+                              }}
+                              style={{
+                                padding: '4px 6px',
+                                fontSize: '0.68rem',
+                                fontWeight: '700',
+                                backgroundColor: contextMenu.token.label === role ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                                border: contextMenu.token.label === role ? '1px solid #ffffff' : '1px solid rgba(255, 255, 255, 0.08)',
+                                borderRadius: '6px',
+                                color: '#ffffff',
+                                cursor: 'pointer',
+                                transition: 'background-color 0.2s',
+                                flex: '1 0 20%',
+                                textAlign: 'center'
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
+                              onMouseLeave={e => e.currentTarget.style.backgroundColor = contextMenu.token.label === role ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)'}
+                            >
+                              {role}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </>
+            ) : (
+              // Empty Space Spawn Menu
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '6px' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', color: '#8d939e' }}>Spawn Player</span>
+                  <div style={{ display: 'flex', gap: '4px', backgroundColor: 'rgba(0,0,0,0.2)', padding: '2px', borderRadius: '6px' }}>
+                    <button 
+                      onClick={() => setMenuTeam('white')}
+                      style={{
+                        fontSize: '0.7rem',
+                        fontWeight: '700',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        backgroundColor: menuTeam === 'white' ? '#ffffff' : 'transparent',
+                        color: menuTeam === 'white' ? '#000000' : '#8d939e',
+                        transition: 'background-color 0.2s, color 0.2s'
+                      }}
+                    >
+                      White
+                    </button>
+                    <button 
+                      onClick={() => setMenuTeam('black')}
+                      style={{
+                        fontSize: '0.7rem',
+                        fontWeight: '700',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        backgroundColor: menuTeam === 'black' ? '#ffffff' : 'transparent',
+                        color: menuTeam === 'black' ? '#000000' : '#8d939e',
+                        transition: 'background-color 0.2s, color 0.2s'
+                      }}
+                    >
+                      Black
+                    </button>
+                  </div>
+                </div>
+
+                {Object.entries(AFL_POSITIONS).map(([key, zone]) => (
+                  <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{ fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', color: '#8d939e', marginTop: '4px' }}>
+                      {zone.title}
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                      {zone.roles.map(role => (
+                        <button
+                          key={role}
+                          onClick={() => {
+                            spawnTokenAt(role, menuTeam, contextMenu.vx, contextMenu.vy);
+                            setContextMenu(null);
+                          }}
+                          style={{
+                            padding: '4px 6px',
+                            fontSize: '0.68rem',
+                            fontWeight: '700',
+                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            borderRadius: '6px',
+                            color: '#ffffff',
+                            cursor: 'pointer',
+                            transition: 'background-color 0.2s',
+                            flex: '1 0 20%',
+                            textAlign: 'center'
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
+                          onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'}
+                        >
+                          {role}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 2. Token Spawner Bar at the bottom */}
@@ -724,57 +1167,223 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
           gap: '12px',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
           userSelect: 'none',
-          flexShrink: 0
+          flexShrink: 0,
+          position: 'relative'
         }}
       >
         <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
           Spawn:
         </span>
-        <button
-          onClick={() => spawnGenericToken('white')}
-          style={{
-            padding: '6px 14px',
-            fontSize: '0.75rem',
-            fontFamily: 'var(--font-family-locker)',
-            fontWeight: '700',
-            textTransform: 'uppercase',
-            backgroundColor: '#ffffff',
-            color: '#000000',
-            border: 'none',
-            borderRadius: '12px',
-            cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(255,255,255,0.1)',
-            transition: 'transform 0.1s, opacity 0.2s'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-        >
-          + White Token
-        </button>
-        <button
-          onClick={() => spawnGenericToken('black')}
-          style={{
-            padding: '6px 14px',
-            fontSize: '0.75rem',
-            fontFamily: 'var(--font-family-locker)',
-            fontWeight: '700',
-            textTransform: 'uppercase',
-            backgroundColor: '#000000',
-            color: '#ffffff',
-            border: '1px solid rgba(255,255,255,0.2)',
-            borderRadius: '12px',
-            cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
-            transition: 'transform 0.1s, opacity 0.2s'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-        >
-          + Black Token
-        </button>
+        
+        {/* White Team Spawner Dropdown */}
+        <div style={{ position: 'relative' }}>
+          <button
+            className="white-player-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              setWhiteDropdownOpen(!whiteDropdownOpen);
+              setBlackDropdownOpen(false);
+            }}
+            style={{
+              padding: '6px 14px',
+              fontSize: '0.75rem',
+              fontFamily: 'var(--font-family-locker)',
+              fontWeight: '700',
+              textTransform: 'uppercase',
+              backgroundColor: '#ffffff',
+              color: '#000000',
+              border: 'none',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(255,255,255,0.1)',
+              transition: 'transform 0.1s, opacity 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            + White Player
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <path d="M18 15l-6-6-6 6" transform={whiteDropdownOpen ? "" : "rotate(180 12 12)"} />
+            </svg>
+          </button>
+          
+          {whiteDropdownOpen && (
+            <div 
+              className="tactics-toolbar-dropdown"
+              style={{
+                position: 'absolute',
+                bottom: '100%',
+                left: '0',
+                marginBottom: '8px',
+                backgroundColor: 'rgba(28, 31, 38, 0.95)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                borderRadius: '12px',
+                padding: '12px',
+                zIndex: 1000,
+                boxShadow: '0 -8px 24px rgba(0, 0, 0, 0.5)',
+                width: '220px',
+                color: '#ffffff',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}
+            >
+              {Object.entries(AFL_POSITIONS).map(([key, zone]) => (
+                <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', color: '#8d939e' }}>
+                    {zone.title}
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                    {zone.roles.map(role => (
+                      <button
+                        key={role}
+                        onClick={() => {
+                          spawnTokenAt(role, 'white', 500 + (Math.random() * 20 - 10), 300 + (Math.random() * 20 - 10));
+                          setWhiteDropdownOpen(false);
+                        }}
+                        style={{
+                          padding: '4px 6px',
+                          fontSize: '0.68rem',
+                          fontWeight: '700',
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
+                          borderRadius: '6px',
+                          color: '#ffffff',
+                          cursor: 'pointer',
+                          flex: '1 0 20%',
+                          textAlign: 'center'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'}
+                      >
+                        {role}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Black Team Spawner Dropdown */}
+        <div style={{ position: 'relative' }}>
+          <button
+            className="black-player-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              setBlackDropdownOpen(!blackDropdownOpen);
+              setWhiteDropdownOpen(false);
+            }}
+            style={{
+              padding: '6px 14px',
+              fontSize: '0.75rem',
+              fontFamily: 'var(--font-family-locker)',
+              fontWeight: '700',
+              textTransform: 'uppercase',
+              backgroundColor: '#000000',
+              color: '#ffffff',
+              border: '1px solid rgba(255,255,255,0.2)',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+              transition: 'transform 0.1s, opacity 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            + Black Player
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <path d="M18 15l-6-6-6 6" transform={blackDropdownOpen ? "" : "rotate(180 12 12)"} />
+            </svg>
+          </button>
+          
+          {blackDropdownOpen && (
+            <div 
+              className="tactics-toolbar-dropdown"
+              style={{
+                position: 'absolute',
+                bottom: '100%',
+                left: '0',
+                marginBottom: '8px',
+                backgroundColor: 'rgba(28, 31, 38, 0.95)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                borderRadius: '12px',
+                padding: '12px',
+                zIndex: 1000,
+                boxShadow: '0 -8px 24px rgba(0, 0, 0, 0.5)',
+                width: '220px',
+                color: '#ffffff',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}
+            >
+              {Object.entries(AFL_POSITIONS).map(([key, zone]) => (
+                <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', color: '#8d939e' }}>
+                    {zone.title}
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                    {zone.roles.map(role => (
+                      <button
+                        key={role}
+                        onClick={() => {
+                          spawnTokenAt(role, 'black', 500 + (Math.random() * 20 - 10), 300 + (Math.random() * 20 - 10));
+                          setBlackDropdownOpen(false);
+                        }}
+                        style={{
+                          padding: '4px 6px',
+                          fontSize: '0.68rem',
+                          fontWeight: '700',
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
+                          borderRadius: '6px',
+                          color: '#ffffff',
+                          cursor: 'pointer',
+                          flex: '1 0 20%',
+                          textAlign: 'center'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'}
+                      >
+                        {role}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         
         <div style={{ width: '1px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }}></div>
         
+        <button
+          onClick={() => setTokens(getDefaultTokens())}
+          style={{
+            padding: '6px 14px',
+            fontSize: '0.75rem',
+            fontFamily: 'var(--font-family-locker)',
+            fontWeight: '700',
+            textTransform: 'uppercase',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            color: '#ffffff',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '12px',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s, color 0.2s'
+          }}
+          onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
+          onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'}
+        >
+          Reset Layout
+        </button>
+
         <button
           onClick={clearTokens}
           style={{
@@ -793,12 +1402,12 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
           onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
           onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
         >
-          Clear Tokens
+          Clear Board
         </button>
       </div>
       
       <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '-4px', marginBottom: '0' }}>
-        💡 Tap white/black buttons to spawn generic tokens. Drag tokens anywhere. Drag off-field to remove. Double-click a token to rename it.
+        💡 Right-click (or long-press) on the field to spawn standard AFL positions. Right-click any token to edit/delete. Drag off-field to remove. Double-click to rename.
       </p>
     </div>
   );
