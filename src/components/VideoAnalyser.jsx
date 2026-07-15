@@ -237,6 +237,15 @@ export default function VideoAnalyser({
       video.play();
       setIsFrozen(false);
       clearCanvas();
+
+      // Reset canvas style layout to cover container
+      const canvas = canvasRef.current;
+      if (canvas) {
+        canvas.style.left = '0px';
+        canvas.style.top = '0px';
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+      }
     } else {
       // Freeze (pause video & activate drawing overlay)
       video.pause();
@@ -251,13 +260,57 @@ export default function VideoAnalyser({
   // Canvas drawings resizing with High-DPI support
   const resizeCanvas = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
+    const video = videoRef.current;
+    const container = canvasContainerRef.current;
+    if (!canvas || !video || !container) return;
+
+    // Get container dimensions
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+    
+    // Get video natural dimensions
+    const videoWidth = video.videoWidth || 16;
+    const videoHeight = video.videoHeight || 9;
+
+    const containerRatio = containerWidth / containerHeight;
+    const videoRatio = videoWidth / videoHeight;
+
+    let w = containerWidth;
+    let h = containerHeight;
+    let l = 0;
+    let t = 0;
+
+    if (videoRatio > containerRatio) {
+      // Video is wider than container: letterbox top/bottom
+      h = containerWidth / videoRatio;
+      t = (containerHeight - h) / 2;
+    } else {
+      // Video is taller than container: pillarbox left/right
+      w = containerHeight * videoRatio;
+      l = (containerWidth - w) / 2;
+    }
+
+    // Set canvas CSS styles to match the visible video bounding rect exactly
+    canvas.style.left = `${l}px`;
+    canvas.style.top = `${t}px`;
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+
+    // Set internal resolution with High-DPI support
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+
     redrawCanvas();
   };
+
+  // Listen for window resize to maintain canvas scale alignment
+  useEffect(() => {
+    window.addEventListener('resize', resizeCanvas);
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+    };
+  }, []);
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
@@ -1408,6 +1461,7 @@ export default function VideoAnalyser({
                 src={activeClip.videoUrl}
                 controls={!isFrozen} // hide native controls when frozen
                 style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                onLoadedMetadata={() => resizeCanvas()}
                 onError={(e) => {
                   if (videoRef.current && videoRef.current.src !== 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4') {
                     videoRef.current.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4';
