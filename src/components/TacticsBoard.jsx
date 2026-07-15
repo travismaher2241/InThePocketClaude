@@ -603,9 +603,13 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <h2 className="scoreboard-font" style={{ color: 'var(--color-tactics)', margin: 0 }}>Tactics Board</h2>
         
-        {/* High-End Hardware Control Strip at top (monochrome style) */}
-        <div 
-          className="tactics-toolbar"
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', maxWidth: '100%', flex: '1 1 auto', justifyContent: 'flex-end', minWidth: 0 }}>
+          <span style={{ fontSize: '11px', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em', flexShrink: 0 }}>
+            Tools (swipe to see more):
+          </span>
+          {/* High-End Hardware Control Strip at top (monochrome style) */}
+          <div 
+            className="tactics-toolbar"
           style={{ 
             display: 'flex', 
             gap: '8px', 
@@ -808,6 +812,7 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
           >
             Clear
           </button>
+        </div>
         </div>
       </div>
 
