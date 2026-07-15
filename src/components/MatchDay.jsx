@@ -55,7 +55,20 @@ export default function MatchDay({
   onEditPlayer
 }) {
   // Map positions to player IDs. Default: first 22 players to active slots, rest on bench
-  const [fieldAssignments, setFieldAssignments] = useState({});
+  const [fieldAssignments, setFieldAssignments] = useState(() => {
+    const saved = localStorage.getItem('inthepocket_field_assignments');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {}
+    }
+    return {};
+  });
+
+  // Sync fieldAssignments state to LocalStorage
+  useEffect(() => {
+    localStorage.setItem('inthepocket_field_assignments', JSON.stringify(fieldAssignments));
+  }, [fieldAssignments]);
 
   // Video upload states
   const [taggingModalOpen, setTaggingModalOpen] = useState(false);
@@ -105,6 +118,64 @@ export default function MatchDay({
 
   // Mobile Tap-To-Swap state helper
   const [selectedBenchId, setSelectedBenchId] = useState(null);
+
+  // Direct Player Slot Assignment state
+  const [activeSelectSlotId, setActiveSelectSlotId] = useState(null);
+
+  // Lock body scroll when activeSelectSlotId is open
+  useEffect(() => {
+    if (activeSelectSlotId) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [activeSelectSlotId]);
+
+  // Handler for direct assignment & swapping inside inline selector
+  const handleAssignPlayerToSlot = (playerId, slotId) => {
+    if (!slotId) return;
+    
+    const pos = FIELD_POSITIONS.find(p => p.id === slotId);
+    if (!pos) return;
+
+    const currentAssignedId = fieldAssignments[slotId];
+    
+    // Swap/displacement: if slot occupied, return previous player to bench
+    if (currentAssignedId && currentAssignedId !== playerId) {
+      onEditPlayer && onEditPlayer(currentAssignedId, { position: 'Bench' });
+    }
+
+    if (playerId) {
+      // Assign new player to slot
+      onEditPlayer && onEditPlayer(playerId, { position: pos.code });
+      
+      setFieldAssignments(prev => {
+        const next = { ...prev };
+        // If the player was previously in another slot, clear that slot
+        const previousSlotId = Object.keys(next).find(key => next[key] === playerId);
+        if (previousSlotId && previousSlotId !== slotId) {
+          next[previousSlotId] = null;
+        }
+        next[slotId] = playerId;
+        return next;
+      });
+    } else {
+      // Remove player
+      if (currentAssignedId) {
+        onEditPlayer && onEditPlayer(currentAssignedId, { position: 'Bench' });
+      }
+      setFieldAssignments(prev => {
+        const next = { ...prev };
+        next[slotId] = null;
+        return next;
+      });
+    }
+
+    setActiveSelectSlotId(null);
+  };
 
   // Match Day Squad Selector states
   const [activeMatchDayIds, setActiveMatchDayIds] = useState(() => {
@@ -163,6 +234,9 @@ export default function MatchDay({
   const handleClearAllMatchDay = () => {
     setActiveMatchDayIds([]);
     setFieldAssignments({});
+    squad.forEach(p => {
+      onEditPlayer && onEditPlayer(p.id, { position: 'Bench' });
+    });
   };
 
   // Initialize roster assignments
@@ -171,7 +245,9 @@ export default function MatchDay({
       const initialField = {};
       squad.forEach((player, idx) => {
         if (idx < ALL_SLOTS.length) {
-          initialField[ALL_SLOTS[idx].id] = player.id;
+          const slot = ALL_SLOTS[idx];
+          initialField[slot.id] = player.id;
+          onEditPlayer && onEditPlayer(player.id, { position: slot.code });
         }
       });
       setFieldAssignments(initialField);
@@ -338,14 +414,37 @@ export default function MatchDay({
     if (!incomingId || !targetSlotId) return;
 
     const outgoingId = fieldAssignments[targetSlotId];
+    const pos = FIELD_POSITIONS.find(p => p.id === targetSlotId);
     
     setFieldAssignments(prev => {
       const next = { ...prev };
       const previousSlotId = Object.keys(next).find(key => next[key] === incomingId);
+      
+      const squadUpdates = [];
       if (previousSlotId) {
+        // incoming was on field, outgoing goes to previousSlotId
         next[previousSlotId] = outgoingId || null;
+        if (outgoingId) {
+          const otherPos = FIELD_POSITIONS.find(p => p.id === previousSlotId);
+          squadUpdates.push({ id: outgoingId, position: otherPos ? otherPos.code : 'Bench' });
+        }
+      } else {
+        // incoming was on bench, outgoing goes to bench
+        if (outgoingId) {
+          squadUpdates.push({ id: outgoingId, position: 'Bench' });
+        }
       }
+      
       next[targetSlotId] = incomingId;
+      if (pos) {
+        squadUpdates.push({ id: incomingId, position: pos.code });
+      }
+
+      // Execute squad updates to sync with inthepocket_squad localStorage
+      squadUpdates.forEach(u => {
+        onEditPlayer && onEditPlayer(u.id, { position: u.position });
+      });
+
       return next;
     });
 
@@ -407,6 +506,7 @@ export default function MatchDay({
       if (previousSlotId) {
         next[previousSlotId] = null;
       }
+      onEditPlayer && onEditPlayer(incomingId, { position: 'Bench' });
       return next;
     });
 
@@ -462,6 +562,7 @@ export default function MatchDay({
           if (previousSlotId) {
             next[previousSlotId] = null;
           }
+          onEditPlayer && onEditPlayer(selectedBenchId, { position: 'Bench' });
           return next;
         });
 
@@ -972,11 +1073,12 @@ export default function MatchDay({
                   const isSelected = selectedBenchId === assignedPlayerId && assignedPlayerId !== undefined;
 
                   return (
-                    <div 
+                    <button 
                       key={posId}
+                      type="button"
                       onDragOver={handleDragOver}
                       onDrop={(e) => handleDrop(e, posId)}
-                      onClick={() => handleSlotTap(posId)}
+                      onClick={() => setActiveSelectSlotId(posId)}
                       className={warningClass}
                       style={{ 
                         backgroundColor: isSelected ? 'rgba(255,183,3,0.15)' : 'rgba(0, 0, 0, 0.4)', 
@@ -990,7 +1092,11 @@ export default function MatchDay({
                         flexDirection: 'column',
                         justifyContent: 'space-between',
                         minHeight: '68px',
-                        userSelect: 'none'
+                        userSelect: 'none',
+                        width: '100%',
+                        outline: 'none',
+                        color: 'inherit',
+                        lineHeight: 'normal'
                       }}
                     >
                       {/* Position Code */}
@@ -1033,7 +1139,7 @@ export default function MatchDay({
                           VACANT
                         </div>
                       )}
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -1191,6 +1297,129 @@ export default function MatchDay({
           animation: flash-red 0.8s infinite;
         }
       `}</style>
+
+      {/* Viewport-Centered Inline Player Selector Modal */}
+      {activeSelectSlotId && (() => {
+        const pos = FIELD_POSITIONS.find(p => p.id === activeSelectSlotId);
+        const currentAssignedId = fieldAssignments[activeSelectSlotId];
+        const currentAssignedPlayer = squad.find(p => p.id === currentAssignedId);
+
+        return (
+          <div 
+            className="player-info-backdrop" 
+            style={{ zIndex: 9999 }} 
+            onClick={() => setActiveSelectSlotId(null)}
+          >
+            <div 
+              className="player-info-modal" 
+              style={{ maxWidth: '380px' }} 
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <h3 className="scoreboard-font" style={{ color: 'var(--color-match)', margin: 0, fontSize: '1.1rem' }}>
+                  Assign: {pos?.name} ({pos?.code})
+                </h3>
+                <button 
+                  className="icon-btn" 
+                  onClick={() => setActiveSelectSlotId(null)}
+                >
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+              
+              <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', maxHeight: '70vh' }}>
+                {currentAssignedPlayer && (
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => handleAssignPlayerToSlot(null, activeSelectSlotId)}
+                    style={{
+                      width: '100%',
+                      backgroundColor: 'rgba(230, 57, 70, 0.15)',
+                      borderColor: '#e63946',
+                      color: '#e63946',
+                      fontWeight: '700',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Remove Player ({currentAssignedPlayer.name})
+                  </button>
+                )}
+
+                <span style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600', display: 'block', marginBottom: '4px' }}>
+                  Select Player:
+                </span>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', maxHeight: '50vh' }}>
+                  {squad.map(player => {
+                    const isAssignedElsewhere = Object.values(fieldAssignments).includes(player.id) && player.id !== currentAssignedId;
+                    const isAssignedHere = player.id === currentAssignedId;
+                    
+                    let statusLabel = 'Unassigned';
+                    let statusColor = '#8d939e';
+                    
+                    if (isAssignedHere) {
+                      statusLabel = `Active (${pos?.code})`;
+                      statusColor = 'var(--color-match)';
+                    } else if (isAssignedElsewhere) {
+                      const otherSlotId = Object.keys(fieldAssignments).find(key => fieldAssignments[key] === player.id);
+                      const otherPos = FIELD_POSITIONS.find(p => p.id === otherSlotId);
+                      statusLabel = `On Field (${otherPos?.code || 'Field'})`;
+                      statusColor = '#2a9d8f';
+                    } else if (benchPlayerIds.includes(player.id)) {
+                      statusLabel = 'On Bench';
+                      statusColor = '#f39c12';
+                    }
+
+                    return (
+                      <div
+                        key={player.id}
+                        onClick={() => handleAssignPlayerToSlot(player.id, activeSelectSlotId)}
+                        style={{
+                          backgroundColor: isAssignedHere ? 'rgba(255, 183, 3, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                          border: '1px solid',
+                          borderColor: isAssignedHere ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.05)',
+                          padding: '10px 12px',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--color-match)';
+                          e.currentTarget.style.backgroundColor = 'rgba(255, 183, 3, 0.04)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = isAssignedHere ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.05)';
+                          e.currentTarget.style.backgroundColor = isAssignedHere ? 'rgba(255, 183, 3, 0.08)' : 'rgba(255, 255, 255, 0.02)';
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span className="scoreboard-font" style={{ color: 'var(--color-match)', fontWeight: '700', fontSize: '0.85rem' }}>
+                            #{player.jersey}
+                          </span>
+                          <span style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '600' }}>
+                            {player.name}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '0.7rem', color: statusColor, fontWeight: '700', textTransform: 'uppercase' }}>
+                          {statusLabel}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
     </div>
   );
