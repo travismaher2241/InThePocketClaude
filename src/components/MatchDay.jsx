@@ -594,28 +594,39 @@ export default function MatchDay({
               </svg>
             </button>
 
-            {/* Quarter select dropdown */}
-            <select 
-              value={period} 
-              onChange={(e) => setPeriod(Number(e.target.value))} 
-              style={{ 
-                width: '50px', 
-                padding: '0 4px', 
-                fontSize: '0.7rem', 
-                height: '18px', 
-                backgroundColor: 'rgba(255,255,255,0.03)', 
-                border: '1px solid rgba(255,255,255,0.08)',
-                color: '#8d939e',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontFamily: 'var(--font-family-locker)'
-              }}
-            >
-              <option value="1">1ST</option>
-              <option value="2">2ND</option>
-              <option value="3">3RD</option>
-              <option value="4">4TH</option>
-            </select>
+            {/* Quarter select button group */}
+            <div style={{ display: 'flex', gap: '4px', alignItems: 'center', flexShrink: 0 }}>
+              {[1, 2, 3, 4].map((q) => {
+                const isActive = period === q;
+                return (
+                  <button
+                    key={q}
+                    type="button"
+                    onClick={() => setPeriod(q)}
+                    style={{
+                      padding: '2px 6px',
+                      fontSize: '0.7rem',
+                      fontFamily: 'var(--font-family-locker)',
+                      fontWeight: '700',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      border: '1px solid',
+                      borderColor: isActive ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.1)',
+                      backgroundColor: isActive ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.03)',
+                      color: isActive ? '#000000' : '#8d939e',
+                      transition: 'all 0.15s ease',
+                      flexShrink: 0,
+                      height: '18px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    Q{q}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
