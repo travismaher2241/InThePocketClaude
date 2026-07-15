@@ -261,6 +261,44 @@ export default function TrainingLab({
     return ['Skills and Ball Handling'];
   });
 
+  const [equipment, setEquipment] = useState(() => {
+    if (draft?.equipment) {
+      return draft.equipment;
+    }
+    return {
+      cones: 0,
+      footballs: 0,
+      tackleMats: 0,
+      agilityPoles: 0,
+      bibs: 0
+    };
+  });
+
+  const handleEquipmentChange = (field, val) => {
+    let parsed = parseInt(val, 10);
+    if (isNaN(parsed) || parsed < 0) {
+      parsed = 0;
+    }
+    setEquipment(prev => ({
+      ...prev,
+      [field]: parsed
+    }));
+  };
+
+  const handleIncrementEquipment = (field) => {
+    setEquipment(prev => ({
+      ...prev,
+      [field]: (prev[field] || 0) + 1
+    }));
+  };
+
+  const handleDecrementEquipment = (field) => {
+    setEquipment(prev => ({
+      ...prev,
+      [field]: Math.max(0, (prev[field] || 0) - 1)
+    }));
+  };
+
   const totalPlayersCount = presentIds.length;
   const group1 = Math.floor(totalPlayersCount / 2);
   const group2 = totalPlayersCount - group1;
@@ -317,9 +355,10 @@ export default function TrainingLab({
       duration,
       focusAreas,
       customPlaybookText,
-      planCards
+      planCards,
+      equipment
     }));
-  }, [step, presentIds, duration, focusAreas, customPlaybookText, planCards]);
+  }, [step, presentIds, duration, focusAreas, customPlaybookText, planCards, equipment]);
 
   const clearDraft = () => {
     localStorage.removeItem('inthepocket_training_draft');
@@ -327,6 +366,7 @@ export default function TrainingLab({
     setPresentIds([]);
     setDuration(60);
     setFocusAreas(['Skills and Ball Handling']);
+    setEquipment({ cones: 0, footballs: 0, tackleMats: 0, agilityPoles: 0, bibs: 0 });
     setCustomPlaybookText('');
     setPlanCards([]);
   };
@@ -521,6 +561,14 @@ ${stationPromptRules}
 ${injectedDrillsText}${injectedSSGsText}
 ${lastPreGameNegativePrompt}
 
+7. Physical Resource & Equipment Constraints (You MUST design all drills to fit strictly within the coach's available equipment. If a count is 0, do not use that type of equipment in any of the drills. Design setups that use no more than the available quantities):
+   Available Equipment Inventory:
+   - Cones: ${equipment.cones}
+   - Footballs: ${equipment.footballs}
+   - Tackle Mats / Bags: ${equipment.tackleMats}
+   - Agility Poles: ${equipment.agilityPoles}
+   - Bibs / Pinnies: ${equipment.bibs}
+
 CRITICAL DEDUPLICATION RULE: You are generating a complete session plan. You must not repeat any drill, activity, or scenario. Every single station and quarter must contain a uniquely named drill. Cross-check your output before finalizing; if a drill title appears twice (e.g., repeating the warm-up in a station rotation, or repeating a station A drill in station B), you MUST replace the duplicate with a new, distinct drill from the database. All segments and concurrent stations (Station A and Station B) must be completely unique.
 
 Create a training plan for ${duration} minutes, specifically for ${playerCount} players. The players belong to the "${ageGroup}" age group level. 
@@ -584,7 +632,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
               if (userTierClean === 'free' || userTierClean === 'default') {
                 setAiGensUsed(prev => prev + 1);
               }
-              logSyncTransaction('GEMINI_API_PLAN_GEN', { focus: focusAreas.join(", "), duration, playerCount });
+              logSyncTransaction('GEMINI_API_PLAN_GEN', { focus: focusAreas.join(", "), duration, playerCount, equipment });
               return;
             }
           } catch (jsonErr) {
@@ -795,7 +843,7 @@ COACH'S LOGISTICS SUMMARY
       if (userTierClean === 'free' || userTierClean === 'default') {
         setAiGensUsed(prev => prev + 1);
       }
-      logSyncTransaction('LOCAL_FALLBACK_PLAN_GEN', { focus: focusAreas.join(", "), duration, playerCount });
+      logSyncTransaction('LOCAL_FALLBACK_PLAN_GEN', { focus: focusAreas.join(", "), duration, playerCount, equipment });
     }, 1500);
   };
 
@@ -817,12 +865,13 @@ COACH'S LOGISTICS SUMMARY
       focusAreas: focusAreas,
       drills: planCards,
       notes: coachNotes,
-      playerCount: presentIds.length
+      playerCount: presentIds.length,
+      equipment: equipment
     };
 
     try {
       await saveTrainingSession(sessionData, currentUser.uid);
-      logSyncTransaction('TRAINING_SESSION_COMPLETED', { focus: focusAreas.join(", "), duration });
+      logSyncTransaction('TRAINING_SESSION_COMPLETED', { focus: focusAreas.join(", "), duration, equipment });
       clearDraft();
       setShowEndSessionModal(false);
       setCoachNotes('');
@@ -1392,6 +1441,363 @@ COACH'S LOGISTICS SUMMARY
                 <option value="90">90 Minutes</option>
                 <option value="120">120 Minutes</option>
               </select>
+            </div>
+
+            <div className="form-group" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '15px' }}>
+              <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+                AVAILABLE EQUIPMENT
+              </label>
+              <div 
+                style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', 
+                  gap: '12px', 
+                  backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(255, 255, 255, 0.05)'
+                }}
+              >
+                {/* Cones */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Cones</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleDecrementEquipment('cones')}
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '1rem',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'background-color 0.1s'
+                      }}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min="0"
+                      value={equipment.cones}
+                      onChange={(e) => handleEquipmentChange('cones', e.target.value)}
+                      style={{
+                        width: '50px',
+                        height: '28px',
+                        textAlign: 'center',
+                        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '0.85rem',
+                        padding: '0',
+                        margin: '0',
+                        MozAppearance: 'textfield'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleIncrementEquipment('cones')}
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '1rem',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'background-color 0.1s'
+                      }}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Footballs */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Footballs</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleDecrementEquipment('footballs')}
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '1rem',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'background-color 0.1s'
+                      }}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min="0"
+                      value={equipment.footballs}
+                      onChange={(e) => handleEquipmentChange('footballs', e.target.value)}
+                      style={{
+                        width: '50px',
+                        height: '28px',
+                        textAlign: 'center',
+                        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '0.85rem',
+                        padding: '0',
+                        margin: '0',
+                        MozAppearance: 'textfield'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleIncrementEquipment('footballs')}
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '1rem',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'background-color 0.1s'
+                      }}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Tackle Mats / Bags */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Tackle Mats / Bags</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleDecrementEquipment('tackleMats')}
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '1rem',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'background-color 0.1s'
+                      }}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min="0"
+                      value={equipment.tackleMats}
+                      onChange={(e) => handleEquipmentChange('tackleMats', e.target.value)}
+                      style={{
+                        width: '50px',
+                        height: '28px',
+                        textAlign: 'center',
+                        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '0.85rem',
+                        padding: '0',
+                        margin: '0',
+                        MozAppearance: 'textfield'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleIncrementEquipment('tackleMats')}
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '1rem',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'background-color 0.1s'
+                      }}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Agility Poles */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Agility Poles</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleDecrementEquipment('agilityPoles')}
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '1rem',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'background-color 0.1s'
+                      }}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min="0"
+                      value={equipment.agilityPoles}
+                      onChange={(e) => handleEquipmentChange('agilityPoles', e.target.value)}
+                      style={{
+                        width: '50px',
+                        height: '28px',
+                        textAlign: 'center',
+                        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '0.85rem',
+                        padding: '0',
+                        margin: '0',
+                        MozAppearance: 'textfield'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleIncrementEquipment('agilityPoles')}
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '1rem',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'background-color 0.1s'
+                      }}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Bibs / Pinnies */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Bibs / Pinnies</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleDecrementEquipment('bibs')}
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '1rem',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'background-color 0.1s'
+                      }}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min="0"
+                      value={equipment.bibs}
+                      onChange={(e) => handleEquipmentChange('bibs', e.target.value)}
+                      style={{
+                        width: '50px',
+                        height: '28px',
+                        textAlign: 'center',
+                        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '0.85rem',
+                        padding: '0',
+                        margin: '0',
+                        MozAppearance: 'textfield'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleIncrementEquipment('bibs')}
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '1rem',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'background-color 0.1s'
+                      }}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="form-group">
