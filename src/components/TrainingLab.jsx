@@ -1447,9 +1447,23 @@ COACH'S LOGISTICS SUMMARY
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="form-group">
               <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>Age Group</label>
-              <select value={ageGroup} disabled style={{ backgroundColor: 'rgba(255,255,255,0.03)', opacity: 0.8, cursor: 'not-allowed' }}>
-                <option value={ageGroup}>{ageGroup}</option>
-              </select>
+              <div 
+                style={{ 
+                  backgroundColor: 'rgba(255,255,255,0.03)', 
+                  border: '1px solid var(--border-light)',
+                  color: 'var(--text-primary)',
+                  padding: '10px 14px',
+                  borderRadius: '6px',
+                  fontFamily: 'inherit',
+                  fontSize: '0.9rem',
+                  width: '100%',
+                  opacity: 0.8, 
+                  cursor: 'not-allowed',
+                  boxSizing: 'border-box'
+                }}
+              >
+                {ageGroup}
+              </div>
               <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
                 To customize the age group target, click the In The Pocket logo in the top-left to update squad settings.
               </p>
