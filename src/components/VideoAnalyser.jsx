@@ -112,8 +112,8 @@ export default function VideoAnalyser({
       fileName: file.name,
       date: new Date().toISOString().split('T')[0],
       drillName: file.name.substring(0, file.name.lastIndexOf('.')) || file.name,
-      playerIds: [], // Empty -> Pending Tagging
-      isPending: true,
+      playerIds: [], // optional player-tag configuration array
+      isPending: false, // bypass pending state immediately
       drawings: []
     }));
 
@@ -141,24 +141,13 @@ export default function VideoAnalyser({
   };
 
   const handleClipClick = (clip) => {
-    if (clip.isPending || clip.playerIds.length === 0) {
-      setTaggingClip(clip);
-      setTaggingModalOpen(true);
-    } else {
-      setActiveClip(clip);
-    }
+    setActiveClip(clip);
   };
 
   // If a clip is selected globally (e.g. from player profile), load it immediately
   useEffect(() => {
     if (selectedReviewClip) {
-      // If it has no tags, show modal first, otherwise activate
-      if (selectedReviewClip.isPending || selectedReviewClip.playerIds.length === 0) {
-        setTaggingClip(selectedReviewClip);
-        setTaggingModalOpen(true);
-      } else {
-        setActiveClip(selectedReviewClip);
-      }
+      setActiveClip(selectedReviewClip);
       setSelectedReviewClip(null);
     }
   }, [selectedReviewClip]);
@@ -1106,7 +1095,7 @@ export default function VideoAnalyser({
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <span style={{ fontSize: '0.75rem', color: '#e63946', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#e63946', display: 'inline-block' }} />
-                  Ingestion Inbox (Pending Tagging: {pendingClips.length})
+                  NEWLY IMPORTED VISION: ({pendingClips.length})
                 </span>
 
                 {pendingClips.length === 0 ? (
@@ -1119,7 +1108,7 @@ export default function VideoAnalyser({
                     fontSize: '0.8rem',
                     backgroundColor: 'rgba(255, 255, 255, 0.01)'
                   }}>
-                    Inbox clear. All clips are tagged and registered.
+                    No pending clips. All imported vision is ready in the library.
                   </div>
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }} className="video-directory-grid">
@@ -1149,7 +1138,7 @@ export default function VideoAnalyser({
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <span className="scoreboard-font" style={{ fontSize: '0.75rem', fontWeight: '700', color: '#e63946' }}>
-                            PENDING TAGS
+                            READY FOR REVIEW
                           </span>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '0.75rem', color: '#8d939e' }}>{clip.date}</span>
@@ -1180,7 +1169,7 @@ export default function VideoAnalyser({
                           {clip.drillName}
                         </div>
                         <span style={{ fontSize: '0.75rem', color: '#8d939e', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          ⚠️ Click here to tag players & categorize drill
+                          Click here to open clip and add visual annotations
                         </span>
                       </div>
                     ))}
@@ -1192,7 +1181,7 @@ export default function VideoAnalyser({
 
           {/* 3. Analysis Video Library (Tagged) */}
           {(() => {
-            const taggedClips = videoClips.filter(c => !c.isPending && c.playerIds.length > 0);
+            const taggedClips = videoClips.filter(c => !c.isPending);
             return (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
                 <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
@@ -1208,7 +1197,7 @@ export default function VideoAnalyser({
                     color: 'var(--text-muted)',
                     fontSize: '0.85rem'
                   }}>
-                    No tagged clips available. Tag pending segments to construct your review playlist.
+                    No clips active in your library. Import new match vision above to start your review.
                   </div>
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }} className="video-directory-grid">
