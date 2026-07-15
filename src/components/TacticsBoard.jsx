@@ -1160,18 +1160,22 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
           backgroundColor: '#1c1f26',
           border: '1px solid rgba(255, 255, 255, 0.05)',
           borderRadius: '16px',
-          padding: '10px 16px',
+          padding: '10px 12px',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          gap: '12px',
+          gap: '8px',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
           userSelect: 'none',
           flexShrink: 0,
-          position: 'relative'
+          position: 'relative',
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          flexWrap: 'wrap'
         }}
       >
-        <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
+        <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em', flexShrink: 0 }}>
           Spawn:
         </span>
         
@@ -1185,21 +1189,22 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
               setBlackDropdownOpen(false);
             }}
             style={{
-              padding: '6px 14px',
+              padding: '6px 12px',
               fontSize: '0.75rem',
               fontFamily: 'var(--font-family-locker)',
               fontWeight: '700',
               textTransform: 'uppercase',
               backgroundColor: '#ffffff',
               color: '#000000',
-              border: 'none',
+              border: '1px solid transparent',
               borderRadius: '12px',
               cursor: 'pointer',
               boxShadow: '0 2px 8px rgba(255,255,255,0.1)',
               transition: 'transform 0.1s, opacity 0.2s',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '6px',
+              flexShrink: 0
             }}
           >
             + White Player
@@ -1278,7 +1283,7 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
               setWhiteDropdownOpen(false);
             }}
             style={{
-              padding: '6px 14px',
+              padding: '6px 12px',
               fontSize: '0.75rem',
               fontFamily: 'var(--font-family-locker)',
               fontWeight: '700',
@@ -1292,7 +1297,8 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
               transition: 'transform 0.1s, opacity 0.2s',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '6px',
+              flexShrink: 0
             }}
           >
             + Black Player
@@ -1361,12 +1367,12 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
           )}
         </div>
         
-        <div style={{ width: '1px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }}></div>
+        <div style={{ width: '1px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.1)', flexShrink: 0 }}></div>
         
         <button
           onClick={() => setTokens(getDefaultTokens())}
           style={{
-            padding: '6px 14px',
+            padding: '6px 12px',
             fontSize: '0.75rem',
             fontFamily: 'var(--font-family-locker)',
             fontWeight: '700',
@@ -1376,7 +1382,8 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '12px',
             cursor: 'pointer',
-            transition: 'background-color 0.2s, color 0.2s'
+            transition: 'background-color 0.2s, color 0.2s',
+            flexShrink: 0
           }}
           onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
           onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'}
@@ -1387,17 +1394,18 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
         <button
           onClick={clearTokens}
           style={{
-            padding: '6px 14px',
+            padding: '6px 12px',
             fontSize: '0.75rem',
             fontFamily: 'var(--font-family-locker)',
             fontWeight: '700',
             textTransform: 'uppercase',
             backgroundColor: 'rgba(230, 57, 70, 0.1)',
             color: '#e63946',
-            border: 'none',
+            border: '1px solid rgba(230, 57, 70, 0.25)',
             borderRadius: '12px',
             cursor: 'pointer',
-            transition: 'opacity 0.2s'
+            transition: 'opacity 0.2s, background-color 0.2s',
+            flexShrink: 0
           }}
           onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
           onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
