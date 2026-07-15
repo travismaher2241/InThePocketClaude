@@ -1176,7 +1176,7 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
         }}
       >
         <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em', flexShrink: 0 }}>
-          Spawn:
+          Add:
         </span>
         
         {/* White Team Spawner Dropdown */}
@@ -1415,7 +1415,7 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
       </div>
       
       <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '-4px', marginBottom: '0' }}>
-        💡 Right-click (or long-press) on the field to spawn standard AFL positions. Right-click any token to edit/delete. Drag off-field to remove. Double-click to rename.
+        💡 Right-click (or long-press) on the field to add standard AFL positions. Right-click any token to edit/delete. Drag off-field to remove. Double-click to rename.
       </p>
     </div>
   );
