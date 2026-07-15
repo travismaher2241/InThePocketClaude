@@ -600,18 +600,23 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
       }}
     >
       {/* Header section - Clean Minimalist Vibe */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-        <h2 className="scoreboard-font" style={{ color: 'var(--color-tactics)', margin: 0 }}>Tactics Board</h2>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <h2 className="scoreboard-font" style={{ color: 'var(--color-tactics)', margin: 0 }}>Tactics Board</h2>
+        </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', maxWidth: '100%', flex: '1 1 auto', justifyContent: 'flex-end', minWidth: 0 }}>
-          <span style={{ fontSize: '11px', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em', flexShrink: 0 }}>
-            Tools (swipe to see more):
-          </span>
-          {/* High-End Hardware Control Strip at top (monochrome style) */}
-          <div 
-            className="tactics-toolbar"
+        {/* Swipe Description Label Block */}
+        <div style={{ fontSize: '11px', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em', marginBottom: '4px' }}>
+          Tools (swipe to see more):
+        </div>
+
+        {/* High-End Hardware Control Strip at top (monochrome style) */}
+        <div 
+          className="tactics-toolbar"
           style={{ 
             display: 'flex', 
+            flexDirection: 'row',
+            flexWrap: 'nowrap',
             gap: '8px', 
             backgroundColor: '#1c1f26', 
             padding: '6px 12px', 
@@ -622,7 +627,8 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
             userSelect: 'none',
             overflowX: 'auto',
             overflowY: 'hidden',
-            maxWidth: '100%',
+            width: '100%',
+            boxSizing: 'border-box',
             scrollbarWidth: 'none',
             WebkitOverflowScrolling: 'touch',
             paddingRight: '24px' // Ensure last element isn't cut off by the visual mask fade
@@ -812,7 +818,6 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
           >
             Clear
           </button>
-        </div>
         </div>
       </div>
 
