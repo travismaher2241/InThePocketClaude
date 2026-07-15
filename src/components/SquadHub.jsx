@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { deletePlayerFromFirestore, bulkDeletePlayersFromFirestore, archivePlayersInFirestore } from '../firebaseHelpers';
 import { useAuth } from '../context/AuthProvider';
 import * as XLSX from 'xlsx';
@@ -40,6 +40,25 @@ export default function SquadHub({
   const [editJersey, setEditJersey] = useState('');
   const [editPosition, setEditPosition] = useState('Midfield');
   const [editMedical, setEditMedical] = useState('');
+
+  // Close handler for player detail modal
+  const handleCloseDetail = () => {
+    setIsDetailOpen(false);
+    setDetailPlayer(null);
+    setIsDetailEditing(false);
+  };
+
+  // Lock scrolling on document body when details modal is active
+  useEffect(() => {
+    if (isDetailOpen && detailPlayer) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isDetailOpen, detailPlayer]);
 
   // Search & Sort State
   const [searchQuery, setSearchQuery] = useState('');
@@ -604,8 +623,16 @@ export default function SquadHub({
 
       {/* REUSABLE PLAYER DETAIL MODAL */}
       {isDetailOpen && detailPlayer && (
-        <div className="overlay-backdrop" style={{ zIndex: 1000 }}>
-          <div className="modal-content" style={{ maxWidth: '440px' }}>
+        <div 
+          className="player-info-backdrop" 
+          style={{ zIndex: 1000 }} 
+          onClick={handleCloseDetail}
+        >
+          <div 
+            className="player-info-modal" 
+            style={{ maxWidth: '440px' }} 
+            onClick={(e) => e.stopPropagation()}
+          >
             
             {/* Modal Header */}
             <div className="modal-header">
@@ -619,11 +646,7 @@ export default function SquadHub({
               </div>
               <button 
                 className="icon-btn" 
-                onClick={() => {
-                  setIsDetailOpen(false);
-                  setDetailPlayer(null);
-                  setIsDetailEditing(false);
-                }}
+                onClick={handleCloseDetail}
               >
                 <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
