@@ -16,6 +16,26 @@ export default function SettingsModal({
 }) {
   const [squadName, setSquadName] = useState(squadSettings?.squadName || 'My Squad');
   const [ageGroup, setAgeGroup] = useState(squadSettings?.ageGroup || 'U14');
+  const [equipment, setEquipment] = useState(() => {
+    return squadSettings?.equipment || {
+      cones: 20,
+      footballs: 10,
+      tackleMats: 4,
+      agilityPoles: 6,
+      bibs: 15
+    };
+  });
+
+  const handleEquipmentChange = (field, val) => {
+    let parsed = parseInt(val, 10);
+    if (isNaN(parsed) || parsed < 0) {
+      parsed = 0;
+    }
+    setEquipment(prev => ({
+      ...prev,
+      [field]: parsed
+    }));
+  };
   const [showDevSettings, setShowDevSettings] = useState(false);
   const [devClickCount, setDevClickCount] = useState(0);
   const [isDevUnlocked, setIsDevUnlocked] = useState(() => {
@@ -43,13 +63,20 @@ export default function SettingsModal({
     if (isOpen) {
       setSquadName(squadSettings?.squadName || 'My Squad');
       setAgeGroup(squadSettings?.ageGroup || 'U14');
+      setEquipment(squadSettings?.equipment || {
+        cones: 20,
+        footballs: 10,
+        tackleMats: 4,
+        agilityPoles: 6,
+        bibs: 15
+      });
       setDevClickCount(0); // Reset tap count on modal open
     }
   }, [isOpen, squadSettings]);
 
   const handleSave = () => {
     if (typeof onSaveSettings === 'function') {
-      onSaveSettings({ squadName, ageGroup });
+      onSaveSettings({ squadName, ageGroup, equipment });
     }
     onClose();
   };
@@ -110,6 +137,74 @@ export default function SettingsModal({
                 <option value="Veterans (Over 35s)">Veterans (Over 35s)</option>
               </select>
             </div>
+          </div>
+
+          {/* Available Equipment Settings */}
+          <div style={{ paddingTop: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
+            <h3 style={{ fontSize: '0.90rem', marginBottom: '12px', color: 'var(--color-training)', textTransform: 'uppercase', fontWeight: '700' }}>Available Equipment Inventory</h3>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', 
+              gap: '12px', 
+              backgroundColor: 'rgba(255, 255, 255, 0.02)',
+              padding: '12px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.05)'
+            }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '4px' }}>Cones</label>
+                <input 
+                  type="number" 
+                  min="0" 
+                  value={equipment.cones} 
+                  onChange={(e) => handleEquipmentChange('cones', e.target.value)}
+                  style={{ padding: '8px 10px', fontSize: '0.85rem' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '4px' }}>Footballs</label>
+                <input 
+                  type="number" 
+                  min="0" 
+                  value={equipment.footballs} 
+                  onChange={(e) => handleEquipmentChange('footballs', e.target.value)}
+                  style={{ padding: '8px 10px', fontSize: '0.85rem' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '4px' }}>Tackle Mats</label>
+                <input 
+                  type="number" 
+                  min="0" 
+                  value={equipment.tackleMats} 
+                  onChange={(e) => handleEquipmentChange('tackleMats', e.target.value)}
+                  style={{ padding: '8px 10px', fontSize: '0.85rem' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '4px' }}>Agility Poles</label>
+                <input 
+                  type="number" 
+                  min="0" 
+                  value={equipment.agilityPoles} 
+                  onChange={(e) => handleEquipmentChange('agilityPoles', e.target.value)}
+                  style={{ padding: '8px 10px', fontSize: '0.85rem' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '4px' }}>Bibs / Pinnies</label>
+                <input 
+                  type="number" 
+                  min="0" 
+                  value={equipment.bibs} 
+                  onChange={(e) => handleEquipmentChange('bibs', e.target.value)}
+                  style={{ padding: '8px 10px', fontSize: '0.85rem' }}
+                />
+              </div>
+            </div>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
+              These values bind the AI drill generator to your physical gear limits automatically.
+            </p>
           </div>
 
           {/* Max Stint limit (User setting) */}

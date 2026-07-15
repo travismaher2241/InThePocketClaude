@@ -85,7 +85,17 @@ export default function App() {
 
   const [squadSettings, setSquadSettings] = useState(() => {
     const saved = localStorage.getItem('inthepocket_squad_settings');
-    return saved ? JSON.parse(saved) : { squadName: 'My Squad', ageGroup: 'U14' };
+    const parsed = saved ? JSON.parse(saved) : { squadName: 'My Squad', ageGroup: 'U14' };
+    if (!parsed.equipment) {
+      parsed.equipment = {
+        cones: 20,
+        footballs: 10,
+        tackleMats: 4,
+        agilityPoles: 6,
+        bibs: 15
+      };
+    }
+    return parsed;
   });
 
   useEffect(() => {
