@@ -1224,8 +1224,31 @@ COACH'S LOGISTICS SUMMARY
                 color: 'var(--text-secondary)'
               }}
             >
-              <span>{presentIds.length} of {squad.length} selected</span>
-              <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span>{presentIds.length} of {squad.length} selected</span>
+                {presentIds.length === squad.length && (
+                  <button
+                    onClick={handleConfirmAttendance}
+                    style={{
+                      background: 'var(--color-training)',
+                      border: 'none',
+                      color: '#000000',
+                      cursor: 'pointer',
+                      fontSize: '0.72rem',
+                      fontWeight: '700',
+                      padding: '4px 10px',
+                      borderRadius: '4px',
+                      fontFamily: 'var(--font-family-locker)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    Confirm Attendance
+                  </button>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                 <button
                   onClick={() => setPresentIds(squad.map(p => p.id))}
                   style={{
