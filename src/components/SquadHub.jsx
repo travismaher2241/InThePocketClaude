@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { deletePlayerFromFirestore, bulkDeletePlayersFromFirestore, archivePlayersInFirestore } from '../firebaseHelpers';
 import { useAuth } from '../context/AuthProvider';
 import * as XLSX from 'xlsx';
@@ -622,10 +623,10 @@ export default function SquadHub({
       )}
 
       {/* REUSABLE PLAYER DETAIL MODAL */}
-      {isDetailOpen && detailPlayer && (
+      {isDetailOpen && detailPlayer && createPortal(
         <div 
           className="player-info-backdrop" 
-          style={{ zIndex: 1000 }} 
+          style={{ zIndex: 9999 }} 
           onClick={handleCloseDetail}
         >
           <div 
@@ -786,7 +787,8 @@ export default function SquadHub({
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Excel Import Modal Backdrop overlay */}
