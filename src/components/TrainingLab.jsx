@@ -4,32 +4,41 @@ import { saveTrainingSession, getTrainingSessions, deleteSession, hasAccess, gen
 import { useAuth } from '../context/AuthProvider';
 import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS, AFL_PRE_GAME_WARMUPS } from '../data/curriculumKnowledge';
 
-const AGE_FOCUS_MAP = {
-  'U8': ['Basic Kicking', 'Handballing', 'Marking', 'Ground Balls', 'Fun & Games', 'Basic Positioning'],
-  'U10': ['Basic Kicking', 'Handballing', 'Marking', 'Ground Balls', 'Fun & Games', 'Basic Positioning'],
-  'U12': ['Contested Possessions', 'Tackling Technique', 'Clearances', 'Forward Entries', 'Man-on-Man Defense'],
-  'U14': ['Contested Possessions', 'Tackling Technique', 'Clearances', 'Forward Entries', 'Man-on-Man Defense'],
-  'U16': ['Corridor Transitions', 'Stoppage Defensive Spacing', 'Kick-In Strategies', 'Zone Defense', 'Match Simulation', 'Switch of Play'],
-  'U18': ['Corridor Transitions', 'Stoppage Defensive Spacing', 'Kick-In Strategies', 'Zone Defense', 'Match Simulation', 'Switch of Play'],
-  'Seniors': ['Corridor Transitions', 'Stoppage Defensive Spacing', 'Kick-In Strategies', 'Zone Defense', 'Match Simulation', 'Switch of Play'],
-  'Veterans (Over 35s)': ['Corridor Transitions', 'Stoppage Defensive Spacing', 'Kick-In Strategies', 'Zone Defense', 'Match Simulation', 'Switch of Play']
+const AFL_FOCUS_AREAS_CATEGORIES = {
+  'Skills & Conditioning': [
+    'Skills and Ball Handling',
+    'Fitness and Conditioning',
+    'Tackling Technique'
+  ],
+  'Contested & Stoppages': [
+    'Contested Possessions',
+    'Clearances',
+    'Stoppage Structures'
+  ],
+  'Tactical Play & Transition': [
+    'Forward Entries',
+    'Ball Movement and Switch',
+    'Transition and Rebound'
+  ],
+  'Defense': [
+    'Man-on-Man Defense',
+    'Zone Defense and Press'
+  ]
 };
 
 function getLocalDrillKey(focusArea) {
   const map = {
-    'Basic Kicking': 'Corridor Transitions',
-    'Handballing': 'Corridor Transitions',
-    'Marking': 'Corridor Transitions',
-    'Forward Entries': 'Corridor Transitions',
-    'Switch of Play': 'Corridor Transitions',
-    'Clearances': 'Stoppage Defensive Spacing',
-    'Basic Positioning': 'Stoppage Defensive Spacing',
-    'Zone Defense': 'Stoppage Defensive Spacing',
-    'Man-on-Man Defense': 'Kick-In Strategies',
+    'Contested Possessions': 'Contested Possessions',
     'Tackling Technique': 'Contested Possessions',
-    'Ground Balls': 'Ground Balls',
-    'Fun & Games': 'Contested Possessions',
-    'Match Simulation': 'Contested Possessions'
+    'Clearances': 'Stoppage Defensive Spacing',
+    'Forward Entries': 'Corridor Transitions',
+    'Man-on-Man Defense': 'Kick-In Strategies',
+    'Ball Movement and Switch': 'Corridor Transitions',
+    'Zone Defense and Press': 'Stoppage Defensive Spacing',
+    'Stoppage Structures': 'Stoppage Defensive Spacing',
+    'Transition and Rebound': 'Corridor Transitions',
+    'Skills and Ball Handling': 'Corridor Transitions',
+    'Fitness and Conditioning': 'Contested Possessions'
   };
   return map[focusArea] || focusArea;
 }
@@ -244,20 +253,24 @@ export default function TrainingLab({
       setAgeGroup(squadSettings.ageGroup);
     }
   }, [squadSettings]);
-  const [duration, setDuration] = useState(draft?.duration || 70);
-  const [focusAreas, setFocusAreas] = useState(draft?.focusAreas || []);
+  const [duration, setDuration] = useState(draft?.duration || 60);
+  const [focusAreas, setFocusAreas] = useState(() => {
+    if (draft?.focusAreas && draft.focusAreas.length > 0) {
+      return draft.focusAreas;
+    }
+    return ['Skills and Ball Handling'];
+  });
 
   const totalPlayersCount = presentIds.length;
   const group1 = Math.floor(totalPlayersCount / 2);
   const group2 = totalPlayersCount - group1;
 
   useEffect(() => {
-    // Only prefill with the default if there were no draft focus areas loaded
+    // Only prefill with the default if there are no focus areas selected
     if (focusAreas.length === 0) {
-      const list = AGE_FOCUS_MAP[ageGroup] || AGE_FOCUS_MAP['Seniors'];
-      setFocusAreas([list[0]]);
+      setFocusAreas(['Skills and Ball Handling']);
     }
-  }, [ageGroup]);
+  }, []);
 
   const handleToggleFocus = (f) => {
     setFocusAreas((prev) => {
@@ -312,9 +325,8 @@ export default function TrainingLab({
     localStorage.removeItem('inthepocket_training_draft');
     setStep('wizard');
     setPresentIds([]);
-    setDuration(70);
-    const list = AGE_FOCUS_MAP[ageGroup] || AGE_FOCUS_MAP['Seniors'];
-    setFocusAreas([list[0]]);
+    setDuration(60);
+    setFocusAreas(['Skills and Ball Handling']);
     setCustomPlaybookText('');
     setPlanCards([]);
   };
@@ -1374,8 +1386,9 @@ COACH'S LOGISTICS SUMMARY
             <div className="form-group">
               <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>Duration (Minutes)</label>
               <select value={duration} onChange={(e) => setDuration(Number(e.target.value))}>
-                <option value="70">70 Minutes (AFL Curriculum Prescribed)</option>
+                <option value="45">45 Minutes</option>
                 <option value="60">60 Minutes</option>
+                <option value="75">75 Minutes</option>
                 <option value="90">90 Minutes</option>
                 <option value="120">120 Minutes</option>
               </select>
@@ -1385,30 +1398,40 @@ COACH'S LOGISTICS SUMMARY
               <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>
                 Focus Areas (Select 1 to 3)
               </label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
-                {(AGE_FOCUS_MAP[ageGroup] || AGE_FOCUS_MAP['Seniors']).map((f) => {
-                  const isSelected = focusAreas.includes(f);
-                  return (
-                    <button
-                      key={f}
-                      type="button"
-                      onClick={() => handleToggleFocus(f)}
-                      style={{
-                        padding: '6px 12px',
-                        borderRadius: '20px',
-                        border: isSelected ? '1px solid var(--color-training)' : '1px solid rgba(255, 255, 255, 0.1)',
-                        backgroundColor: isSelected ? 'rgba(230, 57, 70, 0.2)' : 'rgba(0,0,0,0.3)',
-                        color: isSelected ? '#ffffff' : '#8d939e',
-                        fontSize: '0.8rem',
-                        fontWeight: isSelected ? '700' : '500',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                      }}
-                    >
-                      {f}
-                    </button>
-                  );
-                })}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '10px' }}>
+                {Object.entries(AFL_FOCUS_AREAS_CATEGORIES).map(([categoryName, areas]) => (
+                  <div key={categoryName} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-secondary)', fontWeight: '700', letterSpacing: '0.05em' }}>
+                      {categoryName}
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      {areas.map((f) => {
+                        const isSelected = focusAreas.includes(f);
+                        return (
+                          <button
+                            key={f}
+                            type="button"
+                            onClick={() => handleToggleFocus(f)}
+                            style={{
+                              padding: '6px 12px',
+                              borderRadius: '20px',
+                              border: isSelected ? '1px solid var(--color-training)' : '1px solid rgba(255, 255, 255, 0.1)',
+                              backgroundColor: isSelected ? 'rgba(230, 57, 70, 0.2)' : 'rgba(0,0,0,0.3)',
+                              color: isSelected ? '#ffffff' : '#8d939e',
+                              fontSize: '0.8rem',
+                              fontWeight: isSelected ? '700' : '500',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            {f}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
