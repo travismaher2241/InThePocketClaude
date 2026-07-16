@@ -1090,14 +1090,10 @@ const sanitizePlanCards = (cards, groundName = "home ground", playerCount = 0, a
     const titleLower = title.toLowerCase();
     const goalLower = (card.goal || '').toLowerCase();
     const isPhysicalActivation = 
-      titleLower.includes('warm-up') || 
-      titleLower.includes('activation') || 
       titleLower.includes('stretching') || 
-      titleLower.includes('mobilization') ||
-      goalLower.includes('warm-up') || 
-      goalLower.includes('activation') || 
-      goalLower.includes('stretching') || 
-      goalLower.includes('mobilization');
+      titleLower.includes('mobilization') || 
+      titleLower.includes('stretches') ||
+      (titleLower.includes('activation') && !instructions.toLowerCase().includes('ball') && !instructions.toLowerCase().includes('footy') && !titleLower.includes('catching'));
 
     if (isPhysicalActivation && typeof instructions === 'string') {
       // 1. Clean up hybrid setup dimensions like "10m x 10m lane grids"
@@ -1706,20 +1702,15 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                   hasDataContamination = true;
                   break;
                 }
+                const instLower = (card.instructions || '').toLowerCase();
                 const titleLower = (card.title || '').toLowerCase();
                 const goalLower = (card.goal || '').toLowerCase();
-                const instLower = (card.instructions || '').toLowerCase();
 
                 const isPhysicalActivation = 
-                  titleLower.includes('warm-up') || 
-                  titleLower.includes('activation') || 
                   titleLower.includes('stretching') || 
                   titleLower.includes('mobilization') || 
-                  titleLower.includes('pre-game') ||
-                  goalLower.includes('warm-up') || 
-                  goalLower.includes('activation') || 
-                  goalLower.includes('stretching') || 
-                  goalLower.includes('mobilization');
+                  titleLower.includes('stretches') ||
+                  (titleLower.includes('activation') && !instLower.includes('ball') && !instLower.includes('footy') && !titleLower.includes('catching'));
 
                 if (isPhysicalActivation) {
                   // Extract the ELITE COACHING CUES section

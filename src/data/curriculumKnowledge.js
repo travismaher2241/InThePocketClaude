@@ -590,12 +590,12 @@ export const AFL_PRE_GAME_WARMUPS = [
     cues: "Look at the receiver, Follow through with your hands, Clean release"
   },
   {
-    name: "AFL Partner Lead & Mark Warm-Up",
-    goal: "Focus on clean hands and leading chest marks.",
-    desc: "In pairs, players jog parallel to each other. One player leads forward or sideways, receives a chest-high handball or short chip pass, and immediately returns it.",
-    coachingTip: "Emphasize leading towards the ball, not waiting for it.",
+    name: "AFL Partner Catching Warm-Up",
+    goal: "Develop clean catching and passing skills with a partner.",
+    desc: "In pairs standing 10 meters apart, one player jogs forward to receive a short handball (punch pass) or short chip kick from their partner, catches the ball cleanly in their hands, and immediately passes it back. They then jog backward to their starting spot and repeat, taking turns.",
+    coachingTip: "Encourage players to move forward to meet the ball rather than waiting for it to reach them.",
     phase: "Attack",
-    cues: "Lead towards the ball, Hands out in front, Eyes on the sherrin"
+    cues: "Jog forward to meet the ball, Keep hands out in front like a basket, Keep your eyes on the ball"
   },
   {
     name: "AFL Boundary Line Ground Gather & Spin",
