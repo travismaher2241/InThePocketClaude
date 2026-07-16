@@ -1937,7 +1937,9 @@ COACH'S LOGISTICS SUMMARY
             ) : (
               (() => {
                 const displayedCards = [];
-                planCards.forEach((card, index) => {
+                const currentGround = squadSettings?.groundName || "home ground";
+                const sanitizedCards = sanitizePlanCards(planCards, currentGround);
+                sanitizedCards.forEach((card, index) => {
                   const parsed = parseStationCards(card, group1, group2);
                   parsed.forEach(sub => {
                     sub.originalIndex = index;
@@ -2429,7 +2431,7 @@ COACH'S LOGISTICS SUMMARY
               <div>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', textTransform: 'uppercase', marginBottom: '12px', fontWeight: '600' }}>Drills Executed</span>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {selectedSession.drills?.map((drill, idx) => (
+                  {sanitizePlanCards(selectedSession.drills || [], squadSettings?.groundName || "home ground").map((drill, idx) => (
                     <div key={idx} style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '16px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                         <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#ffffff', fontFamily: 'var(--font-family-locker)', textTransform: 'uppercase' }}>{drill.title}</h4>
