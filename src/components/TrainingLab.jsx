@@ -857,8 +857,12 @@ const scaleDrillSetup = (setupText, executionText, totalAttendance) => {
   return scaledString;
 };
 
-const sanitizePlanCards = (cards, groundName = "home ground", playerCount = 0) => {
+const sanitizePlanCards = (cards, groundName = "home ground", playerCount = 0, ageGroup = "") => {
   if (!Array.isArray(cards)) return cards;
+  const isVeterans = 
+    (ageGroup || '').toLowerCase().includes('veteran') || 
+    (ageGroup || '').toLowerCase().includes('over 35') || 
+    (ageGroup || '').toLowerCase().includes('master');
   return cards.map(card => {
     const scrub = (str) => {
       if (typeof str !== 'string') return str;
@@ -930,14 +934,16 @@ const sanitizePlanCards = (cards, groundName = "home ground", playerCount = 0) =
     const setupMatch = instructions.match(setupRegex);
     if (setupMatch) {
       const originalSetupText = setupMatch[2].trim();
-      const scaledSetup = scaleDrillSetup(originalSetupText, instructions, playerCount);
+      const scaledSetup = isVeterans ? originalSetupText : scaleDrillSetup(originalSetupText, instructions, playerCount);
       instructions = instructions.replace(setupRegex, `$1${scaledSetup}`);
     } else {
-      instructions = instructions
-        .replace(/\s*\(calibrated\s+for\s+\d+\s+players\s+inside\s+.*constraints\)/gi, '')
-        .replace(/\s*fits\s+within\s+.*constraints\.?/gi, '')
-        .replace(/\s*designed\s+to\s+fit\s+.*boundary\s+areas\.?/gi, '')
-        .trim();
+      if (!isVeterans) {
+        instructions = instructions
+          .replace(/\s*\(calibrated\s+for\s+\d+\s+players\s+inside\s+.*constraints\)/gi, '')
+          .replace(/\s*fits\s+within\s+.*constraints\.?/gi, '')
+          .replace(/\s*designed\s+to\s+fit\s+.*boundary\s+areas\.?/gi, '')
+          .trim();
+      }
     }
     
     // Auto-heal coaching cues or setup contamination in dynamic stretching/mobilization segments
@@ -1309,7 +1315,7 @@ export default function TrainingLab({
     setPlanCards([]);
     setStep('plan');
 
-    const isRealApiCall = apiKey && apiKey.startsWith('AI25_');
+    const isRealApiCall = false; // Freeze dynamic API generation to enforce strict baseline lookup
 
     if (isRealApiCall) {
       try {
@@ -2767,7 +2773,7 @@ COACH'S LOGISTICS SUMMARY
               (() => {
                 const displayedCards = [];
                 const currentGround = squadSettings?.groundName || "home ground";
-                const sanitizedCards = sanitizePlanCards(planCards, currentGround, totalPlayersCount);
+                const sanitizedCards = sanitizePlanCards(planCards, currentGround, totalPlayersCount, ageGroup);
                 sanitizedCards.forEach((card, index) => {
                   const parsed = parseStationCards(card, group1, group2);
                   parsed.forEach(sub => {
@@ -2864,69 +2870,57 @@ COACH'S LOGISTICS SUMMARY
                       )}
                     </div>
 
-                    {/* Split-pane content container */}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', width: '100%', alignItems: 'stretch' }}>
-                      
-                      {/* Left-aligned Visualization Pane */}
-                      <div style={{ flex: '1 1 350px', minWidth: '320px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                        <DrillSetupVisualizer 
-                          instructions={card.instructions} 
-                          title={card.title} 
-                          groundName={squadSettings?.groundName || "home ground"} 
-                        />
-                      </div>
+                    {/* Linear Instructions block displaying exact text framework */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
+                      <p 
+                        style={{
+                          fontFamily: 'var(--font-family-body)',
+                          fontSize: '0.925rem',
+                          color: '#d1d5db',
+                          lineHeight: '1.5',
+                          whiteSpace: 'pre-wrap',
+                          fontWeight: 'normal',
+                          margin: 0
+                        }}
+                      >
+                        {(() => {
+                          const cleanText = (card.instructions || 'Execute drill segment.').replace(/\*\*/g, '').replace(/[#`[\]]/g, '');
+                          return cleanText.replace(/FIELD\s+SETUP\s+DIAGRAM:[\s\S]*?(?=\n\n[A-Z]|$)/i, '').trim();
+                        })()}
+                      </p>
+                    </div>
 
-                      {/* Right-aligned Data Pane */}
-                      <div style={{ flex: '1.2 1 380px', minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '12px', justifyContent: 'space-between' }}>
-                        
-                        {/* Instructions */}
-                        <p 
-                          style={{
-                            fontFamily: 'var(--font-family-body)',
-                            fontSize: '0.925rem',
-                            color: '#d1d5db',
-                            lineHeight: '1.5',
-                            whiteSpace: 'pre-wrap',
-                            margin: 0
-                          }}
-                        >
-                          {(() => {
-                            const cleanText = (card.instructions || 'Execute drill segment.').replace(/[#*`[\]]/g, '');
-                            return cleanText.replace(/FIELD\s+SETUP\s+DIAGRAM:[\s\S]*?(?=\n\n[A-Z]|$)/i, '').trim();
-                          })()}
-                        </p>
-
-                        {/* Focus Goal Accent Block (Sherrin Red Highlight) */}
-                        <div 
-                          style={{
-                            borderLeft: '3px solid var(--color-training)', // Vertical KB Sherrin Red bar
-                            paddingLeft: '12px',
-                            marginTop: '6px'
-                          }}
-                        >
-                          <span 
-                            style={{ 
-                              fontSize: '0.7rem', 
-                              color: '#8d939e', 
-                              textTransform: 'uppercase', 
-                              display: 'block', 
-                              fontWeight: '600',
-                              letterSpacing: '0.02em',
-                              marginBottom: '2px'
-                            }}
-                          >
-                            Drill Focus Goal
-                          </span>
-                          <span 
-                            style={{ 
-                              fontSize: '0.85rem', 
-                              color: 'var(--color-training)', 
-                              fontWeight: '700' 
-                            }}
-                          >
-                            {(card.goal || 'Master core skills.').replace(/[#*`[\]]/g, '')}
-                          </span>
-                        </div>
+                    {/* Focus Goal Accent Block (Sherrin Red Highlight) */}
+                    <div 
+                      style={{
+                        borderLeft: '3px solid var(--color-training)', // Vertical KB Sherrin Red bar
+                        paddingLeft: '12px',
+                        marginTop: '6px'
+                      }}
+                    >
+                      <span 
+                        style={{ 
+                          fontSize: '0.7rem', 
+                          color: '#8d939e', 
+                          textTransform: 'uppercase', 
+                          display: 'block', 
+                          fontWeight: '600',
+                          letterSpacing: '0.02em',
+                          marginBottom: '2px'
+                        }}
+                      >
+                        Drill Focus Goal
+                      </span>
+                      <span 
+                        style={{ 
+                          fontSize: '0.85rem', 
+                          color: 'var(--color-training)', 
+                          fontWeight: '700' 
+                        }}
+                      >
+                        {(card.goal || 'Master core skills.').replace(/[#*`[\]]/g, '')}
+                      </span>
+                    </div>
 
                         {/* Rotation indicator for stations */}
                         {card.isSubCard && card.switchLabel && (
@@ -2952,8 +2946,6 @@ COACH'S LOGISTICS SUMMARY
                             <span>Rotation: {card.switchLabel.replace(/[#*`[\]]/g, '')}</span>
                           </div>
                         )}
-                      </div>
-                    </div>
 
                     {/* Video Capture/Upload Trigger */}
                     <div style={{ 
@@ -3281,7 +3273,7 @@ COACH'S LOGISTICS SUMMARY
               <div>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', textTransform: 'uppercase', marginBottom: '12px', fontWeight: '600' }}>Drills Executed</span>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {sanitizePlanCards(selectedSession.drills || [], squadSettings?.groundName || "home ground", selectedSession.playerCount || 18).map((drill, idx) => (
+                  {sanitizePlanCards(selectedSession.drills || [], squadSettings?.groundName || "home ground", selectedSession.playerCount || 18, selectedSession.ageGroup || ageGroup).map((drill, idx) => (
                     <div key={idx} style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '16px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                         <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#ffffff', fontFamily: 'var(--font-family-locker)', textTransform: 'uppercase' }}>{drill.title}</h4>
@@ -3311,25 +3303,14 @@ COACH'S LOGISTICS SUMMARY
                           <span style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '700' }}>{drill.duration} Mins</span>
                         </div>
                       </div>
-                      {/* Split-pane container */}
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', margin: '8px 0', alignItems: 'stretch' }}>
-                        {/* Left Pane (Infographic) */}
-                        <div style={{ flex: '1 1 240px', minWidth: '220px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                          <DrillSetupVisualizer 
-                            instructions={drill.instructions} 
-                            title={drill.title} 
-                            groundName={squadSettings?.groundName || "home ground"} 
-                          />
-                        </div>
-                        {/* Right Pane (Metadata) */}
-                        <div style={{ flex: '1.2 1 260px', minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <p style={{ fontSize: '0.8rem', color: '#9ca3af', margin: 0, lineHeight: '1.4', whiteSpace: 'pre-wrap' }}>
-                            {(() => {
-                              const cleanText = (drill.instructions || '').replace(/[#*`[\]]/g, '');
-                              return cleanText.replace(/FIELD\s+SETUP\s+DIAGRAM:[\s\S]*?(?=\n\n[A-Z]|$)/i, '').trim();
-                            })()}
-                          </p>
-                        </div>
+                      {/* Linear Instructions block displaying exact text framework */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', margin: '8px 0' }}>
+                        <p style={{ fontSize: '0.8rem', color: '#9ca3af', margin: 0, lineHeight: '1.4', whiteSpace: 'pre-wrap', fontWeight: 'normal' }}>
+                          {(() => {
+                            const cleanText = (drill.instructions || '').replace(/\*\*/g, '').replace(/[#`[\]]/g, '');
+                            return cleanText.replace(/FIELD\s+SETUP\s+DIAGRAM:[\s\S]*?(?=\n\n[A-Z]|$)/i, '').trim();
+                          })()}
+                        </p>
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '600' }}>
                         Goal: <span style={{ color: '#d1d5db' }}>{drill.goal}</span>
