@@ -16,26 +16,26 @@ function DrillSetupVisualizer({ instructions, title, groundName = "home ground" 
   const distanceMatches = [...instructions.matchAll(/(\d+)\s*(?:m|meter|meters|metre|metres)/gi)];
   const distances = distanceMatches.map(m => m[0]);
   
-  const distAB = distances[0] || "15m";
-  const distBC = distances[1] || "15m";
-  const distBD = distances[2] || "20m";
+  const distVal1 = distances[0] || "15m";
+  const distVal2 = distances[1] || "15m";
 
-  // Check which cones are present
-  const hasA = /cone\s+a/i.test(instructions);
-  const hasB = /cone\s+b/i.test(instructions);
-  const hasC = /cone\s+c/i.test(instructions);
-  const hasD = /cone\s+d/i.test(instructions);
+  // Determine geometry type
+  const titleLower = (title || '').toLowerCase();
+  const instLower = instructions.toLowerCase();
+  const combText = titleLower + " " + instLower;
 
-  const showA = hasA || true;
-  const showB = hasB || true;
-  const showC = hasC || true;
-  const showD = hasD || /side|wing|wide/i.test(instructions);
-
-  // Coordinate percentages for SVG
-  const posA = { x: 200, y: 195 }; // Bottom Center (Start)
-  const posB = { x: 200, y: 115 }; // Middle Center (Target)
-  const posC = { x: 200, y: 35 };  // Top Center (Deep)
-  const posD = { x: 290, y: 115 }; // Middle Right (Side)
+  let layoutType = "straight";
+  if (combText.includes("circle") || combText.includes("round") || combText.includes("wheel") || combText.includes("loop")) {
+    layoutType = "circle";
+  } else if (combText.includes("diamond")) {
+    layoutType = "diamond";
+  } else if (combText.includes("zig-zag") || combText.includes("zigzag") || combText.includes("45-degree")) {
+    layoutType = "zigzag";
+  } else if (combText.includes("funnel")) {
+    layoutType = "funnel";
+  } else if (combText.includes("matrix") || combText.includes("cross-oval") || combText.includes("switch")) {
+    layoutType = "matrix";
+  }
 
   // Determine kicking trajectory curve
   let isLowTrajectory = true;
@@ -43,14 +43,242 @@ function DrillSetupVisualizer({ instructions, title, groundName = "home ground" 
     isLowTrajectory = false;
   }
 
+  // SVG Render Helper Components
+  const renderGrass = () => (
+    <>
+      <defs>
+        <radialGradient id="grassGrad" cx="50%" cy="50%" r="70%">
+          <stop offset="0%" stopColor="#1a4d2e" />
+          <stop offset="100%" stopColor="#0f301b" />
+        </radialGradient>
+        <marker id="arrowHead" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#ffb703" />
+        </marker>
+        <filter id="coneShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="1" dy="2" stdDeviation="1.5" floodColor="#000000" floodOpacity="0.9" />
+        </filter>
+      </defs>
+      {/* Dynamic Field Turf */}
+      <rect width="400" height="225" fill="url(#grassGrad)" rx="8" />
+      {/* Programmatic White Lines (AFL Oval boundary) */}
+      <ellipse cx="200" cy="112.5" rx="185" ry="98" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.75" />
+      <ellipse cx="200" cy="112.5" rx="183" ry="96" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="0.75" />
+      
+      {/* 50m arcs */}
+      <path d="M 80 112.5 A 120 120 0 0 1 320 112.5" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="3,3" />
+      <path d="M 80 112.5 A 120 120 0 0 0 320 112.5" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="3,3" />
+
+      {/* Center Square */}
+      <rect x="150" y="62.5" width="100" height="100" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.25" />
+      <circle cx="200" cy="112.5" r="20" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.25" />
+    </>
+  );
+
+  const renderCone = (x, y, label) => (
+    <g transform={`translate(${x}, ${y})`} filter="url(#coneShadow)">
+      {/* Base */}
+      <ellipse cx="0" cy="5" rx="5" ry="2.2" fill="#d03e00" />
+      {/* Body */}
+      <path d="M -4 4 L 4 4 L 1.2 -5 L -1.2 -5 Z" fill="#fb8500" />
+      {/* Tip */}
+      <path d="M -1.2 -5 L 1.2 -5 L 0 -8 Z" fill="#ffb703" />
+      {/* Label */}
+      <text x="8" y="2" fill="#ffffff" fontSize="7.5" fontWeight="800" filter="url(#coneShadow)" fontFamily="monospace">{label}</text>
+    </g>
+  );
+
+  const renderQueue = (x, y) => (
+    <g transform={`translate(${x}, ${y})`}>
+      <circle cx="-10" cy="0" r="3.5" fill="#3a86ff" filter="url(#coneShadow)" />
+      <circle cx="-16" cy="4" r="3.5" fill="#3a86ff" opacity="0.75" />
+      <circle cx="-14" cy="-4" r="3.5" fill="#3a86ff" opacity="0.6" />
+    </g>
+  );
+
+  const renderVisualizerLayout = () => {
+    switch (layoutType) {
+      case "circle": {
+        const c1 = { x: 200, y: 55 }, c2 = { x: 265, y: 83.75 }, c3 = { x: 265, y: 141.25 },
+              c4 = { x: 200, y: 170 }, c5 = { x: 135, y: 141.25 }, c6 = { x: 135, y: 83.75 };
+        return (
+          <>
+            {/* Circular dashed boundary line */}
+            <circle cx="200" cy="112.5" r="62" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="4,4" />
+            
+            {/* Passing Vectors */}
+            <path d={`M ${c1.x} ${c1.y + 4} Q 240 70, ${c2.x - 4} ${c2.y - 2}`} fill="none" stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+            <path d={`M ${c2.x} ${c2.y + 4} Q 265 112.5, ${c3.x - 2} ${c3.y - 4}`} fill="none" stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+            <path d={`M ${c3.x - 4} ${c3.y + 2} Q 240 155, ${c4.x} ${c4.y - 4}`} fill="none" stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+            <path d={`M ${c4.x} ${c4.y - 4} Q 160 155, ${c5.x + 4} ${c5.y + 2}`} fill="none" stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+            <path d={`M ${c5.x + 2} ${c5.y - 4} Q 135 112.5, ${c6.x} ${c6.y + 4}`} fill="none" stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+            <path d={`M ${c6.x} ${c6.y - 2} Q 160 70, ${c1.x} ${c1.y + 4}`} fill="none" stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+
+            {/* Cone Markers */}
+            {renderCone(c1.x, c1.y, "Cone A")}
+            {renderCone(c2.x, c2.y, "Cone B")}
+            {renderCone(c3.x, c3.y, "Cone C")}
+            {renderCone(c4.x, c4.y, "Cone D")}
+            {renderCone(c5.x, c5.y, "Cone E")}
+            {renderCone(c6.x, c6.y, "Cone F")}
+
+            {/* Player queues */}
+            {renderQueue(c1.x, c1.y)}
+            {renderQueue(c4.x, c4.y)}
+
+            {/* Layout labels */}
+            <text x="200" y="116" fill="rgba(255,255,255,0.4)" fontSize="8.5" fontWeight="bold" textAnchor="middle">CIRCLE WEAVE</text>
+            <text x="200" y="125" fill="#ffb703" fontSize="8" fontWeight="bold" textAnchor="middle">{distVal1} DIA</text>
+          </>
+        );
+      }
+      case "diamond": {
+        const cA = { x: 200, y: 170 }, cB = { x: 275, y: 112.5 }, cC = { x: 200, y: 55 }, cD = { x: 125, y: 112.5 };
+        return (
+          <>
+            {/* Diamond shape boundary */}
+            <polygon points="200,45 285,112.5 200,180 115,112.5" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="4,4" />
+
+            {/* Passing Vectors */}
+            <line x1={cA.x + 8} y1={cA.y - 8} x2={cB.x - 8} y2={cB.y + 8} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+            <line x1={cB.x - 8} y1={cB.y - 8} x2={cC.x + 8} y2={cC.y + 8} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+            <line x1={cC.x - 8} y1={cC.y + 8} x2={cD.x + 8} y2={cD.y - 8} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+            <line x1={cD.x + 8} y1={cD.y + 8} x2={cA.x - 8} y2={cA.y - 8} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+
+            {/* Cones */}
+            {renderCone(cA.x, cA.y, "Cone A")}
+            {renderCone(cB.x, cB.y, "Cone B")}
+            {renderCone(cC.x, cC.y, "Cone C")}
+            {renderCone(cD.x, cD.y, "Cone D")}
+
+            {/* Queues */}
+            {renderQueue(cA.x, cA.y)}
+            {renderQueue(cC.x, cC.y)}
+
+            {/* Dimension text */}
+            <text x="238" y="150" fill="#ffb703" fontSize="8" fontWeight="bold">{distVal1}</text>
+            <text x="238" y="85" fill="#ffb703" fontSize="8" fontWeight="bold">{distVal2}</text>
+            <text x="200" y="116" fill="rgba(255,255,255,0.4)" fontSize="8.5" fontWeight="bold" textAnchor="middle">DIAMOND GRID</text>
+          </>
+        );
+      }
+      case "zigzag": {
+        const cA = { x: 120, y: 170 }, cB = { x: 280, y: 130 }, cC = { x: 120, y: 90 }, cD = { x: 280, y: 50 };
+        return (
+          <>
+            {/* Passing Vectors */}
+            <line x1={cA.x + 12} y1={cA.y - 4} x2={cB.x - 12} y2={cB.y + 4} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+            <line x1={cB.x - 12} y1={cB.y - 4} x2={cC.x + 12} y2={cC.y + 4} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+            <line x1={cC.x + 12} y1={cC.y - 4} x2={cD.x - 12} y2={cD.y + 4} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+
+            {/* Cones */}
+            {renderCone(cA.x, cA.y, "Cone A")}
+            {renderCone(cB.x, cB.y, "Cone B")}
+            {renderCone(cC.x, cC.y, "Cone C")}
+            {renderCone(cD.x, cD.y, "Cone D")}
+
+            {/* Queues */}
+            {renderQueue(cA.x, cA.y)}
+
+            {/* Dimensions */}
+            <text x="200" y="160" fill="#ffb703" fontSize="8" fontWeight="bold" textAnchor="middle">{distVal1}</text>
+            <text x="200" y="105" fill="#ffb703" fontSize="8" fontWeight="bold" textAnchor="middle">{distVal2}</text>
+            <text x="200" y="210" fill="rgba(255,255,255,0.4)" fontSize="8.5" fontWeight="bold" textAnchor="middle">45-DEGREE ZIG-ZAG</text>
+          </>
+        );
+      }
+      case "funnel": {
+        const cA = { x: 120, y: 170 }, cB = { x: 280, y: 170 }, cC = { x: 170, y: 55 }, cD = { x: 230, y: 55 };
+        return (
+          <>
+            {/* Funnel bounds */}
+            <line x1={cA.x} y1={cA.y} x2={cC.x} y2={cC.y} stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeDasharray="3,3" />
+            <line x1={cB.x} y1={cB.y} x2={cD.x} y2={cD.y} stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeDasharray="3,3" />
+
+            {/* Passing Vector */}
+            <line x1="200" y1="165" x2="200" y2="65" stroke="#ffb703" strokeWidth="2" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+
+            {/* Cones */}
+            {renderCone(cA.x, cA.y, "Cone A")}
+            {renderCone(cB.x, cB.y, "Cone B")}
+            {renderCone(cC.x, cC.y, "Cone C")}
+            {renderCone(cD.x, cD.y, "Cone D")}
+
+            {/* Queues */}
+            {renderQueue(cA.x, cA.y)}
+            {renderQueue(cB.x, cB.y)}
+
+            {/* Dimension Text */}
+            <text x="200" y="182" fill="#ffb703" fontSize="8" fontWeight="bold" textAnchor="middle">{distVal1} MOUTH</text>
+            <text x="200" y="47" fill="#ffb703" fontSize="8" fontWeight="bold" textAnchor="middle">{distVal2} GATE</text>
+            <text x="200" y="116" fill="rgba(255,255,255,0.4)" fontSize="8.5" fontWeight="bold" textAnchor="middle">FUNNEL ZONE</text>
+          </>
+        );
+      }
+      case "matrix": {
+        const c1 = { x: 110, y: 55 }, c2 = { x: 290, y: 55 }, c3 = { x: 110, y: 170 }, c4 = { x: 290, y: 170 }, c5 = { x: 200, y: 112.5 };
+        return (
+          <>
+            {/* Grid boundary */}
+            <rect x="110" y="55" width="180" height="115" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="4,4" />
+
+            {/* Passing Vectors */}
+            <line x1={c3.x + 8} y1={c3.y - 8} x2={c2.x - 8} y2={c2.y + 8} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+            <line x1={c4.x - 8} y1={c4.y - 8} x2={c1.x + 8} y2={c1.y + 8} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+
+            {/* Cones */}
+            {renderCone(c1.x, c1.y, "Cone A")}
+            {renderCone(c2.x, c2.y, "Cone B")}
+            {renderCone(c3.x, c3.y, "Cone C")}
+            {renderCone(c4.x, c4.y, "Cone D")}
+            {renderCone(c5.x, c5.y, "Cone E (Pivot)")}
+
+            {/* Queues */}
+            {renderQueue(c3.x, c3.y)}
+            {renderQueue(c4.x, c4.y)}
+
+            {/* Labels */}
+            <text x="200" y="210" fill="rgba(255,255,255,0.4)" fontSize="8.5" fontWeight="bold" textAnchor="middle">CROSS-OVAL SWITCH MATRIX</text>
+            <text x="200" y="160" fill="#ffb703" fontSize="8" fontWeight="bold" textAnchor="middle">{distVal1} x {distVal2}</text>
+          </>
+        );
+      }
+      default: {
+        // Straight Lane
+        const cA = { x: 140, y: 170 }, cB = { x: 140, y: 55 }, cC = { x: 260, y: 170 }, cD = { x: 260, y: 55 };
+        return (
+          <>
+            {/* Lane dividers */}
+            <line x1="200" y1="40" x2="200" y2="185" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeDasharray="4,4" />
+
+            {/* Passing Vectors */}
+            <line x1={cA.x} y1={cA.y - 12} x2={cB.x} y2={cB.y + 12} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+            <line x1={cC.x} y1={cC.y - 12} x2={cD.x} y2={cD.y + 12} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
+
+            {/* Cones */}
+            {renderCone(cA.x, cA.y, "Cone A")}
+            {renderCone(cB.x, cB.y, "Cone B")}
+            {renderCone(cC.x, cC.y, "Cone C")}
+            {renderCone(cD.x, cD.y, "Cone D")}
+
+            {/* Queues */}
+            {renderQueue(cA.x, cA.y)}
+            {renderQueue(cC.x, cC.y)}
+
+            {/* Dimensions */}
+            <text x="120" y="116" fill="#ffb703" fontSize="8" fontWeight="bold">{distVal1}</text>
+            <text x="280" y="116" fill="#ffb703" fontSize="8" fontWeight="bold">{distVal2}</text>
+            <text x="200" y="210" fill="rgba(255,255,255,0.4)" fontSize="8.5" fontWeight="bold" textAnchor="middle">LINEAR RUNNING LANES</text>
+          </>
+        );
+      }
+    }
+  };
+
   return (
     <div style={{
       width: '100%',
       aspectRatio: '16/9',
       position: 'relative',
-      backgroundImage: `url(${aflGroundImage})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
       borderRadius: '8px',
       overflow: 'hidden',
       border: '1px solid rgba(255,255,255,0.1)',
@@ -58,77 +286,13 @@ function DrillSetupVisualizer({ instructions, title, groundName = "home ground" 
       marginTop: '16px',
       marginBottom: '16px'
     }}>
-      {/* SVG Vector Dimension Lines & Markers Overlay */}
-      <svg viewBox="0 0 400 225" style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
-        <defs>
-          <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 2 L 10 5 L 0 8 z" fill="#ffb703" />
-          </marker>
-          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="1" dy="1" stdDeviation="1" floodColor="#000000" floodOpacity="0.8" />
-          </filter>
-        </defs>
-
-        {/* Dimension Line A -> B */}
-        {showA && showB && (
-          <>
-            <line x1={posA.x} y1={posA.y - 12} x2={posB.x} y2={posB.y + 12} stroke="#ffb703" strokeWidth="1.5" strokeDasharray="3,3" markerEnd="url(#arrow)" markerStart="url(#arrow)" />
-            <text x={posB.x - 22} y={(posA.y + posB.y) / 2} fill="#ffb703" fontSize="8" fontWeight="bold" filter="url(#shadow)">{distAB}</text>
-          </>
-        )}
-
-        {/* Dimension Line B -> C */}
-        {showB && showC && (
-          <>
-            <line x1={posB.x} y1={posB.y - 12} x2={posC.x} y2={posC.y + 12} stroke="#ffb703" strokeWidth="1.5" strokeDasharray="3,3" markerEnd="url(#arrow)" markerStart="url(#arrow)" />
-            <text x={posC.x - 22} y={(posB.y + posC.y) / 2} fill="#ffb703" fontSize="8" fontWeight="bold" filter="url(#shadow)">{distBC}</text>
-          </>
-        )}
-
-        {/* Dimension Line B -> D */}
-        {showB && showD && (
-          <>
-            <line x1={posB.x + 12} y1={posB.y} x2={posD.x - 12} y2={posD.y} stroke="#ffb703" strokeWidth="1.5" strokeDasharray="3,3" markerEnd="url(#arrow)" markerStart="url(#arrow)" />
-            <text x={(posB.x + posD.x) / 2} y={posB.y - 6} fill="#ffb703" fontSize="8" fontWeight="bold" filter="url(#shadow)">{distBD}</text>
-          </>
-        )}
-
-        {/* Cone Markers (Orange traffic cones) */}
-        {showA && (
-          <g transform={`translate(${posA.x}, ${posA.y})`}>
-            {/* Player Queue Dot */}
-            <circle cx="-12" cy="0" r="4" fill="#3a86ff" filter="url(#shadow)" />
-            <circle cx="-18" cy="4" r="4" fill="#3a86ff" opacity="0.7" />
-            <path d="M -8 -6 L 8 -6 L 2 6 L -2 6 Z" fill="#fb8500" filter="url(#shadow)" />
-            <ellipse cx="0" cy="5" rx="4" ry="1.5" fill="#e05300" />
-            <text x="12" y="4" fill="#ffffff" fontSize="7" fontWeight="bold" filter="url(#shadow)">Cone A (Queue)</text>
-          </g>
-        )}
-
-        {showB && (
-          <g transform={`translate(${posB.x}, ${posB.y})`}>
-            <circle cx="-12" cy="0" r="4" fill="#3a86ff" filter="url(#shadow)" />
-            <path d="M -8 -6 L 8 -6 L 2 6 L -2 6 Z" fill="#fb8500" filter="url(#shadow)" />
-            <ellipse cx="0" cy="5" rx="4" ry="1.5" fill="#e05300" />
-            <text x="12" y="4" fill="#ffffff" fontSize="7" fontWeight="bold" filter="url(#shadow)">Cone B</text>
-          </g>
-        )}
-
-        {showC && (
-          <g transform={`translate(${posC.x}, ${posC.y})`}>
-            <path d="M -8 -6 L 8 -6 L 2 6 L -2 6 Z" fill="#fb8500" filter="url(#shadow)" />
-            <ellipse cx="0" cy="5" rx="4" ry="1.5" fill="#e05300" />
-            <text x="12" y="4" fill="#ffffff" fontSize="7" fontWeight="bold" filter="url(#shadow)">Cone C</text>
-          </g>
-        )}
-
-        {showD && (
-          <g transform={`translate(${posD.x}, ${posD.y})`}>
-            <path d="M -8 -6 L 8 -6 L 2 6 L -2 6 Z" fill="#fb8500" filter="url(#shadow)" />
-            <ellipse cx="0" cy="5" rx="4" ry="1.5" fill="#e05300" />
-            <text x="-48" y="4" fill="#ffffff" fontSize="7" fontWeight="bold" filter="url(#shadow)">Cone D</text>
-          </g>
-        )}
+      {/* SVG Canvas Drawing Engine */}
+      <svg viewBox="0 0 400 225" style={{ width: '100%', height: '100%', display: 'block' }}>
+        {/* Render Ground turf and boundary lines */}
+        {renderGrass()}
+        
+        {/* Render the programmatically plotted layout */}
+        {renderVisualizerLayout()}
       </svg>
 
       {/* Upper Right Corner: Technical Data Panel Overlay */}
@@ -160,10 +324,8 @@ function DrillSetupVisualizer({ instructions, title, groundName = "home ground" 
               
               {/* Trajectory line */}
               {isLowTrajectory ? (
-                // Stab pass: flat low curve
                 <path d="M 10 15 Q 50 8, 90 15" fill="none" stroke="#3a86ff" strokeWidth="1.5" strokeDasharray="2,2" />
               ) : (
-                // High/looping kick: tall curve
                 <path d="M 10 15 Q 50 1, 90 15" fill="none" stroke="#fb8500" strokeWidth="1.5" strokeDasharray="2,2" />
               )}
               <text x="35" y="18" fill="#d1d5db" fontSize="5">{isLowTrajectory ? "Low & Penetrating" : "High & Looping"}</text>
@@ -2702,86 +2864,96 @@ COACH'S LOGISTICS SUMMARY
                       )}
                     </div>
 
-                     {/* Instructions */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <p 
-                        style={{
-                          fontFamily: 'var(--font-family-body)',
-                          fontSize: '0.925rem',
-                          color: '#d1d5db',
-                          lineHeight: '1.5',
-                          whiteSpace: 'pre-wrap'
-                        }}
-                      >
-                        {(() => {
-                          const cleanText = (card.instructions || 'Execute drill segment.').replace(/[#*`[\]]/g, '');
-                          return cleanText.replace(/FIELD\s+SETUP\s+DIAGRAM:[\s\S]*?(?=\n\n[A-Z]|$)/i, '').trim();
-                        })()}
-                      </p>
+                    {/* Split-pane content container */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', width: '100%', alignItems: 'stretch' }}>
                       
-                      <DrillSetupVisualizer 
-                        instructions={card.instructions} 
-                        title={card.title} 
-                        groundName={squadSettings?.groundName || "home ground"} 
-                      />
-                    </div>
-
-                    {/* Focus Goal Accent Block (Sherrin Red Highlight) */}
-                    <div 
-                      style={{
-                        borderLeft: '3px solid var(--color-training)', // Vertical KB Sherrin Red bar
-                        paddingLeft: '12px',
-                        marginTop: '6px'
-                      }}
-                    >
-                      <span 
-                        style={{ 
-                          fontSize: '0.7rem', 
-                          color: '#8d939e', 
-                          textTransform: 'uppercase', 
-                          display: 'block', 
-                          fontWeight: '600',
-                          letterSpacing: '0.02em',
-                          marginBottom: '2px'
-                        }}
-                      >
-                        Drill Focus Goal
-                      </span>
-                      <span 
-                        style={{ 
-                          fontSize: '0.85rem', 
-                          color: 'var(--color-training)', 
-                          fontWeight: '700' 
-                        }}
-                      >
-                        {(card.goal || 'Master core skills.').replace(/[#*`[\]]/g, '')}
-                      </span>
-                    </div>
-
-                    {/* Rotation indicator for stations */}
-                    {card.isSubCard && card.switchLabel && (
-                      <div 
-                        style={{
-                          backgroundColor: 'rgba(58, 134, 255, 0.08)',
-                          border: '1px dashed rgba(58, 134, 255, 0.25)',
-                          borderRadius: '6px',
-                          padding: '10px 12px',
-                          marginTop: '4px',
-                          fontSize: '0.85rem',
-                          fontFamily: 'var(--font-family-body)',
-                          color: '#3a86ff',
-                          fontWeight: '600',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}
-                      >
-                        <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span>Rotation: {card.switchLabel.replace(/[#*`[\]]/g, '')}</span>
+                      {/* Left-aligned Visualization Pane */}
+                      <div style={{ flex: '1 1 350px', minWidth: '320px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <DrillSetupVisualizer 
+                          instructions={card.instructions} 
+                          title={card.title} 
+                          groundName={squadSettings?.groundName || "home ground"} 
+                        />
                       </div>
-                    )}
+
+                      {/* Right-aligned Data Pane */}
+                      <div style={{ flex: '1.2 1 380px', minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '12px', justifyContent: 'space-between' }}>
+                        
+                        {/* Instructions */}
+                        <p 
+                          style={{
+                            fontFamily: 'var(--font-family-body)',
+                            fontSize: '0.925rem',
+                            color: '#d1d5db',
+                            lineHeight: '1.5',
+                            whiteSpace: 'pre-wrap',
+                            margin: 0
+                          }}
+                        >
+                          {(() => {
+                            const cleanText = (card.instructions || 'Execute drill segment.').replace(/[#*`[\]]/g, '');
+                            return cleanText.replace(/FIELD\s+SETUP\s+DIAGRAM:[\s\S]*?(?=\n\n[A-Z]|$)/i, '').trim();
+                          })()}
+                        </p>
+
+                        {/* Focus Goal Accent Block (Sherrin Red Highlight) */}
+                        <div 
+                          style={{
+                            borderLeft: '3px solid var(--color-training)', // Vertical KB Sherrin Red bar
+                            paddingLeft: '12px',
+                            marginTop: '6px'
+                          }}
+                        >
+                          <span 
+                            style={{ 
+                              fontSize: '0.7rem', 
+                              color: '#8d939e', 
+                              textTransform: 'uppercase', 
+                              display: 'block', 
+                              fontWeight: '600',
+                              letterSpacing: '0.02em',
+                              marginBottom: '2px'
+                            }}
+                          >
+                            Drill Focus Goal
+                          </span>
+                          <span 
+                            style={{ 
+                              fontSize: '0.85rem', 
+                              color: 'var(--color-training)', 
+                              fontWeight: '700' 
+                            }}
+                          >
+                            {(card.goal || 'Master core skills.').replace(/[#*`[\]]/g, '')}
+                          </span>
+                        </div>
+
+                        {/* Rotation indicator for stations */}
+                        {card.isSubCard && card.switchLabel && (
+                          <div 
+                            style={{
+                              backgroundColor: 'rgba(58, 134, 255, 0.08)',
+                              border: '1px dashed rgba(58, 134, 255, 0.25)',
+                              borderRadius: '6px',
+                              padding: '10px 12px',
+                              marginTop: '4px',
+                              fontSize: '0.85rem',
+                              fontFamily: 'var(--font-family-body)',
+                              color: '#3a86ff',
+                              fontWeight: '600',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px'
+                            }}
+                          >
+                            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span>Rotation: {card.switchLabel.replace(/[#*`[\]]/g, '')}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
                     {/* Video Capture/Upload Trigger */}
                     <div style={{ 
@@ -3139,18 +3311,25 @@ COACH'S LOGISTICS SUMMARY
                           <span style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '700' }}>{drill.duration} Mins</span>
                         </div>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', margin: '0 0 8px 0' }}>
-                        <p style={{ fontSize: '0.8rem', color: '#9ca3af', margin: 0, lineHeight: '1.4', whiteSpace: 'pre-wrap' }}>
-                          {(() => {
-                            const cleanText = (drill.instructions || '').replace(/[#*`[\]]/g, '');
-                            return cleanText.replace(/FIELD\s+SETUP\s+DIAGRAM:[\s\S]*?(?=\n\n[A-Z]|$)/i, '').trim();
-                          })()}
-                        </p>
-                        <DrillSetupVisualizer 
-                          instructions={drill.instructions} 
-                          title={drill.title} 
-                          groundName={squadSettings?.groundName || "home ground"} 
-                        />
+                      {/* Split-pane container */}
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', margin: '8px 0', alignItems: 'stretch' }}>
+                        {/* Left Pane (Infographic) */}
+                        <div style={{ flex: '1 1 240px', minWidth: '220px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                          <DrillSetupVisualizer 
+                            instructions={drill.instructions} 
+                            title={drill.title} 
+                            groundName={squadSettings?.groundName || "home ground"} 
+                          />
+                        </div>
+                        {/* Right Pane (Metadata) */}
+                        <div style={{ flex: '1.2 1 260px', minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <p style={{ fontSize: '0.8rem', color: '#9ca3af', margin: 0, lineHeight: '1.4', whiteSpace: 'pre-wrap' }}>
+                            {(() => {
+                              const cleanText = (drill.instructions || '').replace(/[#*`[\]]/g, '');
+                              return cleanText.replace(/FIELD\s+SETUP\s+DIAGRAM:[\s\S]*?(?=\n\n[A-Z]|$)/i, '').trim();
+                            })()}
+                          </p>
+                        </div>
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '600' }}>
                         Goal: <span style={{ color: '#d1d5db' }}>{drill.goal}</span>
