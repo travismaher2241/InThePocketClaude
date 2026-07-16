@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ContextualTaggingModal from './ContextualTaggingModal';
 import { saveTrainingSession, getTrainingSessions, deleteSession, hasAccess, generateAIPlanSecure, getUserProfile } from '../firebaseHelpers';
 import { useAuth } from '../context/AuthProvider';
-import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS, ADULT_LOCAL_DRILLS, AFL_PRE_GAME_WARMUPS } from '../data/curriculumKnowledge';
+import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS, ADULT_LOCAL_DRILLS, AFL_PRE_GAME_WARMUPS, SYLLABUS_DRILLS } from '../data/curriculumKnowledge';
 
 const AFL_FOCUS_AREAS_CATEGORIES = {
   'Skills & Conditioning': [
@@ -447,9 +447,29 @@ export default function TrainingLab({
     const group1 = Math.floor(playerCount / 2);
     const group2 = playerCount - group1;
     const currentEquipment = getGlobalEquipment();
-
+    
     // Determine if age group is adult
     const isAdult = ageGroup === 'Seniors' || ageGroup === 'Reserves' || ageGroup === 'Over 35s' || ageGroup === 'Veterans (Over 35s)' || (typeof ageGroup === 'string' && (ageGroup.toLowerCase().includes('senior') || ageGroup.toLowerCase().includes('reserve') || ageGroup.toLowerCase().includes('over 35') || ageGroup.toLowerCase().includes('veteran') || ageGroup.toLowerCase().includes('open age')));
+
+    // Determine if squad is in Female Pathway
+    const squadNameText = squadSettings?.squadName || '';
+    const ageGroupText = ageGroup || '';
+    const isFemalePathway = 
+      squadNameText.toLowerCase().includes('girl') || 
+      squadNameText.toLowerCase().includes('women') || 
+      squadNameText.toLowerCase().includes('female') || 
+      squadNameText.toLowerCase().includes('woms') || 
+      squadNameText.endsWith('G') ||
+      squadNameText.includes(' U12G') ||
+      squadNameText.includes(' U14G') ||
+      squadNameText.includes(' U16G') ||
+      squadNameText.includes(' U18G') ||
+      ageGroupText.toLowerCase().includes('women') || 
+      ageGroupText.toLowerCase().includes('girl') ||
+      ageGroupText.toLowerCase().includes('u12g') ||
+      ageGroupText.toLowerCase().includes('u14g') ||
+      ageGroupText.toLowerCase().includes('u16g') ||
+      ageGroupText.toLowerCase().includes('u18g');
 
     // Get a randomized Pre-Game drill avoiding repetition
     let lastPreGameName = "";
@@ -580,16 +600,77 @@ export default function TrainingLab({
           lastPreGameNegativePrompt = `\nCRITICAL Repetition Constraint: The Pre-Game / Warm-Up drill in the user's previous training session was: "${lastPreGameName.replace(/[#*`[\]]/g, '')}". You MUST NOT choose or generate this exact drill again for Segment 1. Ensure you choose a different type of activity to provide variation.`;
         }
 
+        const activeCategory = ageGroupText.toUpperCase().includes('VETERAN') || ageGroupText.toUpperCase().includes('OVER 35') || ageGroupText.toUpperCase().includes('MASTER') ? 'Veterans' :
+                               ageGroupText.toUpperCase() === 'SENIORS' || ageGroupText.toUpperCase() === 'RESERVES' ? 'Seniors' :
+                               ageGroupText.toUpperCase().startsWith('U18') ? 'U18' :
+                               ageGroupText.toUpperCase().startsWith('U16') ? 'U16' :
+                               ageGroupText.toUpperCase().startsWith('U14') ? 'U14' :
+                               ageGroupText.toUpperCase().startsWith('U12') ? 'U12' :
+                               ageGroupText.toUpperCase().startsWith('U10') ? 'U10' : 'U8';
+
+        let matchingSyllabusDrills = SYLLABUS_DRILLS.filter(d => d.category === activeCategory);
+        if (isFemalePathway && activeCategory === 'Seniors') {
+          matchingSyllabusDrills = SYLLABUS_DRILLS.filter(d => d.category === 'Seniors');
+        }
+
+        const syllabusDrillsText = `
+MANDATORY SYLLABUS DRILLS POOL (Select from this pool to populate the session slots, matching focus areas where possible):
+` + matchingSyllabusDrills.map(d => `- Drill: "${d.name}"
+  Objective: ${d.objective}
+  Setup: ${d.setup}
+  Execution: ${d.execution}
+  Coaching Cues: ${d.cues}
+  Progressions: ${d.progressions}`).join('\n\n');
+
+        let femalePathwayText = "";
+        if (isFemalePathway) {
+          femalePathwayText = `
+CRITICAL FEMALE PATHWAY INJURY MITIGATION RULES (Prep-to-Play PRO Cornerstone Framework):
+- You MUST automatically inject specific safety instructions and injury prevention biomechanics into the text:
+  1. WARM-UP BLOCKS: Focus on neuromuscular control, landing stability mechanics (specifically single-leg landing stances to protect the ACL), and dynamic hip mobility.
+  2. CONTACT BLOCKS: Integrate advanced safe wrap/body-lock tackle tracking (pinning elbows, cheek-to-cheek head placement, roll and drop with control) and "Strength over Stretch" core/gluteal armor activation protocols. Strictly prohibit rotational sling tackles.
+  3. DECELERATION: Inject short, choppy deceleration stepping drills to prevent lower-limb hyper-extension risks under high load.
+`;
+        }
+
+        const groundConstraintsText = `
+CRITICAL GROUND-SPECIFIC SPATIAL DIMENSIONS (Western Park):
+- All full-ground drills, zones, and lateral movements must be calibrated strictly to Western Park's absolute footprint: length ~160m, width ~130m.
+- When referencing field width or lateral ball movement (e.g., Corridor Squeeze, Boundary Switch pivots, or Fat Side switches), ensure the numerical dimensions fit seamlessly within these constraints (lateral switches must be <= 130m).
+`;
+
+        const ratiosText = `
+STRICT AGE-SPECIFIC RATIO AND METHODOLOGY RULES:
+- Selected Age Group: "${ageGroup}" (Targeting Level: ${config.level})
+- Development Stage: ${config.stage}
+- Learning Focus: ${config.learningFocus}
+- Contact & Tackle Rules: ${config.tackleRules}
+- Technical Skill Ratio: ${config.ratios.technical}%, Tactical Awareness: ${config.ratios.tactical}%, Physical Conditioning: ${config.ratios.physical}%.
+- Methodology Constraints: ${config.ratioDetails}
+`;
+
+        const cardFormatText = `
+OUTPUT CARD FORMAT INSTRUCTIONS:
+- You must return a JSON array containing exactly 5 objects representing the five training segments.
+- Each object must have exactly these keys: "title", "duration", "instructions", "goal", "phase".
+- CRITICAL FORMAT FOR THE "instructions" KEY: The content of the "instructions" string MUST be formatted using the following exact uppercase labels with blank line separators:
+  DRILL NAME & OBJECTIVE: [Name] - [Objective]
+  
+  SETUP & GRID DIMENSIONS: [Setup details, including Western Park calibrated meters]
+  
+  EXECUTION & RULES: [Step-by-step instructions]
+  
+  ELITE COACHING CUES: [Cues]
+  
+  PROGRESSIONS & REGRESSIONS: [Progressions]
+`;
+
         const promptText = `You are an elite Australian Rules Football (AFL) coach. You MUST generate 100% unique drills for every request. 
 Do not repeat standard baseline drills. Every plan must strictly adhere to these coaching standards:
 
 1. Game-Sense Philosophy: Every activity must follow the "Game-Sense Approach" where skills are taught in tactical contexts (Penetration, Possession, Support, Delay, etc.). No static "skill reps" or queues.
 2. Age-Group & Curriculum Alignment (Curriculum Mapping):
-   - Selected Age Group: "${ageGroup}" (Targeting Level: ${config.level})
-   - Development Stage: ${config.stage}
-   - Learning Focus: ${config.learningFocus}
-   - Contact & Tackle Rules: ${config.tackleRules}
-   Every segment must respect these contact/tackle rules and be appropriately complex for this stage of player development.
+   Every segment must respect the contact/tackle rules and be appropriately complex for this stage of player development.
 3. Three Phases of the Game: Every drill must explicitly target one or more of the three phases: ATTACK, DEFENCE, or CONTEST. Titles and goals must use AFL Principles of Play terms (e.g. Penetration, Depth, Balance, Outnumber).
 4. CHANGE IT Framework: The "instructions" field for every drill must conclude with a specific "CHANGE IT Coaching Tip" showing how to modify the drill (Area, Numbers, Rules, Equipment, Time) to adjust difficulty.
 5. High Touch Objective: Prioritize high-touch (60+ touches per player), high-energy drills. If a drill has long lines, do not use it.
@@ -599,6 +680,12 @@ ${stationPromptRules}
 ${injectedDrillsText}${injectedSSGsText}
 ${lastPreGameNegativePrompt}
 
+${ratiosText}
+${femalePathwayText}
+${groundConstraintsText}
+${syllabusDrillsText}
+${cardFormatText}
+
 7. Physical Resource & Equipment Constraints (You MUST design all drills to fit strictly within the coach's available equipment. If a count is 0, do not use that type of equipment in any of the drills. Design setups that use no more than the available quantities):
    Available Equipment Inventory:
    - Cones: ${currentEquipment.cones}
@@ -607,25 +694,14 @@ ${lastPreGameNegativePrompt}
    - Agility Poles: ${currentEquipment.agilityPoles}
    - Bibs / Pinnies: ${currentEquipment.bibs}
 
-CRITICAL DEDUPLICATION RULE: You are generating a complete session plan. You must not repeat any drill, activity, or scenario. Every single station and quarter must contain a uniquely named drill. Cross-check your output before finalizing; if a drill title appears twice (e.g., repeating the warm-up in a station rotation, or repeating a station A drill in station B), you MUST replace the duplicate with a new, distinct drill from the database. All segments and concurrent stations (Station A and Station B) must be completely unique.
-
-${isAdult ? `CRITICAL ADULT TACTICAL DRILLS RULES:
-- The squad is an ADULT team (e.g., Seniors, Reserves, Over 35s).
-- EXPLICITLY FILTER OUT basic junior skill drills like static kick-to-kick grids, partner lead & mark warmups, or simple ground-ball relays.
-- Replace basic youth drill templates with high-intensity, match-simulation drills focused on structure, ball movement, and team execution.
-- Utilize standard senior football requirements:
-  1. Dynamic 3-man weave options with deep entry kicks
-  2. Stoppage clearance simulations under direct pressure
-  3. Rebound 50 transition drills focusing on switching the fat side of the ground
-  4. High-intensity situational match simulations (e.g., 6 vs. 6 keeps)
-- Use senior coaching terminology: focus on tactical setups (e.g., zonal press, corridor switch, defensive lock, outnumber extraction), execution speeds, physical conditioning limits, and complex game scenarios. Avoid simple youth/junior explanations.` : ''}
+CRITICAL DEDUPLICATION RULE: You are generating a complete session plan. You must not repeat any drill, activity, or scenario. Every single station and quarter must contain a uniquely named drill. Cross-check your output before finalizing; if a drill title appears twice, you MUST replace the duplicate with a new, distinct drill from the database. All segments and concurrent stations (Station A and Station B) must be completely unique.
 
 Create a training plan for ${duration} minutes, specifically for ${playerCount} players. The players belong to the "${ageGroup}" age group level. 
 Every drill segment MUST directly teach the selected Focus Areas: ${focusAreas.join(", ")}. 
 The complexity, grid sizes (in meters), setup descriptions, and terminology MUST be strictly tailored for the selected Age Group: "${ageGroup}".
 
 The plan must include exactly five segments representing the curriculum structure:
-1. PRE-GAME: You MUST select a completely different pre-game or warm-up activity than the standard unstructured kick-to-kick. Vary the focus between ground balls, evasive movement, handballing, and dynamic stretching. Use the following selected activity (or a creative variation of it) as the foundation for the Segment 1 instructions, goal, and phase:
+1. PRE-GAME: Select a pre-game or warm-up activity. Use the following selected activity (or a creative variation of it) as the foundation for the Segment 1 instructions, goal, and phase:
    - Activity Name: "${selectedPreGameDrill.name}"
    - Goal: ${selectedPreGameDrill.goal}
    - Description: ${selectedPreGameDrill.desc}
@@ -637,12 +713,7 @@ The plan must include exactly five segments representing the curriculum structur
 5. QUARTER 4 GAME: Match play with specific rule constraints to emphasize targeted skills (approx 15% of session time, e.g. 10 mins).
 
 Ensure the sum of the durations of these 5 segments equals exactly ${duration} minutes.
-Ensure you return a JSON array containing exactly 5 objects. Each object must have these keys:
-"title": Title of the drill segment (e.g. "QUARTER 1 WARM-UP: DYNAMIC CORRIDOR ACTIVATION")
-"duration": The duration in minutes as a number (e.g. 15, 10, 20, 15, 10)
-"instructions": Detailed plain text directions including specific setup details (e.g., grids in meters, group sizes) and the CHANGE IT Coaching Tip. Note that if Dynamic Station Split is active (squad size > 15), Q2 and Q3 instructions MUST follow the STRUCTURE: ROTATION-BASED STATIONS format, and Q4 instructions MUST include the consolidated equipment staging list at the very bottom.
-"goal": Core focus/drill goal of the segment (short highlight using curriculum principles)
-"phase": The primary phase of the game this drill targets (must be exactly one of: "Attack", "Defence", or "Contest")
+Ensure you return a JSON array containing exactly 5 objects as defined in the card format instructions.
 
 ${customPlaybookText ? `Use the following strategic playbook guidelines to shape the drills and tactics: "${customPlaybookText}"` : ''}`;
 
@@ -658,7 +729,6 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
           try {
             const parsed = JSON.parse(cleanText);
             if (Array.isArray(parsed) && parsed.length === 5) {
-              // Normalize parsed JSON to guarantee all keys exist and are uniquely mapped to their drill
               const normalized = parsed.map((item, index) => {
                 const instructions = item.instructions || item.setup || item.directions || `Execute training drills for segment ${index + 1}.`;
                 const goal = item.goal || item.focus || item.target || `Master core skills for segment ${index + 1}.`;
@@ -701,11 +771,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
     // Procedural Fallback Engine (Runs locally)
     setTimeout(() => {
       setIsFallback(true);
-      const firstFocus = focusAreas[0] || 'Corridor Transitions';
-      const resolvedKey = getLocalDrillKey(firstFocus);
-      const drills = isAdult 
-        ? (ADULT_LOCAL_DRILLS[resolvedKey] || ADULT_LOCAL_DRILLS['Corridor Transitions'])
-        : (LOCAL_DRILLS[resolvedKey] || LOCAL_DRILLS['Corridor Transitions']);
+      const config = getCurriculumConfig(ageGroup);
       
       // Calculate scaled durations if total session is not 70 mins
       const preGameMins = Math.max(5, Math.round(duration * (15/70)));
@@ -726,166 +792,194 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
         }
       }
 
-      const config = getCurriculumConfig(ageGroup);
-      const isStations = playerCount > 15;
-      
-      // Deduplication Memory Tracking Array
-      const selectedDrills = [selectedPreGameDrill.name.toLowerCase()];
+      const activeCategory = ageGroupText.toUpperCase().includes('VETERAN') || ageGroupText.toUpperCase().includes('OVER 35') || ageGroupText.toUpperCase().includes('MASTER') ? 'Veterans' :
+                             ageGroupText.toUpperCase() === 'SENIORS' || ageGroupText.toUpperCase() === 'RESERVES' ? 'Seniors' :
+                             ageGroupText.toUpperCase().startsWith('U18') ? 'U18' :
+                             ageGroupText.toUpperCase().startsWith('U16') ? 'U16' :
+                             ageGroupText.toUpperCase().startsWith('U14') ? 'U14' :
+                             ageGroupText.toUpperCase().startsWith('U12') ? 'U12' :
+                             ageGroupText.toUpperCase().startsWith('U10') ? 'U10' : 'U8';
 
-      // Candidate pools
-      let allPrescribed = PRESCRIBED_DRILLS || [];
-      let allSSGs = SMALL_SIDED_GAMES || [];
-      let allLocal = Object.values(isAdult ? ADULT_LOCAL_DRILLS : LOCAL_DRILLS).flat();
-      
-      if (isAdult) {
-        allPrescribed = allPrescribed.filter(d => 
-          !d.level?.includes("Level 4") && 
-          !d.level?.includes("Level 5") && 
-          !d.level?.includes("U8") && 
-          !d.level?.includes("U10") && 
-          !d.name.toLowerCase().includes("kick and mark") && 
-          !d.name.toLowerCase().includes("fundamentals")
-        );
-        allSSGs = allSSGs.filter(g => 
-          !g.ageFocus?.includes("U10") && 
-          !g.ageFocus?.includes("Level 5") && 
-          !g.name.toLowerCase().includes("kick and mark")
-        );
-      } else {
-        allPrescribed = allPrescribed.filter(d => !d.isAdultOnly);
-        allSSGs = allSSGs.filter(g => !g.isAdultOnly);
+      let matchingSyllabusDrills = SYLLABUS_DRILLS.filter(d => d.category === activeCategory);
+      if (isFemalePathway && activeCategory === 'Seniors') {
+        matchingSyllabusDrills = SYLLABUS_DRILLS.filter(d => d.category === 'Seniors');
       }
-      const entirePool = [...allPrescribed, ...allSSGs, ...allLocal];
 
-      const retrieveUniqueDrill = (candidates, selectedList, fallbackPool = []) => {
-        for (const c of candidates) {
-          if (!c) continue;
-          const nameLower = (c.name || c.title || '').toLowerCase();
-          if (nameLower && !selectedList.some(used => used.includes(nameLower) || nameLower.includes(used))) {
-            selectedList.push(nameLower);
-            return c;
-          }
-        }
-        for (const c of fallbackPool) {
-          if (!c) continue;
-          const nameLower = (c.name || c.title || '').toLowerCase();
-          if (nameLower && !selectedList.some(used => used.includes(nameLower) || nameLower.includes(used))) {
-            selectedList.push(nameLower);
-            return c;
-          }
-        }
-        // Absolute fallback: if everything is exhausted, just return the first candidate
-        if (candidates.length > 0 && candidates[0]) {
-          return candidates[0];
-        }
-        return fallbackPool[0] || { name: "AFL Drill", desc: "Practice core skill." };
+      const drill1 = matchingSyllabusDrills[0] || { name: "Skills Drill", objective: "Execution", setup: "15x15m", execution: "Practice passing.", cues: "Stay balanced", progressions: "Add pressure" };
+      const drill2 = matchingSyllabusDrills[1] || matchingSyllabusDrills[0] || drill1;
+      const drill3 = matchingSyllabusDrills[2] || matchingSyllabusDrills[0] || drill1;
+      const drill4 = matchingSyllabusDrills[3] || matchingSyllabusDrills[0] || drill1;
+
+      const formatDrillCardText = (d, pCount) => {
+        return `DRILL NAME & OBJECTIVE: ${d.name} - ${d.objective || 'Skill practice'}
+        
+SETUP & GRID DIMENSIONS: ${d.setup} (Calibrated for ${pCount} players inside Western Park constraints)
+
+EXECUTION & RULES: ${d.execution}
+
+ELITE COACHING CUES: ${d.cues}
+
+PROGRESSIONS & REGRESSIONS: ${d.progressions}`;
       };
 
-      const primaryQ1 = drills?.[0] || { name: 'Warm-up: AFL Kick and Mark Drill', desc: 'Practice fundamental AFL disposal, movement, and marking techniques.' };
-      const q1FilteredPool = entirePool.filter(d => d.name.toLowerCase().includes('warm-up') || d.name.toLowerCase().includes('fundamental') || d.name.toLowerCase().includes('kick and mark') || d.name.toLowerCase().includes('hands') || d.name.toLowerCase().includes('weave'));
-      const resolvedQ1Drill = retrieveUniqueDrill([primaryQ1], selectedDrills, q1FilteredPool);
-      
-      const drill0Name = resolvedQ1Drill.name.toUpperCase();
-      const drill0Desc = resolvedQ1Drill.desc || resolvedQ1Drill.goal || "Practice fundamental skills.";
+      let preGameCard = {};
+      if (isFemalePathway) {
+        preGameCard = {
+          title: "PRE-GAME: PREP-TO-PLAY PRO ACTIVATION",
+          duration: preGameMins,
+          instructions: `DRILL NAME & OBJECTIVE: Prep-to-Play PRO Activation - Neuromuscular ACL protection and landing biomechanics
+          
+SETUP & GRID DIMENSIONS: 15m x 20m grid. Fits within Western Park wing boundaries.
 
-      const primaryQ2A = drills?.[1] || { name: 'Decision Making Task', desc: 'Execute advanced skills under game-like pressure.' };
-      const resolvedQ2ADrill = retrieveUniqueDrill([primaryQ2A], selectedDrills, allPrescribed);
-      
-      const drill1Name = resolvedQ2ADrill.name.toUpperCase();
-      const drill1Desc = resolvedQ2ADrill.desc || resolvedQ2ADrill.goal || "Execute advanced skills under pressure.";
+EXECUTION & RULES: Players jog side-by-side. On whistle, perform vertical leap and land softly on one leg. Focus on knee-over-toe alignment and dynamic hip mobility exercises.
 
-      const primaryQ2B = drills?.[0] || { name: 'Fundamental Skills', desc: 'Practice fundamental skills.' };
-      const resolvedQ2BDrill = retrieveUniqueDrill([primaryQ2B], selectedDrills, allPrescribed);
-      
-      const drill0NameB = resolvedQ2BDrill.name.toUpperCase();
-      const drill0DescB = resolvedQ2BDrill.desc || resolvedQ2BDrill.goal || "Practice fundamental skills.";
+ELITE COACHING CUES: "Bend hips and knees on landing", "Soft landing", "Keep alignment, prevent knee collapse"
 
-      const primaryQ3A = drills?.[2] || { name: 'Game Sense Challenge', desc: 'Apply tactical principles in a competitive environment.' };
-      const resolvedQ3ADrill = retrieveUniqueDrill([primaryQ3A], selectedDrills, allSSGs);
-      
-      const drill2Name = resolvedQ3ADrill.name.toUpperCase();
-      const drill2Desc = resolvedQ3ADrill.desc || resolvedQ3ADrill.goal || "Apply tactical principles.";
+PROGRESSIONS & REGRESSIONS: Progression: Add light shoulder bumps in the air. Regression: Double leg landing focus.`,
+          goal: "Neuromuscular activation and landing mechanics to prevent ACL injuries.",
+          phase: "Contest"
+        };
+      } else {
+        preGameCard = {
+          title: `PRE-GAME: ${selectedPreGameDrill.name.toUpperCase()}`,
+          duration: preGameMins,
+          instructions: `DRILL NAME & OBJECTIVE: ${selectedPreGameDrill.name} - ${selectedPreGameDrill.goal}
+          
+SETUP & GRID DIMENSIONS: Oval footprint, calibrated to Western Park constraints.
 
-      const primaryQ3B = drills?.[1] || { name: 'Decision Making Task', desc: 'Execute advanced skills under pressure.' };
-      const resolvedQ3BDrill = retrieveUniqueDrill([primaryQ3B], selectedDrills, allPrescribed);
-      
-      const drill1NameB = resolvedQ3BDrill.name.toUpperCase();
-      const drill1DescB = resolvedQ3BDrill.desc || resolvedQ3BDrill.goal || "Execute advanced skills under pressure.";
+EXECUTION & RULES: ${selectedPreGameDrill.desc}
 
-      const shouldShowContact = (drillName, drillDesc) => {
-        const text = `${drillName} ${drillDesc}`.toLowerCase();
-        return text.includes('tackle') || text.includes('defender') || text.includes('defence') || text.includes('pressure') || text.includes('scrimmage') || text.includes(' battle') || text.includes('contest') || text.includes(' v ');
+ELITE COACHING CUES: "Keep eyes on ball", "Move into space", "Clean hands"
+
+PROGRESSIONS & REGRESSIONS: CHANGE IT Coaching Tip: ${selectedPreGameDrill.coachingTip}`,
+          goal: selectedPreGameDrill.goal,
+          phase: selectedPreGameDrill.phase
+        };
+      }
+
+      const q1Card = {
+        title: `QUARTER 1 WARM-UP: ${drill1.name.toUpperCase()}`,
+        duration: q1Mins,
+        instructions: formatDrillCardText(drill1, playerCount),
+        goal: `Activate movement patterns and build early confidence: ${drill1.objective}`,
+        phase: drill1.phase
       };
 
-      const drill0Contact = shouldShowContact(drill0Name, drill0Desc) ? `\n- Contact Rules: ${config.tackleRules}` : '';
-      const drill1Contact = shouldShowContact(drill1Name, drill1Desc) ? `\n- Contact Rules: ${config.tackleRules}` : '';
-      const drill2Contact = shouldShowContact(drill2Name, drill2Desc) ? `\n- Contact Rules: ${config.tackleRules}` : '';
-
+      const isStations = playerCount > 15;
       let q2Instructions = "";
       let q3Instructions = "";
       let q4Instructions = "";
-      
+
       if (isStations) {
         const q2Half = Math.round(q2Mins / 2);
         q2Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)
 
-Station A: ${drill1Name}, Goal: ${drill1Desc}, Setup: ${getLocalDrillSetup(drill1Name, group1)}${shouldShowContact(drill1Name, drill1Desc) ? `\n  - Contact Rules: ${config.tackleRules}` : ''}
-Station B: ${drill0NameB}, Goal: ${drill0DescB}, Setup: ${getLocalDrillSetup(drill0NameB, group2)}${shouldShowContact(drill0NameB, drill0DescB) ? `\n  - Contact Rules: ${config.tackleRules}` : ''}
+Station A:
+${formatDrillCardText(drill2, group1)}
+
+Station B:
+${formatDrillCardText(drill3, group2)}
 
 The Switch: Switch stations at the ${q2Half}-minute mark.`;
-        
+
         const q3Half = Math.round(q3Mins / 2);
         q3Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)
 
-Station A: ${drill2Name}, Goal: ${drill2Desc}, Setup: ${getLocalDrillSetup(drill2Name, group1)}${shouldShowContact(drill2Name, drill2Desc) ? `\n  - Contact Rules: ${config.tackleRules}` : ''}
-Station B: ${drill1NameB}, Goal: ${drill1DescB}, Setup: ${getLocalDrillSetup(drill1NameB, group2)}${shouldShowContact(drill1NameB, drill1DescB) ? `\n  - Contact Rules: ${config.tackleRules}` : ''}
+Station A:
+${formatDrillCardText(drill4, group1)}
+
+Station B:
+${formatDrillCardText(drill1, group2)}
 
 The Switch: Switch stations at the ${q3Half}-minute mark.`;
 
-        const conesCount = 32; // Doubled from 16
-        const ballsCount = Math.max(12, playerCount); // Doubled or scaled
-        q4Instructions = isAdult
-          ? `Execute a high-intensity situational match play (e.g., 6v6 keeps or rebound transitions) focusing on structural discipline, defensive locks, and rapid transition speed.
+        const conesCount = 32;
+        const ballsCount = Math.max(12, playerCount);
+        
+        let matchDescription = "";
+        let coachingTip = "";
+        
+        if (activeCategory === 'U8') {
+          matchDescription = "Play play-based modified match rules on a small footprint to maximize ground ball touches. Focus on evasion and zero contact.";
+          coachingTip = "Use tags instead of tackles. Shrink field to 25m x 15m to increase target frequency.";
+        } else if (activeCategory === 'U12') {
+          matchDescription = "Play 12-a-side match play on half-ground with a baseline 1:2 work-to-rest ratio. Focus on corridor transition and safe wrap tackling.";
+          coachingTip = "Restrict players to 1 bounce. Stop play on dangerous slings.";
+        } else if (activeCategory === 'U14') {
+          matchDescription = "Play 14-a-side match play. Apply OODA loops under fatigue. Focus on stoppage exit handballs and transition play.";
+          coachingTip = "Limit possession to 2 seconds to force OODA decision-making.";
+        } else if (activeCategory === 'U16') {
+          matchDescription = "Play match rules restricted to Western Park wings. Focus on establishing the 18-player Web Defense and forward-half press.";
+          coachingTip = "Reward 3 points for switches that move through the fat side.";
+        } else if (activeCategory === 'U18') {
+          matchDescription = "High-intensity professional match play. Focus on tactical periodization and repeated sprint ability (RSA) running intervals.";
+          coachingTip = "Mandate direct corridor entry kicks before a shot on goal is permitted.";
+        } else if (activeCategory === 'Seniors') {
+          matchDescription = "18v18 full-ground match simulation with extreme spatial restriction (Western Park length ~160m, width ~130m). Focus on structural 6-6-6 setups and rebound transition speeds.";
+          coachingTip = "Enforce a 3-second disposal limit to simulate high-pressure match tempos.";
+        } else {
+          matchDescription = "经济型低冲击对抗比赛。重点是通过20米短传和智能跑位来维持球权，完全避免跳跃争抢或远距离踢球。";
+          coachingTip = "禁止长距离踢球以保护关节；球员传球后必须原位置停止缓冲。";
+        }
 
-- Contact Rules: ${config.tackleRules}
-- CHANGE IT Coaching Tip: Restrict players to a 2-touch limit (or maximum 1.5 seconds) to simulate elite closing pressure and elevate disposal execution speed under fatigue.
+        q4Instructions = `DRILL NAME & OBJECTIVE: Quarter 4 Game - Match Simulation & Spacing
+        
+SETUP & GRID DIMENSIONS: Full ground (Western Park: 160m x 130m) or half ground (80m x 130m)
 
-CONSOLIDATED EQUIPMENT STAGING LIST (Parallel Stations Active)
-- Cones: ${conesCount}x field cones (for multiple grids/lanes)
-- Bibs: Distinct colors assigned to each sub-group to avoid mid-session swaps (${group1}x Yellow bibs for Group 1, ${group2}x Orange bibs for Group 2)
-- Balls: ${ballsCount}x footballs minimum (ensuring high touch-rates across both stations)`
-          : `Play a small-sided match (such as End-to-End Keepings Off or The Exit Strategy) to test under game pressure.
+EXECUTION & RULES: ${matchDescription}
 
-- Contact Rules: ${config.tackleRules}
-- CHANGE IT Coaching Tip: Require 3 passes before scoring or reward 3 points for corridor transitions.
+ELITE COACHING CUES: "Lower the eyes", "Anticipate the switch", "Keep structural shape under fatigue"
+
+PROGRESSIONS & REGRESSIONS: CHANGE IT Tip: ${coachingTip}
 
 CONSOLIDATED EQUIPMENT STAGING LIST (Parallel Stations Active)
 - Cones: ${conesCount}x field cones (for multiple grids/lanes)
 - Bibs: Distinct colors assigned to each sub-group to avoid mid-session swaps (${group1}x Yellow bibs for Group 1, ${group2}x Orange bibs for Group 2)
 - Balls: ${ballsCount}x footballs minimum (ensuring high touch-rates across both stations)`;
       } else {
-        q2Instructions = isAdult
-          ? `${drill1Desc}\n\n- Setup: ${groupingLabel} Split into offense vs defense tactical press grids. Maximize physical contest extraction and rapid transitions.${drill1Contact}\n- CHANGE IT Coaching Tip: Restrict ball-carriers to a 2-touch limit to simulate elite closing pressure and elevate disposal execution speed under fatigue.`
-          : `${drill1Desc}\n\n- Setup: ${groupingLabel} Split into offense vs defense spacing grids. Maximize repetitions (60+ touches target).${drill1Contact}\n- CHANGE IT Coaching Tip: Restrict ball-carriers to two bounces to increase disposal speed.`;
+        q2Instructions = `${formatDrillCardText(drill2, playerCount)}
         
-        q3Instructions = isAdult
-          ? `${drill2Desc}\n\n- Setup: ${groupingLabel} Focus on contested stoppage clearance simulations under direct pressure, defensive locks, and shifting to the fat side.${drill2Contact}\n- CHANGE IT Coaching Tip: Adjust defensive press intensity (e.g., 4v5 overload) to stress-test extraction under physical duress and test conditioning limits.`
-          : `${drill2Desc}\n\n- Setup: ${groupingLabel} Focus on contest balance, outnumbering at the stoppage, and rapid corridor transition.${drill2Contact}\n- CHANGE IT Coaching Tip: Adjust numbers (e.g. 4v3) to favor offensive flow.`;
+- CHANGE IT Coaching Tip: Restrict ball-carriers to a 2-second limit to simulate closing pressure and force quick releases.`;
 
-        q4Instructions = isAdult
-          ? `Execute a high-intensity situational match play (e.g., 6v6 keeps or rebound transitions) focusing on structural discipline, defensive locks, and rapid transition speed.
+        q3Instructions = `${formatDrillCardText(drill4, playerCount)}
+        
+- CHANGE IT Coaching Tip: Adjust numbers (e.g. 5v4) to create outnumber scenarios.`;
 
-- Contact Rules: ${config.tackleRules}
-- CHANGE IT Coaching Tip: Restrict players to a 2-touch limit (or maximum 1.5 seconds) to simulate elite closing pressure and elevate disposal execution speed under fatigue.
+        let matchDescription = "";
+        let coachingTip = "";
+        
+        if (activeCategory === 'U8') {
+          matchDescription = "Play play-based modified match rules on a small footprint to maximize ground ball touches. Focus on evasion and zero contact.";
+          coachingTip = "Use tags instead of tackles. Shrink field to 25m x 15m to increase target frequency.";
+        } else if (activeCategory === 'U12') {
+          matchDescription = "Play 12-a-side match play on half-ground with a baseline 1:2 work-to-rest ratio. Focus on corridor transition and safe wrap tackling.";
+          coachingTip = "Restrict players to 1 bounce. Stop play on dangerous slings.";
+        } else if (activeCategory === 'U14') {
+          matchDescription = "Play 14-a-side match play. Apply OODA loops under fatigue. Focus on stoppage exit handballs and transition play.";
+          coachingTip = "Limit possession to 2 seconds to force OODA decision-making.";
+        } else if (activeCategory === 'U16') {
+          matchDescription = "Play match rules restricted to Western Park wings. Focus on establishing the 18-player Web Defense and forward-half press.";
+          coachingTip = "Reward 3 points for switches that move through the fat side.";
+        } else if (activeCategory === 'U18') {
+          matchDescription = "High-intensity professional match play. Focus on tactical periodization and repeated sprint ability (RSA) running intervals.";
+          coachingTip = "Mandate direct corridor entry kicks before a shot on goal is permitted.";
+        } else if (activeCategory === 'Seniors') {
+          matchDescription = "18v18 full-ground match simulation with extreme spatial restriction (Western Park length ~160m, width ~130m). Focus on structural 6-6-6 setups and rebound transition speeds.";
+          coachingTip = "Enforce a 3-second disposal limit to simulate high-pressure match tempos.";
+        } else {
+          matchDescription = "经济型低冲击对抗比赛。重点是通过20米短传和智能跑位来维持球权，完全避免跳跃争抢或远距离踢球。";
+          coachingTip = "禁止长距离踢球以保护关节；球员传球后必须原位置停止缓冲。";
+        }
 
-COACH'S LOGISTICS SUMMARY
-- Cones: 16x field cones (for grids and lanes)
-- Bibs: 2 sets of different colors (e.g., 8x red, 8x blue)
-- Balls: 1 ball per pair (8-10 footballs minimum)`
-          : `Play a small-sided match (such as End-to-End Keepings Off or The Exit Strategy) to test under game pressure.
+        q4Instructions = `DRILL NAME & OBJECTIVE: Quarter 4 Game - Match Simulation & Spacing
+        
+SETUP & GRID DIMENSIONS: Full ground (Western Park: 160m x 130m) or half ground (80m x 130m)
 
-- Contact Rules: ${config.tackleRules}
-- CHANGE IT Coaching Tip: Require 3 passes before scoring or reward 3 points for corridor transitions.
+EXECUTION & RULES: ${matchDescription}
+
+ELITE COACHING CUES: "Lower the eyes", "Anticipate the switch", "Keep structural shape under fatigue"
+
+PROGRESSIONS & REGRESSIONS: CHANGE IT Tip: ${coachingTip}
 
 COACH'S LOGISTICS SUMMARY
 - Cones: 16x field cones (for grids and lanes)
@@ -893,42 +987,36 @@ COACH'S LOGISTICS SUMMARY
 - Balls: 1 ball per pair (8-10 footballs minimum)`;
       }
 
+      const q2Card = {
+        title: `QUARTER 2 SKILL ROTATIONS`,
+        duration: q2Mins,
+        instructions: q2Instructions,
+        goal: `Execute technical skill actions under decision-making constraints: ${drill2.name}`,
+        phase: drill2.phase
+      };
+
+      const q3Card = {
+        title: `QUARTER 3 TEAM TASK`,
+        duration: q3Mins,
+        instructions: q3Instructions,
+        goal: `Practice tactical transitions and team-based corridor resets: ${drill4.name}`,
+        phase: drill4.phase
+      };
+
+      const q4Card = {
+        title: `QUARTER 4 GAME: CURRICULUM SSG`,
+        duration: q4Mins,
+        instructions: q4Instructions,
+        goal: `Test execution and adaptability under matchday pressure.`,
+        phase: "Attack"
+      };
+
       const generatedFallbackCards = [
-        {
-          title: `PRE-GAME: ${selectedPreGameDrill.name.toUpperCase()}`,
-          duration: preGameMins,
-          instructions: `${selectedPreGameDrill.desc}\n\nCHANGE IT Coaching Tip: ${selectedPreGameDrill.coachingTip}`,
-          goal: selectedPreGameDrill.goal,
-          phase: selectedPreGameDrill.phase
-        },
-        {
-          title: `QUARTER 1 WARM-UP: ${drill0Name}`,
-          duration: q1Mins,
-          instructions: `${drill0Desc}\n\n- Setup: ${groupingLabel}. Focus on clean hands and quick release.${drill0Contact}\n- CHANGE IT Coaching Tip: Increase grid width to practice sweeping into space.`,
-          goal: `Activate movement patterns and build early confidence.`,
-          phase: `Attack`
-        },
-        {
-          title: `QUARTER 2 SKILL ROTATIONS`,
-          duration: q2Mins,
-          instructions: q2Instructions,
-          goal: `Execute technical skill actions under decision-making constraints.`,
-          phase: `Defence`
-        },
-        {
-          title: `QUARTER 3 TEAM TASK`,
-          duration: q3Mins,
-          instructions: q3Instructions,
-          goal: `Practice tactical transitions and team-based corridor resets.`,
-          phase: `Contest`
-        },
-        {
-          title: `QUARTER 4 GAME: CURRICULUM SSG`,
-          duration: q4Mins,
-          instructions: q4Instructions,
-          goal: `Test execution and adaptability under matchday pressure.`,
-          phase: `Attack`
-        }
+        preGameCard,
+        q1Card,
+        q2Card,
+        q3Card,
+        q4Card
       ];
 
       setPlanCards(generatedFallbackCards);

@@ -11,9 +11,11 @@
 export const AGE_GROUP_CURRICULUM = {
   U8: {
     level: "Level 4 (7-8 Years)",
-    stage: "Individual Skill Development",
+    stage: "Foundation Phase",
     tackleRules: "Strictly NO tackling, holding, bumping, shepherding, barging, fending off, or smothering. Focus is entirely on evasion, chasing, and basic ball handling using tags and non-contact games.",
     learningFocus: "Developing basic individual execution: kicking, marking, clean ground gathers, and running with the ball.",
+    ratios: { technical: 80, tactical: 10, physical: 10 },
+    ratioDetails: "Lock session parameters to 80% Technical Skill Acquisition, 10% Tactical Awareness (basic spatial recognition), and 10% Physical Conditioning (disguised as active play/gamification). Apply the 'SPIR' method (Show, Practise, Instruct, Reward) and 'Change It' methodology to maximize touches without long queues.",
     themes: [
       { week: 1, theme: "Contest: 1v1 Contested Ball", goal: "Understand winning possession, gathering cleanly under pressure, and protecting the ball." },
       { week: 2, theme: "Attack: Goal Kicking - Finishing & Dribbling", goal: "Scoring from different angles/contexts and exploring dribble kicks." },
@@ -29,9 +31,11 @@ export const AGE_GROUP_CURRICULUM = {
   },
   U10: {
     level: "Level 5 (9-10 Years)",
-    stage: "Small Group Transition",
+    stage: "Foundation Phase",
     tackleRules: "Modified wrap tackle is permitted (holding the opponent to wrap/stop them). Strictly NO bumping, shepherding, fending off, barging, smothering, or stealing the ball from hands. Tackler must aim to stay on their feet.",
     learningFocus: "Transitioning to working in small groups, understanding spatial positioning, and quick disposal.",
+    ratios: { technical: 70, tactical: 15, physical: 15 },
+    ratioDetails: "Enforce 70% Technical Skill Acquisition, 15% Tactical Awareness, and 15% Physical Conditioning. Continue using SPIR and modified contact biomechanics to build tackling habits safely.",
     themes: [
       { week: 1, theme: "Contest: Outnumber the Contest", goal: "Support by moving to create advantage space, handballing in space, impacting contests." },
       { week: 2, theme: "Attack: Keepings Off", goal: "Possession and support, kicking to find open teammates, identifying and leading into space." },
@@ -47,9 +51,11 @@ export const AGE_GROUP_CURRICULUM = {
   },
   U12: {
     level: "Level 6 (11-12 Years)",
-    stage: "Team Integration",
+    stage: "Modelling/Inflection Stage",
     tackleRules: "Full tackling and bumping are fully permitted. Fending off (pushing), smothering, stealing the ball, and barging are allowed. Emphasize safe tackling fundamentals: Adopt low balanced position, drive legs, wrap arms, chin to back, safe head position.",
     learningFocus: "Working as part of a team, transition play, contest balance around stoppages, and switching play.",
+    ratios: { technical: 60, tactical: 25, physical: 15 },
+    ratioDetails: "Transition to 60% Technical Skill Acquisition, 25% Tactical Awareness (zones, positioning), and 15% Physical Conditioning. Enforce a baseline 1:2 work-to-rest ratio for High-Intensity Interval Training (HIIT) to prevent physiological burnout.",
     themes: [
       { week: 1, theme: "Contest: Contest Balance - Inside and Outside", goal: "Support by using depth/width around contests, clearing congestion, stoppage switches." },
       { week: 2, theme: "Attack: Sharing to Score", goal: "Penetration and support, identifying best scoring options, sharing ball to open teammates." },
@@ -65,9 +71,11 @@ export const AGE_GROUP_CURRICULUM = {
   },
   U14: {
     level: "Youth Development (13-14 Years)",
-    stage: "Tactical Efficacy & Skill Adaptability",
+    stage: "Youth Transition",
     tackleRules: "Full contact tackling and bumping are permitted. Focus on high-speed wrap tackles, defensive transition setups, and contested gathers under immediate physical duress.",
     learningFocus: "Contested marking under pressure, midfield stoppage setups, exit strategies, and rapid disposal chains.",
+    ratios: { technical: 50, tactical: 30, physical: 20 },
+    ratioDetails: "Balance parameters to 50% Technical Skill Acquisition, 30% Tactical Awareness, and 20% Physical Conditioning. Apply the 'Observe, Orient, Decide, Act' (OODA) loop framework to evaluate decision-making under match-intensity fatigue.",
     themes: [
       { week: 1, theme: "Attack: Inside 50 Entry & Leading Patterns", goal: "Creating leads, clearing space in forward line, precise kicks to scoring zones." },
       { week: 2, theme: "Contest: Stoppage Clearances & Exit Handballs", goal: "Winning center bounce/boundary clearances, quick handball releases to outer runners." },
@@ -77,9 +85,11 @@ export const AGE_GROUP_CURRICULUM = {
   },
   U16: {
     level: "Youth Performance (15-16 Years)",
-    stage: "High-Speed Transition & Strategic Play",
+    stage: "High-Performance/Establishment Phase",
     tackleRules: "Full contact tackling. Focus on channelling/coralling opponents toward boundary, and hit-and-stick tackling techniques with zero daylight.",
     learningFocus: "Exploiting the fat side of the ground (switching), defensive zone structures, and numerical disadvantages.",
+    ratios: { technical: 40, tactical: 40, physical: 20 },
+    ratioDetails: "Shift to 40% Technical Skill Acquisition, 40% Tactical Awareness, and 20% Physical Conditioning. Focus heavily on structured team defense (e.g., The Web Defense, Forward-Half Press) and offensive transition models (Corridor Triggers, Boundary Switches).",
     themes: [
       { week: 1, theme: "Attack: Switching the Point of Attack", goal: "Lateral ball movement to clear central congestion, finding the fat side of the ground." },
       { week: 2, theme: "Defence: Zonal Coverage & Corridor Clogs", goal: "Protecting the corridor, forcing opponent play wide, transitioning from zones to man-on-man." },
@@ -89,9 +99,11 @@ export const AGE_GROUP_CURRICULUM = {
   },
   U18: {
     level: "Elite Youth Performance (17-18 Years)",
-    stage: "Tactical Mastery & Match Simulation",
+    stage: "Perfecting Phase",
     tackleRules: "Full contact tackling. High-intensity physical pressure, legal fends, smothering, and heavy bumping constraints.",
     learningFocus: "Advanced stoppage plays, tempo control, and complex forward/defensive setups.",
+    ratios: { technical: 30, tactical: 50, physical: 20 },
+    ratioDetails: "Enforce an elite preparation footprint of 30% Technical Skill, 50% Tactical Awareness, and 20% Physical Conditioning. Replicate high-intensity professional intervals combining tactical periodization and repeated sprint ability (RSA) metrics.",
     themes: [
       { week: 1, theme: "Attack: Corridor Transition & Outnumbering inside 50", goal: "Attacking inside 50, creating numerical overloads, high-speed handpass chains." },
       { week: 2, theme: "Defence: Defending the Lead & Spoil Techniques", goal: "Defending leads, spoiling from the rear, protecting drop zones under physical contact." },
@@ -101,27 +113,46 @@ export const AGE_GROUP_CURRICULUM = {
   },
   Seniors: {
     level: "Senior & Open Age",
-    stage: "Elite Performance & Strategic Mastery",
+    stage: "Elite Execution",
     tackleRules: "Full contact, senior competitive rules. Full tackling, bumping, and advanced physical containment.",
     learningFocus: "Elite transitions, defensive lock systems, set play structures, and advanced game-sense execution.",
+    ratios: { technical: 20, tactical: 60, physical: 20 },
+    ratioDetails: "Lock baseline properties to 20% Technical Skill Refinement, 60% Tactical Game Plan Execution, and 20% Physical Conditioning/Load Management. Integrate all conditioning inside full-ground match-simulation structures (e.g., 18v18 structures, extreme spatial restriction) while utilizing Acute:Chronic Workload Ratios (ACWR) and Banister model principles to optimize fitness versus fatigue.",
     themes: [
       { week: 1, theme: "Attack: Transition from Kick-ins & Corridor Switches", goal: "Breaking high-press zones, transition out of D50, lateral corridor switches." },
       { week: 2, theme: "Defence: Defensive Lock Systems & Corridor Denials", goal: "Establishing zone walls, covering fat side, and defensive transition delay." },
       { week: 3, theme: "Contest: Midfield Clearances & Tap Ratios", goal: "Stoppage structures, ruck tap-to-run transition, and front-and-square gathers." },
       { week: 4, theme: "Tactics: High-Intensity Scrimmage & Tempo Simulation", goal: "Full ground tempo simulation, situational rules constraints, and game-scenario problem solving." }
     ]
+  },
+  Veterans: {
+    level: "Veterans & Masters",
+    stage: "Fun & Longevity",
+    tackleRules: "Modified contact. Low-impact shepherding and wrap-around tackles. Strictly NO high-velocity collisions, sling tackles, or heavy bumps. Focus is entirely on joint preservation and tissue safety.",
+    learningFocus: "Technical maintenance, smart positioning, load management, and social engagement.",
+    ratios: { technical: 30, tactical: 40, physical: 30 },
+    ratioDetails: "Readjust parameters to 30% Technical Skill Maintenance, 40% Tactical Awareness (smart positioning over extensive running), and 30% Load Management & Recovery. Enforce safety, tissue preservation, and social engagement over high-impact collision. Avoid long-distance kicking or exhaustive running to prevent soft-tissue depletion.",
+    themes: [
+      { week: 1, theme: "Attack: Uncontested Mark & Move", goal: "Economic ball movement, short 20-meter link-up kicks, and lead patterns to avoid collision." },
+      { week: 2, theme: "Defence: The Sliding Web & Quadrant Coverage", goal: "Lateral defensive sliding, boundary trapping, and corridor denial while conserving energy." },
+      { week: 3, theme: "Contest: Hip and Shoulder Extraction", goal: "Controlling contested ground ball gathers safely, side-on hip contact, and clean pickups." },
+      { week: 4, theme: "Tactics: Short & Sharp Handball Flow", goal: "High-density quick-release handballing, joint preservation, and slow decision-making when fatigued." }
+    ]
   }
 };
 
 // Map U14, U16, U18, Seniors, Veterans to appropriate curriculum configs
 export function getCurriculumConfig(ageGroup) {
-  if (ageGroup === 'U8' || ageGroup === 'U9') return AGE_GROUP_CURRICULUM.U8;
-  if (ageGroup === 'U10') return AGE_GROUP_CURRICULUM.U10;
-  if (ageGroup === 'U12') return AGE_GROUP_CURRICULUM.U12;
-  if (ageGroup === 'U14') return AGE_GROUP_CURRICULUM.U14;
-  if (ageGroup === 'U16') return AGE_GROUP_CURRICULUM.U16;
-  if (ageGroup === 'U18') return AGE_GROUP_CURRICULUM.U18;
-  return AGE_GROUP_CURRICULUM.Seniors; // Fallback for Seniors & Veterans (Over 35s)
+  if (!ageGroup) return AGE_GROUP_CURRICULUM.Seniors;
+  const ag = ageGroup.toUpperCase();
+  if (ag === 'U8' || ag === 'U9') return AGE_GROUP_CURRICULUM.U8;
+  if (ag === 'U10') return AGE_GROUP_CURRICULUM.U10;
+  if (ag === 'U12' || ag.startsWith('U12')) return AGE_GROUP_CURRICULUM.U12;
+  if (ag === 'U14' || ag.startsWith('U14')) return AGE_GROUP_CURRICULUM.U14;
+  if (ag === 'U16' || ag.startsWith('U16')) return AGE_GROUP_CURRICULUM.U16;
+  if (ag === 'U18' || ag.startsWith('U18')) return AGE_GROUP_CURRICULUM.U18;
+  if (ag.includes('VETERAN') || ag.includes('OVER 35') || ag.includes('MASTER')) return AGE_GROUP_CURRICULUM.Veterans;
+  return AGE_GROUP_CURRICULUM.Seniors;
 }
 
 export const SMALL_SIDED_GAMES = [
@@ -575,3 +606,305 @@ export const AFL_PRE_GAME_WARMUPS = [
     isAdultOnly: true
   }
 ];
+
+export const SYLLABUS_DRILLS = [
+  // Under 8s (U8)
+  {
+    name: "The Mad Eagle",
+    category: "U8",
+    phase: "Contest",
+    objective: "Ground Ball Evasion",
+    setup: "A 15-meter diameter circle with 10-15 footballs (the 'eggs') placed in the center nest. Designed to fit Western Park boundary areas.",
+    execution: "Players are assigned a number. When their number is called, they run around the outside of the circle, enter the nest, gather a football, and attempt to evade the coach (the 'Mad Eagle') to return to their starting point. No tackling is permitted; evasion is key.",
+    cues: "Fingers almost touching the ground, Knuckles scraping the grass, Keep your eyes on the ball",
+    progressions: "Progression: Add a second coach or a parent as another eagle. Regression: Remove the eagle and focus purely on the ground ball gather speed."
+  },
+  {
+    name: "Ground Ball Eliminator",
+    category: "U8",
+    phase: "Contest",
+    objective: "Peripheral Vision",
+    setup: "A 20m x 20m square grid. Every player has a football. Fits within Western Park constraints.",
+    execution: "Players roll and dribble the ball along the ground with their hands within the grid. Selected 'eliminators' (parents/coaches) gently tap the balls away. Players must protect their football using body positioning.",
+    cues: "Body in line behind the ball, Stay in a semi-crouched position, Keep your head over the footy",
+    progressions: "Progression: Shrink the grid to 15m x 15m to increase congestion. Regression: Expand the grid to allow more space for slower learners."
+  },
+  // Under 12s (U12)
+  {
+    name: "3v2 Corridor Transition",
+    category: "U12",
+    phase: "Attack",
+    objective: "Decision-making in transition",
+    setup: "A 20m x 30m rectangular grid. Three attackers start at one end, two defenders start 10 meters back.",
+    execution: "Attackers must transition the ball from one end of the grid to the other using precise handballs or short kicks. Defenders aim to corral the ball carrier and cut off the corridor.",
+    cues: "Square your shoulders to the target, Draw the defender, Use the overlap",
+    progressions: "Progression: Enforce a maximum of two seconds time-in-possession. Regression: Widen the grid to 25m to afford the attackers more space."
+  },
+  {
+    name: "Whistle Kicking",
+    category: "U12",
+    phase: "Attack",
+    objective: "Mechanics & Reaction under instruction",
+    setup: "Pairs lined up 15 meters apart across the width of the oval.",
+    execution: "Players kick the ball back and forth dynamically. When the coach blows the whistle, all players must freeze instantly, holding their current biomechanical posture. The coach then walks the line correcting follow-throughs and ball grips.",
+    cues: "Hold the ball over the thigh of the kicking leg, Point your toes at the target, Guide the ball down with one hand",
+    progressions: "Progression: Execute on the run, forcing players to freeze mid-stride. Regression: Execute from a stationary position only."
+  },
+  {
+    name: "Step Over the Footy Technique",
+    category: "U12",
+    phase: "Contest",
+    objective: "Protecting the body during gathers",
+    setup: "10m lane, 1 ball stationary in the middle, coach with a bump bag.",
+    execution: "Player sprints toward the ball. The coach applies moderate pressure with the bump bag. The player must step their lead leg outside the ball, gather it while absorbing the bump, drive through the contest, and execute a handball.",
+    cues: "Lead leg outside the football to act as a shield, Drive forward through the ball (never stop over it), Stay low to maintain a strong center of gravity",
+    progressions: "Progression: Roll the ball toward the player to simulate a moving target. Regression: Replace the bump bag with a passive player applying body pressure."
+  },
+  {
+    name: "Wrap-Around Tackle Technique",
+    category: "U12",
+    phase: "Contest",
+    objective: "Introduction of safe tackling mechanics",
+    setup: "Pairs of similar size, walking pace, 10x10m area.",
+    execution: "Player A walks with the ball. Player B approaches from the front/side, drops their hips, pins Player A's arms, and executes a controlled wrap-around hold. No taking to the ground is allowed.",
+    cues: "Cheek to cheek (head close to opponent's back/side to avoid head clashes), Squeeze the arms tight to prevent disposal, Do not drag down",
+    progressions: "Progression: Increase the speed to a light jog once technique is perfected, focusing on pinning the arms safely. Regression: Perform from static stance."
+  },
+  // Under 14s (U14)
+  {
+    name: "Continuous Handball Grid",
+    category: "U14",
+    phase: "Contest",
+    objective: "Rapid hand skill execution under light fatigue",
+    setup: "20x20m grid, 12 players, 4 footballs.",
+    execution: "Players move continuously within the grid circulating the footballs by hand. On the whistle, players with the ball drop it, and all players sprint to a boundary line before returning to retrieve balls and continue.",
+    cues: "Keep eyes up, Communicate loudly, Receive the ball on the move, Punch through the ball on release",
+    progressions: "Progression: Add more footballs to increase difficulty or introduce a token defender. Regression: Reduce players or footballs."
+  },
+  {
+    name: "The Fat Side Switch",
+    category: "U14",
+    phase: "Attack",
+    objective: "Exploiting open space upon turnover",
+    setup: "Half-ground setup (approx. 50m x 50m). Divide players into a 6v3 overload scenario.",
+    execution: "The ball is deliberately crowded on the 'skinny side' (boundary). Attackers must execute a minimum of two handballs in traffic before hitting a wide kicker on the 'fat side' (open space) to clear the zone.",
+    cues: "Eyes on the fat side, Predictable movement, Own the ground",
+    progressions: "Progression: Add a trailer player who demands a backward handball before the switch. Regression: Run the drill without defensive pressure (6v0) to establish the passing pattern."
+  },
+  {
+    name: "5v5 Decision Grid",
+    category: "U14",
+    phase: "Attack",
+    objective: "Possession and spacing in tight zones",
+    setup: "A 10m x 10m inner square surrounded by a 13m x 13m outer square.",
+    execution: "Teams play 5v5 keep-away inside the inner square. To score, a player must break into the outer 3m zone and receive a pass or run the ball through without being tackled.",
+    cues: "Spread and separate, Read the cues of the attacker, Create time and space",
+    progressions: "Progression: Reduce the time limit to 30 seconds to score. Regression: Expand the inner square to 15m x 15m."
+  },
+  {
+    name: "Boundary Trap and Release",
+    category: "U14",
+    phase: "Attack",
+    objective: "Escaping a boundary line press",
+    setup: "30x30m grid on the boundary, 4v3 setup.",
+    execution: "3 defenders try to force the 4 attackers over the boundary line. Attackers must use short handballs to draw the defenders before kicking out of the trap to a free player.",
+    cues: "Do not panic, Keep the ball moving, Use overlapping runs to break the defensive wall",
+    progressions: "Progression: Make it 4v4 to increase the defensive pressure and force immediate disposal. Regression: Widen the grid to 40m."
+  },
+  // Under 16s (U16)
+  {
+    name: "Continuous 4-Ball Weave",
+    category: "U16",
+    phase: "Contest",
+    objective: "Fast-paced ball circulation and dynamic decision-making",
+    setup: "25x25m grid, 16 players, 4 footballs.",
+    execution: "Players move continuously inside the grid. The 4 balls are handballed constantly. On the whistle, players holding a ball drop it, sprint to touch an outside boundary cone, and return to collect a different ball.",
+    cues: "Demand the ball early, Receive on the move, Scan the entire grid to avoid collisions, Punch through the football",
+    progressions: "Progression: Add 3 passive defenders wearing bibs to force rapid directional changes. Regression: Reduce to 3 balls."
+  },
+  {
+    name: "45-Degree Corridor Trigger",
+    category: "U16",
+    phase: "Attack",
+    objective: "Slicing defensive lines using the corridor",
+    setup: "Half ground, 8 attackers, 4 defenders. Calibrated within Western Park boundary lines.",
+    execution: "Play starts at half-back. The ball carrier looks wide first, then instantly pivots to hit a leading target cutting 45-degrees into the corridor. The receiver plays on immediately and drives the ball forward.",
+    cues: "The corridor lead must be timed perfectly, The kicker must disguise the pass, Receiver must not prop or stop upon marking",
+    progressions: "Progression: Add a floating defender in the corridor to force the kicker to adjust the trajectory. Regression: No defenders."
+  },
+  {
+    name: "Boundary Switch Pivot",
+    category: "U16",
+    phase: "Attack",
+    objective: "Shifting the opposition zone to attack the weak side",
+    setup: "Defensive 50 to center wing, full width (130m Western Park constraints), 10 players.",
+    execution: "Ball starts deep in the defensive pocket. Players execute two rapid lateral kicks across the face of the defensive 50, finding a running player on the opposite half-back flank who transitions the ball up the open wing.",
+    cues: "Speed of ball movement is critical, Kicks must be flat and hard, The weak-side runner must anticipate the switch early",
+    progressions: "Progression: Introduce a time limit of 8 seconds to complete the switch and cross the 50m arc. Regression: Reduce length to 40m."
+  },
+  {
+    name: "Inside Contest 3v3",
+    category: "U16",
+    phase: "Contest",
+    objective: "Winning the hard ball under physical pressure",
+    setup: "15x15m grid, 3v3 setup, 1 coach with a ball.",
+    execution: "Coach throws the ball into the center of the grid. The two groups of three engage physically, attempting to win the contested ball, extract it from the congestion, and handball it cleanly out of the grid.",
+    cues: "Get your hips lower than the opposition, Protect the ball carrier, Block off the ball to create an exit lane",
+    progressions: "Progression: The coach calls out specific player names who are not allowed to touch the ball, forcing them to be purely blockers. Regression: Widen grid to 20x20m."
+  },
+  // Under 18s (U18)
+  {
+    name: "Continuous 6-Ball Cognition",
+    category: "U18",
+    phase: "Contest",
+    objective: "Extreme cognitive load and spatial awareness",
+    setup: "30x30m grid, 18 players, 6 footballs.",
+    execution: "Players move continuously, maintaining 6 footballs in motion via handballs. The coach calls cues: 'Switch' means all balls must instantly change direction; 'Drop' means players leave their current ball and sprint to find a new one.",
+    cues: "Keep your head on a swivel, Demand the ball early, Execute disposal firmly, Anticipate collisions",
+    progressions: "Progression: Add 4 passive defenders to disrupt running lanes and force tighter handballs. Regression: Reduce to 4 footballs."
+  },
+  {
+    name: "The 4-Man Overlap Engine",
+    category: "U18",
+    phase: "Attack",
+    objective: "Perfecting overlap runs at maximum speed",
+    setup: "Full length of the center square (approx 50m), groups of 4.",
+    execution: "Group starts at one end. The ball carrier moves forward and handballs to a runner bursting past. The original carrier must immediately sprint to get to the outside of the chain to receive the ball again. Sequence continues to the opposite side.",
+    cues: "Do not break stride, Deliver the handball out in front, Vocalize your run aggressively",
+    progressions: "Progression: Force the final disposal to be a 40-meter penetrating kick to a leading target. Regression: Perform at a jog (75% speed)."
+  },
+  {
+    name: "The 45-Degree Corridor Dart",
+    category: "U18",
+    phase: "Attack",
+    objective: "Slicing through defense using aggressive inboard kicking",
+    setup: "Half ground, 8 attackers, 5 defenders.",
+    execution: "Play initiates at half-back. The ball carrier fakes a kick wide, pivots, and hits a midfielder bursting 45-degrees into the corridor. The receiver must play on instantly and drive a long kick inside 50.",
+    cues: "The corridor runner must time the lead perfectly, Kicker must disguise the pass, Execute with zero hesitation",
+    progressions: "Progression: Place a floating intercept defender specifically guarding the 45-degree passing lane. Regression: Widen the corridor space."
+  },
+  {
+    name: "Lightning Boundary Switch",
+    category: "U18",
+    phase: "Attack",
+    objective: "Rapid lateral ball movement to exploit the open wing",
+    setup: "Defensive 50 to center wing, full width (130m Western Park constraints), 12 players.",
+    execution: "The ball is trapped deep in a pocket. Players execute three rapid-fire lateral kicks across the defensive 50, ending with a half-back flanker streaming up the completely open opposite wing.",
+    cues: "Ball speed is everything, Kicks must be flat and hard, Receivers must already be moving laterally before they mark",
+    progressions: "Progression: Impose a strict 8-second time limit to move the ball from the pocket to the opposite wing. Regression: 10-second limit."
+  },
+  {
+    name: "Pressure Kicking (Go Back to Go Forward)",
+    category: "U18",
+    phase: "Attack",
+    objective: "Possession retention under high pressure",
+    setup: "Full defensive 50m arc. 6 Defenders, 4 Attackers. Fits Western Park constraints.",
+    execution: "The defense intercepts a ball deep in the pocket. Driven by the '10-second zone' rule, they must initially look backward to a designated sweeping player to establish a safe switch, relieving forward line pressure.",
+    cues: "Scan behind you, Deliver low-risk flat passes, Clear the hot zone",
+    progressions: "Progression: Introduce a 3-second limit for each kick. Regression: Run without active defensive chasing."
+  },
+  // Seniors - Men
+  {
+    name: "Protect the Drop Zone",
+    category: "Seniors",
+    phase: "Contest",
+    objective: "Wrestling and body protection under aerial entries",
+    setup: "Forward 50m arc. 3v3 contest with an incoming long ball. Western Park size.",
+    execution: "A midfielder kicks long to a contest. The forwards must actively wrestle and lead the primary defender away from the drop zone to allow a secondary forward (e.g., the fat-side trailer) an uncontested run at the ball.",
+    cues: "Read the cues of the flight, Strong body position, Own the ground",
+    progressions: "Progression: Add a sweeper defender coming across the front of the pack. Regression: Use a stationary bump bag instead of a live defender."
+  },
+  {
+    name: "Fat-Side Stoppage Exit",
+    category: "Seniors",
+    phase: "Attack",
+    objective: "Boundary exit transition to the fat side",
+    setup: "Centre square to half-forward flank (forming an exact quantitative grid of approximately 50m x 70m).",
+    execution: "Following a simulated ball-up, the team wins possession but is trapped on the boundary (skinny side). They must execute a rapid 3-to-1 shift backward, hit the fat-side trailer player, and drive into the open forward 50.",
+    cues: "Get off the mark quickly, Low risk with the football, Forward open space to run into",
+    progressions: "Progression: The opposition implements a full zone defense to clog the fat side. Regression: Run as a shadow drill with zero defensive pressure."
+  },
+  {
+    name: "Senior 6-6-6 Reset",
+    category: "Seniors",
+    phase: "Contest",
+    objective: "Structural resets and transition under fatigue",
+    setup: "Full ground (160m x 130m Western Park), 36 players.",
+    execution: "Standard center bounce into 1 minute of live play. The coach blows the whistle, and all players have exactly 15 seconds to sprint back to their starting 6-6-6 positions.",
+    cues: "Demand extreme physical effort, Maintain structural integrity when exhausted, Communicate positioning loudly",
+    progressions: "Progression: Reduce the reset time to 12 seconds to drastically increase the cardiovascular pressure. Regression: 20-second reset limit."
+  },
+  {
+    name: "Coast-to-Coast Counter Strike",
+    category: "Seniors",
+    phase: "Attack",
+    objective: "High-speed transition from deep defense to scoring",
+    setup: "Full ground (160m x 130m Western Park), 12 attackers, 8 defenders.",
+    execution: "Attackers start with a kick-in from full back. They must move the ball the entire length of the field and score a goal within 18 seconds, utilizing their numerical advantage and overlap run.",
+    cues: "Relentless forward running, Hit targets perfectly on the chest, Do not slow down to wait for leads",
+    progressions: "Progression: Decrease the time limit to 15 seconds to force a highly direct, corridor-centric attack. Regression: Increase limit to 25 seconds."
+  },
+  // Seniors - Women (Female Pathway)
+  {
+    name: "Advanced Safe Tackle (No Sling)",
+    category: "Seniors",
+    phase: "Contest",
+    objective: "Body-lock tackles without rotation or sling",
+    setup: "10m x 10m grid. Working in pairs. Female pathway injury mitigation.",
+    execution: "The tackler approaches dynamically. They must execute a body-lock tackle, pinning the opponent's elbows. Crucially, they must drive through the tackle in one motion and safely 'roll and drop' their opponent to the ground, strictly avoiding any rotational sling.",
+    cues: "Control the impact, Roll and drop with control, No daylight, Pin the elbows",
+    progressions: "Progression: The ball carrier actively attempts to break the tackle. Regression: Execute on a tackle bag or impact shield to master the drive without risking a teammate."
+  },
+  {
+    name: "Deceleration Ground Ball Contest",
+    category: "Seniors",
+    phase: "Contest",
+    objective: "High-speed deceleration stepping biomechanics",
+    setup: "20m sprint lane with a ball placed 15m out. Female pathway injury mitigation.",
+    execution: "Players sprint at 90% top speed toward the ball. At the 12m mark, they must abruptly decelerate using short, choppy steps, lowering their center of gravity to execute a clean pickup without blowing past the ball or hyper-extending the knee.",
+    cues: "Short choppy deceleration steps, Drop the hips, Knees aligned over toes (no valgus collapse), Soft hands scoop",
+    progressions: "Progression: Add a chasing defender starting 2m behind. Regression: Reduce initial sprint speed to a jog."
+  },
+  // Veterans (Over 35s)
+  {
+    name: "Short and Sharp Handball Flow",
+    category: "Veterans",
+    phase: "Contest",
+    objective: "Economical handball circulation and joint safety",
+    setup: "20m x 20m grid. 6v6 scenario.",
+    execution: "Players are restricted to handballs only. They run for short 10-15 meter bursts, deliver the handball, and immediately stop to build strength in the calves and hamstrings without overloading the joints. If fatigued, players are encouraged to make smart, slow decisions.",
+    cues: "Keep it short and sharp, Stop and go, Make good decisions when fatigued",
+    progressions: "Progression: Introduce 20-30 meter short kicks once leg conditioning has been established after week 4. Regression: Walk-through pace only."
+  },
+  {
+    name: "Uncontested Mark & Move",
+    category: "Veterans",
+    phase: "Attack",
+    objective: "Joint preservation and low-impact kick-and-mark chains",
+    setup: "Full ground (approximately 160m x 130m Western Park) or half ground (80m x 130m). Groups of 4.",
+    execution: "Players focus on 'smart football'. Player A kicks to Player B on a lead. To avoid collision or jumping injuries, Player B must mark the ball on the chest or slightly out in front without leaving the ground (no knees up). They then seamlessly turn and deliver a short pass to Player C.",
+    cues: "Use the ball well, Stay on the ground, Support the runner, Protect the joints",
+    progressions: "Progression: Introduce a 3-second disposal limit to increase the tempo slightly. Regression: Reduce distance between kickers to 15m."
+  },
+  {
+    name: "The Hip and Shoulder Extraction",
+    category: "Veterans",
+    phase: "Contest",
+    objective: "Winning ground balls using safe side-on contact",
+    setup: "10x10m grid, 2v2, 1 coach with a ball.",
+    execution: "Coach rolls the ball in. Players use legal, side-on hip and shoulder contact to bump their opponent off the line of the ball, securing it and handballing out.",
+    cues: "Get your hips lower than the opposition, Stay side-on to protect your ribs, One clean scoop",
+    progressions: "Progression: Widen the grid to 15x15m to require a short jog before the contest. Regression: Perform at walking pace."
+  },
+  {
+    name: "The Sliding Web",
+    category: "Veterans",
+    phase: "Defence",
+    objective: "Lateral defensive coverage and energy conservation",
+    setup: "40x40m grid, 4 quadrants, 4 defenders, 4 attackers.",
+    execution: "Attackers move the ball. When a defender leaves their quadrant to pressure the ball carrier, the adjacent defender must slide over to cover the dangerous space left behind.",
+    cues: "Talk early, Point to the space you are covering, Head on a swivel",
+    progressions: "Progression: Add a 5th attacker to force constant sliding adjustments. Regression: Play with 3 attackers to allow easier coverage."
+  }
+];
+
