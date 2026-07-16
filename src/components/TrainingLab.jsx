@@ -557,6 +557,13 @@ const getTacticalKickingType = (card) => {
   const inst = (card.instructions || card.execution || '').toLowerCase();
   const text = title + ' ' + goal + ' ' + inst;
   
+  const hasKicking = text.includes('kick') || text.includes('punt') || text.includes('pass') || text.includes('chip') || text.includes('stab') || text.includes('launch') || text.includes('lead & mark');
+  const isHandballOnly = text.includes('handball only') || text.includes('handballs only') || text.includes('handpass only') || text.includes('handball restriction');
+  
+  if (!hasKicking || isHandballOnly) {
+    return "None";
+  }
+  
   if (text.includes('stab') || text.includes('chest') || text.includes('transition') || text.includes('short') || text.includes('low')) {
     return "Low, penetrating stab pass directly to a leading target's chest";
   }
@@ -862,12 +869,12 @@ const parseInstructions = (text) => {
   const result = {};
   
   const patterns = {
-    drillNameObjective: /DRILL\s+NAME\s+&\s+OBJECTIVE:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i,
-    targetKickingType: /TARGET\s+KICKING\s+TYPE:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i,
-    setupGridDimensions: /SETUP\s+&\s+GRID\s+DIMENSIONS:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i,
-    executionRules: /EXECUTION\s+&\s+RULES:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i,
-    eliteCoachingCues: /ELITE\s+COACHING\s+CUES:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i,
-    progressionsRegressions: /PROGRESSIONS\s+&\s+REGRESSIONS:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i
+    drillNameObjective: /DRILL\s+NAME\s+&\s+OBJECTIVE:\s*([\s\S]*?)(?=\n\s*\n|\n[A-Z]|$)/i,
+    targetKickingType: /TARGET\s+KICKING\s+TYPE:\s*([\s\S]*?)(?=\n\s*\n|\n[A-Z]|$)/i,
+    setupGridDimensions: /SETUP\s+&\s+GRID\s+DIMENSIONS:\s*([\s\S]*?)(?=\n\s*\n|\n[A-Z]|$)/i,
+    executionRules: /EXECUTION\s+&\s+RULES:\s*([\s\S]*?)(?=\n\s*\n|\n[A-Z]|$)/i,
+    eliteCoachingCues: /ELITE\s+COACHING\s+CUES:\s*([\s\S]*?)(?=\n\s*\n|\n[A-Z]|$)/i,
+    progressionsRegressions: /PROGRESSIONS\s+&\s+REGRESSIONS:\s*([\s\S]*?)(?=\n\s*\n|\n[A-Z]|$)/i
   };
 
   for (const [key, regex] of Object.entries(patterns)) {
@@ -955,21 +962,11 @@ const renderDrillTextFramework = (card) => {
     parsed = parseInstructions(instructions);
   }
   
-  const hasKickingAction = 
-    textToScan.includes('kick') || 
-    textToScan.includes('punt') || 
-    (parsed.targetKickingType && 
-     !parsed.targetKickingType.toLowerCase().includes('n/a') && 
-     !parsed.targetKickingType.toLowerCase().includes('none') && 
-     !parsed.targetKickingType.toLowerCase().includes('zero') &&
-     parsed.targetKickingType.trim() !== "");
-
-  const hasHandballOnly = 
-    (textToScan.includes('handball') || textToScan.includes('handpass') || textToScan.includes('stretch') || textToScan.includes('mobiliz') || textToScan.includes('gather')) && 
-    !textToScan.includes('kick') && 
-    !textToScan.includes('punt');
-
-  const shouldShowKicking = hasKickingAction && !hasHandballOnly;
+  const shouldShowKicking = 
+    parsed.targetKickingType && 
+    parsed.targetKickingType.trim() !== "" && 
+    !parsed.targetKickingType.toLowerCase().includes('none') &&
+    !parsed.targetKickingType.toLowerCase().includes('n/a');
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.925rem', fontFamily: 'var(--font-family-body)', color: '#d1d5db', lineHeight: '1.5', fontWeight: 'normal' }}>
@@ -1027,17 +1024,22 @@ const sanitizePlanCards = (cards, groundName = "home ground", playerCount = 0, a
     let instructions = scrub(card.instructions || '');
 
     // 1. Auto-heal TARGET KICKING TYPE if missing in instructions
-    if (!instructions.includes('TARGET KICKING TYPE:')) {
-      const kickingType = getTacticalKickingType(card);
-      // Insert TARGET KICKING TYPE immediately below DRILL NAME & OBJECTIVE
-      const nameMatch = instructions.match(/(DRILL\s+NAME\s+&\s+OBJECTIVE:\s*[\s\S]*?)(?=\n\n[A-Z]|$)/i);
-      if (nameMatch) {
-        instructions = instructions.replace(
-          nameMatch[0],
-          `${nameMatch[0].trim()}\n\nTARGET KICKING TYPE: ${kickingType}`
-        );
-      } else {
-        instructions = `TARGET KICKING TYPE: ${kickingType}\n\n${instructions}`;
+    const kickingType = getTacticalKickingType(card);
+    if (kickingType === "None") {
+      // Remove any target kicking type lines to keep layout completely clean for handball-only/warmups
+      instructions = instructions.replace(/TARGET\s+KICKING\s+TYPE:\s*([\s\S]*?)(?=\n\s*\n|\n[A-Z]|$)/i, '').trim();
+    } else {
+      if (!instructions.includes('TARGET KICKING TYPE:')) {
+        // Insert TARGET KICKING TYPE immediately below DRILL NAME & OBJECTIVE
+        const nameMatch = instructions.match(/(DRILL\s+NAME\s+&\s+OBJECTIVE:\s*[\s\S]*?)(?=\n\s*\n|\n[A-Z]|$)/i);
+        if (nameMatch) {
+          instructions = instructions.replace(
+            nameMatch[0],
+            `${nameMatch[0].trim()}\n\nTARGET KICKING TYPE: ${kickingType}\n\n`
+          );
+        } else {
+          instructions = `TARGET KICKING TYPE: ${kickingType}\n\n${instructions}`;
+        }
       }
     }
 
@@ -1819,9 +1821,11 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       const drill4 = matchingSyllabusDrills[3] || matchingSyllabusDrills[0] || drill1;
 
       const formatDrillCardText = (d, pCount) => {
+        const kickingType = getTacticalKickingType(d);
+        const kickLine = (kickingType && kickingType !== "None") ? `TARGET KICKING TYPE: ${kickingType}\n\n` : "";
         return `DRILL NAME & OBJECTIVE: ${d.name} - ${d.objective || 'Skill practice'}
         
-SETUP & GRID DIMENSIONS: ${d.setup}
+${kickLine}SETUP & GRID DIMENSIONS: ${d.setup}
 
 EXECUTION & RULES: ${d.execution}
 
