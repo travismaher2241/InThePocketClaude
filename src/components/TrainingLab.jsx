@@ -204,6 +204,75 @@ function parseStationCards(card, group1, group2) {
   return [cardA, cardB];
 }
 
+const getTacticalKickingType = (card) => {
+  const title = (card.title || '').toLowerCase();
+  const goal = (card.goal || '').toLowerCase();
+  const inst = (card.instructions || card.execution || '').toLowerCase();
+  const text = title + ' ' + goal + ' ' + inst;
+  
+  if (text.includes('stab') || text.includes('chest') || text.includes('transition') || text.includes('short') || text.includes('low')) {
+    return "Low, penetrating stab pass directly to a leading target's chest";
+  }
+  if (text.includes('boundary') || text.includes('launch') || text.includes('exit') || text.includes('rebound') || text.includes('deep')) {
+    return "High, defensive boundary launch (spoiling wide into the pocket)";
+  }
+  if (text.includes('contested') || text.includes('marking') || text.includes('inside 50') || text.includes('advantage')) {
+    return "Low drop punt to the heavy advantage side of a contested marking option";
+  }
+  return "High, looping kick out into open space (giving the ball air) for a runner to break underneath";
+};
+
+const getFieldSetupDiagram = (card) => {
+  const title = (card.title || '').toLowerCase();
+  const inst = (card.instructions || card.execution || '').toLowerCase();
+  const text = title + ' ' + inst;
+  
+  if (text.includes('weave') || text.includes('lane') || text.includes('sprint') || text.includes('run')) {
+    return `FIELD SETUP DIAGRAM:
+[Starting Line / Baseline] ---> (Cone A)
+|
+| 20 Meters (Linear Running Lane)
+v
+[Mid-Point Target Marker] ---> (Cone B)
+|
+| 20 Meters (Linear Transition Phase)
+v
+[Deep Disposal Station] ------> (Cone C)`;
+  }
+  if (text.includes('circle') || text.includes('round') || text.includes('wheel') || text.includes('loop')) {
+    return `FIELD SETUP DIAGRAM:
+   (Cone A) --- 15m --- (Cone B)
+      |                    |
+     15m   [Circle Wave]  15m
+      |                    |
+   (Cone C) --- 15m --- (Cone D)`;
+  }
+  // Default zig-zag or generic diagram
+  return `FIELD SETUP DIAGRAM:
+[Starting Line / Baseline] ---> (Cone A)
+|
+| 15 Meters (Linear Running Lane)
+v
+[Mid-Point Target Marker] ---> (Cone B)
+|
+| 15 Meters (45-Degree Angled Lead Zone)
+v
+[Deep Disposal Station] ------> (Cone C)`;
+};
+
+const getMatchPlayDiagram = (groundName, length, width) => {
+  return `FIELD SETUP DIAGRAM:
+[Goal Face] --- (6-6-6 Setup Area)
+|
+| ~50 Meters
+v
+[Center Bounce Grid] ---> (Midfielders)
+|
+| ~50 Meters
+v
+[Goal Face] (Calibrated to ${groundName} footprint: ${length} x ${width})`;
+};
+
 const validateDrillClosedLoopAndCues = (card) => {
   const titleLower = (card.title || '').toLowerCase();
   const goalLower = (card.goal || '').toLowerCase();
@@ -333,6 +402,25 @@ const validateDrillClosedLoopAndCues = (card) => {
     }
   }
 
+  // 3. TARGET KICKING TYPE and Metric Distance validations
+  const kickingMatch = instLower.match(/target\s+kicking\s+type:\s*([\s\S]*?)(?=\n\n[a-z]|$)/i);
+  if (!kickingMatch || kickingMatch[1].trim() === "") {
+    console.warn("Schema Validation Failed: TARGET KICKING TYPE is missing or blank.", card);
+    return false;
+  }
+
+  const setupMatch = instLower.match(/setup\s+&\s+grid\s+dimensions:\s*([\s\S]*?)(?=\n\n[a-z]|$)/i);
+  if (!setupMatch) {
+    console.warn("Schema Validation Failed: SETUP & GRID DIMENSIONS is missing.", card);
+    return false;
+  }
+  const setupText = setupMatch[2] || setupMatch[1] || '';
+  const hasMetricDistances = /\d+\s*(?:m|meter|meters|metre|metres)/i.test(setupText);
+  if (!hasMetricDistances) {
+    console.warn("Schema Validation Failed: SETUP & GRID DIMENSIONS lacks defined metric distances.", card);
+    return false;
+  }
+
   return true;
 };
 
@@ -448,6 +536,47 @@ const sanitizePlanCards = (cards, groundName = "home ground", playerCount = 0) =
     }
 
     let instructions = scrub(card.instructions || '');
+
+    // 1. Auto-heal TARGET KICKING TYPE if missing in instructions
+    if (!instructions.includes('TARGET KICKING TYPE:')) {
+      const kickingType = getTacticalKickingType(card);
+      // Insert TARGET KICKING TYPE immediately below DRILL NAME & OBJECTIVE
+      const nameMatch = instructions.match(/(DRILL\s+NAME\s+&\s+OBJECTIVE:\s*[\s\S]*?)(?=\n\n[A-Z]|$)/i);
+      if (nameMatch) {
+        instructions = instructions.replace(
+          nameMatch[0],
+          `${nameMatch[0].trim()}\n\nTARGET KICKING TYPE: ${kickingType}`
+        );
+      } else {
+        instructions = `TARGET KICKING TYPE: ${kickingType}\n\n${instructions}`;
+      }
+    }
+
+    // 2. Auto-heal FIELD SETUP DIAGRAM if missing in instructions
+    if (!instructions.includes('FIELD SETUP DIAGRAM:')) {
+      const isMatchPlaySegment = 
+        title.toLowerCase().includes('match play') || 
+        title.toLowerCase().includes('ssg') || 
+        title.toLowerCase().includes('scrimmage') || 
+        title.toLowerCase().includes('game') || 
+        (card.goal || '').toLowerCase().includes('match play') || 
+        (card.goal || '').toLowerCase().includes('ssg') || 
+        (card.goal || '').toLowerCase().includes('scrimmage') || 
+        (card.goal || '').toLowerCase().includes('game');
+
+      const diagram = isMatchPlaySegment 
+        ? getMatchPlayDiagram(groundName, "160m", "130m") 
+        : getFieldSetupDiagram(card);
+
+      // Insert FIELD SETUP DIAGRAM immediately below SETUP & GRID DIMENSIONS
+      const setupRegexMatch = instructions.match(/(SETUP\s+&\s+GRID\s+DIMENSIONS:\s*[\s\S]*?)(?=\n\n[A-Z]|$)/i);
+      if (setupRegexMatch) {
+        instructions = instructions.replace(
+          setupRegexMatch[0],
+          `${setupRegexMatch[0].trim()}\n\n${diagram}`
+        );
+      }
+    }
     
     // Parse out Setup & Grid Dimensions section from instructions
     const setupRegex = /(SETUP\s+&\s+GRID\s+DIMENSIONS:\s*)([\s\S]*?)(?=\n\n[A-Z]|$)/i;
@@ -970,7 +1099,9 @@ OUTPUT CARD FORMAT INSTRUCTIONS:
 - CRITICAL FORMAT FOR THE "instructions" KEY: The content of the "instructions" string MUST be formatted using the following exact uppercase labels with blank line separators:
   DRILL NAME & OBJECTIVE: [Name] - [Objective]
   
-  SETUP & GRID DIMENSIONS: [Setup details, specifying the native dimensions and player counts, without any flat total player calibration text or home ground constraints brackets]
+  TARGET KICKING TYPE: [Explicitly classify the exact technical delivery metric required, using one of these: "Low, penetrating stab pass directly to a leading target's chest", "High, looping kick out into open space (giving the ball air) for a runner to break underneath", "Low drop punt to the heavy advantage side of a contested marking option", "High, defensive boundary launch (spoiling wide into the pocket)"]
+  
+  SETUP & GRID DIMENSIONS: [Setup details, including an explicit FIELD SETUP DIAGRAM mapping the exact shape of the drill with metric distances and cone layouts, specifying the native dimensions and player counts, without any flat total player calibration text or home ground constraints brackets]
   
   EXECUTION & RULES: [Step-by-step instructions]
   
@@ -1001,7 +1132,10 @@ Do not repeat standard baseline drills. Every plan must strictly adhere to these
    - Interaction Mechanics: Define exactly what occurs when a player reaches an item or asset (e.g., "...sprint 5 meters, drop the hips to gather the first stationary ground ball...").
    - Disposal Targets: Define exactly who receives the football or where it is placed (e.g., "...execute a clean handball to the stationary partner standing at the 10m mark," or "...handball back to the next player waiting in the starting line...").
    - Return Point Boundary: Define exactly where the player runs to complete their turn (e.g., "...and high-five the next runner to tag them in before moving to the back of the line.").
-10. Curriculum Weekly Schedules (Align the session with these curriculum themes and goals):
+10. MANDATORY TACTICAL KICKING CLASSIFICATION & COORDINATE SETUP MAPPING:
+    - You MUST include a "TARGET KICKING TYPE:" subheading block immediately below the "DRILL NAME & OBJECTIVE:" block and classify the exact technical delivery metric required, using one of these: "Low, penetrating stab pass directly to a leading target's chest", "High, looping kick out into open space (giving the ball air) for a runner to break underneath", "Low drop punt to the heavy advantage side of a contested marking option", "High, defensive boundary launch (spoiling wide into the pocket)".
+    - Inside the "SETUP & GRID DIMENSIONS:" block, you MUST render an explicit "FIELD SETUP DIAGRAM:" using a high-visibility text-based coordinate grid layout block mapping the exact shape of the drill (e.g., Straight Lane, 45-Degree Zig-Zag, Diamond Grid, Funnel Zone, Cross-Oval Switch Matrix Area), clearly defining the metric distances (in meters) between every single cone/marker (Cone A, Cone B, Cone C), and indicating where player lines queue.
+11. Curriculum Weekly Schedules (Align the session with these curriculum themes and goals):
 ${weeklyThemesText}
 ${stationPromptRules}
 ${injectedDrillsText}${injectedSSGsText}
