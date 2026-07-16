@@ -1148,7 +1148,7 @@ export default function TrainingLab({
   const { currentUser } = useAuth();
 
   // Tab & Lifecycle States
-  const [activeSubTab, setActiveSubTab] = useState('plan-builder'); // 'plan-builder', 'history'
+  const [activeSubTab, setActiveSubTab] = useState('plan-builder'); // 'plan-builder', 'history', 'glossary'
   const [historySessions, setHistorySessions] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
@@ -2145,6 +2145,25 @@ COACH'S LOGISTICS SUMMARY
         >
           Session History
         </span>
+        <span
+          onClick={() => {
+            setActiveSubTab('glossary');
+            setSelectedSession(null);
+          }}
+          style={{
+            fontFamily: 'var(--font-family-locker)',
+            fontSize: '1.1rem',
+            fontWeight: '700',
+            color: activeSubTab === 'glossary' ? 'var(--color-training)' : '#8d939e',
+            cursor: 'pointer',
+            textTransform: 'uppercase',
+            transition: 'color 0.2s ease',
+            borderBottom: activeSubTab === 'glossary' ? '2px solid var(--color-training)' : 'none',
+            paddingBottom: '4px'
+          }}
+        >
+          Volunteer Glossary
+        </span>
       </div>
 
       {activeSubTab === 'history' ? (
@@ -2242,6 +2261,66 @@ COACH'S LOGISTICS SUMMARY
             </div>
           )}
         </div>
+      ) : activeSubTab === 'glossary' ? (
+        <div style={{ animation: 'fadeIn 0.3s ease-out', maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <h2 className="scoreboard-font" style={{ fontSize: '1.75rem', marginBottom: '8px', color: 'var(--text-primary)' }}>
+            Volunteer Coach Guide
+          </h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: '1.5', margin: 0 }}>
+            Welcome to the team! Coaching kids can feel intimidating, but remember: the kids just want to have fun and kick the footy. You do not need to be an AFL expert to run these sessions. Use this quick glossary to understand any terms in the training drills.
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px' }}>
+            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+              <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>Mark</strong>
+              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>Catching the football cleanly from a kick. Emphasize to players: "Hands out in front like a basket, keep your eyes on the ball."</span>
+            </div>
+
+            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+              <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>Handball / Handpass</strong>
+              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>Holding the ball in one hand and punching it out with the other fist. *Rule*: Never throw the ball. Teach players to strike it cleanly.</span>
+            </div>
+
+            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+              <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>Lead</strong>
+              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>Sprinting away from an opponent into open space to receive a pass from a teammate.</span>
+            </div>
+
+            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+              <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>Grid / Channel / Lane</strong>
+              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>A marked-out area using plastic cones. Keeps players spaced out and organized.</span>
+            </div>
+
+            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+              <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>Drop Punt</strong>
+              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>The standard AFL kick where the player drops the ball end-over-end, kicking it with the laces of their boot.</span>
+            </div>
+
+            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+              <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>Stab Pass</strong>
+              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>A low, fast, direct kick to a teammate. Great for quick passing.</span>
+            </div>
+
+            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+              <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>SSG (Small-Sided Game)</strong>
+              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>A mini-match played on a smaller field grid (e.g. 5v5 or 6v6). Ensures every player gets lots of turns and touches.</span>
+            </div>
+
+            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+              <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>Pivot</strong>
+              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>Stopping, planting one foot, and spinning around to find an open teammate.</span>
+            </div>
+          </div>
+
+          <div style={{ backgroundColor: 'rgba(58, 134, 255, 0.08)', border: '1px solid rgba(58, 134, 255, 0.2)', borderRadius: '8px', padding: '16px', marginTop: '12px' }}>
+            <h4 style={{ margin: '0 0 6px 0', fontSize: '0.95rem', color: '#3a86ff' }}>Three Golden Rules for Volunteers:</h4>
+            <ol style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: '#d1d5db', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <li><strong>Focus on effort, not results:</strong> Praise players for trying a skill (like a difficult kick), even if the ball goes out of bounds.</li>
+              <li><strong>Keep it active:</strong> If you see kids standing in line waiting, add more balls or split them into smaller groups.</li>
+              <li><strong>Keep instructions short:</strong> Explain a drill in under 60 seconds. Volunteers can demonstrate the movement physically rather than talking!</li>
+            </ol>
+          </div>
+        </div>
       ) : (
         <>
           {/* STEP 1: WIZARD SCREEN */}
@@ -2272,6 +2351,11 @@ COACH'S LOGISTICS SUMMARY
             >
               Training Lab
             </h2>
+            <div style={{ backgroundColor: 'rgba(58, 134, 255, 0.08)', border: '1px solid rgba(58, 134, 255, 0.15)', borderRadius: '8px', padding: '12px', marginTop: '16px' }}>
+              <span style={{ fontSize: '0.825rem', color: '#d1d5db', lineHeight: '1.4' }}>
+                💡 <strong>Volunteers & Parents:</strong> You don't need any prior AFL knowledge to coach! We've made these drills simple to run. Tap the <strong>Volunteer Glossary</strong> tab at the top of the screen anytime to look up AFL terms.
+              </span>
+            </div>
           </div>
 
           <div 
