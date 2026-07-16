@@ -555,22 +555,26 @@ const getTacticalKickingType = (card) => {
   const title = (card.title || '').toLowerCase();
   const goal = (card.goal || '').toLowerCase();
   const inst = (card.instructions || card.execution || '').toLowerCase();
-  const text = title + ' ' + goal + ' ' + inst;
   
-  const hasKicking = text.includes('kick') || text.includes('punt') || text.includes('pass') || text.includes('chip') || text.includes('stab') || text.includes('launch') || text.includes('lead & mark');
-  const isHandballOnly = text.includes('handball only') || text.includes('handballs only') || text.includes('handpass only') || text.includes('handball restriction');
+  // Ignore "butt kicks" which contains "kicks" but has no ball mechanics
+  const cleanInst = inst.replace(/butt\s*-?\s*kicks?/gi, '');
+  const cleanText = (title + ' ' + goal + ' ' + cleanInst).replace(/butt\s*-?\s*kicks?/gi, '');
+
+  const kickRegex = /\b(kick|kicking|kicks|punt|punted|punting|drop-punt|stab-pass|stab pass|chip|chip-pass|chip pass|launch|launched|launching)\b/i;
+  const hasKicking = kickRegex.test(cleanText) || cleanText.includes('lead & mark') || cleanText.includes('catching warm-up');
+  const isHandballOnly = cleanText.includes('handball only') || cleanText.includes('handballs only') || cleanText.includes('handpass only') || cleanText.includes('handball restriction');
   
   if (!hasKicking || isHandballOnly) {
     return "None";
   }
   
-  if (text.includes('stab') || text.includes('chest') || text.includes('transition') || text.includes('short') || text.includes('low')) {
+  if (cleanText.includes('stab') || cleanText.includes('chest') || cleanText.includes('transition') || cleanText.includes('short') || cleanText.includes('low')) {
     return "Low, penetrating stab pass directly to a leading target's chest";
   }
-  if (text.includes('boundary') || text.includes('launch') || text.includes('exit') || text.includes('rebound') || text.includes('deep')) {
+  if (cleanText.includes('boundary') || cleanText.includes('launch') || cleanText.includes('exit') || cleanText.includes('rebound') || cleanText.includes('deep')) {
     return "High, defensive boundary launch (spoiling wide into the pocket)";
   }
-  if (text.includes('contested') || text.includes('marking') || text.includes('inside 50') || text.includes('advantage')) {
+  if (cleanText.includes('contested') || cleanText.includes('marking') || cleanText.includes('inside 50') || cleanText.includes('advantage')) {
     return "Low drop punt to the heavy advantage side of a contested marking option";
   }
   return "High, looping kick out into open space (giving the ball air) for a runner to break underneath";
