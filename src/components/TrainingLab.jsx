@@ -204,7 +204,93 @@ function parseStationCards(card, group1, group2) {
   return [cardA, cardB];
 }
 
-const sanitizePlanCards = (cards, groundName = "home ground") => {
+const numberToWords = (num) => {
+  const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+  return words[num] || num.toString();
+};
+
+const scaleDrillSetup = (setupText, executionText, totalAttendance) => {
+  if (typeof setupText !== 'string') return setupText;
+  
+  // Try to find the native player count
+  let nativePlayerCount = null;
+  let matchLabel = "";
+  
+  const textToScan = (setupText + " " + (executionText || '')).toLowerCase();
+  
+  // Check common AFL match-up patterns
+  if (textToScan.includes('6v6') || textToScan.includes('6 v 6') || textToScan.includes('6 vs 6')) {
+    nativePlayerCount = 12;
+    matchLabel = "6v6 matchups";
+  } else if (textToScan.includes('5v5') || textToScan.includes('5 v 5') || textToScan.includes('5 vs 5')) {
+    nativePlayerCount = 10;
+    matchLabel = "5v5 matchups";
+  } else if (textToScan.includes('4v4') || textToScan.includes('4 v 4') || textToScan.includes('4 vs 4')) {
+    nativePlayerCount = 8;
+    matchLabel = "4v4 matchups";
+  } else if (textToScan.includes('3v3') || textToScan.includes('3 v 3') || textToScan.includes('3 vs 3')) {
+    nativePlayerCount = 6;
+    matchLabel = "3v3 matchups";
+  } else if (textToScan.includes('2v2') || textToScan.includes('2 v 2') || textToScan.includes('2 vs 2')) {
+    nativePlayerCount = 4;
+    matchLabel = "2v2 matchups";
+  } else if (textToScan.includes('3v2') || textToScan.includes('3 v 2') || textToScan.includes('3 vs 2')) {
+    nativePlayerCount = 5;
+    matchLabel = "3v2 matchups";
+  } else if (textToScan.includes('in pairs') || textToScan.includes('pairs') || textToScan.includes('groups of 2')) {
+    nativePlayerCount = 2;
+    matchLabel = "partner pairings";
+  } else {
+    // Look for "groups of X"
+    const groupMatch = textToScan.match(/groups\s+of\s+(\d+)/);
+    if (groupMatch) {
+      nativePlayerCount = parseInt(groupMatch[1]);
+      matchLabel = `groups of ${nativePlayerCount}`;
+    }
+  }
+
+  // Try to extract a grid size/dimension string
+  const dimMatch = setupText.match(/(\d+)\s*m\s*x\s*(\d+)\s*m/i) || 
+                   setupText.match(/(\d+)\s*x\s*(\d+)\s*m/i) ||
+                   setupText.match(/(\d+)\s*-\s*meter\s+diameter\s+circle/i) ||
+                   setupText.match(/(\d+)\s*-\s*meter\s+circle/i) ||
+                   setupText.match(/(\d+)\s*m\s+diameter/i) ||
+                   setupText.match(/(\d+)\s*meter\s+diameter/i);
+                   
+  const dimsStr = dimMatch ? dimMatch[0] : "";
+
+  // If we couldn't parse the player count or dimension, or if totalAttendance is not valid, fallback strictly to the native setupText.
+  if (!nativePlayerCount || !dimsStr || !totalAttendance || totalAttendance <= 0) {
+    return setupText
+      .replace(/\s*\(calibrated\s+for\s+\d+\s+players\s+inside\s+.*constraints\)/gi, '')
+      .replace(/\s*fits\s+within\s+.*constraints\.?/gi, '')
+      .replace(/\s*designed\s+to\s+fit\s+.*boundary\s+areas\.?/gi, '')
+      .trim();
+  }
+
+  // Calculate scaling math
+  const gridsNeeded = Math.floor(totalAttendance / nativePlayerCount);
+  const remainingPlayers = totalAttendance % nativePlayerCount;
+
+  if (gridsNeeded <= 1) {
+    return setupText
+      .replace(/\s*\(calibrated\s+for\s+\d+\s+players\s+inside\s+.*constraints\)/gi, '')
+      .replace(/\s*fits\s+within\s+.*constraints\.?/gi, '')
+      .replace(/\s*designed\s+to\s+fit\s+.*boundary\s+areas\.?/gi, '')
+      .trim();
+  }
+
+  let scaledString = `Set up ${gridsNeeded} separate ${dimsStr} square grids. Run ${numberToWords(gridsNeeded)} concurrent ${matchLabel}`;
+  if (remainingPlayers > 0) {
+    scaledString += ` with remaining players rotating on the interchange.`;
+  } else {
+    scaledString += `.`;
+  }
+
+  return scaledString;
+};
+
+const sanitizePlanCards = (cards, groundName = "home ground", playerCount = 0) => {
   if (!Array.isArray(cards)) return cards;
   return cards.map(card => {
     const scrub = (str) => {
@@ -230,6 +316,21 @@ const sanitizePlanCards = (cards, groundName = "home ground") => {
     }
 
     let instructions = scrub(card.instructions || '');
+    
+    // Parse out Setup & Grid Dimensions section from instructions
+    const setupRegex = /(SETUP\s+&\s+GRID\s+DIMENSIONS:\s*)([\s\S]*?)(?=\n\n[A-Z]|$)/i;
+    const setupMatch = instructions.match(setupRegex);
+    if (setupMatch) {
+      const originalSetupText = setupMatch[2].trim();
+      const scaledSetup = scaleDrillSetup(originalSetupText, instructions, playerCount);
+      instructions = instructions.replace(setupRegex, `$1${scaledSetup}`);
+    } else {
+      instructions = instructions
+        .replace(/\s*\(calibrated\s+for\s+\d+\s+players\s+inside\s+.*constraints\)/gi, '')
+        .replace(/\s*fits\s+within\s+.*constraints\.?/gi, '')
+        .replace(/\s*designed\s+to\s+fit\s+.*boundary\s+areas\.?/gi, '')
+        .trim();
+    }
     
     // Auto-heal coaching cues or setup contamination in dynamic stretching/mobilization segments
     const titleLower = title.toLowerCase();
@@ -407,7 +508,7 @@ export default function TrainingLab({
 
   // Generation status
   const [isGenerating, setIsGenerating] = useState(false);
-  const [planCards, setPlanCards] = useState(() => sanitizePlanCards(draft?.planCards || [], squadSettings?.groundName || "home ground")); // Array of structured drill card objects
+  const [planCards, setPlanCards] = useState(() => sanitizePlanCards(draft?.planCards || [], squadSettings?.groundName || "home ground", draft?.presentIds?.length || squad?.players?.length || 0)); // Array of structured drill card objects
   const [isFallback, setIsFallback] = useState(false);
   const [aiGensUsed, setAiGensUsed] = useState(0);
 
@@ -737,7 +838,7 @@ OUTPUT CARD FORMAT INSTRUCTIONS:
 - CRITICAL FORMAT FOR THE "instructions" KEY: The content of the "instructions" string MUST be formatted using the following exact uppercase labels with blank line separators:
   DRILL NAME & OBJECTIVE: [Name] - [Objective]
   
-  SETUP & GRID DIMENSIONS: [Setup details, including home ground calibrated meters]
+  SETUP & GRID DIMENSIONS: [Setup details, specifying the native dimensions and player counts, without any flat total player calibration text or home ground constraints brackets]
   
   EXECUTION & RULES: [Step-by-step instructions]
   
@@ -884,7 +985,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                 throw new Error("Rejecting AI plan generation due to parameter schema check failure: data contamination detected.");
               }
 
-              setPlanCards(sanitizePlanCards(normalized, groundName));
+              setPlanCards(sanitizePlanCards(normalized, groundName, playerCount));
               setIsFallback(false);
               setIsGenerating(false);
               const userTierClean = (subscriptionTier || 'Free').toLowerCase();
@@ -953,7 +1054,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       const formatDrillCardText = (d, pCount) => {
         return `DRILL NAME & OBJECTIVE: ${d.name} - ${d.objective || 'Skill practice'}
         
-SETUP & GRID DIMENSIONS: ${d.setup} (Calibrated for ${pCount} players inside ${groundName} constraints)
+SETUP & GRID DIMENSIONS: ${d.setup}
 
 EXECUTION & RULES: ${d.execution}
 
@@ -1164,7 +1265,7 @@ COACH'S LOGISTICS SUMMARY
         q4Card
       ];
 
-      setPlanCards(sanitizePlanCards(generatedFallbackCards, groundName));
+      setPlanCards(sanitizePlanCards(generatedFallbackCards, groundName, playerCount));
       setIsGenerating(false);
       const userTierClean = (subscriptionTier || 'Free').toLowerCase();
       if (userTierClean === 'free' || userTierClean === 'default') {
@@ -2043,7 +2144,7 @@ COACH'S LOGISTICS SUMMARY
               (() => {
                 const displayedCards = [];
                 const currentGround = squadSettings?.groundName || "home ground";
-                const sanitizedCards = sanitizePlanCards(planCards, currentGround);
+                const sanitizedCards = sanitizePlanCards(planCards, currentGround, totalPlayersCount);
                 sanitizedCards.forEach((card, index) => {
                   const parsed = parseStationCards(card, group1, group2);
                   parsed.forEach(sub => {
@@ -2536,7 +2637,7 @@ COACH'S LOGISTICS SUMMARY
               <div>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', textTransform: 'uppercase', marginBottom: '12px', fontWeight: '600' }}>Drills Executed</span>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {sanitizePlanCards(selectedSession.drills || [], squadSettings?.groundName || "home ground").map((drill, idx) => (
+                  {sanitizePlanCards(selectedSession.drills || [], squadSettings?.groundName || "home ground", selectedSession.playerCount || 18).map((drill, idx) => (
                     <div key={idx} style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '16px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                         <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#ffffff', fontFamily: 'var(--font-family-locker)', textTransform: 'uppercase' }}>{drill.title}</h4>
