@@ -3,6 +3,191 @@ import ContextualTaggingModal from './ContextualTaggingModal';
 import { saveTrainingSession, getTrainingSessions, deleteSession, hasAccess, generateAIPlanSecure, getUserProfile } from '../firebaseHelpers';
 import { useAuth } from '../context/AuthProvider';
 import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS, ADULT_LOCAL_DRILLS, AFL_PRE_GAME_WARMUPS, SYLLABUS_DRILLS } from '../data/curriculumKnowledge';
+import aflGroundImage from '../assets/AFL GROUND.png';
+
+function DrillSetupVisualizer({ instructions, title, groundName = "home ground" }) {
+  if (!instructions) return null;
+
+  // Extract target kicking type
+  const kickingMatch = instructions.match(/TARGET\s+KICKING\s+TYPE:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i);
+  const kickingType = kickingMatch ? kickingMatch[1].trim() : "";
+
+  // Extract distances
+  const distanceMatches = [...instructions.matchAll(/(\d+)\s*(?:m|meter|meters|metre|metres)/gi)];
+  const distances = distanceMatches.map(m => m[0]);
+  
+  const distAB = distances[0] || "15m";
+  const distBC = distances[1] || "15m";
+  const distBD = distances[2] || "20m";
+
+  // Check which cones are present
+  const hasA = /cone\s+a/i.test(instructions);
+  const hasB = /cone\s+b/i.test(instructions);
+  const hasC = /cone\s+c/i.test(instructions);
+  const hasD = /cone\s+d/i.test(instructions);
+
+  const showA = hasA || true;
+  const showB = hasB || true;
+  const showC = hasC || true;
+  const showD = hasD || /side|wing|wide/i.test(instructions);
+
+  // Coordinate percentages for SVG
+  const posA = { x: 200, y: 195 }; // Bottom Center (Start)
+  const posB = { x: 200, y: 115 }; // Middle Center (Target)
+  const posC = { x: 200, y: 35 };  // Top Center (Deep)
+  const posD = { x: 290, y: 115 }; // Middle Right (Side)
+
+  // Determine kicking trajectory curve
+  let isLowTrajectory = true;
+  if (kickingType.toLowerCase().includes('looping') || kickingType.toLowerCase().includes('high') || kickingType.toLowerCase().includes('launch')) {
+    isLowTrajectory = false;
+  }
+
+  return (
+    <div style={{
+      width: '100%',
+      aspectRatio: '16/9',
+      position: 'relative',
+      backgroundImage: `url(${aflGroundImage})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      borderRadius: '8px',
+      overflow: 'hidden',
+      border: '1px solid rgba(255,255,255,0.1)',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+      marginTop: '16px',
+      marginBottom: '16px'
+    }}>
+      {/* SVG Vector Dimension Lines & Markers Overlay */}
+      <svg viewBox="0 0 400 225" style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 2 L 10 5 L 0 8 z" fill="#ffb703" />
+          </marker>
+          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="1" dy="1" stdDeviation="1" floodColor="#000000" floodOpacity="0.8" />
+          </filter>
+        </defs>
+
+        {/* Dimension Line A -> B */}
+        {showA && showB && (
+          <>
+            <line x1={posA.x} y1={posA.y - 12} x2={posB.x} y2={posB.y + 12} stroke="#ffb703" strokeWidth="1.5" strokeDasharray="3,3" markerEnd="url(#arrow)" markerStart="url(#arrow)" />
+            <text x={posB.x - 22} y={(posA.y + posB.y) / 2} fill="#ffb703" fontSize="8" fontWeight="bold" filter="url(#shadow)">{distAB}</text>
+          </>
+        )}
+
+        {/* Dimension Line B -> C */}
+        {showB && showC && (
+          <>
+            <line x1={posB.x} y1={posB.y - 12} x2={posC.x} y2={posC.y + 12} stroke="#ffb703" strokeWidth="1.5" strokeDasharray="3,3" markerEnd="url(#arrow)" markerStart="url(#arrow)" />
+            <text x={posC.x - 22} y={(posB.y + posC.y) / 2} fill="#ffb703" fontSize="8" fontWeight="bold" filter="url(#shadow)">{distBC}</text>
+          </>
+        )}
+
+        {/* Dimension Line B -> D */}
+        {showB && showD && (
+          <>
+            <line x1={posB.x + 12} y1={posB.y} x2={posD.x - 12} y2={posD.y} stroke="#ffb703" strokeWidth="1.5" strokeDasharray="3,3" markerEnd="url(#arrow)" markerStart="url(#arrow)" />
+            <text x={(posB.x + posD.x) / 2} y={posB.y - 6} fill="#ffb703" fontSize="8" fontWeight="bold" filter="url(#shadow)">{distBD}</text>
+          </>
+        )}
+
+        {/* Cone Markers (Orange traffic cones) */}
+        {showA && (
+          <g transform={`translate(${posA.x}, ${posA.y})`}>
+            {/* Player Queue Dot */}
+            <circle cx="-12" cy="0" r="4" fill="#3a86ff" filter="url(#shadow)" />
+            <circle cx="-18" cy="4" r="4" fill="#3a86ff" opacity="0.7" />
+            <path d="M -8 -6 L 8 -6 L 2 6 L -2 6 Z" fill="#fb8500" filter="url(#shadow)" />
+            <ellipse cx="0" cy="5" rx="4" ry="1.5" fill="#e05300" />
+            <text x="12" y="4" fill="#ffffff" fontSize="7" fontWeight="bold" filter="url(#shadow)">Cone A (Queue)</text>
+          </g>
+        )}
+
+        {showB && (
+          <g transform={`translate(${posB.x}, ${posB.y})`}>
+            <circle cx="-12" cy="0" r="4" fill="#3a86ff" filter="url(#shadow)" />
+            <path d="M -8 -6 L 8 -6 L 2 6 L -2 6 Z" fill="#fb8500" filter="url(#shadow)" />
+            <ellipse cx="0" cy="5" rx="4" ry="1.5" fill="#e05300" />
+            <text x="12" y="4" fill="#ffffff" fontSize="7" fontWeight="bold" filter="url(#shadow)">Cone B</text>
+          </g>
+        )}
+
+        {showC && (
+          <g transform={`translate(${posC.x}, ${posC.y})`}>
+            <path d="M -8 -6 L 8 -6 L 2 6 L -2 6 Z" fill="#fb8500" filter="url(#shadow)" />
+            <ellipse cx="0" cy="5" rx="4" ry="1.5" fill="#e05300" />
+            <text x="12" y="4" fill="#ffffff" fontSize="7" fontWeight="bold" filter="url(#shadow)">Cone C</text>
+          </g>
+        )}
+
+        {showD && (
+          <g transform={`translate(${posD.x}, ${posD.y})`}>
+            <path d="M -8 -6 L 8 -6 L 2 6 L -2 6 Z" fill="#fb8500" filter="url(#shadow)" />
+            <ellipse cx="0" cy="5" rx="4" ry="1.5" fill="#e05300" />
+            <text x="-48" y="4" fill="#ffffff" fontSize="7" fontWeight="bold" filter="url(#shadow)">Cone D</text>
+          </g>
+        )}
+      </svg>
+
+      {/* Upper Right Corner: Technical Data Panel Overlay */}
+      {kickingType && (
+        <div style={{
+          position: 'absolute',
+          top: '12px',
+          right: '12px',
+          width: '160px',
+          backgroundColor: 'rgba(28, 31, 38, 0.9)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '6px',
+          padding: '8px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px',
+          boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+        }}>
+          <span style={{ fontSize: '0.6rem', color: '#ffb703', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>TARGET KICKING TYPE</span>
+          <span style={{ fontSize: '0.7rem', color: '#ffffff', fontWeight: '600', lineHeight: '1.2' }}>{kickingType}</span>
+          
+          {/* Mini-graphic of flight trajectory */}
+          <div style={{ height: '30px', position: 'relative', borderTop: '1px solid rgba(255,255,255,0.05)', marginTop: '4px', paddingTop: '4px' }}>
+            <svg viewBox="0 0 100 20" style={{ width: '100%', height: '100%' }}>
+              {/* Kicker node */}
+              <circle cx="10" cy="15" r="2" fill="#3a86ff" />
+              {/* Target receiver node */}
+              <circle cx="90" cy="15" r="2" fill="#fb8500" />
+              
+              {/* Trajectory line */}
+              {isLowTrajectory ? (
+                // Stab pass: flat low curve
+                <path d="M 10 15 Q 50 8, 90 15" fill="none" stroke="#3a86ff" strokeWidth="1.5" strokeDasharray="2,2" />
+              ) : (
+                // High/looping kick: tall curve
+                <path d="M 10 15 Q 50 1, 90 15" fill="none" stroke="#fb8500" strokeWidth="1.5" strokeDasharray="2,2" />
+              )}
+              <text x="35" y="18" fill="#d1d5db" fontSize="5">{isLowTrajectory ? "Low & Penetrating" : "High & Looping"}</text>
+            </svg>
+          </div>
+        </div>
+      )}
+
+      {/* Upper Left Corner: Boundary Info Overlay */}
+      <div style={{
+        position: 'absolute',
+        top: '12px',
+        left: '12px',
+        backgroundColor: 'rgba(28, 31, 38, 0.8)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '4px',
+        padding: '4px 8px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+      }}>
+        <span style={{ fontSize: '0.65rem', color: '#ffffff', fontWeight: 'bold', textTransform: 'uppercase' }}>{groundName}</span>
+      </div>
+    </div>
+  );
+}
 
 const AFL_FOCUS_AREAS_CATEGORIES = {
   'Skills & Conditioning': [
@@ -2517,18 +2702,29 @@ COACH'S LOGISTICS SUMMARY
                       )}
                     </div>
 
-                    {/* Instructions */}
-                    <p 
-                      style={{
-                        fontFamily: 'var(--font-family-body)',
-                        fontSize: '0.925rem',
-                        color: '#d1d5db',
-                        lineHeight: '1.5',
-                        whiteSpace: 'pre-wrap'
-                      }}
-                    >
-                      {(card.instructions || 'Execute drill segment.').replace(/[#*`[\]]/g, '')}
-                    </p>
+                     {/* Instructions */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <p 
+                        style={{
+                          fontFamily: 'var(--font-family-body)',
+                          fontSize: '0.925rem',
+                          color: '#d1d5db',
+                          lineHeight: '1.5',
+                          whiteSpace: 'pre-wrap'
+                        }}
+                      >
+                        {(() => {
+                          const cleanText = (card.instructions || 'Execute drill segment.').replace(/[#*`[\]]/g, '');
+                          return cleanText.replace(/FIELD\s+SETUP\s+DIAGRAM:[\s\S]*?(?=\n\n[A-Z]|$)/i, '').trim();
+                        })()}
+                      </p>
+                      
+                      <DrillSetupVisualizer 
+                        instructions={card.instructions} 
+                        title={card.title} 
+                        groundName={squadSettings?.groundName || "home ground"} 
+                      />
+                    </div>
 
                     {/* Focus Goal Accent Block (Sherrin Red Highlight) */}
                     <div 
@@ -2943,7 +3139,19 @@ COACH'S LOGISTICS SUMMARY
                           <span style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '700' }}>{drill.duration} Mins</span>
                         </div>
                       </div>
-                      <p style={{ fontSize: '0.8rem', color: '#9ca3af', margin: '0 0 8px 0', lineHeight: '1.4' }}>{drill.instructions}</p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', margin: '0 0 8px 0' }}>
+                        <p style={{ fontSize: '0.8rem', color: '#9ca3af', margin: 0, lineHeight: '1.4', whiteSpace: 'pre-wrap' }}>
+                          {(() => {
+                            const cleanText = (drill.instructions || '').replace(/[#*`[\]]/g, '');
+                            return cleanText.replace(/FIELD\s+SETUP\s+DIAGRAM:[\s\S]*?(?=\n\n[A-Z]|$)/i, '').trim();
+                          })()}
+                        </p>
+                        <DrillSetupVisualizer 
+                          instructions={drill.instructions} 
+                          title={drill.title} 
+                          groundName={squadSettings?.groundName || "home ground"} 
+                        />
+                      </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '600' }}>
                         Goal: <span style={{ color: '#d1d5db' }}>{drill.goal}</span>
                       </div>
