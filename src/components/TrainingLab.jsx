@@ -229,10 +229,52 @@ const sanitizePlanCards = (cards, groundName = "home ground") => {
       title = title.replace(/^QUARTER 4 GAME/i, 'MATCH PLAY / SSG');
     }
 
+    let instructions = scrub(card.instructions || '');
+    
+    // Auto-heal coaching cues or setup contamination in dynamic stretching/mobilization segments
+    const titleLower = title.toLowerCase();
+    const goalLower = (card.goal || '').toLowerCase();
+    const isPhysicalActivation = 
+      titleLower.includes('warm-up') || 
+      titleLower.includes('activation') || 
+      titleLower.includes('stretching') || 
+      titleLower.includes('mobilization') ||
+      goalLower.includes('warm-up') || 
+      goalLower.includes('activation') || 
+      goalLower.includes('stretching') || 
+      goalLower.includes('mobilization');
+
+    if (isPhysicalActivation && typeof instructions === 'string') {
+      // 1. Clean up hybrid setup dimensions like "10m x 10m lane grids"
+      if (instructions.includes('10m x 10m lane grids') || instructions.includes('10m x 10m lane grid')) {
+        instructions = instructions.replace(/10m\s*x\s*10m\s*lane\s*grids?/gi, 'parallel 20-meter running lanes separated by 5 meters');
+      }
+      
+      // 2. Clean up ball-handling cues in dynamic activation cards
+      const cuesMatch = instructions.match(/ELITE\s+COACHING\s+CUES:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i);
+      if (cuesMatch) {
+        const cuesText = cuesMatch[1];
+        if (
+          cuesText.toLowerCase().includes('ball') || 
+          cuesText.toLowerCase().includes('hand') || 
+          cuesText.toLowerCase().includes('kick') || 
+          cuesText.toLowerCase().includes('mark') || 
+          cuesText.toLowerCase().includes('disposal') || 
+          cuesText.toLowerCase().includes('pass') ||
+          cuesText.toLowerCase().includes('clean hands')
+        ) {
+          instructions = instructions.replace(
+            cuesMatch[0],
+            `ELITE COACHING CUES: "Drive the knees to hip height", "Maintain an upright posture", "Stay light on your toes and control the deceleration"`
+          );
+        }
+      }
+    }
+
     return {
       ...card,
       title: scrub(title),
-      instructions: scrub(card.instructions),
+      instructions,
       goal: scrub(card.goal)
     };
   });
@@ -714,7 +756,14 @@ Do not repeat standard baseline drills. Every plan must strictly adhere to these
 4. CHANGE IT Framework: The "instructions" field for every drill must conclude with a specific "CHANGE IT Coaching Tip" showing how to modify the drill (Area, Numbers, Rules, Equipment, Time) to adjust difficulty.
 5. High Touch Objective: Prioritize high-touch (60+ touches per player), high-energy drills. If a drill has long lines, do not use it.
 6. NO LOCAL VENUES OR CLUB NAMES: You MUST NOT mention any specific local town, venue, or club names such as "Western Park", "Warragul", "Dusties", or "Dusty". Use generic terms like "home ground", "local club", or "opposition".
-7. Curriculum Weekly Schedules (Align the session with these curriculum themes and goals):
+7. STRICT CONTEXTUAL COHERENCE FOR COACHING CUES: The ELITE COACHING CUES must map directly to the physical actions in the EXECUTION & RULES field. If a drill is a dynamic warm-up or mobilization block without footballs (e.g. high knees, butt kicks, leg swings, running lines), you MUST completely ban generic ball-handling placeholder cues like "Keep eyes on ball", "Move into space", or "Clean hands". Instead, you MUST use relevant physiological cues such as:
+   - "Drive the knees to hip height"
+   - "Maintain an upright posture"
+   - "Stay light on your toes and control the deceleration"
+8. CLEAR SPATIAL SETUP TERMINOLOGY: You MUST NOT use nonsensical, hybrid dimension phrases like "10m x 10m lane grids". Force the setup to use distinct, real-world setup types based on the drill category:
+   - For linear, running, tracking, or conditioning drills, use channels or lanes (e.g., "Set up parallel 20-meter running lanes separated by 5 meters").
+   - For contested, skill rotations, or small-sided games, use square grids (e.g., "Set up a 10m x 10m square grid using 4 cones").
+9. Curriculum Weekly Schedules (Align the session with these curriculum themes and goals):
 ${weeklyThemesText}
 ${stationPromptRules}
 ${injectedDrillsText}${injectedSSGsText}
@@ -783,6 +832,57 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                   phase
                 };
               });
+
+              // Perform parameter schema validation checks for context alignment
+              let hasDataContamination = false;
+              for (const card of normalized) {
+                const titleLower = (card.title || '').toLowerCase();
+                const goalLower = (card.goal || '').toLowerCase();
+                const instLower = (card.instructions || '').toLowerCase();
+
+                const isPhysicalActivation = 
+                  titleLower.includes('warm-up') || 
+                  titleLower.includes('activation') || 
+                  titleLower.includes('stretching') || 
+                  titleLower.includes('mobilization') || 
+                  titleLower.includes('pre-game') ||
+                  goalLower.includes('warm-up') || 
+                  goalLower.includes('activation') || 
+                  goalLower.includes('stretching') || 
+                  goalLower.includes('mobilization');
+
+                if (isPhysicalActivation) {
+                  // Extract the ELITE COACHING CUES section
+                  const cuesMatch = instLower.match(/elite\s+coaching\s+cues:\s*([\s\S]*?)(?=\n\n[a-z]|$)/i);
+                  const cuesText = cuesMatch ? cuesMatch[1] : '';
+
+                  const hasBallHandlingCues = 
+                    cuesText.includes('ball') || 
+                    cuesText.includes('hand') || 
+                    cuesText.includes('kick') || 
+                    cuesText.includes('mark') || 
+                    cuesText.includes('disposal') || 
+                    cuesText.includes('pass') ||
+                    cuesText.includes('clean hands');
+
+                  if (hasBallHandlingCues) {
+                    console.warn("Rejecting AI plan due to parameter contamination: physical activation card contains ball-handling cues", card);
+                    hasDataContamination = true;
+                    break;
+                  }
+
+                  // Check for hybrid spatial setup terminology
+                  if (instLower.includes('lane grid') || instLower.includes('lane-grid')) {
+                    console.warn("Rejecting AI plan due to parameter contamination: contains hybrid setup dimensions 'lane grid'", card);
+                    hasDataContamination = true;
+                    break;
+                  }
+                }
+              }
+
+              if (hasDataContamination) {
+                throw new Error("Rejecting AI plan generation due to parameter schema check failure: data contamination detected.");
+              }
 
               setPlanCards(sanitizePlanCards(normalized, groundName));
               setIsFallback(false);
@@ -880,6 +980,11 @@ PROGRESSIONS & REGRESSIONS: Progression: Add light shoulder bumps in the air. Re
           phase: "Contest"
         };
       } else {
+        const isDynamicStretching = selectedPreGameDrill.name.toLowerCase().includes('stretch') || selectedPreGameDrill.name.toLowerCase().includes('mobiliz');
+        const preGameCues = isDynamicStretching
+          ? `"Drive the knees to hip height", "Maintain an upright posture", "Stay light on your toes and control the deceleration"`
+          : `"Keep eyes on ball", "Move into space", "Clean hands"`;
+
         preGameCard = {
           title: `WARM-UP & ACTIVATION: ${selectedPreGameDrill.name.toUpperCase()}`,
           duration: preGameMins,
@@ -889,7 +994,7 @@ SETUP & GRID DIMENSIONS: Oval footprint, calibrated to ${groundName} constraints
 
 EXECUTION & RULES: ${selectedPreGameDrill.desc}
 
-ELITE COACHING CUES: "Keep eyes on ball", "Move into space", "Clean hands"
+ELITE COACHING CUES: ${preGameCues}
 
 PROGRESSIONS & REGRESSIONS: CHANGE IT Coaching Tip: ${selectedPreGameDrill.coachingTip}`,
           goal: selectedPreGameDrill.goal,

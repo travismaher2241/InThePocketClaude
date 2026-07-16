@@ -551,7 +551,7 @@ export const AFL_PRE_GAME_WARMUPS = [
   {
     name: "AFL Dynamic Stretching & Mobilization Grids",
     goal: "Increase heart rate and dynamic range of motion.",
-    desc: "Set up 10m x 10m lane grids. Players line up and perform dynamic movements across the grid: high knees, butt kicks, leg swings, arm circles, lateral lunges, and light jogging.",
+    desc: "Set up parallel 20-meter running lanes separated by 5 meters. Players line up and perform dynamic movements across the lanes: high knees, butt kicks, leg swings, arm circles, lateral lunges, and light jogging.",
     coachingTip: "Emphasize controlled movements and landing on light feet.",
     phase: "Warm-Up"
   },
