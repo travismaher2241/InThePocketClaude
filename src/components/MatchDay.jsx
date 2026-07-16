@@ -116,6 +116,48 @@ export default function MatchDay({
 
   const [isStatsExported, setIsStatsExported] = useState(false);
 
+  const [homeScore, setHomeScore] = useState(() => {
+    const saved = localStorage.getItem('inthepocket_matchday_homescore');
+    return saved ? JSON.parse(saved) : { goals: 0, behinds: 0 };
+  });
+
+  const [awayScore, setAwayScore] = useState(() => {
+    const saved = localStorage.getItem('inthepocket_matchday_awayscore');
+    return saved ? JSON.parse(saved) : { goals: 0, behinds: 0 };
+  });
+
+  const [activeScoreTeam, setActiveScoreTeam] = useState('home');
+  const [activeView, setActiveView] = useState('field'); // 'field' or 'list'
+  const [plannedRotations, setPlannedRotations] = useState([]);
+  
+  const [playerStats, setPlayerStats] = useState(() => {
+    const saved = localStorage.getItem('inthepocket_matchday_playerstats');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  const [selectedPlayerForStats, setSelectedPlayerForStats] = useState(null);
+  
+  const [matchNotes, setMatchNotes] = useState(() => {
+    return localStorage.getItem('inthepocket_matchday_notes') || '';
+  });
+
+  // Sync scores and stats to localStorage
+  useEffect(() => {
+    localStorage.setItem('inthepocket_matchday_homescore', JSON.stringify(homeScore));
+  }, [homeScore]);
+
+  useEffect(() => {
+    localStorage.setItem('inthepocket_matchday_awayscore', JSON.stringify(awayScore));
+  }, [awayScore]);
+
+  useEffect(() => {
+    localStorage.setItem('inthepocket_matchday_playerstats', JSON.stringify(playerStats));
+  }, [playerStats]);
+
+  useEffect(() => {
+    localStorage.setItem('inthepocket_matchday_notes', matchNotes);
+  }, [matchNotes]);
+
   // Mobile Tap-To-Swap state helper
   const [selectedBenchId, setSelectedBenchId] = useState(null);
 
@@ -622,156 +664,182 @@ export default function MatchDay({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%', paddingBottom: '40px' }}>
-      
-      {/* Sleek Hardware-style Header Bar */}
+          {/* Sleek Hardware-style Header Bar */}
       <div style={{
         backgroundColor: '#12141c',
         border: '1px solid rgba(255, 255, 255, 0.05)',
         borderRadius: '12px',
         padding: '16px 20px',
         display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
+        flexDirection: 'column',
         gap: '16px',
         userSelect: 'none'
       }}>
-        {/* Left Side: Title & Session Timing */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <h2 className="scoreboard-font" style={{ color: '#ffffff', margin: 0, fontSize: '1.4rem', letterSpacing: '0.5px' }}>
-            MATCH DAY
-          </h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '500', fontFamily: 'var(--font-family-locker)' }}>
-              Q{period} | {formatClock(gameTime)}
-            </span>
-            
-            {/* Play/Pause Toggle button */}
-            <button 
-              onClick={toggleGameClock}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#ffffff',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '2px 4px',
-                opacity: 0.6,
-                transition: 'opacity 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-              onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}
-            >
-              {isPlaying ? (
-                <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="16" /><rect x="14" y="4" width="6" height="16" /></svg>
-              ) : (
-                <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              )}
-            </button>
+        {/* Top Section: Title & Timers & View Switcher */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '16px' }}>
+          {/* Left Side: Title & Session Timing */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <h2 className="scoreboard-font" style={{ color: '#ffffff', margin: 0, fontSize: '1.4rem', letterSpacing: '0.5px' }}>
+              MATCH DAY
+            </h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '500', fontFamily: 'var(--font-family-locker)' }}>
+                Q{period} | {formatClock(gameTime)}
+              </span>
+              
+              {/* Play/Pause Toggle button */}
+              <button 
+                onClick={toggleGameClock}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '2px 4px',
+                  opacity: 0.6,
+                  transition: 'opacity 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}
+              >
+                {isPlaying ? (
+                  <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="16" /><rect x="14" y="4" width="6" height="16" /></svg>
+                ) : (
+                  <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                )}
+              </button>
 
-            {/* Reset Button */}
-            <button 
-              onClick={resetGameClock}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#ffffff',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '2px 4px',
-                opacity: 0.6,
-                transition: 'opacity 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-              onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}
-              title="Reset session timer"
-            >
-              <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3-3-3"/>
-              </svg>
-            </button>
+              {/* Reset Button */}
+              <button 
+                onClick={resetGameClock}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '2px 4px',
+                  opacity: 0.6,
+                  transition: 'opacity 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}
+                title="Reset session timer"
+              >
+                <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3-3-3"/>
+                </svg>
+              </button>
 
-            {/* Quarter select button group */}
-            <div style={{ display: 'flex', gap: '4px', alignItems: 'center', flexShrink: 0 }}>
-              {[1, 2, 3, 4].map((q) => {
-                const isActive = period === q;
-                return (
-                  <button
-                    key={q}
-                    type="button"
-                    onClick={() => setPeriod(q)}
-                    style={{
-                      padding: '2px 6px',
-                      fontSize: '0.7rem',
-                      fontFamily: 'var(--font-family-locker)',
-                      fontWeight: '700',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      border: '1px solid',
-                      borderColor: isActive ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.1)',
-                      backgroundColor: isActive ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.03)',
-                      color: isActive ? '#000000' : '#8d939e',
-                      transition: 'all 0.15s ease',
-                      flexShrink: 0,
-                      height: '18px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    Q{q}
-                  </button>
-                );
-              })}
+              {/* Quarter select button group */}
+              <div style={{ display: 'flex', gap: '4px', alignItems: 'center', flexShrink: 0 }}>
+                {[1, 2, 3, 4].map((q) => {
+                  const isActive = period === q;
+                  return (
+                    <button
+                      key={q}
+                      type="button"
+                      onClick={() => setPeriod(q)}
+                      style={{
+                        padding: '2px 6px',
+                        fontSize: '0.7rem',
+                        fontFamily: 'var(--font-family-locker)',
+                        fontWeight: '700',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        border: '1px solid',
+                        borderColor: isActive ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.1)',
+                        backgroundColor: isActive ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.03)',
+                        color: isActive ? '#000000' : '#8d939e',
+                        transition: 'all 0.15s ease',
+                        flexShrink: 0,
+                        height: '18px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      Q{q}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Right Side: Export Stats + Video Upload */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          
-          {/* Export Stats Action Button */}
-          <button 
-            onClick={handleExportRotationStats}
-            style={{
-              background: isStatsExported 
-                ? 'linear-gradient(180deg, rgba(42, 157, 143, 0.22) 0%, rgba(42, 157, 143, 0.08) 100%)' 
-                : 'linear-gradient(180deg, rgba(255, 122, 0, 0.22) 0%, rgba(255, 122, 0, 0.08) 100%)',
-              border: '1px solid',
-              borderColor: isStatsExported ? '#2a9d8f' : 'var(--color-video)',
-              color: isStatsExported ? '#2a9d8f' : 'var(--color-video)',
-              fontFamily: 'var(--font-family-locker)',
-              fontSize: '0.85rem',
-              fontWeight: '700',
-              textTransform: 'uppercase',
-              padding: '6px 14px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
-              userSelect: 'none',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-              textShadow: '0 1px 2px rgba(0, 0, 0, 0.4)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-1px)';
-              e.currentTarget.style.boxShadow = isStatsExported 
-                ? '0 4px 8px rgba(42, 157, 143, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.1)' 
-                : '0 4px 8px rgba(255, 122, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
-            }}
-          >
-            {isStatsExported ? 'Stats Exported' : 'Export Stats'}
-          </button>
+          {/* View Switcher Tabs */}
+          <div style={{
+            display: 'flex',
+            backgroundColor: 'rgba(255, 255, 255, 0.03)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '8px',
+            padding: '4px',
+            gap: '4px'
+          }}>
+            <button
+              onClick={() => setActiveView('field')}
+              style={{
+                backgroundColor: activeView === 'field' ? 'var(--color-match)' : 'transparent',
+                color: activeView === 'field' ? '#000000' : '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '6px 12px',
+                fontSize: '0.8rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                fontFamily: 'var(--font-family-locker)'
+              }}
+            >
+              📋 Field Board
+            </button>
+            <button
+              onClick={() => setActiveView('list')}
+              style={{
+                backgroundColor: activeView === 'list' ? 'var(--color-match)' : 'transparent',
+                color: activeView === 'list' ? '#000000' : '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '6px 12px',
+                fontSize: '0.8rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                fontFamily: 'var(--font-family-locker)'
+              }}
+            >
+              📊 Roster List
+            </button>
+          </div>
 
-          {/* Upload Video Trigger */}
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          {/* Right Side Actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button 
+              onClick={handleExportRotationStats}
+              style={{
+                background: isStatsExported 
+                  ? 'linear-gradient(180deg, rgba(42, 157, 143, 0.22) 0%, rgba(42, 157, 143, 0.08) 100%)' 
+                  : 'linear-gradient(180deg, rgba(255, 122, 0, 0.22) 0%, rgba(255, 122, 0, 0.08) 100%)',
+                border: '1px solid',
+                borderColor: isStatsExported ? '#2a9d8f' : 'var(--color-video)',
+                color: isStatsExported ? '#2a9d8f' : 'var(--color-video)',
+                fontFamily: 'var(--font-family-locker)',
+                fontSize: '0.85rem',
+                fontWeight: '700',
+                textTransform: 'uppercase',
+                padding: '6px 14px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.25s ease'
+              }}
+            >
+              {isStatsExported ? 'Stats Exported' : 'Export Stats'}
+            </button>
             <input 
               type="file" 
               accept="video/*" 
@@ -792,15 +860,7 @@ export default function MatchDay({
                 border: '1px solid rgba(255, 122, 0, 0.2)',
                 color: 'var(--color-video)',
                 cursor: 'pointer',
-                transition: 'background-color 0.2s, opacity 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(255, 122, 0, 0.2)';
-                e.currentTarget.style.opacity = '0.85';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(255, 122, 0, 0.1)';
-                e.currentTarget.style.opacity = '1';
+                transition: 'all 0.2s'
               }}
               title="Record / Upload Match Video Segment"
             >
@@ -809,7 +869,130 @@ export default function MatchDay({
               </svg>
             </label>
           </div>
+        </div>
 
+        {/* Bottom Section: Digital Scoreboard Widget */}
+        <div style={{
+          backgroundColor: '#0a0b0e',
+          border: '1px solid rgba(255, 255, 255, 0.03)',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px'
+        }}>
+          {/* Team Tabs */}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={() => setActiveScoreTeam('home')}
+              style={{
+                padding: '4px 10px',
+                fontSize: '0.75rem',
+                fontFamily: 'var(--font-family-locker)',
+                fontWeight: '700',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                border: '1px solid',
+                borderColor: activeScoreTeam === 'home' ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.1)',
+                backgroundColor: activeScoreTeam === 'home' ? 'var(--color-match)' : 'transparent',
+                color: activeScoreTeam === 'home' ? '#000000' : '#8d939e',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              Score: Home Team
+            </button>
+            <button
+              onClick={() => setActiveScoreTeam('away')}
+              style={{
+                padding: '4px 10px',
+                fontSize: '0.75rem',
+                fontFamily: 'var(--font-family-locker)',
+                fontWeight: '700',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                border: '1px solid',
+                borderColor: activeScoreTeam === 'away' ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.1)',
+                backgroundColor: activeScoreTeam === 'away' ? 'var(--color-match)' : 'transparent',
+                color: activeScoreTeam === 'away' ? '#000000' : '#8d939e',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              Score: Opposition
+            </button>
+          </div>
+
+          {/* Scores Panel */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
+            {/* Home Score Display */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '0.8rem', color: '#8d939e', fontWeight: '600' }}>HOME:</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span className="scoreboard-font" style={{ color: '#ffffff', fontSize: '1.1rem' }}>{homeScore.goals}G</span>
+                <span className="scoreboard-font" style={{ color: '#ffffff', fontSize: '1.1rem' }}>{homeScore.behinds}B</span>
+                <span className="scoreboard-font" style={{ color: 'var(--color-match)', fontSize: '1.3rem', fontWeight: '800', marginLeft: '4px' }}>
+                  {homeScore.goals * 6 + homeScore.behinds}
+                </span>
+              </div>
+            </div>
+
+            {/* Vs Separator */}
+            <span style={{ color: 'rgba(255, 255, 255, 0.15)', fontWeight: 'bold' }}>VS</span>
+
+            {/* Away Score Display */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '0.8rem', color: '#8d939e', fontWeight: '600' }}>AWAY:</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span className="scoreboard-font" style={{ color: '#ffffff', fontSize: '1.1rem' }}>{awayScore.goals}G</span>
+                <span className="scoreboard-font" style={{ color: '#ffffff', fontSize: '1.1rem' }}>{awayScore.behinds}B</span>
+                <span className="scoreboard-font" style={{ color: '#ffb703', fontSize: '1.3rem', fontWeight: '800', marginLeft: '4px' }}>
+                  {awayScore.goals * 6 + awayScore.behinds}
+                </span>
+              </div>
+            </div>
+
+            {/* Score Modifier controls for selected activeScoreTeam */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
+              paddingLeft: '16px'
+            }}>
+              <span style={{ fontSize: '0.75rem', color: '#8d939e', marginRight: '4px' }}>
+                Adjust {activeScoreTeam.toUpperCase()}:
+              </span>
+              <button
+                type="button"
+                onClick={() => adjustScore('goals', 1)}
+                style={{ backgroundColor: 'rgba(42, 157, 143, 0.2)', border: '1px solid #2a9d8f', color: '#2a9d8f', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}
+              >
+                + Goal
+              </button>
+              <button
+                type="button"
+                onClick={() => adjustScore('goals', -1)}
+                style={{ backgroundColor: 'rgba(230, 57, 70, 0.15)', border: '1px solid #e63946', color: '#e63946', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}
+              >
+                -G
+              </button>
+              <button
+                type="button"
+                onClick={() => adjustScore('behinds', 1)}
+                style={{ backgroundColor: 'rgba(42, 157, 143, 0.2)', border: '1px solid #2a9d8f', color: '#2a9d8f', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}
+              >
+                + Behind
+              </button>
+              <button
+                type="button"
+                onClick={() => adjustScore('behinds', -1)}
+                style={{ backgroundColor: 'rgba(230, 57, 70, 0.15)', border: '1px solid #e63946', color: '#e63946', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}
+              >
+                -B
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1000,114 +1183,249 @@ export default function MatchDay({
         )}
       </div>
 
-      {/* FORMAL AFL POSITIONAL GRID (Deep Matte Green Whiteboard Vibe) */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            On Field ({onFieldPlayerIds.length} / 18 Players)
-          </div>
-          {selectedBenchId && (
-            <span style={{ fontSize: '0.75rem', color: 'var(--color-match)', fontWeight: '600' }}>
-              👉 Select target slot to swap position
-            </span>
-          )}
-        </div>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+        gap: '24px',
+        alignItems: 'start'
+      }}>
+        {/* LEFT COLUMN: FIELD OR ROSTER LIST VIEW */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {activeView === 'field' ? (
+            <>
+              {/* FORMAL AFL POSITIONAL GRID (Deep Matte Green Whiteboard Vibe) */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    On Field ({onFieldPlayerIds.length} / 18 Players)
+                  </div>
+                  {selectedBenchId && (
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-match)', fontWeight: '600' }}>
+                      👉 Select target slot to swap position
+                    </span>
+                  )}
+                </div>
 
-        <div style={{ 
-          backgroundColor: '#1a3c34', // Deep matte stadium green field
-          border: '1px solid rgba(255, 255, 255, 0.08)', 
-          borderRadius: '12px', 
-          padding: '24px 12px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '24px',
-          boxShadow: 'inset 0 0 30px rgba(0,0,0,0.5)'
-        }}>
-          
-          {/* Positional grid rows (Forwards to Backs) */}
-          {[
-            { line: 'Forwards', posIds: ['pos_fp_l', 'pos_ff', 'pos_fp_r'] },
-            { line: 'Half Forwards', posIds: ['pos_hff_l', 'pos_chf', 'pos_hff_r'] },
-            { line: 'Midfield (Mids)', posIds: ['pos_w_l', 'pos_c', 'pos_w_r'] },
-            { line: 'Ruck Group', posIds: ['pos_r', 'pos_rr', 'pos_ro'] },
-            { line: 'Half Backs', posIds: ['pos_hbf_l', 'pos_chb', 'pos_hbf_r'] },
-            { line: 'Backs', posIds: ['pos_bp_l', 'pos_fb', 'pos_bp_r'] }
-          ].map((row) => (
-            <div key={row.line} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {/* Row Header Label */}
-              <div 
-                className="scoreboard-font" 
-                style={{ 
-                  fontSize: '0.65rem', 
-                  color: 'rgba(255,255,255,0.25)', 
-                  letterSpacing: '1px', 
-                  borderBottom: '1px dashed rgba(255,255,255,0.05)', 
-                  paddingBottom: '2px',
-                  textAlign: 'center'
-                }}
-              >
-                {row.line.toUpperCase()}
+                <div style={{ 
+                  backgroundColor: '#1a3c34', // Deep matte stadium green field
+                  border: '1px solid rgba(255, 255, 255, 0.08)', 
+                  borderRadius: '12px', 
+                  padding: '24px 12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '24px',
+                  boxShadow: 'inset 0 0 30px rgba(0,0,0,0.5)'
+                }}>
+                  
+                  {/* Positional grid rows (Forwards to Backs) */}
+                  {[
+                    { line: 'Forwards', posIds: ['pos_fp_l', 'pos_ff', 'pos_fp_r'] },
+                    { line: 'Half Forwards', posIds: ['pos_hff_l', 'pos_chf', 'pos_hff_r'] },
+                    { line: 'Midfield (Mids)', posIds: ['pos_w_l', 'pos_c', 'pos_w_r'] },
+                    { line: 'Ruck Group', posIds: ['pos_r', 'pos_rr', 'pos_ro'] },
+                    { line: 'Half Backs', posIds: ['pos_hbf_l', 'pos_chb', 'pos_hbf_r'] },
+                    { line: 'Backs', posIds: ['pos_bp_l', 'pos_fb', 'pos_bp_r'] }
+                  ].map((row) => (
+                    <div key={row.line} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {/* Row Header Label */}
+                      <div 
+                        className="scoreboard-font" 
+                        style={{ 
+                          fontSize: '0.65rem', 
+                          color: 'rgba(255,255,255,0.25)', 
+                          letterSpacing: '1px', 
+                          borderBottom: '1px dashed rgba(255,255,255,0.05)', 
+                          paddingBottom: '2px',
+                          textAlign: 'center'
+                        }}
+                      >
+                        {row.line.toUpperCase()}
+                      </div>
+
+                      {/* Grid slots (3 columns per row) */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                        {row.posIds.map((posId) => {
+                          const pos = FIELD_POSITIONS.find(p => p.id === posId);
+                          const assignedPlayerId = fieldAssignments[posId];
+                          const player = squad.find(p => p.id === assignedPlayerId);
+                          
+                          // Calculate active stint times
+                          const activeStintSec = playerOnGroundStint[assignedPlayerId] || 0;
+                          const activeStintMin = Math.floor(activeStintSec / 60);
+                          const togSec = playerTOG[assignedPlayerId] || 0;
+                          
+                          let warningClass = '';
+                          if (assignedPlayerId) {
+                            if (activeStintMin >= maxStintMinutes) {
+                              warningClass = 'flash-danger';
+                            } else if (activeStintMin >= maxStintMinutes - 2) {
+                              warningClass = 'flash-warning';
+                            }
+                          }
+
+                          const isSelected = selectedBenchId === assignedPlayerId && assignedPlayerId !== undefined;
+
+                          return (
+                            <button 
+                              key={posId}
+                              type="button"
+                              onDragOver={handleDragOver}
+                              onDrop={(e) => handleDrop(e, posId)}
+                              onClick={() => setActiveSelectSlotId(posId)}
+                              className={warningClass}
+                              style={{ 
+                                backgroundColor: isSelected ? 'rgba(255,183,3,0.15)' : 'rgba(0, 0, 0, 0.4)', 
+                                border: selectedBenchId ? '1.5px dashed rgba(255, 183, 3, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)', 
+                                borderRadius: '6px', 
+                                padding: '10px 6px',
+                                textAlign: 'center',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                minHeight: '68px',
+                                userSelect: 'none',
+                                width: '100%',
+                                outline: 'none',
+                                color: 'inherit',
+                                lineHeight: 'normal'
+                              }}
+                            >
+                              {/* Position Code */}
+                              <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.5)', fontWeight: '800', letterSpacing: '0.02em' }}>
+                                {pos.code}
+                              </div>
+                              
+                              {player ? (
+                                <>
+                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', margin: '2px 0', width: '100%', minWidth: 0 }}>
+                                    <span className="scoreboard-font" style={{ fontSize: '0.95rem', color: 'var(--color-match)', fontWeight: '800', flexShrink: 0 }}>
+                                      #{player.jersey}
+                                    </span>
+                                    <span style={{ 
+                                      fontSize: getFontSizeForName(player.name.split(' ')[0]), 
+                                      fontWeight: '700', 
+                                      color: '#ffffff', 
+                                      overflow: 'hidden', 
+                                      textOverflow: 'ellipsis', 
+                                      whiteSpace: 'nowrap', 
+                                      flex: 1,
+                                      minWidth: 0,
+                                      textAlign: 'center'
+                                    }} title={player.name.split(' ')[0]}>
+                                      {player.name.split(' ')[0]}
+                                    </span>
+                                  </div>
+                                  {/* Active Stint & TOG timer */}
+                                  <div className="scoreboard-font" style={{ 
+                                    fontSize: '0.55rem', 
+                                    color: warningClass ? '#e63946' : 'rgba(255,255,255,0.3)',
+                                    opacity: warningClass ? 1 : 0.65,
+                                    fontWeight: '600'
+                                  }}>
+                                    {activeStintMin}m (TOG: {Math.round(togSec / 60)}m)
+                                  </div>
+                                </>
+                              ) : (
+                                <div style={{ fontSize: '0.7rem', color: 'rgba(255, 255, 255, 0.15)', margin: 'auto' }}>
+                                  VACANT
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+
+                </div>
               </div>
 
-              {/* Grid slots (3 columns per row) */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-                {row.posIds.map((posId) => {
-                  const pos = FIELD_POSITIONS.find(p => p.id === posId);
-                  const assignedPlayerId = fieldAssignments[posId];
-                  const player = squad.find(p => p.id === assignedPlayerId);
-                  
-                  // Calculate active stint times
-                  const activeStintSec = playerOnGroundStint[assignedPlayerId] || 0;
-                  const activeStintMin = Math.floor(activeStintSec / 60);
-                  const togSec = playerTOG[assignedPlayerId] || 0;
-                  
-                  let warningClass = '';
-                  if (assignedPlayerId) {
-                    if (activeStintMin >= maxStintMinutes) {
-                      warningClass = 'flash-danger';
-                    } else if (activeStintMin >= maxStintMinutes - 2) {
-                      warningClass = 'flash-warning';
-                    }
-                  }
+              {/* BENCH MANAGER */}
+              <div 
+                onDragOver={handleDragOver}
+                onDrop={handleDropToBench}
+                onClick={handleBenchAreaTap}
+                style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '12px',
+                  backgroundColor: 'var(--bg-surface)',
+                  border: '1px solid var(--border-light)',
+                  borderRadius: '12px',
+                  padding: '16px 20px',
+                  transition: 'all 0.2s',
+                  borderColor: selectedBenchId ? 'var(--color-match)' : 'var(--border-light)',
+                  cursor: selectedBenchId ? 'pointer' : 'default'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Interchange ({benchPlayerIds.length} Players)
+                  </div>
+                  {selectedBenchId && (
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-match)', fontWeight: '600' }}>
+                      👉 Tap Interchange area to move selected player to bench
+                    </span>
+                  )}
+                </div>
 
-                  const isSelected = selectedBenchId === assignedPlayerId && assignedPlayerId !== undefined;
-
-                  return (
-                    <button 
-                      key={posId}
-                      type="button"
-                      onDragOver={handleDragOver}
-                      onDrop={(e) => handleDrop(e, posId)}
-                      onClick={() => setActiveSelectSlotId(posId)}
-                      className={warningClass}
-                      style={{ 
-                        backgroundColor: isSelected ? 'rgba(255,183,3,0.15)' : 'rgba(0, 0, 0, 0.4)', 
-                        border: selectedBenchId ? '1.5px dashed rgba(255, 183, 3, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)', 
-                        borderRadius: '6px', 
-                        padding: '10px 6px',
-                        textAlign: 'center',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        minHeight: '68px',
-                        userSelect: 'none',
-                        width: '100%',
-                        outline: 'none',
-                        color: 'inherit',
-                        lineHeight: 'normal'
-                      }}
-                    >
-                      {/* Position Code */}
-                      <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.5)', fontWeight: '800', letterSpacing: '0.02em' }}>
-                        {pos.code}
-                      </div>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', 
+                  gap: '12px',
+                  minHeight: '80px',
+                  alignItems: 'center'
+                }}>
+                  {benchPlayerIds.length === 0 ? (
+                    <div style={{ gridColumn: '1 / -1', color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', padding: '20px 0', fontStyle: 'italic' }}>
+                      No players currently on the interchange bench. Drag players here from the field or toggle them active.
+                    </div>
+                  ) : (
+                    benchPlayerIds.map((pid) => {
+                      const player = squad.find(p => p.id === pid);
+                      if (!player) return null;
                       
-                      {player ? (
-                        <>
+                      const isSelected = selectedBenchId === pid;
+                      const benchStintSec = playerBenchStint[pid] || 0;
+                      const togSec = playerTOG[pid] || 0;
+                      const isAmberAlert = benchStintSec >= 300 || (togSec < 180 && gameTime > 120);
+
+                      return (
+                        <div 
+                          key={pid}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, pid)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleBenchTap(pid);
+                          }}
+                          style={{ 
+                            backgroundColor: isSelected ? 'rgba(255, 183, 3, 0.25)' : isAmberAlert ? 'rgba(255, 183, 3, 0.12)' : 'var(--bg-floor)', 
+                            border: isSelected ? '2px solid var(--color-match)' : isAmberAlert ? '1.5px solid #ffb703' : '1px solid var(--border-light)', 
+                            borderRadius: '8px', 
+                            padding: '12px 10px',
+                            cursor: 'grab',
+                            textAlign: 'center',
+                            position: 'relative',
+                            transition: 'all 0.2s',
+                            userSelect: 'none'
+                          }}
+                          title="Drag onto field or tap to select for swap"
+                          onMouseEnter={(e) => {
+                            if (!isSelected && !isAmberAlert) {
+                              e.currentTarget.style.borderColor = 'var(--text-secondary)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isSelected && !isAmberAlert) {
+                              e.currentTarget.style.borderColor = 'var(--border-light)';
+                            }
+                          }}
+                        >
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', margin: '2px 0', width: '100%', minWidth: 0 }}>
-                            <span className="scoreboard-font" style={{ fontSize: '0.95rem', color: 'var(--color-match)', fontWeight: '800', flexShrink: 0 }}>
+                            <span className="scoreboard-font" style={{ fontSize: '0.95rem', color: isAmberAlert ? '#ffb703' : 'var(--color-match)', fontWeight: '800', flexShrink: 0 }}>
                               #{player.jersey}
                             </span>
                             <span style={{ 
@@ -1123,147 +1441,487 @@ export default function MatchDay({
                             }} title={player.name.split(' ')[0]}>
                               {player.name.split(' ')[0]}
                             </span>
+                            {isAmberAlert && <span style={{ color: '#ffb703', fontSize: '0.8rem', flexShrink: 0 }}>⚠️</span>}
                           </div>
-                          {/* Active Stint & TOG timer */}
                           <div className="scoreboard-font" style={{ 
-                            fontSize: '0.55rem', 
-                            color: warningClass ? '#e63946' : 'rgba(255,255,255,0.3)',
-                            opacity: warningClass ? 1 : 0.65,
-                            fontWeight: '600'
+                            fontSize: '0.6rem', 
+                            color: isAmberAlert ? '#ffb703' : 'var(--text-secondary)', 
+                            opacity: isAmberAlert ? 1 : 0.65,
+                            fontWeight: '600', 
+                            lineHeight: '1.35',
+                            marginTop: '2px'
                           }}>
-                            {activeStintMin}m (TOG: {Math.round(togSec / 60)}m)
+                            B: {Math.floor(benchStintSec / 60)}m &bull; TOG: {Math.round(togSec / 60)}m
                           </div>
-                        </>
-                      ) : (
-                        <div style={{ fontSize: '0.7rem', color: 'rgba(255, 255, 255, 0.15)', margin: 'auto' }}>
-                          VACANT
                         </div>
-                      )}
-                    </button>
-                  );
-                })}
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </>
+          ) : (
+            /* ROSTER ROTATION LIST VIEW */
+            <div style={{
+              backgroundColor: 'var(--bg-surface)',
+              border: '1px solid var(--border-light)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              animation: 'fadeIn 0.2s ease-out'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Roster Rotation list
+                </span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                  Total Game Time: {formatClock(gameTime)}
+                </span>
+              </div>
+
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '420px' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                      <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Player</th>
+                      <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Status</th>
+                      <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Stint</th>
+                      <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>TOG / Bench</th>
+                      <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>TOG %</th>
+                      <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Fair Play</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activeMatchDayIds.map(pid => {
+                      const player = squad.find(p => p.id === pid);
+                      if (!player) return null;
+
+                      const isOnField = onFieldPlayerIds.includes(pid);
+                      const currentSlotId = Object.keys(fieldAssignments).find(key => fieldAssignments[key] === pid);
+                      const pos = FIELD_POSITIONS.find(p => p.id === currentSlotId);
+
+                      const stintSec = isOnField ? (playerOnGroundStint[pid] || 0) : (playerBenchStint[pid] || 0);
+                      const stintMins = Math.floor(stintSec / 60);
+
+                      const togSec = playerTOG[pid] || 0;
+                      const togMins = Math.round(togSec / 60);
+
+                      const benchSec = playerBenchTime[pid] || 0;
+                      const benchMins = Math.round(benchSec / 60);
+
+                      const togPct = gameTime > 0 ? Math.round((togSec / gameTime) * 100) : 0;
+
+                      // Equalization / Fair play warning logic
+                      let fairPlayLabel = "Balanced";
+                      let fairPlayColor = "#2a9d8f";
+                      if (isOnField && stintMins >= maxStintMinutes) {
+                        fairPlayLabel = "Stint limit";
+                        fairPlayColor = "#e63946";
+                      } else if (!isOnField && benchMins >= 10 && gameTime > 300) {
+                        fairPlayLabel = "Benched too long";
+                        fairPlayColor = "#ffb703";
+                      } else if (gameTime > 600) {
+                        const targetTogPct = (18 / activeMatchDayIds.length) * 100;
+                        if (togPct < targetTogPct - 15) {
+                          fairPlayLabel = "Low Play Time";
+                          fairPlayColor = "#ffb703";
+                        }
+                      }
+
+                      return (
+                        <tr key={pid} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)', height: '40px' }}>
+                          <td style={{ padding: '6px 4px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span className="scoreboard-font" style={{ color: 'var(--color-match)', fontSize: '0.8rem', fontWeight: '800' }}>#{player.jersey}</span>
+                              <span style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '600' }}>{player.name}</span>
+                            </div>
+                          </td>
+                          <td style={{ padding: '6px 4px' }}>
+                            <span style={{ 
+                              fontSize: '0.7rem', 
+                              fontWeight: '700', 
+                              textTransform: 'uppercase', 
+                              backgroundColor: isOnField ? 'rgba(42, 157, 143, 0.15)' : 'rgba(255, 183, 3, 0.12)',
+                              color: isOnField ? '#2a9d8f' : '#ffb703',
+                              padding: '2px 6px',
+                              borderRadius: '4px'
+                            }}>
+                              {isOnField ? (pos?.code || 'Field') : 'Bench'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '6px 4px', fontSize: '0.8rem', color: '#d1d5db', fontFamily: 'var(--font-family-locker)' }}>
+                            {Math.floor(stintSec / 60)}m {stintSec % 60}s
+                          </td>
+                          <td style={{ padding: '6px 4px', fontSize: '0.8rem', color: '#d1d5db', fontFamily: 'var(--font-family-locker)' }}>
+                            {togMins}m / {benchMins}m
+                          </td>
+                          <td style={{ padding: '6px 4px', fontSize: '0.8rem', color: '#ffffff', fontWeight: '700', fontFamily: 'var(--font-family-locker)' }}>
+                            {togPct}%
+                          </td>
+                          <td style={{ padding: '6px 4px' }}>
+                            <span style={{ 
+                              fontSize: '0.7rem', 
+                              fontWeight: '700', 
+                              color: fairPlayColor,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}>
+                              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: fairPlayColor }}></span>
+                              {fairPlayLabel}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </div>
-          ))}
-
-        </div>
-      </div>
-
-      {/* BENCH MANAGER */}
-      <div 
-        onDragOver={handleDragOver}
-        onDrop={handleDropToBench}
-        onClick={handleBenchAreaTap}
-        style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: '12px',
-          backgroundColor: 'var(--bg-surface)',
-          border: '1px solid var(--border-light)',
-          borderRadius: '12px',
-          padding: '16px 20px',
-          transition: 'all 0.2s',
-          borderColor: selectedBenchId ? 'var(--color-match)' : 'var(--border-light)',
-          cursor: selectedBenchId ? 'pointer' : 'default'
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Interchange ({benchPlayerIds.length} Players)
-          </div>
-          {selectedBenchId && (
-            <span style={{ fontSize: '0.75rem', color: 'var(--color-match)', fontWeight: '600' }}>
-              👉 Tap Interchange area to move selected player to bench
-            </span>
           )}
         </div>
 
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', 
-          gap: '12px',
-          minHeight: '80px',
-          alignItems: 'center'
-        }}>
-          {benchPlayerIds.length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', padding: '20px 0', fontStyle: 'italic' }}>
-              No players currently on the interchange bench. Drag players here from the field or toggle them active.
+        {/* RIGHT COLUMN: PLAN MODE, STATS LOGGER, NOTES, DELEGATION */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          
+          {/* PLANNED ROTATION QUEUE ("PLAN MODE") */}
+          <div style={{
+            backgroundColor: 'var(--bg-surface)',
+            border: '1px solid var(--border-light)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px'
+          }}>
+            <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Plan Mode (Rotations Queue)
+            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Incoming (Bench)</label>
+                  <select 
+                    id="plan-incoming"
+                    style={{ width: '100%', backgroundColor: '#0a0b0e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#ffffff', padding: '6px', fontSize: '0.8rem', outline: 'none' }}
+                  >
+                    <option value="">-- Select --</option>
+                    {benchPlayerIds.map(id => {
+                      const p = squad.find(player => player.id === id);
+                      return <option key={id} value={id}>#{p.jersey} {p.name}</option>;
+                    })}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Outgoing (Field)</label>
+                  <select 
+                    id="plan-outgoing"
+                    style={{ width: '100%', backgroundColor: '#0a0b0e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#ffffff', padding: '6px', fontSize: '0.8rem', outline: 'none' }}
+                  >
+                    <option value="">-- Select --</option>
+                    {FIELD_POSITIONS.map(pos => {
+                      const pid = fieldAssignments[pos.id];
+                      const p = squad.find(player => player.id === pid);
+                      if (!p) return null;
+                      return <option key={pos.id} value={`${pos.id}|${pid}`}>#{p.jersey} {p.name} ({pos.code})</option>;
+                    }).filter(Boolean)}
+                  </select>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const incomingEl = document.getElementById('plan-incoming');
+                  const outgoingEl = document.getElementById('plan-outgoing');
+                  if (!incomingEl || !outgoingEl) return;
+                  const incomingId = incomingEl.value;
+                  const outgoingValue = outgoingEl.value;
+                  if (!incomingId || !outgoingValue) return;
+
+                  const [slotId, outgoingId] = outgoingValue.split('|');
+                  
+                  const rotation = {
+                    id: 'rot_' + Date.now(),
+                    incomingId,
+                    outgoingId,
+                    slotId
+                  };
+                  setPlannedRotations(prev => [...prev, rotation]);
+                  
+                  incomingEl.value = "";
+                  outgoingEl.value = "";
+                }}
+                style={{
+                  backgroundColor: 'var(--color-match)',
+                  color: '#000000',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '6px 12px',
+                  fontSize: '0.75rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  transition: 'opacity 0.2s',
+                  fontFamily: 'var(--font-family-locker)'
+                }}
+              >
+                + Queue Substitution
+              </button>
             </div>
-          ) : (
-            benchPlayerIds.map((pid) => {
-              const player = squad.find(p => p.id === pid);
-              if (!player) return null;
-              
-              const isSelected = selectedBenchId === pid;
-              const benchStintSec = playerBenchStint[pid] || 0;
-              const togSec = playerTOG[pid] || 0;
-              const isAmberAlert = benchStintSec >= 300 || (togSec < 180 && gameTime > 120);
+
+            {/* Upcoming Queue List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+              <span style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Upcoming Rotations:</span>
+              {plannedRotations.length === 0 ? (
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontStyle: 'italic', padding: '6px 0' }}>
+                  No rotations planned. Select players above to queue.
+                </div>
+              ) : (
+                plannedRotations.map(rot => {
+                  const incP = squad.find(p => p.id === rot.incomingId);
+                  const outP = squad.find(p => p.id === rot.outgoingId);
+                  const pos = FIELD_POSITIONS.find(p => p.id === rot.slotId);
+
+                  return (
+                    <div 
+                      key={rot.id} 
+                      style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center', 
+                        backgroundColor: '#0a0b0e', 
+                        border: '1px solid rgba(255, 255, 255, 0.04)', 
+                        borderRadius: '6px', 
+                        padding: '6px 10px' 
+                      }}
+                    >
+                      <span style={{ fontSize: '0.75rem', color: '#d1d5db', lineHeight: '1.4' }}>
+                        🔄 <strong>{incP?.name.split(' ')[0]}</strong> for <strong>{outP?.name.split(' ')[0]}</strong> ({pos?.code})
+                      </span>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            executeSwap(rot.incomingId, rot.slotId);
+                            setPlannedRotations(prev => prev.filter(r => r.id !== rot.id));
+                          }}
+                          style={{ backgroundColor: 'rgba(42, 157, 143, 0.2)', border: '1px solid #2a9d8f', color: '#2a9d8f', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 'bold', cursor: 'pointer' }}
+                        >
+                          Execute
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPlannedRotations(prev => prev.filter(r => r.id !== rot.id));
+                          }}
+                          style={{ backgroundColor: 'transparent', border: 'none', color: '#e63946', fontSize: '0.8rem', cursor: 'pointer', padding: '0 4px' }}
+                          title="Cancel"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* MATCH STATISTICS LOGGER */}
+          <div style={{
+            backgroundColor: 'var(--bg-surface)',
+            border: '1px solid var(--border-light)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px'
+          }}>
+            <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Live Stats Logger
+            </span>
+            
+            {/* Player Selection Dropdown */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Active Player to Log</label>
+              <select
+                value={selectedPlayerForStats || ""}
+                onChange={(e) => setSelectedPlayerForStats(e.target.value || null)}
+                style={{ width: '100%', backgroundColor: '#0a0b0e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#ffffff', padding: '8px', fontSize: '0.85rem', outline: 'none' }}
+              >
+                <option value="">-- Tap to Select Player --</option>
+                {activeMatchDayIds.map(id => {
+                  const p = squad.find(player => player.id === id);
+                  if (!p) return null;
+                  const isOnField = onFieldPlayerIds.includes(id);
+                  return <option key={id} value={id}>#{p.jersey} {p.name} {isOnField ? '(Field)' : '(Bench)'}</option>;
+                })}
+              </select>
+            </div>
+
+            {selectedPlayerForStats && (() => {
+              const p = squad.find(player => player.id === selectedPlayerForStats);
+              if (!p) return null;
+
+              const statsObj = playerStats[selectedPlayerForStats] || {
+                kicks: 0,
+                handballs: 0,
+                marks: 0,
+                tackles: 0,
+                hitouts: 0,
+                freesFor: 0,
+                freesAgainst: 0
+              };
+
+              const adjustPlayerStat = (field, amt) => {
+                setPlayerStats(prev => {
+                  const next = { ...prev };
+                  const current = next[selectedPlayerForStats] || {
+                    kicks: 0,
+                    handballs: 0,
+                    marks: 0,
+                    tackles: 0,
+                    hitouts: 0,
+                    freesFor: 0,
+                    freesAgainst: 0
+                  };
+                  next[selectedPlayerForStats] = {
+                    ...current,
+                    [field]: Math.max(0, current[field] + amt)
+                  };
+                  return next;
+                });
+              };
 
               return (
-                <div 
-                  key={pid}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, pid)}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleBenchTap(pid);
-                  }}
-                  style={{ 
-                    backgroundColor: isSelected ? 'rgba(255, 183, 3, 0.25)' : isAmberAlert ? 'rgba(255, 183, 3, 0.12)' : 'var(--bg-floor)', 
-                    border: isSelected ? '2px solid var(--color-match)' : isAmberAlert ? '1.5px solid #ffb703' : '1px solid var(--border-light)', 
-                    borderRadius: '8px', 
-                    padding: '12px 10px',
-                    cursor: 'grab',
-                    textAlign: 'center',
-                    position: 'relative',
-                    transition: 'all 0.2s',
-                    userSelect: 'none'
-                  }}
-                  title="Drag onto field or tap to select for swap"
-                  onMouseEnter={(e) => {
-                    if (!isSelected && !isAmberAlert) {
-                      e.currentTarget.style.borderColor = 'var(--text-secondary)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isSelected && !isAmberAlert) {
-                      e.currentTarget.style.borderColor = 'var(--border-light)';
-                    }
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', margin: '2px 0', width: '100%', minWidth: 0 }}>
-                    <span className="scoreboard-font" style={{ fontSize: '0.95rem', color: isAmberAlert ? '#ffb703' : 'var(--color-match)', fontWeight: '800', flexShrink: 0 }}>
-                      #{player.jersey}
+                <div style={{ 
+                  backgroundColor: '#0a0b0e', 
+                  border: '1px solid rgba(255, 255, 255, 0.03)', 
+                  borderRadius: '8px', 
+                  padding: '12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  animation: 'fadeIn 0.2s ease-out'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '6px' }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--color-match)' }}>
+                      #{p.jersey} {p.name}
                     </span>
-                    <span style={{ 
-                      fontSize: getFontSizeForName(player.name.split(' ')[0]), 
-                      fontWeight: '700', 
-                      color: '#ffffff', 
-                      overflow: 'hidden', 
-                      textOverflow: 'ellipsis', 
-                      whiteSpace: 'nowrap', 
-                      flex: 1,
-                      minWidth: 0,
-                      textAlign: 'center'
-                    }} title={player.name.split(' ')[0]}>
-                      {player.name.split(' ')[0]}
-                    </span>
-                    {isAmberAlert && <span style={{ color: '#ffb703', fontSize: '0.8rem', flexShrink: 0 }}>⚠️</span>}
+                    <button 
+                      onClick={() => setSelectedPlayerForStats(null)}
+                      style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.75rem' }}
+                    >
+                      Clear Selection
+                    </button>
                   </div>
-                  <div className="scoreboard-font" style={{ 
-                    fontSize: '0.6rem', 
-                    color: isAmberAlert ? '#ffb703' : 'var(--text-secondary)', 
-                    opacity: isAmberAlert ? 1 : 0.65,
-                    fontWeight: '600', 
-                    lineHeight: '1.35',
-                    marginTop: '2px'
-                  }}>
-                    B: {Math.floor(benchStintSec / 60)}m &bull; TOG: {Math.round(togSec / 60)}m
+
+                  {/* Actions Grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                    {[
+                      { field: 'kicks', label: 'Kick' },
+                      { field: 'handballs', label: 'Handball' },
+                      { field: 'marks', label: 'Mark' },
+                      { field: 'tackles', label: 'Tackle' },
+                      { field: 'hitouts', label: 'Hitout' },
+                      { field: 'freesFor', label: 'Free For' },
+                      { field: 'freesAgainst', label: 'Free Against' }
+                    ].map(item => (
+                      <div key={item.field} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '6px', padding: '6px 8px' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#d1d5db' }}>{item.label}: <strong>{statsObj[item.field] || 0}</strong></span>
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          <button
+                            type="button"
+                            onClick={() => adjustPlayerStat(item.field, 1)}
+                            style={{ backgroundColor: 'rgba(42, 157, 143, 0.15)', border: '1px solid #2a9d8f', color: '#2a9d8f', width: '20px', height: '20px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                          >
+                            +
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => adjustPlayerStat(item.field, -1)}
+                            style={{ backgroundColor: 'rgba(230, 57, 70, 0.15)', border: '1px solid #e63946', color: '#e63946', width: '20px', height: '20px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                          >
+                            -
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               );
-            })
-          )}
+            })()}
+
+            {!selectedPlayerForStats && (
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontStyle: 'italic', textAlign: 'center', padding: '8px 0' }}>
+                Select a player above to log their kicks, handballs, and tackles live during play.
+              </div>
+            )}
+          </div>
+
+          {/* STRATEGIC MATCH NOTES */}
+          <div style={{
+            backgroundColor: 'var(--bg-surface)',
+            border: '1px solid var(--border-light)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px'
+          }}>
+            <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Strategic Match Notes
+            </span>
+            <textarea
+              value={matchNotes}
+              onChange={(e) => setMatchNotes(e.target.value)}
+              placeholder="Jot down feedback, tactical adjustments, or injury updates..."
+              style={{
+                width: '100%',
+                height: '70px',
+                backgroundColor: '#0a0b0e',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '6px',
+                color: '#ffffff',
+                padding: '8px',
+                fontSize: '0.8rem',
+                outline: 'none',
+                resize: 'none',
+                fontFamily: 'inherit'
+              }}
+            />
+          </div>
+
+          {/* ROLE DELEGATION DASHBOARD */}
+          <div style={{
+            backgroundColor: 'var(--bg-surface)',
+            border: '1px solid var(--border-light)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px'
+          }}>
+            <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Volunteer Role Delegation
+            </span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+              AFL games run smoothest when parent volunteers share the load:
+            </span>
+            <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <li style={{ fontSize: '0.75rem', color: '#d1d5db', lineHeight: '1.35' }}>
+                ⏱️ <strong>Timekeeper:</strong> Start/pause the session clock and call breaks.
+              </li>
+              <li style={{ fontSize: '0.75rem', color: '#d1d5db', lineHeight: '1.35' }}>
+                📋 <strong>Interchange Steward:</strong> Monitor stint times and manage the Planned Rotation Queue.
+              </li>
+              <li style={{ fontSize: '0.75rem', color: '#d1d5db', lineHeight: '1.35' }}>
+                📊 <strong>Stats Keeper:</strong> Use the Live Stats Logger to track kicks, handballs, and tackles.
+              </li>
+            </ul>
+          </div>
+
         </div>
       </div>
 
