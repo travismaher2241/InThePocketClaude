@@ -209,7 +209,11 @@ const sanitizePlanCards = (cards, groundName = "home ground") => {
   return cards.map(card => {
     const scrub = (str) => {
       if (typeof str !== 'string') return str;
-      return str.replace(/Western\s+Park/gi, groundName);
+      return str
+        .replace(/Western\s+Park/gi, groundName)
+        .replace(/Warragul/gi, "Local District")
+        .replace(/Dusties/gi, "Home Club")
+        .replace(/Dusty/gi, "Club mascot");
     };
     return {
       ...card,
@@ -695,7 +699,8 @@ Do not repeat standard baseline drills. Every plan must strictly adhere to these
 3. Three Phases of the Game: Every drill must explicitly target one or more of the three phases: ATTACK, DEFENCE, or CONTEST. Titles and goals must use AFL Principles of Play terms (e.g. Penetration, Depth, Balance, Outnumber).
 4. CHANGE IT Framework: The "instructions" field for every drill must conclude with a specific "CHANGE IT Coaching Tip" showing how to modify the drill (Area, Numbers, Rules, Equipment, Time) to adjust difficulty.
 5. High Touch Objective: Prioritize high-touch (60+ touches per player), high-energy drills. If a drill has long lines, do not use it.
-6. Curriculum Weekly Schedules (Align the session with these curriculum themes and goals):
+6. NO LOCAL VENUES OR CLUB NAMES: You MUST NOT mention any specific local town, venue, or club names such as "Western Park", "Warragul", "Dusties", or "Dusty". Use generic terms like "home ground", "local club", or "opposition".
+7. Curriculum Weekly Schedules (Align the session with these curriculum themes and goals):
 ${weeklyThemesText}
 ${stationPromptRules}
 ${injectedDrillsText}${injectedSSGsText}
