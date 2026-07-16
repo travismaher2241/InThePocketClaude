@@ -204,6 +204,22 @@ function parseStationCards(card, group1, group2) {
   return [cardA, cardB];
 }
 
+const sanitizePlanCards = (cards, groundName = "home ground") => {
+  if (!Array.isArray(cards)) return cards;
+  return cards.map(card => {
+    const scrub = (str) => {
+      if (typeof str !== 'string') return str;
+      return str.replace(/Western\s+Park/gi, groundName);
+    };
+    return {
+      ...card,
+      title: scrub(card.title),
+      instructions: scrub(card.instructions),
+      goal: scrub(card.goal)
+    };
+  });
+};
+
 export default function TrainingLab({
   squad,
   subscriptionTier,
@@ -471,6 +487,11 @@ export default function TrainingLab({
       ageGroupText.toLowerCase().includes('u16g') ||
       ageGroupText.toLowerCase().includes('u18g');
 
+    // Dynamic ground variables based on settings or fallback defaults
+    const groundName = squadSettings?.groundName || "home ground";
+    const groundLengthText = squadSettings?.groundLength ? `${squadSettings.groundLength}m` : "160m";
+    const groundWidthText = squadSettings?.groundWidth ? `${squadSettings.groundWidth}m` : "130m";
+
     // Get a randomized Pre-Game drill avoiding repetition
     let lastPreGameName = "";
     if (historySessions && historySessions.length > 0) {
@@ -634,9 +655,9 @@ CRITICAL FEMALE PATHWAY INJURY MITIGATION RULES (Prep-to-Play PRO Cornerstone Fr
         }
 
         const groundConstraintsText = `
-CRITICAL GROUND-SPECIFIC SPATIAL DIMENSIONS (Western Park):
-- All full-ground drills, zones, and lateral movements must be calibrated strictly to Western Park's absolute footprint: length ~160m, width ~130m.
-- When referencing field width or lateral ball movement (e.g., Corridor Squeeze, Boundary Switch pivots, or Fat Side switches), ensure the numerical dimensions fit seamlessly within these constraints (lateral switches must be <= 130m).
+CRITICAL GROUND-SPECIFIC SPATIAL DIMENSIONS (${groundName}):
+- All full-ground drills, zones, and lateral movements must be calibrated strictly to the team's home ground / oval footprint with length ~${groundLengthText} and width ~${groundWidthText}.
+- When referencing field width or lateral ball movement (e.g., Corridor Squeeze, Boundary Switch pivots, or Fat Side switches), ensure the numerical dimensions fit seamlessly within these constraints (lateral switches must be <= ${groundWidthText}).
 `;
 
         const ratiosText = `
@@ -656,7 +677,7 @@ OUTPUT CARD FORMAT INSTRUCTIONS:
 - CRITICAL FORMAT FOR THE "instructions" KEY: The content of the "instructions" string MUST be formatted using the following exact uppercase labels with blank line separators:
   DRILL NAME & OBJECTIVE: [Name] - [Objective]
   
-  SETUP & GRID DIMENSIONS: [Setup details, including Western Park calibrated meters]
+  SETUP & GRID DIMENSIONS: [Setup details, including home ground calibrated meters]
   
   EXECUTION & RULES: [Step-by-step instructions]
   
@@ -744,7 +765,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                 };
               });
 
-              setPlanCards(normalized);
+              setPlanCards(sanitizePlanCards(normalized, groundName));
               setIsFallback(false);
               setIsGenerating(false);
               const userTierClean = (subscriptionTier || 'Free').toLowerCase();
@@ -813,7 +834,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       const formatDrillCardText = (d, pCount) => {
         return `DRILL NAME & OBJECTIVE: ${d.name} - ${d.objective || 'Skill practice'}
         
-SETUP & GRID DIMENSIONS: ${d.setup} (Calibrated for ${pCount} players inside Western Park constraints)
+SETUP & GRID DIMENSIONS: ${d.setup} (Calibrated for ${pCount} players inside ${groundName} constraints)
 
 EXECUTION & RULES: ${d.execution}
 
@@ -829,7 +850,7 @@ PROGRESSIONS & REGRESSIONS: ${d.progressions}`;
           duration: preGameMins,
           instructions: `DRILL NAME & OBJECTIVE: Prep-to-Play PRO Activation - Neuromuscular ACL protection and landing biomechanics
           
-SETUP & GRID DIMENSIONS: 15m x 20m grid. Fits within Western Park wing boundaries.
+SETUP & GRID DIMENSIONS: 15m x 20m grid. Fits within ${groundName} wing boundaries.
 
 EXECUTION & RULES: Players jog side-by-side. On whistle, perform vertical leap and land softly on one leg. Focus on knee-over-toe alignment and dynamic hip mobility exercises.
 
@@ -845,7 +866,7 @@ PROGRESSIONS & REGRESSIONS: Progression: Add light shoulder bumps in the air. Re
           duration: preGameMins,
           instructions: `DRILL NAME & OBJECTIVE: ${selectedPreGameDrill.name} - ${selectedPreGameDrill.goal}
           
-SETUP & GRID DIMENSIONS: Oval footprint, calibrated to Western Park constraints.
+SETUP & GRID DIMENSIONS: Oval footprint, calibrated to ${groundName} constraints.
 
 EXECUTION & RULES: ${selectedPreGameDrill.desc}
 
@@ -909,13 +930,13 @@ The Switch: Switch stations at the ${q3Half}-minute mark.`;
           matchDescription = "Play 14-a-side match play. Apply OODA loops under fatigue. Focus on stoppage exit handballs and transition play.";
           coachingTip = "Limit possession to 2 seconds to force OODA decision-making.";
         } else if (activeCategory === 'U16') {
-          matchDescription = "Play match rules restricted to Western Park wings. Focus on establishing the 18-player Web Defense and forward-half press.";
+          matchDescription = `Play match rules restricted to ${groundName} wings. Focus on establishing the 18-player Web Defense and forward-half press.`;
           coachingTip = "Reward 3 points for switches that move through the fat side.";
         } else if (activeCategory === 'U18') {
           matchDescription = "High-intensity professional match play. Focus on tactical periodization and repeated sprint ability (RSA) running intervals.";
           coachingTip = "Mandate direct corridor entry kicks before a shot on goal is permitted.";
         } else if (activeCategory === 'Seniors') {
-          matchDescription = "18v18 full-ground match simulation with extreme spatial restriction (Western Park length ~160m, width ~130m). Focus on structural 6-6-6 setups and rebound transition speeds.";
+          matchDescription = `18v18 full-ground match simulation with extreme spatial restriction (${groundName} length ~${groundLengthText}, width ~${groundWidthText}). Focus on structural 6-6-6 setups and rebound transition speeds.`;
           coachingTip = "Enforce a 3-second disposal limit to simulate high-pressure match tempos.";
         } else {
           matchDescription = "经济型低冲击对抗比赛。重点是通过20米短传和智能跑位来维持球权，完全避免跳跃争抢或远距离踢球。";
@@ -924,14 +945,14 @@ The Switch: Switch stations at the ${q3Half}-minute mark.`;
 
         q4Instructions = `DRILL NAME & OBJECTIVE: Quarter 4 Game - Match Simulation & Spacing
         
-SETUP & GRID DIMENSIONS: Full ground (Western Park: 160m x 130m) or half ground (80m x 130m)
-
+SETUP & GRID DIMENSIONS: Full ground (${groundName}: ${groundLengthText} x ${groundWidthText}) or half ground
+ 
 EXECUTION & RULES: ${matchDescription}
-
+ 
 ELITE COACHING CUES: "Lower the eyes", "Anticipate the switch", "Keep structural shape under fatigue"
-
+ 
 PROGRESSIONS & REGRESSIONS: CHANGE IT Tip: ${coachingTip}
-
+ 
 CONSOLIDATED EQUIPMENT STAGING LIST (Parallel Stations Active)
 - Cones: ${conesCount}x field cones (for multiple grids/lanes)
 - Bibs: Distinct colors assigned to each sub-group to avoid mid-session swaps (${group1}x Yellow bibs for Group 1, ${group2}x Orange bibs for Group 2)
@@ -958,13 +979,13 @@ CONSOLIDATED EQUIPMENT STAGING LIST (Parallel Stations Active)
           matchDescription = "Play 14-a-side match play. Apply OODA loops under fatigue. Focus on stoppage exit handballs and transition play.";
           coachingTip = "Limit possession to 2 seconds to force OODA decision-making.";
         } else if (activeCategory === 'U16') {
-          matchDescription = "Play match rules restricted to Western Park wings. Focus on establishing the 18-player Web Defense and forward-half press.";
+          matchDescription = `Play match rules restricted to ${groundName} wings. Focus on establishing the 18-player Web Defense and forward-half press.`;
           coachingTip = "Reward 3 points for switches that move through the fat side.";
         } else if (activeCategory === 'U18') {
           matchDescription = "High-intensity professional match play. Focus on tactical periodization and repeated sprint ability (RSA) running intervals.";
           coachingTip = "Mandate direct corridor entry kicks before a shot on goal is permitted.";
         } else if (activeCategory === 'Seniors') {
-          matchDescription = "18v18 full-ground match simulation with extreme spatial restriction (Western Park length ~160m, width ~130m). Focus on structural 6-6-6 setups and rebound transition speeds.";
+          matchDescription = `18v18 full-ground match simulation with extreme spatial restriction (${groundName} length ~${groundLengthText}, width ~${groundWidthText}). Focus on structural 6-6-6 setups and rebound transition speeds.`;
           coachingTip = "Enforce a 3-second disposal limit to simulate high-pressure match tempos.";
         } else {
           matchDescription = "经济型低冲击对抗比赛。重点是通过20米短传和智能跑位来维持球权，完全避免跳跃争抢或远距离踢球。";
@@ -973,14 +994,14 @@ CONSOLIDATED EQUIPMENT STAGING LIST (Parallel Stations Active)
 
         q4Instructions = `DRILL NAME & OBJECTIVE: Quarter 4 Game - Match Simulation & Spacing
         
-SETUP & GRID DIMENSIONS: Full ground (Western Park: 160m x 130m) or half ground (80m x 130m)
-
+SETUP & GRID DIMENSIONS: Full ground (${groundName}: ${groundLengthText} x ${groundWidthText}) or half ground
+ 
 EXECUTION & RULES: ${matchDescription}
-
+ 
 ELITE COACHING CUES: "Lower the eyes", "Anticipate the switch", "Keep structural shape under fatigue"
-
+ 
 PROGRESSIONS & REGRESSIONS: CHANGE IT Tip: ${coachingTip}
-
+ 
 COACH'S LOGISTICS SUMMARY
 - Cones: 16x field cones (for grids and lanes)
 - Bibs: 2 sets of different colors (e.g., 8x red, 8x blue)
@@ -1019,7 +1040,7 @@ COACH'S LOGISTICS SUMMARY
         q4Card
       ];
 
-      setPlanCards(generatedFallbackCards);
+      setPlanCards(sanitizePlanCards(generatedFallbackCards, groundName));
       setIsGenerating(false);
       const userTierClean = (subscriptionTier || 'Free').toLowerCase();
       if (userTierClean === 'free' || userTierClean === 'default') {

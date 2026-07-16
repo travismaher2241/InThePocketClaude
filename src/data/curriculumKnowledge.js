@@ -614,7 +614,7 @@ export const SYLLABUS_DRILLS = [
     category: "U8",
     phase: "Contest",
     objective: "Ground Ball Evasion",
-    setup: "A 15-meter diameter circle with 10-15 footballs (the 'eggs') placed in the center nest. Designed to fit Western Park boundary areas.",
+    setup: "A 15-meter diameter circle with 10-15 footballs (the 'eggs') placed in the center nest. Designed to fit home ground boundary areas.",
     execution: "Players are assigned a number. When their number is called, they run around the outside of the circle, enter the nest, gather a football, and attempt to evade the coach (the 'Mad Eagle') to return to their starting point. No tackling is permitted; evasion is key.",
     cues: "Fingers almost touching the ground, Knuckles scraping the grass, Keep your eyes on the ball",
     progressions: "Progression: Add a second coach or a parent as another eagle. Regression: Remove the eagle and focus purely on the ground ball gather speed."
@@ -624,7 +624,7 @@ export const SYLLABUS_DRILLS = [
     category: "U8",
     phase: "Contest",
     objective: "Peripheral Vision",
-    setup: "A 20m x 20m square grid. Every player has a football. Fits within Western Park constraints.",
+    setup: "A 20m x 20m square grid. Every player has a football. Fits within home ground constraints.",
     execution: "Players roll and dribble the ball along the ground with their hands within the grid. Selected 'eliminators' (parents/coaches) gently tap the balls away. Players must protect their football using body positioning.",
     cues: "Body in line behind the ball, Stay in a semi-crouched position, Keep your head over the footy",
     progressions: "Progression: Shrink the grid to 15m x 15m to increase congestion. Regression: Expand the grid to allow more space for slower learners."
@@ -727,7 +727,7 @@ export const SYLLABUS_DRILLS = [
     category: "U16",
     phase: "Attack",
     objective: "Slicing defensive lines using the corridor",
-    setup: "Half ground, 8 attackers, 4 defenders. Calibrated within Western Park boundary lines.",
+    setup: "Half ground, 8 attackers, 4 defenders. Calibrated within home ground boundary lines.",
     execution: "Play starts at half-back. The ball carrier looks wide first, then instantly pivots to hit a leading target cutting 45-degrees into the corridor. The receiver plays on immediately and drives the ball forward.",
     cues: "The corridor lead must be timed perfectly, The kicker must disguise the pass, Receiver must not prop or stop upon marking",
     progressions: "Progression: Add a floating defender in the corridor to force the kicker to adjust the trajectory. Regression: No defenders."
@@ -737,7 +737,7 @@ export const SYLLABUS_DRILLS = [
     category: "U16",
     phase: "Attack",
     objective: "Shifting the opposition zone to attack the weak side",
-    setup: "Defensive 50 to center wing, full width (130m Western Park constraints), 10 players.",
+    setup: "Defensive 50 to center wing, full width (calibrated home ground constraints), 10 players.",
     execution: "Ball starts deep in the defensive pocket. Players execute two rapid lateral kicks across the face of the defensive 50, finding a running player on the opposite half-back flank who transitions the ball up the open wing.",
     cues: "Speed of ball movement is critical, Kicks must be flat and hard, The weak-side runner must anticipate the switch early",
     progressions: "Progression: Introduce a time limit of 8 seconds to complete the switch and cross the 50m arc. Regression: Reduce length to 40m."
@@ -788,7 +788,7 @@ export const SYLLABUS_DRILLS = [
     category: "U18",
     phase: "Attack",
     objective: "Rapid lateral ball movement to exploit the open wing",
-    setup: "Defensive 50 to center wing, full width (130m Western Park constraints), 12 players.",
+    setup: "Defensive 50 to center wing, full width (calibrated home ground constraints), 12 players.",
     execution: "The ball is trapped deep in a pocket. Players execute three rapid-fire lateral kicks across the defensive 50, ending with a half-back flanker streaming up the completely open opposite wing.",
     cues: "Ball speed is everything, Kicks must be flat and hard, Receivers must already be moving laterally before they mark",
     progressions: "Progression: Impose a strict 8-second time limit to move the ball from the pocket to the opposite wing. Regression: 10-second limit."
@@ -798,7 +798,7 @@ export const SYLLABUS_DRILLS = [
     category: "U18",
     phase: "Attack",
     objective: "Possession retention under high pressure",
-    setup: "Full defensive 50m arc. 6 Defenders, 4 Attackers. Fits Western Park constraints.",
+    setup: "Full defensive 50m arc. 6 Defenders, 4 Attackers. Fits home ground constraints.",
     execution: "The defense intercepts a ball deep in the pocket. Driven by the '10-second zone' rule, they must initially look backward to a designated sweeping player to establish a safe switch, relieving forward line pressure.",
     cues: "Scan behind you, Deliver low-risk flat passes, Clear the hot zone",
     progressions: "Progression: Introduce a 3-second limit for each kick. Regression: Run without active defensive chasing."
@@ -809,7 +809,7 @@ export const SYLLABUS_DRILLS = [
     category: "Seniors",
     phase: "Contest",
     objective: "Wrestling and body protection under aerial entries",
-    setup: "Forward 50m arc. 3v3 contest with an incoming long ball. Western Park size.",
+    setup: "Forward 50m arc. 3v3 contest with an incoming long ball. Calibrated home ground size.",
     execution: "A midfielder kicks long to a contest. The forwards must actively wrestle and lead the primary defender away from the drop zone to allow a secondary forward (e.g., the fat-side trailer) an uncontested run at the ball.",
     cues: "Read the cues of the flight, Strong body position, Own the ground",
     progressions: "Progression: Add a sweeper defender coming across the front of the pack. Regression: Use a stationary bump bag instead of a live defender."
@@ -829,7 +829,7 @@ export const SYLLABUS_DRILLS = [
     category: "Seniors",
     phase: "Contest",
     objective: "Structural resets and transition under fatigue",
-    setup: "Full ground (160m x 130m Western Park), 36 players.",
+    setup: "Full ground (calibrated home ground footprint), 36 players.",
     execution: "Standard center bounce into 1 minute of live play. The coach blows the whistle, and all players have exactly 15 seconds to sprint back to their starting 6-6-6 positions.",
     cues: "Demand extreme physical effort, Maintain structural integrity when exhausted, Communicate positioning loudly",
     progressions: "Progression: Reduce the reset time to 12 seconds to drastically increase the cardiovascular pressure. Regression: 20-second reset limit."
@@ -839,7 +839,7 @@ export const SYLLABUS_DRILLS = [
     category: "Seniors",
     phase: "Attack",
     objective: "High-speed transition from deep defense to scoring",
-    setup: "Full ground (160m x 130m Western Park), 12 attackers, 8 defenders.",
+    setup: "Full ground (calibrated home ground footprint), 12 attackers, 8 defenders.",
     execution: "Attackers start with a kick-in from full back. They must move the ball the entire length of the field and score a goal within 18 seconds, utilizing their numerical advantage and overlap run.",
     cues: "Relentless forward running, Hit targets perfectly on the chest, Do not slow down to wait for leads",
     progressions: "Progression: Decrease the time limit to 15 seconds to force a highly direct, corridor-centric attack. Regression: Increase limit to 25 seconds."
@@ -881,7 +881,7 @@ export const SYLLABUS_DRILLS = [
     category: "Veterans",
     phase: "Attack",
     objective: "Joint preservation and low-impact kick-and-mark chains",
-    setup: "Full ground (approximately 160m x 130m Western Park) or half ground (80m x 130m). Groups of 4.",
+    setup: "Full ground (approximately standard footprint) or half ground. Groups of 4.",
     execution: "Players focus on 'smart football'. Player A kicks to Player B on a lead. To avoid collision or jumping injuries, Player B must mark the ball on the chest or slightly out in front without leaving the ground (no knees up). They then seamlessly turn and deliver a short pass to Player C.",
     cues: "Use the ball well, Stay on the ground, Support the runner, Protect the joints",
     progressions: "Progression: Introduce a 3-second disposal limit to increase the tempo slightly. Regression: Reduce distance between kickers to 15m."
