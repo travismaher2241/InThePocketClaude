@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ContextualTaggingModal from './ContextualTaggingModal';
 import { saveTrainingSession, getTrainingSessions, deleteSession, hasAccess, generateAIPlanSecure, getUserProfile } from '../firebaseHelpers';
 import { useAuth } from '../context/AuthProvider';
-import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS, AFL_PRE_GAME_WARMUPS } from '../data/curriculumKnowledge';
+import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS, ADULT_LOCAL_DRILLS, AFL_PRE_GAME_WARMUPS } from '../data/curriculumKnowledge';
 
 const AFL_FOCUS_AREAS_CATEGORIES = {
   'Skills & Conditioning': [
@@ -46,6 +46,28 @@ function getLocalDrillKey(focusArea) {
 function getLocalDrillSetup(drillName, groupSize) {
   const nameLower = (drillName || '').toLowerCase();
   
+  if (nameLower.includes('3-man weave') || nameLower.includes('three-man weave')) {
+    return `Set up 3 cones at the center line 5m apart. Position the ${groupSize} players into 3 lines. Players run a continuous handpass weave toward the 50m arc and execute a deep entry kick.`;
+  }
+
+  if (nameLower.includes('stoppage clearance')) {
+    const activeContestants = Math.min(8, Math.floor(groupSize / 2) * 2);
+    const outsideRunners = groupSize - activeContestants;
+    return `Set up a stoppage zone around the 50m arc. Position ${activeContestants} players in a contested ${activeContestants/2}v${activeContestants/2} clearance drill, with ${outsideRunners} outside outlet runners.`;
+  }
+
+  if (nameLower.includes('rebound 50')) {
+    const defenders = Math.ceil(groupSize * 0.6);
+    const attackers = groupSize - defenders;
+    return `Set up a D50 zone. Position ${defenders} rebound defenders against a ${attackers} player press, focusing on shifting the point of attack to the fat side.`;
+  }
+
+  if (nameLower.includes('keeps') || nameLower.includes('6v6') || nameLower.includes('6 vs. 6')) {
+    const teams = Math.floor(groupSize / 2);
+    const floaters = groupSize % 2 === 0 ? 0 : 1;
+    return `Set up a 45m x 45m zone. Split the ${groupSize} players into a high-intensity ${teams}v${teams} possession game with ${floaters} floater(s).`;
+  }
+
   if (nameLower.includes('kick and mark')) {
     if (groupSize % 2 === 0) {
       return `Set up 2 lines of cones 20m apart. Split the ${groupSize} players into ${groupSize / 2} pairs. Players kick and mark continuously.`;
@@ -419,11 +441,15 @@ export default function TrainingLab({
   };
 
   // Perform Gemini API generation or procedural fallback
+  // Perform Gemini API generation or procedural fallback
   const runPlanGeneration = async (overrideCount) => {
     const playerCount = overrideCount !== undefined ? overrideCount : presentIds.length;
     const group1 = Math.floor(playerCount / 2);
     const group2 = playerCount - group1;
     const currentEquipment = getGlobalEquipment();
+
+    // Determine if age group is adult
+    const isAdult = ageGroup === 'Seniors' || ageGroup === 'Reserves' || ageGroup === 'Over 35s' || ageGroup === 'Veterans (Over 35s)' || (typeof ageGroup === 'string' && (ageGroup.toLowerCase().includes('senior') || ageGroup.toLowerCase().includes('reserve') || ageGroup.toLowerCase().includes('over 35') || ageGroup.toLowerCase().includes('veteran') || ageGroup.toLowerCase().includes('open age')));
 
     // Get a randomized Pre-Game drill avoiding repetition
     let lastPreGameName = "";
@@ -437,6 +463,15 @@ export default function TrainingLab({
     }
 
     let preGamePool = [...AFL_PRE_GAME_WARMUPS];
+    if (isAdult) {
+      preGamePool = preGamePool.filter(w => 
+        !w.name.toLowerCase().includes("kick-to-kick") && 
+        !w.name.toLowerCase().includes("unstructured")
+      );
+    } else {
+      preGamePool = preGamePool.filter(w => !w.isAdultOnly);
+    }
+
     if (lastPreGameName) {
       const cleanLast = lastPreGameName.toLowerCase();
       const filtered = preGamePool.filter(w => !cleanLast.includes(w.name.toLowerCase()) && !w.name.toLowerCase().includes(cleanLast));
@@ -472,10 +507,32 @@ export default function TrainingLab({
         const weeklyThemesText = config.themes.map(t => `- Week ${t.week} Theme: "${t.theme}" (Goal: ${t.goal})`).join('\n');
         
         // Find prescribed drills and small-sided games that are relevant
-        const relevantDrills = PRESCRIBED_DRILLS.filter(d => 
+        let filteredDrills = PRESCRIBED_DRILLS;
+        let filteredSSGs = SMALL_SIDED_GAMES;
+
+        if (isAdult) {
+          filteredDrills = filteredDrills.filter(d => 
+            !d.level?.includes("Level 4") && 
+            !d.level?.includes("Level 5") && 
+            !d.level?.includes("U8") && 
+            !d.level?.includes("U10") && 
+            !d.name.toLowerCase().includes("kick and mark") && 
+            !d.name.toLowerCase().includes("fundamentals")
+          );
+          filteredSSGs = filteredSSGs.filter(g => 
+            !g.ageFocus?.includes("U10") && 
+            !g.ageFocus?.includes("Level 5") && 
+            !g.name.toLowerCase().includes("kick and mark")
+          );
+        } else {
+          filteredDrills = filteredDrills.filter(d => !d.isAdultOnly);
+          filteredSSGs = filteredSSGs.filter(g => !g.isAdultOnly);
+        }
+
+        const relevantDrills = filteredDrills.filter(d => 
           d && d.name && d.goal && focusAreas.some(f => d.name.toLowerCase().includes(f.toLowerCase()) || d.goal.toLowerCase().includes(f.toLowerCase()))
         );
-        const relevantSSGs = SMALL_SIDED_GAMES.filter(g => 
+        const relevantSSGs = filteredSSGs.filter(g => 
           g && g.name && g.goal && focusAreas.some(f => g.name.toLowerCase().includes(f.toLowerCase()) || g.goal.toLowerCase().includes(f.toLowerCase()))
         );
 
@@ -551,6 +608,17 @@ ${lastPreGameNegativePrompt}
    - Bibs / Pinnies: ${currentEquipment.bibs}
 
 CRITICAL DEDUPLICATION RULE: You are generating a complete session plan. You must not repeat any drill, activity, or scenario. Every single station and quarter must contain a uniquely named drill. Cross-check your output before finalizing; if a drill title appears twice (e.g., repeating the warm-up in a station rotation, or repeating a station A drill in station B), you MUST replace the duplicate with a new, distinct drill from the database. All segments and concurrent stations (Station A and Station B) must be completely unique.
+
+${isAdult ? `CRITICAL ADULT TACTICAL DRILLS RULES:
+- The squad is an ADULT team (e.g., Seniors, Reserves, Over 35s).
+- EXPLICITLY FILTER OUT basic junior skill drills like static kick-to-kick grids, partner lead & mark warmups, or simple ground-ball relays.
+- Replace basic youth drill templates with high-intensity, match-simulation drills focused on structure, ball movement, and team execution.
+- Utilize standard senior football requirements:
+  1. Dynamic 3-man weave options with deep entry kicks
+  2. Stoppage clearance simulations under direct pressure
+  3. Rebound 50 transition drills focusing on switching the fat side of the ground
+  4. High-intensity situational match simulations (e.g., 6 vs. 6 keeps)
+- Use senior coaching terminology: focus on tactical setups (e.g., zonal press, corridor switch, defensive lock, outnumber extraction), execution speeds, physical conditioning limits, and complex game scenarios. Avoid simple youth/junior explanations.` : ''}
 
 Create a training plan for ${duration} minutes, specifically for ${playerCount} players. The players belong to the "${ageGroup}" age group level. 
 Every drill segment MUST directly teach the selected Focus Areas: ${focusAreas.join(", ")}. 
@@ -635,7 +703,9 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       setIsFallback(true);
       const firstFocus = focusAreas[0] || 'Corridor Transitions';
       const resolvedKey = getLocalDrillKey(firstFocus);
-      const drills = LOCAL_DRILLS[resolvedKey] || LOCAL_DRILLS['Corridor Transitions'];
+      const drills = isAdult 
+        ? (ADULT_LOCAL_DRILLS[resolvedKey] || ADULT_LOCAL_DRILLS['Corridor Transitions'])
+        : (LOCAL_DRILLS[resolvedKey] || LOCAL_DRILLS['Corridor Transitions']);
       
       // Calculate scaled durations if total session is not 70 mins
       const preGameMins = Math.max(5, Math.round(duration * (15/70)));
@@ -663,9 +733,28 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       const selectedDrills = [selectedPreGameDrill.name.toLowerCase()];
 
       // Candidate pools
-      const allPrescribed = PRESCRIBED_DRILLS || [];
-      const allSSGs = SMALL_SIDED_GAMES || [];
-      const allLocal = Object.values(LOCAL_DRILLS).flat();
+      let allPrescribed = PRESCRIBED_DRILLS || [];
+      let allSSGs = SMALL_SIDED_GAMES || [];
+      let allLocal = Object.values(isAdult ? ADULT_LOCAL_DRILLS : LOCAL_DRILLS).flat();
+      
+      if (isAdult) {
+        allPrescribed = allPrescribed.filter(d => 
+          !d.level?.includes("Level 4") && 
+          !d.level?.includes("Level 5") && 
+          !d.level?.includes("U8") && 
+          !d.level?.includes("U10") && 
+          !d.name.toLowerCase().includes("kick and mark") && 
+          !d.name.toLowerCase().includes("fundamentals")
+        );
+        allSSGs = allSSGs.filter(g => 
+          !g.ageFocus?.includes("U10") && 
+          !g.ageFocus?.includes("Level 5") && 
+          !g.name.toLowerCase().includes("kick and mark")
+        );
+      } else {
+        allPrescribed = allPrescribed.filter(d => !d.isAdultOnly);
+        allSSGs = allSSGs.filter(g => !g.isAdultOnly);
+      }
       const entirePool = [...allPrescribed, ...allSSGs, ...allLocal];
 
       const retrieveUniqueDrill = (candidates, selectedList, fallbackPool = []) => {
@@ -693,7 +782,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       };
 
       const primaryQ1 = drills?.[0] || { name: 'Warm-up: AFL Kick and Mark Drill', desc: 'Practice fundamental AFL disposal, movement, and marking techniques.' };
-      const q1FilteredPool = entirePool.filter(d => d.name.toLowerCase().includes('warm-up') || d.name.toLowerCase().includes('fundamental') || d.name.toLowerCase().includes('kick and mark') || d.name.toLowerCase().includes('hands'));
+      const q1FilteredPool = entirePool.filter(d => d.name.toLowerCase().includes('warm-up') || d.name.toLowerCase().includes('fundamental') || d.name.toLowerCase().includes('kick and mark') || d.name.toLowerCase().includes('hands') || d.name.toLowerCase().includes('weave'));
       const resolvedQ1Drill = retrieveUniqueDrill([primaryQ1], selectedDrills, q1FilteredPool);
       
       const drill0Name = resolvedQ1Drill.name.toUpperCase();
@@ -755,7 +844,17 @@ The Switch: Switch stations at the ${q3Half}-minute mark.`;
 
         const conesCount = 32; // Doubled from 16
         const ballsCount = Math.max(12, playerCount); // Doubled or scaled
-        q4Instructions = `Play a small-sided match (such as End-to-End Keepings Off or The Exit Strategy) to test under game pressure.
+        q4Instructions = isAdult
+          ? `Execute a high-intensity situational match play (e.g., 6v6 keeps or rebound transitions) focusing on structural discipline, defensive locks, and rapid transition speed.
+
+- Contact Rules: ${config.tackleRules}
+- CHANGE IT Coaching Tip: Restrict players to a 2-touch limit (or maximum 1.5 seconds) to simulate elite closing pressure and elevate disposal execution speed under fatigue.
+
+CONSOLIDATED EQUIPMENT STAGING LIST (Parallel Stations Active)
+- Cones: ${conesCount}x field cones (for multiple grids/lanes)
+- Bibs: Distinct colors assigned to each sub-group to avoid mid-session swaps (${group1}x Yellow bibs for Group 1, ${group2}x Orange bibs for Group 2)
+- Balls: ${ballsCount}x footballs minimum (ensuring high touch-rates across both stations)`
+          : `Play a small-sided match (such as End-to-End Keepings Off or The Exit Strategy) to test under game pressure.
 
 - Contact Rules: ${config.tackleRules}
 - CHANGE IT Coaching Tip: Require 3 passes before scoring or reward 3 points for corridor transitions.
@@ -765,11 +864,25 @@ CONSOLIDATED EQUIPMENT STAGING LIST (Parallel Stations Active)
 - Bibs: Distinct colors assigned to each sub-group to avoid mid-session swaps (${group1}x Yellow bibs for Group 1, ${group2}x Orange bibs for Group 2)
 - Balls: ${ballsCount}x footballs minimum (ensuring high touch-rates across both stations)`;
       } else {
-        q2Instructions = `${drill1Desc}\n\n- Setup: ${groupingLabel} Split into offense vs defense spacing grids. Maximize repetitions (60+ touches target).${drill1Contact}\n- CHANGE IT Coaching Tip: Restrict ball-carriers to two bounces to increase disposal speed.`;
+        q2Instructions = isAdult
+          ? `${drill1Desc}\n\n- Setup: ${groupingLabel} Split into offense vs defense tactical press grids. Maximize physical contest extraction and rapid transitions.${drill1Contact}\n- CHANGE IT Coaching Tip: Restrict ball-carriers to a 2-touch limit to simulate elite closing pressure and elevate disposal execution speed under fatigue.`
+          : `${drill1Desc}\n\n- Setup: ${groupingLabel} Split into offense vs defense spacing grids. Maximize repetitions (60+ touches target).${drill1Contact}\n- CHANGE IT Coaching Tip: Restrict ball-carriers to two bounces to increase disposal speed.`;
         
-        q3Instructions = `${drill2Desc}\n\n- Setup: ${groupingLabel} Focus on contest balance, outnumbering at the stoppage, and rapid corridor transition.${drill2Contact}\n- CHANGE IT Coaching Tip: Adjust numbers (e.g. 4v3) to favor offensive flow.`;
+        q3Instructions = isAdult
+          ? `${drill2Desc}\n\n- Setup: ${groupingLabel} Focus on contested stoppage clearance simulations under direct pressure, defensive locks, and shifting to the fat side.${drill2Contact}\n- CHANGE IT Coaching Tip: Adjust defensive press intensity (e.g., 4v5 overload) to stress-test extraction under physical duress and test conditioning limits.`
+          : `${drill2Desc}\n\n- Setup: ${groupingLabel} Focus on contest balance, outnumbering at the stoppage, and rapid corridor transition.${drill2Contact}\n- CHANGE IT Coaching Tip: Adjust numbers (e.g. 4v3) to favor offensive flow.`;
 
-        q4Instructions = `Play a small-sided match (such as End-to-End Keepings Off or The Exit Strategy) to test under game pressure.
+        q4Instructions = isAdult
+          ? `Execute a high-intensity situational match play (e.g., 6v6 keeps or rebound transitions) focusing on structural discipline, defensive locks, and rapid transition speed.
+
+- Contact Rules: ${config.tackleRules}
+- CHANGE IT Coaching Tip: Restrict players to a 2-touch limit (or maximum 1.5 seconds) to simulate elite closing pressure and elevate disposal execution speed under fatigue.
+
+COACH'S LOGISTICS SUMMARY
+- Cones: 16x field cones (for grids and lanes)
+- Bibs: 2 sets of different colors (e.g., 8x red, 8x blue)
+- Balls: 1 ball per pair (8-10 footballs minimum)`
+          : `Play a small-sided match (such as End-to-End Keepings Off or The Exit Strategy) to test under game pressure.
 
 - Contact Rules: ${config.tackleRules}
 - CHANGE IT Coaching Tip: Require 3 passes before scoring or reward 3 points for corridor transitions.

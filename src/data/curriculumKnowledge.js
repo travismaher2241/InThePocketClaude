@@ -189,6 +189,20 @@ export const SMALL_SIDED_GAMES = [
       "Attack: Identify the overlap and use handballs to draw the defender before releasing."
     ],
     changeIt: "Alter the delay timer (e.g. 3s or 8s) or adjust initial number of defenders."
+  },
+  {
+    name: "High-Intensity 6v6 Keeps",
+    ageFocus: "Seniors / Open Age",
+    phase: "Attack",
+    goal: "Maintain possession in tight spaces, pressure recovery, and physical conditioning limits.",
+    setup: "40m x 40m grid. 12 players divided into two teams of 6 (6v6).",
+    execution: "Play keepings off. Standard match rules apply, but the team in possession must execute short, sharp handballs and lead into open windows. If they complete 6 consecutive passes, they receive 1 point. Tackle pressure is intense with full contact.",
+    coachingPoints: [
+      "Constant work rate and lead patterns to create open passing lanes.",
+      "Immediate physical tackle pressure on turnover."
+    ],
+    changeIt: "Introduce a floater player who plays for the team in possession, or restrict players to 1 bounce maximum to increase transition speed.",
+    isAdultOnly: true
   }
 ];
 
@@ -348,6 +362,34 @@ export const PRESCRIBED_DRILLS = [
       "Keep eyes on ball until secured, then look up immediately to find options."
     ],
     changeIt: "Add a defender to create a 2v1 contest."
+  },
+  {
+    name: "Stoppage Clearance Simulation Under Direct Pressure",
+    phase: "Contest",
+    level: "Seniors / Open Age",
+    goal: "Develop contested possession extraction and structured outlet handball patterns under heavy physical pressure.",
+    setup: "Set up a stoppage zone around the 50m arc. Place 4 defenders and 4 attackers in the zone, with a ruckman at the drop zone. 2 outside runners positioned at the wings.",
+    execution: "The coach throws up the ball. Attackers must win the contested ball, execute a rapid handpass chain through a defensive clog, and clear to an outside runner.",
+    coachingPoints: [
+      "Body position to protect the drop zone and shield opponents.",
+      "Rapid handball release within 1 second of possession."
+    ],
+    changeIt: "Add a second wave of defenders or restrict the ball carrier to 1 second before disposal.",
+    isAdultOnly: true
+  },
+  {
+    name: "Rebound 50 Transition Drill (Switching the Fat Side)",
+    phase: "Attack",
+    level: "Seniors / Open Age",
+    goal: "Train full-ground defensive rebound structure, shifting the point of attack to the fat side, and long-range kicking.",
+    setup: "Set up D50 structure with 6 defenders and 4 attackers. Kicker starts at the goal square.",
+    execution: "The ball is kicked in. Defenders must gather and quickly execute a lateral switch across the fat side of the ground to clear the zonal press, transitioning the ball via the wing to a target player at the center line.",
+    coachingPoints: [
+      "Ensure fast lateral movement to shift the defense's press.",
+      "Execute low, penetrating kicks to target space on the fat side."
+    ],
+    changeIt: "Add an extra defender to clog the switch line, forcing players to find a secondary exit option.",
+    isAdultOnly: true
   }
 ];
 
@@ -376,6 +418,94 @@ export const LOCAL_DRILLS = {
     { name: 'Warm-up: AFL Ground Ball & Transition Drill', durationPct: 0.2, desc: 'Two cones 10m apart, ball in middle. Lines of chaser and attacker. Whistle blows; sprint to ball. Attacker gathers cleanly, chaser pressures. Rotate roles.' },
     { name: 'Skill Drill: AFL Handball Grid Drill', durationPct: 0.4, desc: '5m x 5m grid. 3-5 players as attackers keep possession against 1 defender using handballs only. Defender pressures to cause turnovers. Rotate.' },
     { name: 'Game Scenario: Ground Ball Box Battle', durationPct: 0.4, desc: '4v4 scrimmage in a 25m x 25m grid. Keep possession using only contested ground ball pickups and quick handball release. Continuous tackle pressure.' }
+  ]
+};
+
+export const ADULT_LOCAL_DRILLS = {
+  'Corridor Transitions': [
+    {
+      name: "Warm-up: Dynamic 3-Man Weave Options",
+      durationPct: 0.2,
+      desc: "Set up three lines of players at the center square. On the whistle, the first player in each line runs forward, executing a 3-man handpass weave at maximum speed. The third receiver must hit a deep leading target inside the 50m arc with a low dart entry kick."
+    },
+    {
+      name: "Skill Drill: Rebound 50 Transition (Fat Side Switch)",
+      durationPct: 0.4,
+      desc: "Set up D50 structure with 6 defenders and 4 attackers. The ball is kicked in. Defenders must gather and quickly execute a lateral switch across the fat side of the ground to clear the zonal press, transitioning the ball via the wing to a target player at the center line."
+    },
+    {
+      name: "Game Scenario: High-Intensity Situational Match Simulation (6v6 Keeps)",
+      durationPct: 0.4,
+      desc: "Set up a 40m x 40m grid. Two teams of 6 play keepings off. Standard match rules apply, but the team in possession must execute short, sharp handballs and lead into open windows. If they complete 6 consecutive passes, they receive 1 point. Tackle pressure is intense with full contact."
+    }
+  ],
+  'Stoppage Defensive Spacing': [
+    {
+      name: "Warm-up: Dynamic 3-Man Weave Options",
+      durationPct: 0.2,
+      desc: "Set up three lines of players at the center square. On the whistle, the first player in each line runs forward, executing a 3-man handpass weave at maximum speed. The third receiver must hit a deep leading target inside the 50m arc with a low dart entry kick."
+    },
+    {
+      name: "Skill Drill: Stoppage Clearance Simulation",
+      durationPct: 0.4,
+      desc: "Set up a stoppage zone around the 50m arc. Place 4 defenders and 4 attackers in the zone, with a ruckman at the drop zone. The coach throws up the ball. Attackers must win the contested ball, execute a rapid handpass chain through a defensive clog, and clear to an outside runner."
+    },
+    {
+      name: "Game Scenario: High-Intensity Situational Match Simulation (6v6 Keeps)",
+      durationPct: 0.4,
+      desc: "Set up a 40m x 40m grid. Two teams of 6 play keepings off. Standard match rules apply, but the team in possession must execute short, sharp handballs and lead into open windows. If they complete 6 consecutive passes, they receive 1 point. Tackle pressure is intense with full contact."
+    }
+  ],
+  'Kick-In Strategies': [
+    {
+      name: "Warm-up: Dynamic 3-Man Weave Options",
+      durationPct: 0.2,
+      desc: "Set up three lines of players at the center square. On the whistle, the first player in each line runs forward, executing a 3-man handpass weave at maximum speed. The third receiver must hit a deep leading target inside the 50m arc with a low dart entry kick."
+    },
+    {
+      name: "Skill Drill: Rebound 50 Transition (Fat Side Switch)",
+      durationPct: 0.4,
+      desc: "Set up D50 structure with 6 defenders and 4 attackers. The ball is kicked in. Defenders must gather and quickly execute a lateral switch across the fat side of the ground to clear the zonal press, transitioning the ball via the wing to a target player at the center line."
+    },
+    {
+      name: "Game Scenario: High-Intensity Situational Match Simulation (6v6 Keeps)",
+      durationPct: 0.4,
+      desc: "Set up a 40m x 40m grid. Two teams of 6 play keepings off. Standard match rules apply, but the team in possession must execute short, sharp handballs and lead into open windows. If they complete 6 consecutive passes, they receive 1 point. Tackle pressure is intense with full contact."
+    }
+  ],
+  'Contested Possessions': [
+    {
+      name: "Warm-up: Dynamic 3-Man Weave Options",
+      durationPct: 0.2,
+      desc: "Set up three lines of players at the center square. On the whistle, the first player in each line runs forward, executing a 3-man handpass weave at maximum speed. The third receiver must hit a deep leading target inside the 50m arc with a low dart entry kick."
+    },
+    {
+      name: "Skill Drill: Stoppage Clearance Under Direct Pressure",
+      durationPct: 0.4,
+      desc: "Set up a stoppage zone around the 50m arc. Place 4 defenders and 4 attackers in the zone, with a ruckman at the drop zone. The coach throws up the ball. Attackers must win the contested ball, execute a rapid handpass chain through a defensive clog, and clear to an outside runner."
+    },
+    {
+      name: "Game Scenario: High-Intensity Situational Match Simulation (6v6 Keeps)",
+      durationPct: 0.4,
+      desc: "Set up a 40m x 40m grid. Two teams of 6 play keepings off. Standard match rules apply, but the team in possession must execute short, sharp handballs and lead into open windows. If they complete 6 consecutive passes, they receive 1 point. Tackle pressure is intense with full contact."
+    }
+  ],
+  'Ground Balls': [
+    {
+      name: "Warm-up: Dynamic 3-Man Weave Options",
+      durationPct: 0.2,
+      desc: "Set up three lines of players at the center square. On the whistle, the first player in each line runs forward, executing a 3-man handpass weave at maximum speed. The third receiver must hit a deep leading target inside the 50m arc with a low dart entry kick."
+    },
+    {
+      name: "Skill Drill: Stoppage Clearance Under Direct Pressure",
+      durationPct: 0.4,
+      desc: "Set up a stoppage zone around the 50m arc. Place 4 defenders and 4 attackers in the zone, with a ruckman at the drop zone. The coach throws up the ball. Attackers must win the contested ball, execute a rapid handpass chain through a defensive clog, and clear to an outside runner."
+    },
+    {
+      name: "Game Scenario: High-Intensity Situational Match Simulation (6v6 Keeps)",
+      durationPct: 0.4,
+      desc: "Set up a 40m x 40m grid. Two teams of 6 play keepings off. Standard match rules apply, but the team in possession must execute short, sharp handballs and lead into open windows. If they complete 6 consecutive passes, they receive 1 point. Tackle pressure is intense with full contact."
+    }
   ]
 };
 
@@ -435,5 +565,13 @@ export const AFL_PRE_GAME_WARMUPS = [
     desc: "Players line up on boundary. Coach rolls a ball along the boundary. Player runs, gathers the ball, performs a quick 180-degree spin to simulate evasive exit, and handballs back.",
     coachingTip: "Keep body between opponent and ball when gathering.",
     phase: "Contest"
+  },
+  {
+    name: "Dynamic 3-Man Weave with Deep Entry Kicks",
+    goal: "Develop high-speed ball movement, coordination, and deep penetration kicking.",
+    desc: "Set up three lines of players at the center square. On the whistle, the first player in each line runs forward, executing a 3-man handpass weave at maximum speed. The third receiver must hit a deep leading target inside the 50m arc with a low dart entry kick.",
+    coachingTip: "Increase pressure by adding trailing defenders or require a second switch lead before the entry kick.",
+    phase: "Attack",
+    isAdultOnly: true
   }
 ];
