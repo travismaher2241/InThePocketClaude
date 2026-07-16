@@ -215,9 +215,23 @@ const sanitizePlanCards = (cards, groundName = "home ground") => {
         .replace(/Dusties/gi, "Home Club")
         .replace(/Dusty/gi, "Club mascot");
     };
+
+    let title = card.title || '';
+    if (title.toUpperCase().startsWith('PRE-GAME')) {
+      title = title.replace(/^PRE-GAME/i, 'WARM-UP & ACTIVATION');
+    } else if (title.toUpperCase().startsWith('QUARTER 1 WARM-UP')) {
+      title = title.replace(/^QUARTER 1 WARM-UP/i, 'SKILL ACQUISITION');
+    } else if (title.toUpperCase().startsWith('QUARTER 2 SKILL ROTATIONS')) {
+      title = title.replace(/^QUARTER 2 SKILL ROTATIONS/i, 'DECISION ROTATIONS');
+    } else if (title.toUpperCase().startsWith('QUARTER 3 TEAM TASK')) {
+      title = title.replace(/^QUARTER 3 TEAM TASK/i, 'TEAM TACTICAL');
+    } else if (title.toUpperCase().startsWith('QUARTER 4 GAME')) {
+      title = title.replace(/^QUARTER 4 GAME/i, 'MATCH PLAY / SSG');
+    }
+
     return {
       ...card,
-      title: scrub(card.title),
+      title: scrub(title),
       instructions: scrub(card.instructions),
       goal: scrub(card.goal)
     };
@@ -351,7 +365,7 @@ export default function TrainingLab({
 
   // Generation status
   const [isGenerating, setIsGenerating] = useState(false);
-  const [planCards, setPlanCards] = useState(draft?.planCards || []); // Array of structured drill card objects
+  const [planCards, setPlanCards] = useState(() => sanitizePlanCards(draft?.planCards || [], squadSettings?.groundName || "home ground")); // Array of structured drill card objects
   const [isFallback, setIsFallback] = useState(false);
   const [aiGensUsed, setAiGensUsed] = useState(0);
 
@@ -589,14 +603,14 @@ export default function TrainingLab({
         
         let injectedSSGsText = "";
         if (relevantSSGs.length > 0) {
-          injectedSSGsText += `\nCurriculum Small-Sided Games (Use these as candidates for the Quarter 4 Game segment if applicable):\n` +
+          injectedSSGsText += `\nCurriculum Small-Sided Games (Use these as candidates for the MATCH PLAY / SSG segment if applicable):\n` +
             relevantSSGs.map(g => `- Game: "${g.name || ''}"\n  Goal: ${g.goal || ''}\n  Setup: ${g.setup || ''}\n  Execution: ${g.execution || ''}\n  CHANGE IT Tip: ${g.changeIt || ''}`).join('\n');
         }
 
         const isStations = playerCount > 15;
         let stationPromptRules = "";
-        let q2PromptDesc = `QUARTER 2 SKILL ROTATIONS: Two rotations consisting of high-repetition skills and a decision-making task (approx 30% of session time, e.g. 20 mins).`;
-        let q3PromptDesc = `QUARTER 3 TEAM TASK: Practice applying skills to game situations when working as a team (approx 20% of session time, e.g. 15 mins).`;
+        let q2PromptDesc = `DECISION ROTATIONS: Two rotations consisting of high-repetition skills and a decision-making task (approx 30% of session time, e.g. 20 mins).`;
+        let q3PromptDesc = `TEAM TACTICAL: Practice applying skills to game situations when working as a team (approx 20% of session time, e.g. 15 mins).`;
 
         if (isStations) {
           stationPromptRules = `
@@ -609,10 +623,10 @@ export default function TrainingLab({
      Station A: [Drill Name], Goal: [Goal], Setup: [Setup based on Group 1 size of ${group1} players].
      Station B: [Drill Name], Goal: [Goal], Setup: [Setup based on Group 2 size of ${group2} players].
      The Switch: Include a specific instruction on when to blow the whistle and rotate the groups (e.g. 'Switch stations at the 10-minute mark' if the segment duration is 20 minutes).
-   - Equipment Logistics: In the 5th segment (Quarter 4: GAME) instructions, at the very bottom, you MUST output a consolidated equipment staging list that accounts for both stations running at the same time (e.g. doubling the cone and football count) and assigning distinct bib colors to Group 1 (${group1} players) and Group 2 (${group2} players) to avoid mid-session swaps.
+   - Equipment Logistics: In the 5th segment (MATCH PLAY / SSG) instructions, at the very bottom, you MUST output a consolidated equipment staging list that accounts for both stations running at the same time (e.g. doubling the cone and football count) and assigning distinct bib colors to Group 1 (${group1} players) and Group 2 (${group2} players) to avoid mid-session swaps.
 `;
-          q2PromptDesc = `QUARTER 2 SKILL ROTATIONS: Divide the session into parallel stations for Group 1 (${group1} players) and Group 2 (${group2} players) running concurrently (approx 30% of session time, e.g. 20 mins).`;
-          q3PromptDesc = `QUARTER 3 TEAM TASK: Divide the session into parallel stations for Group 1 (${group1} players) and Group 2 (${group2} players) running concurrently (approx 20% of session time, e.g. 15 mins).`;
+          q2PromptDesc = `DECISION ROTATIONS: Divide the session into parallel stations for Group 1 (${group1} players) and Group 2 (${group2} players) running concurrently (approx 30% of session time, e.g. 20 mins).`;
+          q3PromptDesc = `TEAM TACTICAL: Divide the session into parallel stations for Group 1 (${group1} players) and Group 2 (${group2} players) running concurrently (approx 20% of session time, e.g. 15 mins).`;
         } else {
           stationPromptRules = `
 7. STANDARD SINGLE-GROUP RULES (Squad size is ${playerCount} which is <= 15):
@@ -622,7 +636,7 @@ export default function TrainingLab({
 
         let lastPreGameNegativePrompt = "";
         if (lastPreGameName) {
-          lastPreGameNegativePrompt = `\nCRITICAL Repetition Constraint: The Pre-Game / Warm-Up drill in the user's previous training session was: "${lastPreGameName.replace(/[#*`[\]]/g, '')}". You MUST NOT choose or generate this exact drill again for Segment 1. Ensure you choose a different type of activity to provide variation.`;
+          lastPreGameNegativePrompt = `\nCRITICAL Repetition Constraint: The Warm-Up & Activation drill in the user's previous training session was: "${lastPreGameName.replace(/[#*`[\]]/g, '')}". You MUST NOT choose or generate this exact drill again for Segment 1. Ensure you choose a different type of activity to provide variation.`;
         }
 
         const activeCategory = ageGroupText.toUpperCase().includes('VETERAN') || ageGroupText.toUpperCase().includes('OVER 35') || ageGroupText.toUpperCase().includes('MASTER') ? 'Veterans' :
@@ -720,23 +734,23 @@ ${cardFormatText}
    - Agility Poles: ${currentEquipment.agilityPoles}
    - Bibs / Pinnies: ${currentEquipment.bibs}
 
-CRITICAL DEDUPLICATION RULE: You are generating a complete session plan. You must not repeat any drill, activity, or scenario. Every single station and quarter must contain a uniquely named drill. Cross-check your output before finalizing; if a drill title appears twice, you MUST replace the duplicate with a new, distinct drill from the database. All segments and concurrent stations (Station A and Station B) must be completely unique.
+CRITICAL DEDUPLICATION RULE: You are generating a complete session plan. You must not repeat any drill, activity, or scenario. Every single station and segment must contain a uniquely named drill. Cross-check your output before finalizing; if a drill title appears twice, you MUST replace the duplicate with a new, distinct drill from the database. All segments and concurrent stations (Station A and Station B) must be completely unique.
 
 Create a training plan for ${duration} minutes, specifically for ${playerCount} players. The players belong to the "${ageGroup}" age group level. 
 Every drill segment MUST directly teach the selected Focus Areas: ${focusAreas.join(", ")}. 
 The complexity, grid sizes (in meters), setup descriptions, and terminology MUST be strictly tailored for the selected Age Group: "${ageGroup}".
 
 The plan must include exactly five segments representing the curriculum structure:
-1. PRE-GAME: Select a pre-game or warm-up activity. Use the following selected activity (or a creative variation of it) as the foundation for the Segment 1 instructions, goal, and phase:
+1. WARM-UP & ACTIVATION: Select a warm-up or activation activity. Use the following selected activity (or a creative variation of it) as the foundation for the Segment 1 instructions, goal, and phase:
    - Activity Name: "${selectedPreGameDrill.name}"
    - Goal: ${selectedPreGameDrill.goal}
    - Description: ${selectedPreGameDrill.desc}
    - CHANGE IT Tip: ${selectedPreGameDrill.coachingTip}
    (duration should be approx 20% of session time, e.g. 15 mins for a 70-minute session).
-2. QUARTER 1 WARM-UP: Fun warm-up with emphasis on fundamental movements (approx 15% of session time, e.g. 10 mins).
+2. SKILL ACQUISITION: Fun warm-up with emphasis on fundamental movements (approx 15% of session time, e.g. 10 mins).
 3. ${q2PromptDesc}
 4. ${q3PromptDesc}
-5. QUARTER 4 GAME: Match play with specific rule constraints to emphasize targeted skills (approx 15% of session time, e.g. 10 mins).
+5. MATCH PLAY / SSG: Match play with specific rule constraints to emphasize targeted skills (approx 15% of session time, e.g. 10 mins).
 
 Ensure the sum of the durations of these 5 segments equals exactly ${duration} minutes.
 Ensure you return a JSON array containing exactly 5 objects as defined in the card format instructions.
@@ -851,7 +865,7 @@ PROGRESSIONS & REGRESSIONS: ${d.progressions}`;
       let preGameCard = {};
       if (isFemalePathway) {
         preGameCard = {
-          title: "PRE-GAME: PREP-TO-PLAY PRO ACTIVATION",
+          title: "WARM-UP & ACTIVATION: PREP-TO-PLAY PRO",
           duration: preGameMins,
           instructions: `DRILL NAME & OBJECTIVE: Prep-to-Play PRO Activation - Neuromuscular ACL protection and landing biomechanics
           
@@ -867,7 +881,7 @@ PROGRESSIONS & REGRESSIONS: Progression: Add light shoulder bumps in the air. Re
         };
       } else {
         preGameCard = {
-          title: `PRE-GAME: ${selectedPreGameDrill.name.toUpperCase()}`,
+          title: `WARM-UP & ACTIVATION: ${selectedPreGameDrill.name.toUpperCase()}`,
           duration: preGameMins,
           instructions: `DRILL NAME & OBJECTIVE: ${selectedPreGameDrill.name} - ${selectedPreGameDrill.goal}
           
@@ -884,7 +898,7 @@ PROGRESSIONS & REGRESSIONS: CHANGE IT Coaching Tip: ${selectedPreGameDrill.coach
       }
 
       const q1Card = {
-        title: `QUARTER 1 WARM-UP: ${drill1.name.toUpperCase()}`,
+        title: `SKILL ACQUISITION: ${drill1.name.toUpperCase()}`,
         duration: q1Mins,
         instructions: formatDrillCardText(drill1, playerCount),
         goal: `Activate movement patterns and build early confidence: ${drill1.objective}`,
@@ -948,7 +962,7 @@ The Switch: Switch stations at the ${q3Half}-minute mark.`;
           coachingTip = "禁止长距离踢球以保护关节；球员传球后必须原位置停止缓冲。";
         }
 
-        q4Instructions = `DRILL NAME & OBJECTIVE: Quarter 4 Game - Match Simulation & Spacing
+        q4Instructions = `DRILL NAME & OBJECTIVE: Match Play / SSG - Match Simulation & Spacing
         
 SETUP & GRID DIMENSIONS: Full ground (${groundName}: ${groundLengthText} x ${groundWidthText}) or half ground
  
@@ -997,7 +1011,7 @@ CONSOLIDATED EQUIPMENT STAGING LIST (Parallel Stations Active)
           coachingTip = "禁止长距离踢球以保护关节；球员传球后必须原位置停止缓冲。";
         }
 
-        q4Instructions = `DRILL NAME & OBJECTIVE: Quarter 4 Game - Match Simulation & Spacing
+        q4Instructions = `DRILL NAME & OBJECTIVE: Match Play / SSG - Match Simulation & Spacing
         
 SETUP & GRID DIMENSIONS: Full ground (${groundName}: ${groundLengthText} x ${groundWidthText}) or half ground
  
@@ -1014,23 +1028,23 @@ COACH'S LOGISTICS SUMMARY
       }
 
       const q2Card = {
-        title: `QUARTER 2 SKILL ROTATIONS`,
+        title: `DECISION ROTATIONS`,
         duration: q2Mins,
         instructions: q2Instructions,
         goal: `Execute technical skill actions under decision-making constraints: ${drill2.name}`,
         phase: drill2.phase
       };
-
+ 
       const q3Card = {
-        title: `QUARTER 3 TEAM TASK`,
+        title: `TEAM TACTICAL`,
         duration: q3Mins,
         instructions: q3Instructions,
         goal: `Practice tactical transitions and team-based corridor resets: ${drill4.name}`,
         phase: drill4.phase
       };
-
+ 
       const q4Card = {
-        title: `QUARTER 4 GAME: CURRICULUM SSG`,
+        title: `MATCH PLAY / SSG`,
         duration: q4Mins,
         instructions: q4Instructions,
         goal: `Test execution and adaptability under matchday pressure.`,
