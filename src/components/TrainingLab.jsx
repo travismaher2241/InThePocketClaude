@@ -204,6 +204,138 @@ function parseStationCards(card, group1, group2) {
   return [cardA, cardB];
 }
 
+const validateDrillClosedLoopAndCues = (card) => {
+  const titleLower = (card.title || '').toLowerCase();
+  const goalLower = (card.goal || '').toLowerCase();
+  const instLower = (card.instructions || '').toLowerCase();
+
+  // Extract execution and cues sections
+  const execMatch = instLower.match(/execution\s+&\s+rules:\s*([\s\S]*?)(?=\n\n[a-z]|$)/i);
+  const cuesMatch = instLower.match(/elite\s+coaching\s+cues:\s*([\s\S]*?)(?=\n\n[a-z]|$)/i);
+
+  const execText = execMatch ? execMatch[1] : '';
+  const cuesText = cuesMatch ? cuesMatch[1] : '';
+
+  // 1. Biomechanical Cue Mismatches Check
+  const isGroundBallDrill = 
+    titleLower.includes('ground ball') || 
+    titleLower.includes('gather') || 
+    titleLower.includes('pickup') || 
+    titleLower.includes('scoop') || 
+    goalLower.includes('ground ball') || 
+    goalLower.includes('gather') || 
+    goalLower.includes('pickup') ||
+    execText.includes('ground ball') ||
+    execText.includes('gather') ||
+    execText.includes('pickup') ||
+    execText.includes('scoop');
+
+  const hasLinearSpeedCues = 
+    cuesText.includes('upright posture') || 
+    cuesText.includes('high chest') || 
+    cuesText.includes('drive the knees') || 
+    cuesText.includes('knee height') || 
+    cuesText.includes('running form');
+
+  // Ground Ball Gathers + Upright Posture / Knee height cues mismatch
+  if (isGroundBallDrill && hasLinearSpeedCues) {
+    console.warn("Schema Validation Failed: Ground ball drill contains linear speed cues.", card);
+    return false;
+  }
+
+  const isLinearSpeedSprint = 
+    titleLower.includes('sprint') || 
+    titleLower.includes('speed') || 
+    titleLower.includes('acceleration') || 
+    titleLower.includes('top-up') ||
+    goalLower.includes('sprint') || 
+    goalLower.includes('speed') || 
+    goalLower.includes('acceleration') || 
+    goalLower.includes('top-up');
+
+  const hasGroundBallCues = 
+    cuesText.includes('knuckles scraping') || 
+    cuesText.includes('scrape your knuckles') || 
+    cuesText.includes('knuckles') || 
+    cuesText.includes('scrape') || 
+    cuesText.includes('get low') || 
+    cuesText.includes('bend the knees to get low') || 
+    cuesText.includes('step over the footy');
+
+  // Linear Speed + Ground Ball cues mismatch
+  if (isLinearSpeedSprint && !isGroundBallDrill && hasGroundBallCues) {
+    console.warn("Schema Validation Failed: Linear speed drill contains ground ball cues.", card);
+    return false;
+  }
+
+  // 2. Closed Loop Execution Check (Only for non-match play segments 1-4)
+  const isMatchPlaySegment = 
+    titleLower.includes('match play') || 
+    titleLower.includes('ssg') || 
+    titleLower.includes('scrimmage') || 
+    titleLower.includes('game') || 
+    goalLower.includes('match play') || 
+    goalLower.includes('ssg') || 
+    goalLower.includes('scrimmage') || 
+    goalLower.includes('game');
+
+  if (!isMatchPlaySegment && execText) {
+    // Check for Start Boundary indicators
+    const hasStart = 
+      execText.includes('line up') || 
+      execText.includes('start') || 
+      execText.includes('behind') || 
+      execText.includes('whistle') || 
+      execText.includes('position') ||
+      execText.includes('group');
+
+    // Check for Interaction Mechanics indicators
+    const hasInteraction = 
+      execText.includes('run') || 
+      execText.includes('sprint') || 
+      execText.includes('gather') || 
+      execText.includes('pick') || 
+      execText.includes('receive') || 
+      execText.includes('evade') || 
+      execText.includes('collect') || 
+      execText.includes('lead') || 
+      execText.includes('mark') ||
+      execText.includes('chase') ||
+      execText.includes('tackle');
+
+    // Check for Disposal Target indicators
+    const hasDisposal = 
+      execText.includes('handball') || 
+      execText.includes('kick') || 
+      execText.includes('pass') || 
+      execText.includes('dispose') || 
+      execText.includes('give') || 
+      execText.includes('target') || 
+      execText.includes('partner') || 
+      execText.includes('waiting') ||
+      execText.includes('return') ||
+      execText.includes('placement');
+
+    // Check for Return Point Boundary indicators
+    const hasReturn = 
+      execText.includes('return') || 
+      execText.includes('back of the') || 
+      execText.includes('tag') || 
+      execText.includes('high-five') || 
+      execText.includes('rotate') || 
+      execText.includes('interchange') || 
+      execText.includes('starts again') ||
+      execText.includes('loop');
+
+    if (!hasStart || !hasInteraction || !hasDisposal || !hasReturn) {
+      console.warn(`Schema Validation Failed: Execution block does not represent a closed loop (Start: ${hasStart}, Interaction: ${hasInteraction}, Disposal: ${hasDisposal}, Return: ${hasReturn}).`, card);
+      return false;
+    }
+  }
+
+  return true;
+};
+
 const numberToWords = (num) => {
   const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
   return words[num] || num.toString();
@@ -857,14 +989,19 @@ Do not repeat standard baseline drills. Every plan must strictly adhere to these
 4. CHANGE IT Framework: The "instructions" field for every drill must conclude with a specific "CHANGE IT Coaching Tip" showing how to modify the drill (Area, Numbers, Rules, Equipment, Time) to adjust difficulty.
 5. High Touch Objective: Prioritize high-touch (60+ touches per player), high-energy drills. If a drill has long lines, do not use it.
 6. NO LOCAL VENUES OR CLUB NAMES: You MUST NOT mention any specific local town, venue, or club names such as "Western Park", "Warragul", "Dusties", or "Dusty". Use generic terms like "home ground", "local club", or "opposition".
-7. STRICT CONTEXTUAL COHERENCE FOR COACHING CUES: The ELITE COACHING CUES must map directly to the physical actions in the EXECUTION & RULES field. If a drill is a dynamic warm-up or mobilization block without footballs (e.g. high knees, butt kicks, leg swings, running lines), you MUST completely ban generic ball-handling placeholder cues like "Keep eyes on ball", "Move into space", or "Clean hands". Instead, you MUST use relevant physiological cues such as:
-   - "Drive the knees to hip height"
-   - "Maintain an upright posture"
-   - "Stay light on your toes and control the deceleration"
+7. STRICT CONTEXTUAL COHERENCE & BIOMECHANICAL CUE ALIGNMENT: The ELITE COACHING CUES must map directly and realistically to the physical actions in the EXECUTION & RULES field.
+   - For Ground Ball / Gathering Gathers: Cues must strictly focus on lowering the center of gravity and hand positioning (e.g., "Bend the knees to get low, don't just bend your back", "Step over the footy to protect it with your body", "Scrape your knuckles along the grass to get under the ball").
+   - For Linear Speed Top-Ups / Straight Sprint Blocks: Save posture and knee metrics strictly for high-speed tracking drills without ground ball handling requirements (e.g., "Maintain a high chest and upright posture during top-end speed phase", "Drive knees aggressively on transition acceleration"). Running form cues are completely banned from intersecting with ground-ball gathering drills.
+   - If a drill is a dynamic warm-up or mobilization block without footballs, you MUST completely ban generic ball-handling placeholder cues like "Keep eyes on ball", "Move into space", or "Clean hands". Instead, you MUST use relevant physiological cues such as: "Drive the knees to hip height", "Maintain an upright posture", "Stay light on your toes and control the deceleration".
 8. CLEAR SPATIAL SETUP TERMINOLOGY: You MUST NOT use nonsensical, hybrid dimension phrases like "10m x 10m lane grids". Force the setup to use distinct, real-world setup types based on the drill category:
    - For linear, running, tracking, or conditioning drills, use channels or lanes (e.g., "Set up parallel 20-meter running lanes separated by 5 meters").
    - For contested, skill rotations, or small-sided games, use square grids (e.g., "Set up a 10m x 10m square grid using 4 cones").
-9. Curriculum Weekly Schedules (Align the session with these curriculum themes and goals):
+9. CLOSED-LOOP EXECUTION RULES BLUEPRINT: Every text string generated in the EXECUTION & RULES field must represent a fully completed, logically closed movement tracking loop. You must explicitly define all operational variables inline:
+   - Start Boundary: Define exactly where the players line up, how many work per lane, and what triggers the movement (e.g., "Players line up in groups of 4 behind the starting cone. On the whistle...").
+   - Interaction Mechanics: Define exactly what occurs when a player reaches an item or asset (e.g., "...sprint 5 meters, drop the hips to gather the first stationary ground ball...").
+   - Disposal Targets: Define exactly who receives the football or where it is placed (e.g., "...execute a clean handball to the stationary partner standing at the 10m mark," or "...handball back to the next player waiting in the starting line...").
+   - Return Point Boundary: Define exactly where the player runs to complete their turn (e.g., "...and high-five the next runner to tag them in before moving to the back of the line.").
+10. Curriculum Weekly Schedules (Align the session with these curriculum themes and goals):
 ${weeklyThemesText}
 ${stationPromptRules}
 ${injectedDrillsText}${injectedSSGsText}
@@ -937,6 +1074,11 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
               // Perform parameter schema validation checks for context alignment
               let hasDataContamination = false;
               for (const card of normalized) {
+                if (!validateDrillClosedLoopAndCues(card)) {
+                  console.warn("Rejecting AI plan due to closed-loop or biological cues mismatch", card);
+                  hasDataContamination = true;
+                  break;
+                }
                 const titleLower = (card.title || '').toLowerCase();
                 const goalLower = (card.goal || '').toLowerCase();
                 const instLower = (card.instructions || '').toLowerCase();
