@@ -857,6 +857,144 @@ const scaleDrillSetup = (setupText, executionText, totalAttendance) => {
   return scaledString;
 };
 
+const parseInstructions = (text) => {
+  if (!text) return {};
+  const result = {};
+  
+  const patterns = {
+    drillNameObjective: /DRILL\s+NAME\s+&\s+OBJECTIVE:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i,
+    targetKickingType: /TARGET\s+KICKING\s+TYPE:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i,
+    setupGridDimensions: /SETUP\s+&\s+GRID\s+DIMENSIONS:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i,
+    executionRules: /EXECUTION\s+&\s+RULES:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i,
+    eliteCoachingCues: /ELITE\s+COACHING\s+CUES:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i,
+    progressionsRegressions: /PROGRESSIONS\s+&\s+REGRESSIONS:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i
+  };
+
+  for (const [key, regex] of Object.entries(patterns)) {
+    const match = text.match(regex);
+    if (match) {
+      result[key] = match[1].trim();
+    } else {
+      result[key] = "";
+    }
+  }
+
+  return result;
+};
+
+const getVerbatimDrillText = (card) => {
+  if (!card) return '';
+  const titleLower = (card.title || card.name || '').toLowerCase();
+  
+  // Try to find in SYLLABUS_DRILLS
+  const matchedSyllabus = SYLLABUS_DRILLS.find(d => 
+    titleLower.includes((d.name || '').toLowerCase()) || 
+    (d.name || '').toLowerCase().includes(titleLower)
+  );
+  if (matchedSyllabus) {
+    return `DRILL NAME & OBJECTIVE: ${matchedSyllabus.name} - ${matchedSyllabus.objective || 'Skill practice'}
+    
+TARGET KICKING TYPE: ${getTacticalKickingType(matchedSyllabus)}
+
+SETUP & GRID DIMENSIONS: ${matchedSyllabus.setup}
+
+EXECUTION & RULES: ${matchedSyllabus.execution}
+
+ELITE COACHING CUES: ${matchedSyllabus.cues}
+
+PROGRESSIONS & REGRESSIONS: ${matchedSyllabus.progressions}`;
+  }
+
+  // Try to find in AFL_PRE_GAME_WARMUPS
+  const matchedWarmup = AFL_PRE_GAME_WARMUPS.find(w => 
+    titleLower.includes((w.name || '').toLowerCase()) || 
+    (w.name || '').toLowerCase().includes(titleLower)
+  );
+  if (matchedWarmup) {
+    return `DRILL NAME & OBJECTIVE: ${matchedWarmup.name} - ${matchedWarmup.goal}
+    
+TARGET KICKING TYPE: Low, penetrating stab pass directly to a leading target's chest
+
+SETUP & GRID DIMENSIONS: 15m x 15m grid.
+
+EXECUTION & RULES: ${matchedWarmup.desc}
+
+ELITE COACHING CUES: ${matchedWarmup.cues || 'Keep eyes on ball, Move into space, Clean hands'}
+
+PROGRESSIONS & REGRESSIONS: CHANGE IT Coaching Tip: ${matchedWarmup.coachingTip}`;
+  }
+
+  return card.instructions || '';
+};
+
+const renderDrillTextFramework = (card) => {
+  if (!card) return null;
+  const title = card.title || '';
+  let instructions = card.instructions || '';
+
+  // Parse fields first to check for contradictions
+  let parsed = parseInstructions(instructions);
+  
+  const titleLower = title.toLowerCase();
+  const instLower = instructions.toLowerCase();
+  const textToScan = titleLower + ' ' + instLower;
+
+  const isHandballOnlyContradiction = 
+    (instLower.includes('handball only') || instLower.includes('handballs only') || instLower.includes('handpass only') || instLower.includes('no kicking') || instLower.includes('handball restriction')) && 
+    (instLower.includes('kick') || instLower.includes('punt') || instLower.includes('drop punt') || (parsed.targetKickingType && !parsed.targetKickingType.toLowerCase().includes('n/a') && !parsed.targetKickingType.toLowerCase().includes('none')));
+
+  const hasMismatchedPosture = 
+    (instLower.includes('ground ball') || instLower.includes('gather') || instLower.includes('pickup') || instLower.includes('scoop')) && 
+    (instLower.includes('upright posture') || instLower.includes('high chest') || instLower.includes('drive the knees') || instLower.includes('knee height') || instLower.includes('running form'));
+
+  const isContradiction = isHandballOnlyContradiction || hasMismatchedPosture;
+
+  if (isContradiction) {
+    console.warn("Contradiction detected in card setup cues or actions; rendering verbatim text block from database.", card);
+    instructions = getVerbatimDrillText(card);
+    parsed = parseInstructions(instructions);
+  }
+  
+  const hasKickingAction = 
+    textToScan.includes('kick') || 
+    textToScan.includes('punt') || 
+    (parsed.targetKickingType && 
+     !parsed.targetKickingType.toLowerCase().includes('n/a') && 
+     !parsed.targetKickingType.toLowerCase().includes('none') && 
+     !parsed.targetKickingType.toLowerCase().includes('zero') &&
+     parsed.targetKickingType.trim() !== "");
+
+  const hasHandballOnly = 
+    (textToScan.includes('handball') || textToScan.includes('handpass') || textToScan.includes('stretch') || textToScan.includes('mobiliz') || textToScan.includes('gather')) && 
+    !textToScan.includes('kick') && 
+    !textToScan.includes('punt');
+
+  const shouldShowKicking = hasKickingAction && !hasHandballOnly;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.925rem', fontFamily: 'var(--font-family-body)', color: '#d1d5db', lineHeight: '1.5', fontWeight: 'normal' }}>
+      {parsed.drillNameObjective && (
+        <div style={{ margin: 0 }}>DRILL NAME & OBJECTIVE: {parsed.drillNameObjective.replace(/\*\*/g, '').replace(/[#`[\]]/g, '')}</div>
+      )}
+      {shouldShowKicking && parsed.targetKickingType && (
+        <div style={{ margin: 0 }}>TARGET KICKING TYPE: {parsed.targetKickingType.replace(/\*\*/g, '').replace(/[#`[\]]/g, '')}</div>
+      )}
+      {parsed.setupGridDimensions && (
+        <div style={{ margin: 0 }}>SETUP & GRID DIMENSIONS: {parsed.setupGridDimensions.replace(/\*\*/g, '').replace(/[#`[\]]/g, '')}</div>
+      )}
+      {parsed.executionRules && (
+        <div style={{ margin: 0 }}>EXECUTION & RULES: {parsed.executionRules.replace(/\*\*/g, '').replace(/[#`[\]]/g, '')}</div>
+      )}
+      {parsed.eliteCoachingCues && (
+        <div style={{ margin: 0 }}>ELITE COACHING CUES: {parsed.eliteCoachingCues.replace(/\*\*/g, '').replace(/[#`[\]]/g, '')}</div>
+      )}
+      {parsed.progressionsRegressions && (
+        <div style={{ margin: 0 }}>PROGRESSIONS & REGRESSIONS: {parsed.progressionsRegressions.replace(/\*\*/g, '').replace(/[#`[\]]/g, '')}</div>
+      )}
+    </div>
+  );
+};
+
 const sanitizePlanCards = (cards, groundName = "home ground", playerCount = 0, ageGroup = "") => {
   if (!Array.isArray(cards)) return cards;
   const isVeterans = 
@@ -1710,10 +1848,7 @@ PROGRESSIONS & REGRESSIONS: Progression: Add light shoulder bumps in the air. Re
           phase: "Contest"
         };
       } else {
-        const isDynamicStretching = selectedPreGameDrill.name.toLowerCase().includes('stretch') || selectedPreGameDrill.name.toLowerCase().includes('mobiliz');
-        const preGameCues = isDynamicStretching
-          ? `"Drive the knees to hip height", "Maintain an upright posture", "Stay light on your toes and control the deceleration"`
-          : `"Keep eyes on ball", "Move into space", "Clean hands"`;
+        const preGameCues = selectedPreGameDrill.cues || "Keep eyes on ball, Move into space, Clean hands";
 
         preGameCard = {
           title: `WARM-UP & ACTIVATION: ${selectedPreGameDrill.name.toUpperCase()}`,
@@ -2871,24 +3006,7 @@ COACH'S LOGISTICS SUMMARY
                     </div>
 
                     {/* Linear Instructions block displaying exact text framework */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
-                      <p 
-                        style={{
-                          fontFamily: 'var(--font-family-body)',
-                          fontSize: '0.925rem',
-                          color: '#d1d5db',
-                          lineHeight: '1.5',
-                          whiteSpace: 'pre-wrap',
-                          fontWeight: 'normal',
-                          margin: 0
-                        }}
-                      >
-                        {(() => {
-                          const cleanText = (card.instructions || 'Execute drill segment.').replace(/\*\*/g, '').replace(/[#`[\]]/g, '');
-                          return cleanText.replace(/FIELD\s+SETUP\s+DIAGRAM:[\s\S]*?(?=\n\n[A-Z]|$)/i, '').trim();
-                        })()}
-                      </p>
-                    </div>
+                    {renderDrillTextFramework(card)}
 
                     {/* Focus Goal Accent Block (Sherrin Red Highlight) */}
                     <div 
@@ -3305,12 +3423,7 @@ COACH'S LOGISTICS SUMMARY
                       </div>
                       {/* Linear Instructions block displaying exact text framework */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', margin: '8px 0' }}>
-                        <p style={{ fontSize: '0.8rem', color: '#9ca3af', margin: 0, lineHeight: '1.4', whiteSpace: 'pre-wrap', fontWeight: 'normal' }}>
-                          {(() => {
-                            const cleanText = (drill.instructions || '').replace(/\*\*/g, '').replace(/[#`[\]]/g, '');
-                            return cleanText.replace(/FIELD\s+SETUP\s+DIAGRAM:[\s\S]*?(?=\n\n[A-Z]|$)/i, '').trim();
-                          })()}
-                        </p>
+                        {renderDrillTextFramework(drill)}
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '600' }}>
                         Goal: <span style={{ color: '#d1d5db' }}>{drill.goal}</span>

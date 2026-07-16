@@ -546,56 +546,64 @@ export const AFL_PRE_GAME_WARMUPS = [
     goal: "Build warm-up touch and self-guided exploration.",
     desc: "Unstructured kick-to-kick and free handball grids. No active coaching. Emphasize player creativity, self-organization, and discovery.",
     coachingTip: "Vary the space or add multi-balls to keep everyone active.",
-    phase: "Contest"
+    phase: "Contest",
+    cues: "Look at your target, Hit the chest with a low spin, Steady balance on your stance"
   },
   {
     name: "AFL Dynamic Stretching & Mobilization Grids",
     goal: "Increase heart rate and dynamic range of motion.",
     desc: "Set up parallel 20-meter running lanes separated by 5 meters. Players line up and perform dynamic movements across the lanes: high knees, butt kicks, leg swings, arm circles, lateral lunges, and light jogging.",
     coachingTip: "Emphasize controlled movements and landing on light feet.",
-    phase: "Warm-Up"
+    phase: "Warm-Up",
+    cues: "Drive the knees to hip height, Maintain an upright posture, Stay light on your toes and control the deceleration"
   },
   {
     name: "Small-Sided Handball Keep-Away Game",
     goal: "Develop clean hands, spatial awareness, and quick decision-making.",
     desc: "Set up 15m x 15m grids. Split players into groups of 5-6. Play a keep-away game using handballs only. Players must move constantly to create passing options.",
     coachingTip: "Encourage voice communication and rapid release of the ball.",
-    phase: "Contest"
+    phase: "Contest",
+    cues: "Keep eyes on ball, Move into space, Clean hands, Rapid release"
   },
   {
     name: "AFL Ground Ball Relay Races",
     goal: "Improve ground ball pickup speed and recovery under sprint conditions.",
     desc: "Set up 3 lanes of cones, 15m long. Place footballs at the 5m and 10m marks. Players run to gather the ground ball, execute a clean handball, and sprint back.",
     coachingTip: "Use soft hands and bend the knees to scoop the ball cleanly.",
-    phase: "Attack"
+    phase: "Attack",
+    cues: "Bend the knees to get low, Knuckles scraping the grass, Protect the ball with your body"
   },
   {
     name: "Evasion Tag & Footwork Warm-Up",
     goal: "Sharpen footwork, reaction time, and lateral evasion.",
     desc: "Set up a 20m x 20m grid. 2-3 taggers chase. Remaining players carry a football and must evade taggers using side-steps, dummy handballs, and change of pace.",
     coachingTip: "Keep knees bent and maintain low center of gravity to side-step.",
-    phase: "Defence"
+    phase: "Defence",
+    cues: "Stay light on your toes, Drop your hips to side-step, Evade with lateral agility"
   },
   {
     name: "Continuous Handball Circle Wave",
     goal: "Develop high repetition hand disposal and reaction speed.",
     desc: "Players form circles of 6-8 with 2 balls per circle. Players handball rapidly in a specified pattern, then reverse direction on whistle. Incorporate lateral jog.",
     coachingTip: "Look at target before disposing and follow through.",
-    phase: "Contest"
+    phase: "Contest",
+    cues: "Look at the receiver, Follow through with your hands, Clean release"
   },
   {
     name: "AFL Partner Lead & Mark Warm-Up",
     goal: "Focus on clean hands and leading chest marks.",
     desc: "In pairs, players jog parallel to each other. One player leads forward or sideways, receives a chest-high handball or short chip pass, and immediately returns it.",
     coachingTip: "Emphasize leading towards the ball, not waiting for it.",
-    phase: "Attack"
+    phase: "Attack",
+    cues: "Lead towards the ball, Hands out in front, Eyes on the sherrin"
   },
   {
     name: "AFL Boundary Line Ground Gather & Spin",
     goal: "Improve recovery of boundary balls and evasion.",
     desc: "Players line up on boundary. Coach rolls a ball along the boundary. Player runs, gathers the ball, performs a quick 180-degree spin to simulate evasive exit, and handballs back.",
     coachingTip: "Keep body between opponent and ball when gathering.",
-    phase: "Contest"
+    phase: "Contest",
+    cues: "Position body between ball and boundary, Low center of gravity to scoop, Quick pivot turn"
   },
   {
     name: "Dynamic 3-Man Weave with Deep Entry Kicks",
@@ -603,7 +611,8 @@ export const AFL_PRE_GAME_WARMUPS = [
     desc: "Set up three lines of players at the center square. On the whistle, the first player in each line runs forward, executing a 3-man handpass weave at maximum speed. The third receiver must hit a deep leading target inside the 50m arc with a low dart entry kick.",
     coachingTip: "Increase pressure by adding trailing defenders or require a second switch lead before the entry kick.",
     phase: "Attack",
-    isAdultOnly: true
+    isAdultOnly: true,
+    cues: "Run at high speed, Look for the deep lead, Penetrating low drop punt"
   }
 ];
 
