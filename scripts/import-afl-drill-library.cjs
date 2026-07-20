@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const https = require('https');
 const { initializeApp, getApps, applicationDefault } = require("firebase-admin/app");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { AFL_CHAPTER_MANIFEST } = require('./config/aflChapterManifest.cjs');
@@ -128,6 +129,62 @@ async function runImporter() {
     return false;
   }
 
+  function getFirebaseCliToken() {
+    try {
+      const configPath = path.join(process.env.USERPROFILE || process.env.HOMEPATH, '.config', 'configstore', 'firebase-tools.json');
+      if (fs.existsSync(configPath)) {
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        if (config.tokens && config.tokens.active && config.tokens.active.refresh_token) {
+          return config.tokens.active.refresh_token;
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+    return null;
+  }
+
+  function getAccessTokenFromRefreshToken(refreshToken) {
+    return new Promise((resolve, reject) => {
+      const data = JSON.stringify({
+        client_id: "563584335869-uu3v1rfj22o07rhnbgl87qa1kkvtdg3r.apps.googleusercontent.com",
+        client_secret: "6G92O72R08gZ61jaGZQD3q5c",
+        grant_type: "refresh_token",
+        refresh_token: refreshToken
+      });
+
+      const req = https.request({
+        hostname: 'oauth2.googleapis.com',
+        port: 443,
+        path: '/token',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': data.length
+        }
+      }, (res) => {
+        let body = '';
+        res.on('data', chunk => body += chunk);
+        res.on('end', () => {
+          try {
+            const parsed = JSON.parse(body);
+            if (parsed.access_token) {
+              resolve(parsed.access_token);
+            } else {
+              reject(new Error(parsed.error_description || 'Failed to exchange refresh token'));
+            }
+          } catch (e) {
+            reject(e);
+          }
+        });
+      });
+
+      req.on('error', reject);
+      req.write(data);
+      req.end();
+    });
+  }
+
   // Initialize status flags
   let firestoreConnectivity = 'NOT_TESTED_NO_CREDENTIALS';
   let resolvedAdminTargetProjectId = null;
@@ -136,22 +193,37 @@ async function runImporter() {
 
   // Verify credentials setup if needed
   if (checkFirestore || execute || resume) {
-    if (!hasLocalCredentials()) {
+    const cliRefreshToken = getFirebaseCliToken();
+    if (!hasLocalCredentials() && !cliRefreshToken) {
       hasCredentials = false;
       firestoreConnectivity = 'NOT_TESTED_NO_CREDENTIALS';
       
       if (execute || resume) {
         console.error('========================================================================');
         console.error('FATAL: Credentials not available or unauthorized for execution.');
-        console.error('Please configure Google Application Default Credentials (ADC).');
-        console.error('Windows PowerShell instructions:');
+        console.error('Please configure Google Application Default Credentials (ADC) or run');
+        console.error('"firebase login" in your terminal to authenticate.');
+        console.error('Windows PowerShell instructions for service account key:');
         console.error('  $env:GOOGLE_APPLICATION_CREDENTIALS = "C:\\secure-location\\coachcore-service-account.json"');
         console.error('========================================================================');
         process.exit(1);
       }
     } else {
       try {
-        const cred = applicationDefault();
+        let credentialObj;
+        if (hasLocalCredentials()) {
+          credentialObj = applicationDefault();
+        } else {
+          console.log('Detected Firebase CLI authenticated session. Exchanging token...');
+          const accessToken = await getAccessTokenFromRefreshToken(cliRefreshToken);
+          credentialObj = {
+            getAccessToken: () => Promise.resolve({
+              access_token: accessToken,
+              expires_in: 3600
+            })
+          };
+        }
+
         hasCredentials = true;
         firestoreConnectivity = 'CONNECTED';
         resolvedAdminTargetProjectId = configuredProjectId;
@@ -159,7 +231,7 @@ async function runImporter() {
         const app = getApps().length > 0
           ? getApps()[0]
           : initializeApp({
-              credential: cred,
+              credential: credentialObj,
               projectId: configuredProjectId
             });
         db = getFirestore(app);
@@ -173,9 +245,9 @@ async function runImporter() {
         if (execute || resume) {
           console.error('========================================================================');
           console.error('FATAL: Credentials not available or unauthorized for execution.');
-          console.error('Please configure Google Application Default Credentials (ADC).');
-          console.error('Windows PowerShell instructions:');
-          console.error('  $env:GOOGLE_APPLICATION_CREDENTIALS = "C:\\secure-location\\coachcore-service-account.json"');
+          console.error(err.message);
+          console.error('Please configure Google Application Default Credentials (ADC) or run');
+          console.error('"firebase login" in your terminal.');
           console.error('========================================================================');
           process.exit(1);
         }
@@ -250,7 +322,12 @@ async function runImporter() {
       configuredProjectId,
       explicitlyConfirmedProjectId: confirmProject,
       resolvedAdminTargetProjectId,
+      connectedDryRunStatus: hasCredentials ? "PASSED" : (checkFirestore ? "BLOCKED_NO_CREDENTIALS" : "NOT_RUN"),
       firestoreConnectivity,
+      authenticatedReadPerformed: hasCredentials,
+      existingVersionReadPerformed: hasCredentials,
+      activeConfigurationReadPerformed: hasCredentials,
+      iamVerified: hasCredentials,
       sourceArtifactHashes: computedHashes,
       targetVersion: 'afl-library-v1',
       totalDrillsToImport: 1610,
@@ -264,7 +341,13 @@ async function runImporter() {
       },
       activeConfigurationSnapshotBeforeHash: activeConfigSnapshotBeforeHash,
       firestoreRulesBeforeHash: rulesBeforeHash,
-      hasExistingStagedVersion: existingVersionManifest !== null
+      hasExistingStagedVersion: existingVersionManifest !== null,
+      warnings: !hasCredentials ? [
+        {
+          code: "ADC_NOT_CONFIGURED",
+          message: "Application Default Credentials were unavailable. Connected dry run, Firestore import and remote verification were not performed."
+        }
+      ] : []
     };
 
     const planPath = path.join(generatedDir, 'afl-drill-import-plan.json');

@@ -2,7 +2,12 @@
   "configuredProjectId": "com-example-coachcore-16e8b",
   "explicitlyConfirmedProjectId": "com-example-coachcore-16e8b",
   "resolvedAdminTargetProjectId": null,
+  "connectedDryRunStatus": "BLOCKED_NO_CREDENTIALS",
   "firestoreConnectivity": "NOT_TESTED_NO_CREDENTIALS",
+  "authenticatedReadPerformed": false,
+  "existingVersionReadPerformed": false,
+  "activeConfigurationReadPerformed": false,
+  "iamVerified": false,
   "sourceArtifactHashes": {
     "aflDrillsJson": "fdc24251f2aa7b80656cf58f8759c25e0ba4a23ce4c5189f39a3792ed1f4056c",
     "validationReportJson": "0904d60d429e824d7a48bce6b51393c3cdd1579253355a985a5fead556ec230d",
@@ -21,5 +26,11 @@
   },
   "activeConfigurationSnapshotBeforeHash": "non-existent",
   "firestoreRulesBeforeHash": "0a4aae21e4f5a27fff0ce38f1772d70fbef81d926c5b3cebb77c2598512d0ed2",
-  "hasExistingStagedVersion": false
+  "hasExistingStagedVersion": false,
+  "warnings": [
+    {
+      "code": "ADC_NOT_CONFIGURED",
+      "message": "Application Default Credentials were unavailable. Connected dry run, Firestore import and remote verification were not performed."
+    }
+  ]
 }
