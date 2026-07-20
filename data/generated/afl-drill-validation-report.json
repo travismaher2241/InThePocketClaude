@@ -1,0 +1,564 @@
+{
+  "generatedAt": "2026-07-20T12:46:50.376Z",
+  "totalExtractedRecords": 1610,
+  "expectedTotalRecords": 1610,
+  "perChapterCounts": {
+    "KK": 150,
+    "HB": 120,
+    "MK": 120,
+    "GB": 120,
+    "TK": 120,
+    "SP": 80,
+    "RK": 80,
+    "EA": 80,
+    "DM": 100,
+    "TO": 100,
+    "TD": 100,
+    "TR": 100,
+    "CF": 80,
+    "SG": 100,
+    "MS": 100,
+    "TA": 60
+  },
+  "sourceInventory": [
+    {
+      "fileName": "Chapter 1 - Kicking.docx",
+      "prefix": "KK",
+      "chapterNumber": 1,
+      "expectedCount": 150,
+      "sizeBytes": 603778,
+      "sha256": "79c61187c8a50f3eb7cc4e8be68807cde5ab5c6c999950e689170bdd696b2d3f"
+    },
+    {
+      "fileName": "Chapter 2 - Handballing.docx",
+      "prefix": "HB",
+      "chapterNumber": 2,
+      "expectedCount": 120,
+      "sizeBytes": 633713,
+      "sha256": "0b0a95292e9d8e325c075d11f1324e5f09e5dae3bcdd4a4cc1e74f5f21c4db5c"
+    },
+    {
+      "fileName": "Chapter 3 - Marking.docx",
+      "prefix": "MK",
+      "chapterNumber": 3,
+      "expectedCount": 120,
+      "sizeBytes": 615059,
+      "sha256": "d0586e199b59d3f4ad6c4f057be8d9a05c555729d6677bb5ff1e02e693a86c64"
+    },
+    {
+      "fileName": "Chapter 4 - Ground Balls.docx",
+      "prefix": "GB",
+      "chapterNumber": 4,
+      "expectedCount": 120,
+      "sizeBytes": 614587,
+      "sha256": "db61a234b8f8a2f7cde507b696ff31fc614826ae9d5138ae68333e2d30bb821e"
+    },
+    {
+      "fileName": "Chapter 5 - Tackling and Pressure.docx",
+      "prefix": "TK",
+      "chapterNumber": 5,
+      "expectedCount": 120,
+      "sizeBytes": 675530,
+      "sha256": "ad4cb5acb97182b157f5beba4c2878c870940c733a7a707780fa4035df70ccc0"
+    },
+    {
+      "fileName": "Chapter 6 - Spoiling and Aerial Defence.docx",
+      "prefix": "SP",
+      "chapterNumber": 6,
+      "expectedCount": 80,
+      "sizeBytes": 477409,
+      "sha256": "1a24bd893d855fa287261f55afd30cee59338158432084dd808bfcab6a070cc0"
+    },
+    {
+      "fileName": "Chapter 7 - Ruck and Stoppage Craft.docx",
+      "prefix": "RK",
+      "chapterNumber": 7,
+      "expectedCount": 80,
+      "sizeBytes": 423253,
+      "sha256": "fc1a45fc2bdb528c5c7815d9ca56f0443a07e92791c7c258598ece81c37542be"
+    },
+    {
+      "fileName": "Chapter 8 - Evasion, Agility and Movement.docx",
+      "prefix": "EA",
+      "chapterNumber": 8,
+      "expectedCount": 80,
+      "sizeBytes": 407569,
+      "sha256": "51301a3966539d40b07ce6e68bdbf00c1bbebaeaa1f380baf6cef4ad3d18d096"
+    },
+    {
+      "fileName": "Chapter 9 - Decision Making.docx",
+      "prefix": "DM",
+      "chapterNumber": 9,
+      "expectedCount": 100,
+      "sizeBytes": 506919,
+      "sha256": "18cba5afc8a4ae5b98fe401d8fe486761b16cdfcbdbcf1a85cf975c64a4f30c1"
+    },
+    {
+      "fileName": "Chapter 10 - Team Offence.docx",
+      "prefix": "TO",
+      "chapterNumber": 10,
+      "expectedCount": 100,
+      "sizeBytes": 520474,
+      "sha256": "947586b6760bc8e73fefd0cc97d35d867db71186898bd17611137bc10c47757e"
+    },
+    {
+      "fileName": "Chapter 11 - Team Defence.docx",
+      "prefix": "TD",
+      "chapterNumber": 11,
+      "expectedCount": 100,
+      "sizeBytes": 524837,
+      "sha256": "590b4cb113959ff10d0e74c7a2dd0baf6b59117d064395fc7d38b07d5d74b9c2"
+    },
+    {
+      "fileName": "Chapter 12 - Transition.docx",
+      "prefix": "TR",
+      "chapterNumber": 12,
+      "expectedCount": 100,
+      "sizeBytes": 540298,
+      "sha256": "a8cb52b67fdb61b97f9df9a00684e03ea7962487787a4787774f8061f5622747"
+    },
+    {
+      "fileName": "Chapter 13 - Conditioning with Football.docx",
+      "prefix": "CF",
+      "chapterNumber": 13,
+      "expectedCount": 80,
+      "sizeBytes": 406822,
+      "sha256": "a79e0556baef9f895bee973615d8e96794ea3fe6d3de44befebad580704da3d4"
+    },
+    {
+      "fileName": "Chapter 14 - Small-Sided Games.docx",
+      "prefix": "SG",
+      "chapterNumber": 14,
+      "expectedCount": 100,
+      "sizeBytes": 523630,
+      "sha256": "7b0dc4a6651284c91ed694f99a9ecfbf478567f719b735bb7f4bf0a8730e84cd"
+    },
+    {
+      "fileName": "Chapter 15 - Match Simulation.docx",
+      "prefix": "MS",
+      "chapterNumber": 15,
+      "expectedCount": 100,
+      "sizeBytes": 532773,
+      "sha256": "b35f377a0cd9fa03ab1468d3f06db2c69d796994a8d47d0f2bbca436493d7997"
+    },
+    {
+      "fileName": "Chapter 16 - Testing and Assessment.docx",
+      "prefix": "TA",
+      "chapterNumber": 16,
+      "expectedCount": 60,
+      "sizeBytes": 330541,
+      "sha256": "3c4d829857cf51919c869a35f62e3a2334f640d7095582c33abf0f303cfe1437"
+    },
+    {
+      "fileName": "AFL_Coaching_Reference_Library_Master_Document_v16.0.docx",
+      "prefix": "MASTER",
+      "chapterNumber": 0,
+      "expectedCount": 0,
+      "sizeBytes": 59756,
+      "sha256": "14055c32e26137bc197d98ee647cc455da6a44f9a3cbbc5c354750407a673325"
+    }
+  ],
+  "stagingVerification": [
+    {
+      "fileName": "Chapter 1 - Kicking.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 1 - Kicking.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 1 - Kicking.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "79c61187c8a50f3eb7cc4e8be68807cde5ab5c6c999950e689170bdd696b2d3f"
+    },
+    {
+      "fileName": "Chapter 2 - Handballing.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 2 - Handballing.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 2 - Handballing.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "0b0a95292e9d8e325c075d11f1324e5f09e5dae3bcdd4a4cc1e74f5f21c4db5c"
+    },
+    {
+      "fileName": "Chapter 3 - Marking.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 3 - Marking.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 3 - Marking.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "d0586e199b59d3f4ad6c4f057be8d9a05c555729d6677bb5ff1e02e693a86c64"
+    },
+    {
+      "fileName": "Chapter 4 - Ground Balls.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 4 - Ground Balls.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 4 - Ground Balls.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "db61a234b8f8a2f7cde507b696ff31fc614826ae9d5138ae68333e2d30bb821e"
+    },
+    {
+      "fileName": "Chapter 5 - Tackling and Pressure.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 5 - Tackling and Pressure.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 5 - Tackling and Pressure.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "ad4cb5acb97182b157f5beba4c2878c870940c733a7a707780fa4035df70ccc0"
+    },
+    {
+      "fileName": "Chapter 6 - Spoiling and Aerial Defence.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 6 - Spoiling and Aerial Defence.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 6 - Spoiling and Aerial Defence.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "1a24bd893d855fa287261f55afd30cee59338158432084dd808bfcab6a070cc0"
+    },
+    {
+      "fileName": "Chapter 7 - Ruck and Stoppage Craft.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 7 - Ruck and Stoppage Craft.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 7 - Ruck and Stoppage Craft.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "fc1a45fc2bdb528c5c7815d9ca56f0443a07e92791c7c258598ece81c37542be"
+    },
+    {
+      "fileName": "Chapter 8 - Evasion, Agility and Movement.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 8 - Evasion, Agility and Movement.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 8 - Evasion, Agility and Movement.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "51301a3966539d40b07ce6e68bdbf00c1bbebaeaa1f380baf6cef4ad3d18d096"
+    },
+    {
+      "fileName": "Chapter 9 - Decision Making.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 9 - Decision Making.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 9 - Decision Making.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "18cba5afc8a4ae5b98fe401d8fe486761b16cdfcbdbcf1a85cf975c64a4f30c1"
+    },
+    {
+      "fileName": "Chapter 10 - Team Offence.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 10 - Team Offence.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 10 - Team Offence.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "947586b6760bc8e73fefd0cc97d35d867db71186898bd17611137bc10c47757e"
+    },
+    {
+      "fileName": "Chapter 11 - Team Defence.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 11 - Team Defence.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 11 - Team Defence.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "590b4cb113959ff10d0e74c7a2dd0baf6b59117d064395fc7d38b07d5d74b9c2"
+    },
+    {
+      "fileName": "Chapter 12 - Transition.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 12 - Transition.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 12 - Transition.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "a8cb52b67fdb61b97f9df9a00684e03ea7962487787a4787774f8061f5622747"
+    },
+    {
+      "fileName": "Chapter 13 - Conditioning with Football.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 13 - Conditioning with Football.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 13 - Conditioning with Football.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "a79e0556baef9f895bee973615d8e96794ea3fe6d3de44befebad580704da3d4"
+    },
+    {
+      "fileName": "Chapter 14 - Small-Sided Games.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 14 - Small-Sided Games.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 14 - Small-Sided Games.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "7b0dc4a6651284c91ed694f99a9ecfbf478567f719b735bb7f4bf0a8730e84cd"
+    },
+    {
+      "fileName": "Chapter 15 - Match Simulation.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 15 - Match Simulation.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 15 - Match Simulation.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "b35f377a0cd9fa03ab1468d3f06db2c69d796994a8d47d0f2bbca436493d7997"
+    },
+    {
+      "fileName": "Chapter 16 - Testing and Assessment.docx",
+      "originalPath": "C:\\TCLS Projects\\CoachCore\\Reference PDF's\\New PDF's\\Chapter 16 - Testing and Assessment.docx",
+      "stagedPath": "C:\\TCLS Projects\\CoachCore\\content\\afl-drill-library-source\\Chapter 16 - Testing and Assessment.docx",
+      "sizeMatch": true,
+      "hashMatch": true,
+      "sha256": "3c4d829857cf51919c869a35f62e3a2334f640d7095582c33abf0f303cfe1437"
+    }
+  ],
+  "relatedDrillAudit": {
+    "recordsWithRelatedSource": 1501,
+    "recordsWithoutRelatedSource": 109,
+    "totalParsedSingleRefs": 7001,
+    "totalParsedRangeRefs": 16,
+    "validSingleReferences": 7000,
+    "validRangeReferences": 16,
+    "invalidReferenceCount": 1
+  },
+  "sizeDistributionMetricsBytes": {
+    "min": 1488,
+    "median": 7426,
+    "mean": 7186,
+    "p75": 7779,
+    "p90": 8226,
+    "p95": 8767,
+    "p99": 10125,
+    "max": 12898
+  },
+  "countsOverThresholds": {
+    "over25KB": 0,
+    "over50KB": 0,
+    "over100KB": 0,
+    "over500KB": 0
+  },
+  "chapterDiagnostics": [
+    {
+      "prefix": "KK",
+      "chapterName": "Chapter 1 - Kicking",
+      "count": 150,
+      "correlationWithOrder": -0.3185,
+      "firstRecordSizeBytes": 5810,
+      "middleRecordSizeBytes": 6031,
+      "finalRecordSizeBytes": 7733,
+      "largestRecordSizeBytes": 7879,
+      "sizeIncreaseFromFirstToFinalBytes": 1923
+    },
+    {
+      "prefix": "HB",
+      "chapterName": "Chapter 2 - Handballing",
+      "count": 120,
+      "correlationWithOrder": -0.0149,
+      "firstRecordSizeBytes": 8904,
+      "middleRecordSizeBytes": 8291,
+      "finalRecordSizeBytes": 10406,
+      "largestRecordSizeBytes": 10406,
+      "sizeIncreaseFromFirstToFinalBytes": 1502
+    },
+    {
+      "prefix": "MK",
+      "chapterName": "Chapter 3 - Marking",
+      "count": 120,
+      "correlationWithOrder": 0.6086,
+      "firstRecordSizeBytes": 1520,
+      "middleRecordSizeBytes": 7544,
+      "finalRecordSizeBytes": 11473,
+      "largestRecordSizeBytes": 11473,
+      "sizeIncreaseFromFirstToFinalBytes": 9953
+    },
+    {
+      "prefix": "GB",
+      "chapterName": "Chapter 4 - Ground Balls",
+      "count": 120,
+      "correlationWithOrder": 0.4515,
+      "firstRecordSizeBytes": 1580,
+      "middleRecordSizeBytes": 8220,
+      "finalRecordSizeBytes": 9692,
+      "largestRecordSizeBytes": 9692,
+      "sizeIncreaseFromFirstToFinalBytes": 8112
+    },
+    {
+      "prefix": "TK",
+      "chapterName": "Chapter 5 - Tackling and Pressure",
+      "count": 120,
+      "correlationWithOrder": -0.3806,
+      "firstRecordSizeBytes": 7665,
+      "middleRecordSizeBytes": 8359,
+      "finalRecordSizeBytes": 1648,
+      "largestRecordSizeBytes": 10560,
+      "sizeIncreaseFromFirstToFinalBytes": -6017
+    },
+    {
+      "prefix": "SP",
+      "chapterName": "Chapter 6 - Spoiling and Aerial Defence",
+      "count": 80,
+      "correlationWithOrder": 0.3574,
+      "firstRecordSizeBytes": 8525,
+      "middleRecordSizeBytes": 7329,
+      "finalRecordSizeBytes": 11680,
+      "largestRecordSizeBytes": 11680,
+      "sizeIncreaseFromFirstToFinalBytes": 3155
+    },
+    {
+      "prefix": "RK",
+      "chapterName": "Chapter 7 - Ruck and Stoppage Craft",
+      "count": 80,
+      "correlationWithOrder": 0.4284,
+      "firstRecordSizeBytes": 7386,
+      "middleRecordSizeBytes": 7553,
+      "finalRecordSizeBytes": 12898,
+      "largestRecordSizeBytes": 12898,
+      "sizeIncreaseFromFirstToFinalBytes": 5512
+    },
+    {
+      "prefix": "EA",
+      "chapterName": "Chapter 8 - Evasion, Agility and Movement",
+      "count": 80,
+      "correlationWithOrder": 0.5651,
+      "firstRecordSizeBytes": 7309,
+      "middleRecordSizeBytes": 7277,
+      "finalRecordSizeBytes": 11036,
+      "largestRecordSizeBytes": 11036,
+      "sizeIncreaseFromFirstToFinalBytes": 3727
+    },
+    {
+      "prefix": "DM",
+      "chapterName": "Chapter 9 - Decision Making",
+      "count": 100,
+      "correlationWithOrder": -0.599,
+      "firstRecordSizeBytes": 7205,
+      "middleRecordSizeBytes": 8071,
+      "finalRecordSizeBytes": 1610,
+      "largestRecordSizeBytes": 9281,
+      "sizeIncreaseFromFirstToFinalBytes": -5595
+    },
+    {
+      "prefix": "TO",
+      "chapterName": "Chapter 10 - Team Offence",
+      "count": 100,
+      "correlationWithOrder": 0.1393,
+      "firstRecordSizeBytes": 8458,
+      "middleRecordSizeBytes": 7396,
+      "finalRecordSizeBytes": 11558,
+      "largestRecordSizeBytes": 11558,
+      "sizeIncreaseFromFirstToFinalBytes": 3100
+    },
+    {
+      "prefix": "TD",
+      "chapterName": "Chapter 11 - Team Defence",
+      "count": 100,
+      "correlationWithOrder": 0.4287,
+      "firstRecordSizeBytes": 7679,
+      "middleRecordSizeBytes": 7320,
+      "finalRecordSizeBytes": 11446,
+      "largestRecordSizeBytes": 11446,
+      "sizeIncreaseFromFirstToFinalBytes": 3767
+    },
+    {
+      "prefix": "TR",
+      "chapterName": "Chapter 12 - Transition",
+      "count": 100,
+      "correlationWithOrder": 0.0728,
+      "firstRecordSizeBytes": 8394,
+      "middleRecordSizeBytes": 7937,
+      "finalRecordSizeBytes": 11759,
+      "largestRecordSizeBytes": 11759,
+      "sizeIncreaseFromFirstToFinalBytes": 3365
+    },
+    {
+      "prefix": "CF",
+      "chapterName": "Chapter 13 - Conditioning with Football",
+      "count": 80,
+      "correlationWithOrder": 0.0951,
+      "firstRecordSizeBytes": 8095,
+      "middleRecordSizeBytes": 7060,
+      "finalRecordSizeBytes": 10518,
+      "largestRecordSizeBytes": 10518,
+      "sizeIncreaseFromFirstToFinalBytes": 2423
+    },
+    {
+      "prefix": "SG",
+      "chapterName": "Chapter 14 - Small-Sided Games",
+      "count": 100,
+      "correlationWithOrder": 0.3399,
+      "firstRecordSizeBytes": 7145,
+      "middleRecordSizeBytes": 7557,
+      "finalRecordSizeBytes": 12750,
+      "largestRecordSizeBytes": 12750,
+      "sizeIncreaseFromFirstToFinalBytes": 5605
+    },
+    {
+      "prefix": "MS",
+      "chapterName": "Chapter 15 - Match Simulation",
+      "count": 100,
+      "correlationWithOrder": -0.1014,
+      "firstRecordSizeBytes": 9264,
+      "middleRecordSizeBytes": 8437,
+      "finalRecordSizeBytes": 10243,
+      "largestRecordSizeBytes": 10243,
+      "sizeIncreaseFromFirstToFinalBytes": 979
+    },
+    {
+      "prefix": "TA",
+      "chapterName": "Chapter 16 - Testing and Assessment",
+      "count": 60,
+      "correlationWithOrder": 0.0141,
+      "firstRecordSizeBytes": 8716,
+      "middleRecordSizeBytes": 7717,
+      "finalRecordSizeBytes": 10986,
+      "largestRecordSizeBytes": 10986,
+      "sizeIncreaseFromFirstToFinalBytes": 2270
+    }
+  ],
+  "top10LargestRecords": [
+    {
+      "id": "RK-080",
+      "title": "Ruck and Stoppage Craft Chapter Final Assessment",
+      "sizeBytes": 12898,
+      "sizeKB": "12.60"
+    },
+    {
+      "id": "SG-100",
+      "title": "Small-Sided Games Chapter Final Assessment",
+      "sizeBytes": 12750,
+      "sizeKB": "12.45"
+    },
+    {
+      "id": "TR-100",
+      "title": "Transition Chapter Final Assessment",
+      "sizeBytes": 11759,
+      "sizeKB": "11.48"
+    },
+    {
+      "id": "SP-080",
+      "title": "Spoiling and Aerial Defence Chapter Final Assessment",
+      "sizeBytes": 11680,
+      "sizeKB": "11.41"
+    },
+    {
+      "id": "TO-100",
+      "title": "Team Offence Chapter Final Assessment",
+      "sizeBytes": 11558,
+      "sizeKB": "11.29"
+    },
+    {
+      "id": "MK-120",
+      "title": "Complete Marking Chapter Assessment",
+      "sizeBytes": 11473,
+      "sizeKB": "11.20"
+    },
+    {
+      "id": "TD-100",
+      "title": "Team Defence Chapter Final Assessment",
+      "sizeBytes": 11446,
+      "sizeKB": "11.18"
+    },
+    {
+      "id": "SG-060",
+      "title": "Small-Sided Pressure Phase Assessment",
+      "sizeBytes": 11041,
+      "sizeKB": "10.78"
+    },
+    {
+      "id": "EA-080",
+      "title": "Evasion, Agility and Movement Chapter Final Assessment",
+      "sizeBytes": 11036,
+      "sizeKB": "10.78"
+    },
+    {
+      "id": "TA-060",
+      "title": "Testing and Assessment Chapter Final Assessment",
+      "sizeBytes": 10986,
+      "sizeKB": "10.73"
+    }
+  ],
+  "deduplicatedWarningsSummary": {
+    "uniqueWarningCount": 0,
+    "warningsByCode": {},
+    "warningsByChapter": {},
+    "warningsByField": {}
+  },
+  "totalErrorCount": 0,
+  "status": "PASSED_ALL_CHECKS"
+}
