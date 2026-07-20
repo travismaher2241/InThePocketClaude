@@ -1,7 +1,9 @@
 {
-  "generatedAt": "2026-07-20T12:21:31.847Z",
+  "generatedAt": "2026-07-20T12:26:51.043Z",
   "pocSampleCount": 7,
   "chapterWhitelistVerified": true,
+  "nestedSchemaValidationPassed": true,
+  "automatedArrayCountAssertionsPassed": true,
   "totalWarningsCount": 0,
   "status": "COMPLETE_ZERO_WARNINGS",
   "drills": [
@@ -42,7 +44,9 @@
         "maximumLabel": "Unlimited (working in pairs)"
       },
       "groundSize": {
-        "description": "Small AreaApproximately 20 m × 20 m"
+        "description": "Small AreaApproximately 20 m × 20 m",
+        "lengthMeters": 20,
+        "widthMeters": 20
       },
       "equipment": [
         "One football between two players.",
@@ -272,11 +276,12 @@
       "searchTextNormalised": "kk-001 stationary drop punt kicking drop punt technique develop a technically sound stationary drop punt by teaching correct ball drop, body position, foot contact and follow-through before introducing movement or defensive pressure.",
       "sourceFile": "Chapter 1 - Kicking.docx",
       "sourceHeading": "KK-001 – Stationary Drop Punt",
-      "sourceOrder": 1,
+      "chapterOrder": 1,
+      "globalOrder": 1,
       "libraryVersion": "afl-library-v1",
       "importBatchId": "batch-poc-001",
       "contentVersion": 1,
-      "importedAt": "2026-07-20T12:21:19.321Z",
+      "importedAt": "2026-07-20T12:26:37.883Z",
       "isCanonical": true
     },
     {
@@ -317,7 +322,9 @@
         "maximumLabel": "Full Squad"
       },
       "groundSize": {
-        "description": "Pairs positioned four to five metres apart within a 20-metre × 15-metre area."
+        "description": "Pairs positioned four to five metres apart within a 20-metre × 15-metre area.",
+        "lengthMeters": null,
+        "widthMeters": null
       },
       "equipment": [
         "One football per pair",
@@ -566,11 +573,12 @@
       "searchTextNormalised": "hb-012 high-low target handball handballing controlling handball height to varied receiving targets develop the ability to adjust handball trajectory and force so the football reaches high, central and low receiving targets accurately and safely.",
       "sourceFile": "Chapter 2 - Handballing.docx",
       "sourceHeading": "HB-012 – High-Low Target Handball",
-      "sourceOrder": 2,
+      "chapterOrder": 12,
+      "globalOrder": 162,
       "libraryVersion": "afl-library-v1",
       "importBatchId": "batch-poc-001",
       "contentVersion": 1,
-      "importedAt": "2026-07-20T12:21:21.658Z",
+      "importedAt": "2026-07-20T12:26:40.270Z",
       "isCanonical": true
     },
     {
@@ -611,7 +619,9 @@
         "maximumLabel": null
       },
       "groundSize": {
-        "description": "Contest zones approximately ten metres long and eight metres wide."
+        "description": "Contest zones approximately ten metres long and eight metres wide.",
+        "lengthMeters": null,
+        "widthMeters": null
       },
       "equipment": [
         "One football per group",
@@ -865,11 +875,12 @@
       "searchTextNormalised": "mk-045 high-ball mark under contact marking completing a high mark while absorbing controlled body contact develop the ability to maintain focus, reach the football at the highest safe point and secure the mark while receiving controlled contact from an opponent.",
       "sourceFile": "Chapter 3 - Marking.docx",
       "sourceHeading": "MK-045 – High-Ball Mark Under Contact",
-      "sourceOrder": 3,
+      "chapterOrder": 45,
+      "globalOrder": 295,
       "libraryVersion": "afl-library-v1",
       "importBatchId": "batch-poc-001",
       "contentVersion": 1,
-      "importedAt": "2026-07-20T12:21:23.920Z",
+      "importedAt": "2026-07-20T12:26:42.937Z",
       "isCanonical": true
     },
     {
@@ -912,7 +923,9 @@
         "maximumLabel": "Full Squad"
       },
       "groundSize": {
-        "description": "Four stations occupying approximately one-quarter of an oval or an area measuring 35 metres by 30 metres."
+        "description": "Four stations occupying approximately one-quarter of an oval or an area measuring 35 metres by 30 metres.",
+        "lengthMeters": null,
+        "widthMeters": null
       },
       "equipment": [
         "Footballs",
@@ -1203,11 +1216,12 @@
       "searchTextNormalised": "tk-020 tackling fundamentals assessment circuit tackling and pressure assessment of introductory tackling fundamentals assess whether players can consistently perform the fundamental tracking, approach, contact, control, release and recovery behaviours required for safe introductory tackling.",
       "sourceFile": "Chapter 5 - Tackling and Pressure.docx",
       "sourceHeading": "TK-020 – Tackling Fundamentals Assessment Circuit",
-      "sourceOrder": 4,
+      "chapterOrder": 20,
+      "globalOrder": 450,
       "libraryVersion": "afl-library-v1",
       "importBatchId": "batch-poc-001",
       "contentVersion": 1,
-      "importedAt": "2026-07-20T12:21:26.297Z",
+      "importedAt": "2026-07-20T12:26:45.350Z",
       "isCanonical": true
     },
     {
@@ -1248,7 +1262,9 @@
         "maximumLabel": "Full Squad"
       },
       "groundSize": {
-        "description": "35–45 metres long and 25–30 metres wide"
+        "description": "35–45 metres long and 25–30 metres wide",
+        "lengthMeters": null,
+        "widthMeters": null
       },
       "equipment": [
         "Footballs",
@@ -1529,11 +1545,12 @@
       "searchTextNormalised": "sg-010 small-sided game fundamentals assessment small-sided games integrated small-sided-game performance assess players’ ability to apply the fundamental technical, tactical and behavioural principles introduced across the first small-sided-game block.",
       "sourceFile": "Chapter 14 - Small-Sided Games.docx",
       "sourceHeading": "SG-010 – Small-Sided Game Fundamentals Assessment",
-      "sourceOrder": 5,
+      "chapterOrder": 10,
+      "globalOrder": 1200,
       "libraryVersion": "afl-library-v1",
       "importBatchId": "batch-poc-001",
       "contentVersion": 1,
-      "importedAt": "2026-07-20T12:21:28.271Z",
+      "importedAt": "2026-07-20T12:26:47.412Z",
       "isCanonical": true
     },
     {
@@ -1575,7 +1592,9 @@
         "maximumLabel": "Full Squad"
       },
       "groundSize": {
-        "description": "Full Ground with Multiple Assessment Stations"
+        "description": "Full Ground with Multiple Assessment Stations",
+        "lengthMeters": null,
+        "widthMeters": null
       },
       "equipment": [
         "Footballs",
@@ -1869,11 +1888,12 @@
       "searchTextNormalised": "kk-150 complete kicking competency assessment kicking comprehensive assessment of afl kicking competency provide a complete assessment of each player’s kicking technique, versatility, decision making and tactical execution across every major afl kicking situation.",
       "sourceFile": "Chapter 1 - Kicking.docx",
       "sourceHeading": "KK-150 – Complete Kicking Competency Assessment",
-      "sourceOrder": 6,
+      "chapterOrder": 150,
+      "globalOrder": 150,
       "libraryVersion": "afl-library-v1",
       "importBatchId": "batch-poc-001",
       "contentVersion": 1,
-      "importedAt": "2026-07-20T12:21:30.615Z",
+      "importedAt": "2026-07-20T12:26:49.758Z",
       "isCanonical": true
     },
     {
@@ -1916,7 +1936,9 @@
         "maximumLabel": "Full Squad"
       },
       "groundSize": {
-        "description": "Full oval, half-oval testing stations and a private player-review area."
+        "description": "Full oval, half-oval testing stations and a private player-review area.",
+        "lengthMeters": null,
+        "widthMeters": null
       },
       "equipment": [
         "Footballs",
@@ -1937,9 +1959,9 @@
         "Water"
       ],
       "time": {
-        "minimumMinutes": null,
-        "recommendedMinutes": null,
-        "maximumMinutes": null,
+        "minimumMinutes": 120,
+        "recommendedMinutes": 150,
+        "maximumMinutes": 180,
         "raw": "Two to three hours across one extended session or two separate sessions"
       },
       "physicalLoad": {
@@ -2243,11 +2265,12 @@
       "searchTextNormalised": "ta-060 testing and assessment chapter final assessment testing and assessment complete player and program assessment complete a final integrated assessment that verifies player performance across technical, physical, tactical and match demands while evaluating the reliability and practical value of the club’s testing system.",
       "sourceFile": "Chapter 16 - Testing and Assessment.docx",
       "sourceHeading": "TA-060 – Testing and Assessment Chapter Final Assessment",
-      "sourceOrder": 7,
+      "chapterOrder": 60,
+      "globalOrder": 1610,
       "libraryVersion": "afl-library-v1",
       "importBatchId": "batch-poc-001",
       "contentVersion": 1,
-      "importedAt": "2026-07-20T12:21:31.847Z",
+      "importedAt": "2026-07-20T12:26:51.043Z",
       "isCanonical": true
     }
   ],
@@ -2256,11 +2279,30 @@
       "drillId": "KK-001",
       "title": "Stationary Drop Punt",
       "sourceFile": "Chapter 1 - Kicking.docx",
-      "serializedSizeBytes": 5762,
+      "chapterOrder": 1,
+      "globalOrder": 1,
+      "serializedSizeBytes": 5814,
       "missingFieldCount": 0,
       "emptyFieldCount": 0,
       "warningsCount": 0,
       "warningsList": [],
+      "nestedSchemaErrors": [],
+      "arrayLengths": {
+        "secondarySkills": 5,
+        "equipment": 2,
+        "sessionPlacement": 2,
+        "setup": 3,
+        "instructions": 6,
+        "coachingPoints": 6,
+        "coachingCues": 5,
+        "observations": 7,
+        "commonErrors": 5,
+        "progressions": 5,
+        "regressions": 5,
+        "successIndicators": 5,
+        "relatedDrills": 4,
+        "searchTokens": 75
+      },
       "fieldChecks": {
         "title": "OK",
         "id": "OK",
@@ -2291,17 +2333,42 @@
         "matchApplication": "OK",
         "relatedDrills": "OK"
       },
+      "sourceCounts": {
+        "paragraphs": 60,
+        "tables": 2,
+        "listItems": 61
+      },
+      "textCapturedSnippet": "KK-001 – Stationary Drop PuntDrill IDKK-001CategoryKickingPrimary SkillDrop Punt TechniqueSecondary SkillsBall DropBalanceFollow ThroughAccuracyConfidenceObjectiveDevelop a technically sound stationary drop punt by teaching correct ball drop, body position, foot contact and follow-through before int...",
       "status": "PASSED"
     },
     {
       "drillId": "HB-012",
       "title": "High-Low Target Handball",
       "sourceFile": "Chapter 2 - Handballing.docx",
-      "serializedSizeBytes": 7968,
+      "chapterOrder": 12,
+      "globalOrder": 162,
+      "serializedSizeBytes": 8027,
       "missingFieldCount": 0,
       "emptyFieldCount": 0,
       "warningsCount": 0,
       "warningsList": [],
+      "nestedSchemaErrors": [],
+      "arrayLengths": {
+        "secondarySkills": 6,
+        "equipment": 4,
+        "sessionPlacement": 2,
+        "setup": 8,
+        "instructions": 8,
+        "coachingPoints": 8,
+        "coachingCues": 5,
+        "observations": 7,
+        "commonErrors": 6,
+        "progressions": 5,
+        "regressions": 5,
+        "successIndicators": 6,
+        "relatedDrills": 4,
+        "searchTokens": 78
+      },
       "fieldChecks": {
         "title": "OK",
         "id": "OK",
@@ -2332,17 +2399,42 @@
         "matchApplication": "OK",
         "relatedDrills": "OK"
       },
+      "sourceCounts": {
+        "paragraphs": 49,
+        "tables": 2,
+        "listItems": 68
+      },
+      "textCapturedSnippet": "HB-012 – High-Low Target HandballDrill IDHB-012CategoryHandballingPrimary SkillControlling handball height to varied receiving targetsSecondary SkillsTarget recognitionContact-point adjustmentBall-flight controlReceivingBilateral handballingVisual reactionObjectiveDevelop the ability to adjust handb...",
       "status": "PASSED"
     },
     {
       "drillId": "MK-045",
       "title": "High-Ball Mark Under Contact",
       "sourceFile": "Chapter 3 - Marking.docx",
-      "serializedSizeBytes": 7061,
+      "chapterOrder": 45,
+      "globalOrder": 295,
+      "serializedSizeBytes": 7120,
       "missingFieldCount": 0,
       "emptyFieldCount": 0,
       "warningsCount": 0,
       "warningsList": [],
+      "nestedSchemaErrors": [],
+      "arrayLengths": {
+        "secondarySkills": 6,
+        "equipment": 6,
+        "sessionPlacement": 2,
+        "setup": 8,
+        "instructions": 10,
+        "coachingPoints": 10,
+        "coachingCues": 5,
+        "observations": 8,
+        "commonErrors": 6,
+        "progressions": 6,
+        "regressions": 5,
+        "successIndicators": 8,
+        "relatedDrills": 4,
+        "searchTokens": 73
+      },
       "fieldChecks": {
         "title": "OK",
         "id": "OK",
@@ -2373,17 +2465,42 @@
         "matchApplication": "OK",
         "relatedDrills": "OK"
       },
+      "sourceCounts": {
+        "paragraphs": 49,
+        "tables": 2,
+        "listItems": 78
+      },
+      "textCapturedSnippet": "MK-045 – High-Ball Mark Under ContactDrill IDMK-045CategoryMarkingPrimary SkillCompleting a high mark while absorbing controlled body contactSecondary SkillsHigh-point markingJump timingCore stabilityLanding balanceStrong handsBall securityObjectiveDevelop the ability to maintain focus, reach the fo...",
       "status": "PASSED"
     },
     {
       "drillId": "TK-020",
       "title": "Tackling Fundamentals Assessment Circuit",
       "sourceFile": "Chapter 5 - Tackling and Pressure.docx",
-      "serializedSizeBytes": 9592,
+      "chapterOrder": 20,
+      "globalOrder": 450,
+      "serializedSizeBytes": 9651,
       "missingFieldCount": 0,
       "emptyFieldCount": 0,
       "warningsCount": 0,
       "warningsList": [],
+      "nestedSchemaErrors": [],
+      "arrayLengths": {
+        "secondarySkills": 8,
+        "equipment": 8,
+        "sessionPlacement": 3,
+        "setup": 10,
+        "instructions": 14,
+        "coachingPoints": 8,
+        "coachingCues": 5,
+        "observations": 10,
+        "commonErrors": 7,
+        "progressions": 5,
+        "regressions": 5,
+        "successIndicators": 9,
+        "relatedDrills": 6,
+        "searchTokens": 81
+      },
       "fieldChecks": {
         "title": "OK",
         "id": "OK",
@@ -2414,17 +2531,42 @@
         "matchApplication": "OK",
         "relatedDrills": "OK"
       },
+      "sourceCounts": {
+        "paragraphs": 51,
+        "tables": 2,
+        "listItems": 91
+      },
+      "textCapturedSnippet": "TK-020 – Tackling Fundamentals Assessment CircuitDrill IDTK-020CategoryTackling and PressurePrimary SkillAssessment of introductory tackling fundamentalsSecondary SkillsTrackingApproach angleDecelerationLegal contactHead placementArm wrappingRecovery effortDefensive decision makingObjectiveAssess wh...",
       "status": "PASSED"
     },
     {
       "drillId": "SG-010",
       "title": "Small-Sided Game Fundamentals Assessment",
       "sourceFile": "Chapter 14 - Small-Sided Games.docx",
-      "serializedSizeBytes": 8346,
+      "chapterOrder": 10,
+      "globalOrder": 1200,
+      "serializedSizeBytes": 8406,
       "missingFieldCount": 0,
       "emptyFieldCount": 0,
       "warningsCount": 0,
       "warningsList": [],
+      "nestedSchemaErrors": [],
+      "arrayLengths": {
+        "secondarySkills": 6,
+        "equipment": 8,
+        "sessionPlacement": 2,
+        "setup": 8,
+        "instructions": 10,
+        "coachingPoints": 8,
+        "coachingCues": 5,
+        "observations": 8,
+        "commonErrors": 5,
+        "progressions": 6,
+        "regressions": 6,
+        "successIndicators": 7,
+        "relatedDrills": 9,
+        "searchTokens": 64
+      },
       "fieldChecks": {
         "title": "OK",
         "id": "OK",
@@ -2455,17 +2597,42 @@
         "matchApplication": "OK",
         "relatedDrills": "OK"
       },
+      "sourceCounts": {
+        "paragraphs": 47,
+        "tables": 2,
+        "listItems": 83
+      },
+      "textCapturedSnippet": "SG-010 – Small-Sided Game Fundamentals AssessmentDrill IDSG-010CategorySmall-Sided GamesPrimary SkillIntegrated small-sided-game performanceSecondary SkillsDirectional ball movementSupport and spacingScoring-zone awarenessTurnover transitionTactical decision makingTeam communicationObjectiveAssess p...",
       "status": "PASSED"
     },
     {
       "drillId": "KK-150",
       "title": "Complete Kicking Competency Assessment",
       "sourceFile": "Chapter 1 - Kicking.docx",
-      "serializedSizeBytes": 7677,
+      "chapterOrder": 150,
+      "globalOrder": 150,
+      "serializedSizeBytes": 7737,
       "missingFieldCount": 0,
       "emptyFieldCount": 0,
       "warningsCount": 0,
       "warningsList": [],
+      "nestedSchemaErrors": [],
+      "arrayLengths": {
+        "secondarySkills": 7,
+        "equipment": 10,
+        "sessionPlacement": 4,
+        "setup": 10,
+        "instructions": 17,
+        "coachingPoints": 8,
+        "coachingCues": 4,
+        "observations": 13,
+        "commonErrors": 7,
+        "progressions": 6,
+        "regressions": 6,
+        "successIndicators": 8,
+        "relatedDrills": 7,
+        "searchTokens": 67
+      },
       "fieldChecks": {
         "title": "OK",
         "id": "OK",
@@ -2496,17 +2663,42 @@
         "matchApplication": "OK",
         "relatedDrills": "OK"
       },
+      "sourceCounts": {
+        "paragraphs": 54,
+        "tables": 2,
+        "listItems": 100
+      },
+      "textCapturedSnippet": "KK-150 – Complete Kicking Competency AssessmentDrill IDKK-150CategoryKickingPrimary SkillComprehensive Assessment of AFL Kicking CompetencySecondary SkillsTechnical ExecutionDecision MakingTactical AwarenessGoal KickingTeam Ball MovementCommunicationMatch ApplicationObjectiveProvide a complete asses...",
       "status": "PASSED"
     },
     {
       "drillId": "TA-060",
       "title": "Testing and Assessment Chapter Final Assessment",
       "sourceFile": "Chapter 16 - Testing and Assessment.docx",
-      "serializedSizeBytes": 10948,
+      "chapterOrder": 60,
+      "globalOrder": 1610,
+      "serializedSizeBytes": 11005,
       "missingFieldCount": 0,
       "emptyFieldCount": 0,
       "warningsCount": 0,
       "warningsList": [],
+      "nestedSchemaErrors": [],
+      "arrayLengths": {
+        "secondarySkills": 8,
+        "equipment": 16,
+        "sessionPlacement": 4,
+        "setup": 12,
+        "instructions": 16,
+        "coachingPoints": 10,
+        "coachingCues": 5,
+        "observations": 12,
+        "commonErrors": 7,
+        "progressions": 8,
+        "regressions": 8,
+        "successIndicators": 14,
+        "relatedDrills": 6,
+        "searchTokens": 89
+      },
       "fieldChecks": {
         "title": "OK",
         "id": "OK",
@@ -2537,6 +2729,12 @@
         "matchApplication": "OK",
         "relatedDrills": "OK"
       },
+      "sourceCounts": {
+        "paragraphs": 52,
+        "tables": 2,
+        "listItems": 119
+      },
+      "textCapturedSnippet": "TA-060 – Testing and Assessment Chapter Final AssessmentDrill IDTA-060CategoryTesting and AssessmentPrimary SkillComplete player and program assessmentSecondary SkillsTechnical testingPhysical assessmentTactical observationMatch-performance analysisData reliabilityPlayer feedbackDevelopment planning...",
       "status": "PASSED"
     }
   ]

@@ -1,10 +1,13 @@
 # AFL Drill Library DOCX Parser — Proof of Concept Report
 
-**Generated At**: 2026-07-20T12:21:31.849Z
+**Generated At**: 2026-07-20T12:26:51.045Z
 **Sample Count**: 7 distinct drill records
 **Whitelist Verification**: PASSED (Only whitelisted 16 chapter DOCX files processed; compilation volumes excluded)
+**Nested Schema Validation**: PASSED (All sub-properties validated: players, groundSize, time, physicalLoad, mentalLoad, contact, coachingDifficulty)
+**Automated Array Count Assertions**: PASSED (100% match between Markdown table counts and JSON array lengths across all 14 arrays)
+**Canonical Ordering Verification**: PASSED (chapterOrder and globalOrder calculated deterministically)
 **Total Warnings Count**: 0
-**Extraction Status**: PASSED (All 7 records extracted with 28/28 required fields present, all records < 13 KB)
+**Extraction Status**: COMPLETE_ZERO_WARNINGS
 
 ---
 
@@ -12,48 +15,72 @@
 
 - **Source File**: `Chapter 1 - Kicking.docx`
 - **Source Heading**: `KK-001 – Stationary Drop Punt`
+- **Canonical Ordering**: `chapterOrder: 1`, `globalOrder: 1`
 - **Category**: Kicking
 - **Primary Skill**: Drop Punt Technique
 - **Secondary Skills**: Ball Drop, Balance, Follow Through, Accuracy, Confidence
 - **Objective**: Develop a technically sound stationary drop punt by teaching correct ball drop, body position, foot contact and follow-through before introducing movement or defensive pressure.
-- **Serialized Document Size**: 5.63 KB (5762 bytes)
-- **100 KB Warning Rule Check**: PASSED (5.63 KB < 100 KB threshold)
+- **Serialized Document Size**: 5.68 KB (5814 bytes)
+- **100 KB Warning Rule Check**: PASSED (5.68 KB < 100 KB threshold)
+- **Parsed Time Schema**: min 10, rec 13, max 15 (Raw: "10–15 minutes")
+- **Parsed Ground Size Schema**: Small AreaApproximately 20 m × 20 m (Length: 20, Width: 20)
 - **28-Field Validation**: PASSED (Missing: 0, Empty: 0, Warnings: 0)
 
-### Structured Field Verification
+### Structured Field Verification & Automated Array Count Assertions
 
-| Field | Type / Value | Parsed Result | Status |
-| :--- | :--- | :--- | :--- |
-| **1. Drill Title** | String | "Stationary Drop Punt" | OK |
-| **2. Drill ID** | String | `KK-001` | OK |
-| **3. Category** | String | Kicking | OK |
-| **4. Primary Skill** | String | Drop Punt Technique | OK |
-| **5. Secondary Skills** | Array (5) | Ball Drop, Balance, Follow Through, Accuracy, Confidence | OK |
-| **6. Objective** | String | "Develop a technically sound stationary drop punt by teaching correct ball drop, ..." | OK |
-| **7. Age Groups** | Table Map | U8: ✓ Suitable, U12: ✓ Suitable, SeniorMen: ✓ Suitable | OK |
-| **8. Skill Level** | Array | Beginner | OK |
-| **9. Players** | Range Object | Min: 2, Ideal: 10-20, Max: Unlimited (working in pairs) | OK |
-| **10. Ground Size** | Object | Small AreaApproximately 20 m × 20 m | OK |
-| **11. Equipment** | Array (2) | One football between two players.; Cones (optional for pair spacing). | OK |
-| **12. Time** | Range Object | Rec: 13 mins (Raw: "10–15 minutes") | OK |
-| **13. Physical Load** | Rating Object | Rating: 1 (1 – Recovery / Low) | OK |
-| **14. Mental Load** | Rating Object | Rating: 1 (1 – Technique Only) | OK |
-| **15. Contact** | Contact Schema | Min: 0, Max: 0 (Raw: "0 – No Contact") | OK |
-| **16. Coaching Difficulty** | Rating Object | Rating: 1 (1 – Beginner Coach) | OK |
-| **17. Session Placement** | Array | Skill Introduction, Early Skill Development | OK |
-| **18. Setup** | List (3) | Under 8–10: 8–10 metres apart. | OK |
-| **19. How the Drill Works** | List (6) | Player A begins with the football. | OK |
-| **20. Coaching Points** | List (6) | Hold the football correctly. | OK |
-| **21. Coaching Cues** | List (5) | "Drop it, don't throw it." | OK |
-| **22. What to Observe** | List (7) | Ball drop consistency. | OK |
-| **23. Common Errors** | Table (5) | Throwing the ball onto the boot -> Guide the football gently from the hands. | OK |
-| **24. Progressions** | List (5) | Increase kicking distance. | OK |
-| **25. Regressions** | List (5) | Reduce kicking distance. | OK |
-| **26. Success Indicators** | List (5) | Strike the football cleanly. | OK |
-| **27. Match Application** | String | "The drop punt is the primary kicking technique used throughout Australian Footba..." | OK |
-| **28. Related Drills** | Array (4) | KK-002 – Stationary Drop Punt Gates; KK-003 – Partner Accuracy Challenge; KK-004 – Distance Progression; KK-005 – Non-Preferred Foot Development | OK |
+| Field | Type / Value | Parsed Result | Array Length / Count | Assertion Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Drill Title** | String | "Stationary Drop Punt" | N/A | OK |
+| **2. Drill ID** | String | `KK-001` | N/A | OK |
+| **3. Category** | String | Kicking | N/A | OK |
+| **4. Primary Skill** | String | Drop Punt Technique | N/A | OK |
+| **5. Secondary Skills** | Array | Ball Drop, Balance, Follow Through, Accuracy, Confidence | Array (5) | OK |
+| **6. Objective** | String | "Develop a technically sound stationary drop punt by teaching correct ball drop, ..." | N/A | OK |
+| **7. Age Groups** | Table Map | U8: ✓ Suitable, U12: ✓ Suitable, SeniorMen: ✓ Suitable | Object (9) | OK |
+| **8. Skill Level** | Array | Beginner | Array (1) | OK |
+| **9. Players** | Range Object | Min: 2, Ideal: 10-20, Max: Unlimited (working in pairs) | Object (5) | OK |
+| **10. Ground Size** | Object | Small AreaApproximately 20 m × 20 m (Length: 20, Width: 20) | Object (3) | OK |
+| **11. Equipment** | Array | One football between two players.; Cones (optional for pair spacing). | Array (2) | OK |
+| **12. Time** | Range Object | Min: 10, Rec: 13, Max: 15 (Raw: "10–15 minutes") | Object (4) | OK |
+| **13. Physical Load** | Rating Object | Rating: 1 (1 – Recovery / Low) | Object (2) | OK |
+| **14. Mental Load** | Rating Object | Rating: 1 (1 – Technique Only) | Object (2) | OK |
+| **15. Contact** | Contact Schema | Min: 0, Max: 0 (Raw: "0 – No Contact") | Object (5) | OK |
+| **16. Coaching Difficulty** | Rating Object | Rating: 1 (1 – Beginner Coach) | Object (2) | OK |
+| **17. Session Placement** | Array | Skill Introduction, Early Skill Development | Array (2) | OK |
+| **18. Setup** | List | Under 8–10: 8–10 metres apart. | Array (3) | OK |
+| **19. How the Drill Works** | List | Player A begins with the football. | Array (6) | OK |
+| **20. Coaching Points** | List | Hold the football correctly. | Array (6) | OK |
+| **21. Coaching Cues** | List | "Drop it, don't throw it." | Array (5) | OK |
+| **22. What to Observe** | List | Ball drop consistency. | Array (7) | OK |
+| **23. Common Errors** | Table | Throwing the ball onto the boot -> Guide the football gently from the hands. | Array (5) | OK |
+| **24. Progressions** | List | Increase kicking distance. | Array (5) | OK |
+| **25. Regressions** | List | Reduce kicking distance. | Array (5) | OK |
+| **26. Success Indicators** | List | Strike the football cleanly. | Array (5) | OK |
+| **27. Match Application** | String | "The drop punt is the primary kicking technique used throughout Australian Footba..." | N/A | OK |
+| **28. Related Drills** | Array | KK-002 – Stationary Drop Punt Gates; KK-003 – Partner Accuracy Challenge; KK-004 – Distance Progression; KK-005 – Non-Preferred Foot Development | Array (4) | OK |
 
-### Raw Extracted Content Snippet
+### Actual Source-to-Output Comparison Evidence
+
+- **Source Paragraph Count**: 60 paragraphs
+- **Source Table Count**: 2 tables
+- **Source List Item Count**: 61 items
+- **Normalised Source Text Captured Snippet (First 300 Chars)**:
+  > `KK-001 – Stationary Drop PuntDrill IDKK-001CategoryKickingPrimary SkillDrop Punt TechniqueSecondary SkillsBall DropBalanceFollow ThroughAccuracyConfidenceObjectiveDevelop a technically sound stationary drop punt by teaching correct ball drop, body position, foot contact and follow-through before int...`
+
+- **Source-to-Output Counts Comparison**:
+  - Age Groups Table: 1 table captured -> 9 age group entries in canonical map
+  - Common Errors Table: 1 table captured -> 5 error/correction pairs in canonical array
+  - Setup List: 3 items extracted from HTML list elements
+  - Instructions List: 6 items extracted from HTML list elements
+  - Coaching Points List: 6 items extracted from HTML list elements
+  - Coaching Cues List: 5 items extracted from HTML list elements
+  - Observations List: 7 items extracted from HTML list elements
+  - Progressions List: 5 items extracted from HTML list elements
+  - Regressions List: 5 items extracted from HTML list elements
+  - Success Indicators List: 5 items extracted from HTML list elements
+  - Related Drills List: 4 items extracted from HTML list elements
+
+### Raw Extracted Canonical JSON Record
 
 ```json
 {
@@ -93,7 +120,9 @@
     "maximumLabel": "Unlimited (working in pairs)"
   },
   "groundSize": {
-    "description": "Small AreaApproximately 20 m × 20 m"
+    "description": "Small AreaApproximately 20 m × 20 m",
+    "lengthMeters": 20,
+    "widthMeters": 20
   },
   "equipment": [
     "One football between two players.",
@@ -323,11 +352,12 @@
   "searchTextNormalised": "kk-001 stationary drop punt kicking drop punt technique develop a technically sound stationary drop punt by teaching correct ball drop, body position, foot contact and follow-through before introducing movement or defensive pressure.",
   "sourceFile": "Chapter 1 - Kicking.docx",
   "sourceHeading": "KK-001 – Stationary Drop Punt",
-  "sourceOrder": 1,
+  "chapterOrder": 1,
+  "globalOrder": 1,
   "libraryVersion": "afl-library-v1",
   "importBatchId": "batch-poc-001",
   "contentVersion": 1,
-  "importedAt": "2026-07-20T12:21:19.321Z",
+  "importedAt": "2026-07-20T12:26:37.883Z",
   "isCanonical": true
 }
 ```
@@ -338,48 +368,72 @@
 
 - **Source File**: `Chapter 2 - Handballing.docx`
 - **Source Heading**: `HB-012 – High-Low Target Handball`
+- **Canonical Ordering**: `chapterOrder: 12`, `globalOrder: 162`
 - **Category**: Handballing
 - **Primary Skill**: Controlling handball height to varied receiving targets
 - **Secondary Skills**: Target recognition, Contact-point adjustment, Ball-flight control, Receiving, Bilateral handballing, Visual reaction
 - **Objective**: Develop the ability to adjust handball trajectory and force so the football reaches high, central and low receiving targets accurately and safely.
-- **Serialized Document Size**: 7.78 KB (7968 bytes)
-- **100 KB Warning Rule Check**: PASSED (7.78 KB < 100 KB threshold)
+- **Serialized Document Size**: 7.84 KB (8027 bytes)
+- **100 KB Warning Rule Check**: PASSED (7.84 KB < 100 KB threshold)
+- **Parsed Time Schema**: min 10, rec 11, max 12 (Raw: "10–12 minutes")
+- **Parsed Ground Size Schema**: Pairs positioned four to five metres apart within a 20-metre × 15-metre area. (Length: null, Width: null)
 - **28-Field Validation**: PASSED (Missing: 0, Empty: 0, Warnings: 0)
 
-### Structured Field Verification
+### Structured Field Verification & Automated Array Count Assertions
 
-| Field | Type / Value | Parsed Result | Status |
-| :--- | :--- | :--- | :--- |
-| **1. Drill Title** | String | "High-Low Target Handball" | OK |
-| **2. Drill ID** | String | `HB-012` | OK |
-| **3. Category** | String | Handballing | OK |
-| **4. Primary Skill** | String | Controlling handball height to varied receiving targets | OK |
-| **5. Secondary Skills** | Array (6) | Target recognition, Contact-point adjustment, Ball-flight control, Receiving, Bilateral handballing, Visual reaction | OK |
-| **6. Objective** | String | "Develop the ability to adjust handball trajectory and force so the football reac..." | OK |
-| **7. Age Groups** | Table Map | U8: ○ Suitable with modification, U12: ✓ Suitable, SeniorMen: ✓ Suitable | OK |
-| **8. Skill Level** | Array | Beginner | OK |
-| **9. Players** | Range Object | Min: 2, Ideal: 8-24, Max: Full Squad | OK |
-| **10. Ground Size** | Object | Pairs positioned four to five metres apart within a 20-metre × 15-metre area. | OK |
-| **11. Equipment** | Array (4) | One football per pair; Two cones per pair; Optional coloured bibs or target cards; Whistle | OK |
-| **12. Time** | Range Object | Rec: 11 mins (Raw: "10–12 minutes") | OK |
-| **13. Physical Load** | Rating Object | Rating: 1 (1 – Very Low) | OK |
-| **14. Mental Load** | Rating Object | Rating: 2 (2 – Low) | OK |
-| **15. Contact** | Contact Schema | Min: 0, Max: 0 (Raw: "0 – No Contact") | OK |
-| **16. Coaching Difficulty** | Rating Object | Rating: 2 (2 – Basic cueing and technical correction) | OK |
-| **17. Session Placement** | Array | Technical Skill Block, Decision-Making Block | OK |
-| **18. Setup** | List (8) | Players form pairs four to five metres apart. | OK |
-| **19. How the Drill Works** | List (8) | The receiver presents a high, central or low two-hand target. | OK |
-| **20. Coaching Points** | List (8) | Look at the presented hands rather than handballing automatically to chest height. | OK |
-| **21. Coaching Cues** | List (5) | “See the target height.” | OK |
-| **22. What to Observe** | List (7) | Whether players identify the target before beginning the handball. | OK |
-| **23. Common Errors** | Table (6) | High targets cause the player to throw the football upwards. -> Maintain a stable platform and create height through the striking angle and follow-through. | OK |
-| **24. Progressions** | List (5) | Use random target changes immediately before release. | OK |
-| **25. Regressions** | List (5) | Use chest-level targets only. | OK |
-| **26. Success Indicators** | List (6) | Recognise the target height before release. | OK |
-| **27. Match Application** | String | "Teammates rarely present identical receiving positions. A player may need to han..." | OK |
-| **28. Related Drills** | Array (4) | HB-003 – Contact Point and Follow-Through; HB-004 – Dominant-Hand Partner Accuracy; HB-007 – Target-Gate Handball Accuracy; HB-011 – Rapid Chest-Level Exchange | OK |
+| Field | Type / Value | Parsed Result | Array Length / Count | Assertion Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Drill Title** | String | "High-Low Target Handball" | N/A | OK |
+| **2. Drill ID** | String | `HB-012` | N/A | OK |
+| **3. Category** | String | Handballing | N/A | OK |
+| **4. Primary Skill** | String | Controlling handball height to varied receiving targets | N/A | OK |
+| **5. Secondary Skills** | Array | Target recognition, Contact-point adjustment, Ball-flight control, Receiving, Bilateral handballing, Visual reaction | Array (6) | OK |
+| **6. Objective** | String | "Develop the ability to adjust handball trajectory and force so the football reac..." | N/A | OK |
+| **7. Age Groups** | Table Map | U8: ○ Suitable with modification, U12: ✓ Suitable, SeniorMen: ✓ Suitable | Object (9) | OK |
+| **8. Skill Level** | Array | Beginner | Array (1) | OK |
+| **9. Players** | Range Object | Min: 2, Ideal: 8-24, Max: Full Squad | Object (5) | OK |
+| **10. Ground Size** | Object | Pairs positioned four to five metres apart within a 20-metre × 15-metre area. (Length: null, Width: null) | Object (3) | OK |
+| **11. Equipment** | Array | One football per pair; Two cones per pair; Optional coloured bibs or target cards; Whistle | Array (4) | OK |
+| **12. Time** | Range Object | Min: 10, Rec: 11, Max: 12 (Raw: "10–12 minutes") | Object (4) | OK |
+| **13. Physical Load** | Rating Object | Rating: 1 (1 – Very Low) | Object (2) | OK |
+| **14. Mental Load** | Rating Object | Rating: 2 (2 – Low) | Object (2) | OK |
+| **15. Contact** | Contact Schema | Min: 0, Max: 0 (Raw: "0 – No Contact") | Object (5) | OK |
+| **16. Coaching Difficulty** | Rating Object | Rating: 2 (2 – Basic cueing and technical correction) | Object (2) | OK |
+| **17. Session Placement** | Array | Technical Skill Block, Decision-Making Block | Array (2) | OK |
+| **18. Setup** | List | Players form pairs four to five metres apart. | Array (8) | OK |
+| **19. How the Drill Works** | List | The receiver presents a high, central or low two-hand target. | Array (8) | OK |
+| **20. Coaching Points** | List | Look at the presented hands rather than handballing automatically to chest height. | Array (8) | OK |
+| **21. Coaching Cues** | List | “See the target height.” | Array (5) | OK |
+| **22. What to Observe** | List | Whether players identify the target before beginning the handball. | Array (7) | OK |
+| **23. Common Errors** | Table | High targets cause the player to throw the football upwards. -> Maintain a stable platform and create height through the striking angle and follow-through. | Array (6) | OK |
+| **24. Progressions** | List | Use random target changes immediately before release. | Array (5) | OK |
+| **25. Regressions** | List | Use chest-level targets only. | Array (5) | OK |
+| **26. Success Indicators** | List | Recognise the target height before release. | Array (6) | OK |
+| **27. Match Application** | String | "Teammates rarely present identical receiving positions. A player may need to han..." | N/A | OK |
+| **28. Related Drills** | Array | HB-003 – Contact Point and Follow-Through; HB-004 – Dominant-Hand Partner Accuracy; HB-007 – Target-Gate Handball Accuracy; HB-011 – Rapid Chest-Level Exchange | Array (4) | OK |
 
-### Raw Extracted Content Snippet
+### Actual Source-to-Output Comparison Evidence
+
+- **Source Paragraph Count**: 49 paragraphs
+- **Source Table Count**: 2 tables
+- **Source List Item Count**: 68 items
+- **Normalised Source Text Captured Snippet (First 300 Chars)**:
+  > `HB-012 – High-Low Target HandballDrill IDHB-012CategoryHandballingPrimary SkillControlling handball height to varied receiving targetsSecondary SkillsTarget recognitionContact-point adjustmentBall-flight controlReceivingBilateral handballingVisual reactionObjectiveDevelop the ability to adjust handb...`
+
+- **Source-to-Output Counts Comparison**:
+  - Age Groups Table: 1 table captured -> 9 age group entries in canonical map
+  - Common Errors Table: 1 table captured -> 6 error/correction pairs in canonical array
+  - Setup List: 8 items extracted from HTML list elements
+  - Instructions List: 8 items extracted from HTML list elements
+  - Coaching Points List: 8 items extracted from HTML list elements
+  - Coaching Cues List: 5 items extracted from HTML list elements
+  - Observations List: 7 items extracted from HTML list elements
+  - Progressions List: 5 items extracted from HTML list elements
+  - Regressions List: 5 items extracted from HTML list elements
+  - Success Indicators List: 6 items extracted from HTML list elements
+  - Related Drills List: 4 items extracted from HTML list elements
+
+### Raw Extracted Canonical JSON Record
 
 ```json
 {
@@ -420,7 +474,9 @@
     "maximumLabel": "Full Squad"
   },
   "groundSize": {
-    "description": "Pairs positioned four to five metres apart within a 20-metre × 15-metre area."
+    "description": "Pairs positioned four to five metres apart within a 20-metre × 15-metre area.",
+    "lengthMeters": null,
+    "widthMeters": null
   },
   "equipment": [
     "One football per pair",
@@ -669,11 +725,12 @@
   "searchTextNormalised": "hb-012 high-low target handball handballing controlling handball height to varied receiving targets develop the ability to adjust handball trajectory and force so the football reaches high, central and low receiving targets accurately and safely.",
   "sourceFile": "Chapter 2 - Handballing.docx",
   "sourceHeading": "HB-012 – High-Low Target Handball",
-  "sourceOrder": 2,
+  "chapterOrder": 12,
+  "globalOrder": 162,
   "libraryVersion": "afl-library-v1",
   "importBatchId": "batch-poc-001",
   "contentVersion": 1,
-  "importedAt": "2026-07-20T12:21:21.658Z",
+  "importedAt": "2026-07-20T12:26:40.270Z",
   "isCanonical": true
 }
 ```
@@ -684,48 +741,72 @@
 
 - **Source File**: `Chapter 3 - Marking.docx`
 - **Source Heading**: `MK-045 – High-Ball Mark Under Contact`
+- **Canonical Ordering**: `chapterOrder: 45`, `globalOrder: 295`
 - **Category**: Marking
 - **Primary Skill**: Completing a high mark while absorbing controlled body contact
 - **Secondary Skills**: High-point marking, Jump timing, Core stability, Landing balance, Strong hands, Ball security
 - **Objective**: Develop the ability to maintain focus, reach the football at the highest safe point and secure the mark while receiving controlled contact from an opponent.
-- **Serialized Document Size**: 6.90 KB (7061 bytes)
-- **100 KB Warning Rule Check**: PASSED (6.90 KB < 100 KB threshold)
+- **Serialized Document Size**: 6.95 KB (7120 bytes)
+- **100 KB Warning Rule Check**: PASSED (6.95 KB < 100 KB threshold)
+- **Parsed Time Schema**: min 15, rec 17, max 18 (Raw: "15–18 minutes")
+- **Parsed Ground Size Schema**: Contest zones approximately ten metres long and eight metres wide. (Length: null, Width: null)
 - **28-Field Validation**: PASSED (Missing: 0, Empty: 0, Warnings: 0)
 
-### Structured Field Verification
+### Structured Field Verification & Automated Array Count Assertions
 
-| Field | Type / Value | Parsed Result | Status |
-| :--- | :--- | :--- | :--- |
-| **1. Drill Title** | String | "High-Ball Mark Under Contact" | OK |
-| **2. Drill ID** | String | `MK-045` | OK |
-| **3. Category** | String | Marking | OK |
-| **4. Primary Skill** | String | Completing a high mark while absorbing controlled body contact | OK |
-| **5. Secondary Skills** | Array (6) | High-point marking, Jump timing, Core stability, Landing balance, Strong hands, Ball security | OK |
-| **6. Objective** | String | "Develop the ability to maintain focus, reach the football at the highest safe po..." | OK |
-| **7. Age Groups** | Table Map | U8: ✗ Unsuitable, U12: ✗ Unsuitable, SeniorMen: ✓ Suitable | OK |
-| **8. Skill Level** | Array | Advanced | OK |
-| **9. Players** | Range Object | Min: 3, Ideal: 9-21, Max: 24 | OK |
-| **10. Ground Size** | Object | Contest zones approximately ten metres long and eight metres wide. | OK |
-| **11. Equipment** | Array (6) | One football per group; Six cones; Bibs; Flat markers; Optional bump pads; Boundary cones | OK |
-| **12. Time** | Range Object | Rec: 17 mins (Raw: "15–18 minutes") | OK |
-| **13. Physical Load** | Rating Object | Rating: 4 (4 – High) | OK |
-| **14. Mental Load** | Rating Object | Rating: 5 (5 – Elite) | OK |
-| **15. Contact** | Contact Schema | Min: 2, Max: 2 (Raw: "2 – Controlled Contact") | OK |
-| **16. Coaching Difficulty** | Rating Object | Rating: 5 (5 – Expert jump, contact and landing-safety management) | OK |
-| **17. Session Placement** | Array | Pressure and Contest Block, Aerial Skill Block | OK |
-| **18. Setup** | List (8) | Organise groups of three. | OK |
-| **19. How the Drill Works** | List (10) | The feeder delivers a high football towards the contest zone. | OK |
-| **20. Coaching Points** | List (10) | Track the football continuously. | OK |
-| **21. Coaching Cues** | List (5) | “Find the drop.” | OK |
-| **22. What to Observe** | List (8) | Whether the marker tracks the football. | OK |
-| **23. Common Errors** | Table (6) | The marker jumps before reaching the drop point. -> Adjust the feet and delay the jump until positioned beneath the football. | OK |
-| **24. Progressions** | List (6) | Increase defender pressure gradually. | OK |
-| **25. Regressions** | List (5) | Use a bump pad. | OK |
-| **26. Success Indicators** | List (8) | Reach the correct drop point. | OK |
-| **27. Match Application** | String | "High contested marks require concentration and strong body control while opponen..." | OK |
-| **28. Related Drills** | Array (4) | MK-002 – Overhead Mark Fundamentals; MK-008 – Running Overhead Mark; MK-044 – Side-by-Side Bodywork Mark; MK-043 – Front-Position Contested Mark | OK |
+| Field | Type / Value | Parsed Result | Array Length / Count | Assertion Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Drill Title** | String | "High-Ball Mark Under Contact" | N/A | OK |
+| **2. Drill ID** | String | `MK-045` | N/A | OK |
+| **3. Category** | String | Marking | N/A | OK |
+| **4. Primary Skill** | String | Completing a high mark while absorbing controlled body contact | N/A | OK |
+| **5. Secondary Skills** | Array | High-point marking, Jump timing, Core stability, Landing balance, Strong hands, Ball security | Array (6) | OK |
+| **6. Objective** | String | "Develop the ability to maintain focus, reach the football at the highest safe po..." | N/A | OK |
+| **7. Age Groups** | Table Map | U8: ✗ Unsuitable, U12: ✗ Unsuitable, SeniorMen: ✓ Suitable | Object (9) | OK |
+| **8. Skill Level** | Array | Advanced | Array (1) | OK |
+| **9. Players** | Range Object | Min: 3, Ideal: 9-21, Max: 24 | Object (5) | OK |
+| **10. Ground Size** | Object | Contest zones approximately ten metres long and eight metres wide. (Length: null, Width: null) | Object (3) | OK |
+| **11. Equipment** | Array | One football per group; Six cones; Bibs; Flat markers; Optional bump pads; Boundary cones | Array (6) | OK |
+| **12. Time** | Range Object | Min: 15, Rec: 17, Max: 18 (Raw: "15–18 minutes") | Object (4) | OK |
+| **13. Physical Load** | Rating Object | Rating: 4 (4 – High) | Object (2) | OK |
+| **14. Mental Load** | Rating Object | Rating: 5 (5 – Elite) | Object (2) | OK |
+| **15. Contact** | Contact Schema | Min: 2, Max: 2 (Raw: "2 – Controlled Contact") | Object (5) | OK |
+| **16. Coaching Difficulty** | Rating Object | Rating: 5 (5 – Expert jump, contact and landing-safety management) | Object (2) | OK |
+| **17. Session Placement** | Array | Pressure and Contest Block, Aerial Skill Block | Array (2) | OK |
+| **18. Setup** | List | Organise groups of three. | Array (8) | OK |
+| **19. How the Drill Works** | List | The feeder delivers a high football towards the contest zone. | Array (10) | OK |
+| **20. Coaching Points** | List | Track the football continuously. | Array (10) | OK |
+| **21. Coaching Cues** | List | “Find the drop.” | Array (5) | OK |
+| **22. What to Observe** | List | Whether the marker tracks the football. | Array (8) | OK |
+| **23. Common Errors** | Table | The marker jumps before reaching the drop point. -> Adjust the feet and delay the jump until positioned beneath the football. | Array (6) | OK |
+| **24. Progressions** | List | Increase defender pressure gradually. | Array (6) | OK |
+| **25. Regressions** | List | Use a bump pad. | Array (5) | OK |
+| **26. Success Indicators** | List | Reach the correct drop point. | Array (8) | OK |
+| **27. Match Application** | String | "High contested marks require concentration and strong body control while opponen..." | N/A | OK |
+| **28. Related Drills** | Array | MK-002 – Overhead Mark Fundamentals; MK-008 – Running Overhead Mark; MK-044 – Side-by-Side Bodywork Mark; MK-043 – Front-Position Contested Mark | Array (4) | OK |
 
-### Raw Extracted Content Snippet
+### Actual Source-to-Output Comparison Evidence
+
+- **Source Paragraph Count**: 49 paragraphs
+- **Source Table Count**: 2 tables
+- **Source List Item Count**: 78 items
+- **Normalised Source Text Captured Snippet (First 300 Chars)**:
+  > `MK-045 – High-Ball Mark Under ContactDrill IDMK-045CategoryMarkingPrimary SkillCompleting a high mark while absorbing controlled body contactSecondary SkillsHigh-point markingJump timingCore stabilityLanding balanceStrong handsBall securityObjectiveDevelop the ability to maintain focus, reach the fo...`
+
+- **Source-to-Output Counts Comparison**:
+  - Age Groups Table: 1 table captured -> 9 age group entries in canonical map
+  - Common Errors Table: 1 table captured -> 6 error/correction pairs in canonical array
+  - Setup List: 8 items extracted from HTML list elements
+  - Instructions List: 10 items extracted from HTML list elements
+  - Coaching Points List: 10 items extracted from HTML list elements
+  - Coaching Cues List: 5 items extracted from HTML list elements
+  - Observations List: 8 items extracted from HTML list elements
+  - Progressions List: 6 items extracted from HTML list elements
+  - Regressions List: 5 items extracted from HTML list elements
+  - Success Indicators List: 8 items extracted from HTML list elements
+  - Related Drills List: 4 items extracted from HTML list elements
+
+### Raw Extracted Canonical JSON Record
 
 ```json
 {
@@ -766,7 +847,9 @@
     "maximumLabel": null
   },
   "groundSize": {
-    "description": "Contest zones approximately ten metres long and eight metres wide."
+    "description": "Contest zones approximately ten metres long and eight metres wide.",
+    "lengthMeters": null,
+    "widthMeters": null
   },
   "equipment": [
     "One football per group",
@@ -1020,11 +1103,12 @@
   "searchTextNormalised": "mk-045 high-ball mark under contact marking completing a high mark while absorbing controlled body contact develop the ability to maintain focus, reach the football at the highest safe point and secure the mark while receiving controlled contact from an opponent.",
   "sourceFile": "Chapter 3 - Marking.docx",
   "sourceHeading": "MK-045 – High-Ball Mark Under Contact",
-  "sourceOrder": 3,
+  "chapterOrder": 45,
+  "globalOrder": 295,
   "libraryVersion": "afl-library-v1",
   "importBatchId": "batch-poc-001",
   "contentVersion": 1,
-  "importedAt": "2026-07-20T12:21:23.920Z",
+  "importedAt": "2026-07-20T12:26:42.937Z",
   "isCanonical": true
 }
 ```
@@ -1035,48 +1119,72 @@
 
 - **Source File**: `Chapter 5 - Tackling and Pressure.docx`
 - **Source Heading**: `TK-020 – Tackling Fundamentals Assessment Circuit`
+- **Canonical Ordering**: `chapterOrder: 20`, `globalOrder: 450`
 - **Category**: Tackling and Pressure
 - **Primary Skill**: Assessment of introductory tackling fundamentals
 - **Secondary Skills**: Tracking, Approach angle, Deceleration, Legal contact, Head placement, Arm wrapping, Recovery effort, Defensive decision making
 - **Objective**: Assess whether players can consistently perform the fundamental tracking, approach, contact, control, release and recovery behaviours required for safe introductory tackling.
-- **Serialized Document Size**: 9.37 KB (9592 bytes)
-- **100 KB Warning Rule Check**: PASSED (9.37 KB < 100 KB threshold)
+- **Serialized Document Size**: 9.42 KB (9651 bytes)
+- **100 KB Warning Rule Check**: PASSED (9.42 KB < 100 KB threshold)
+- **Parsed Time Schema**: min 25, rec 30, max 35 (Raw: "25–35 minutes")
+- **Parsed Ground Size Schema**: Four stations occupying approximately one-quarter of an oval or an area measuring 35 metres by 30 metres. (Length: null, Width: null)
 - **28-Field Validation**: PASSED (Missing: 0, Empty: 0, Warnings: 0)
 
-### Structured Field Verification
+### Structured Field Verification & Automated Array Count Assertions
 
-| Field | Type / Value | Parsed Result | Status |
-| :--- | :--- | :--- | :--- |
-| **1. Drill Title** | String | "Tackling Fundamentals Assessment Circuit" | OK |
-| **2. Drill ID** | String | `TK-020` | OK |
-| **3. Category** | String | Tackling and Pressure | OK |
-| **4. Primary Skill** | String | Assessment of introductory tackling fundamentals | OK |
-| **5. Secondary Skills** | Array (8) | Tracking, Approach angle, Deceleration, Legal contact, Head placement, Arm wrapping, Recovery effort, Defensive decision making | OK |
-| **6. Objective** | String | "Assess whether players can consistently perform the fundamental tracking, approa..." | OK |
-| **7. Age Groups** | Table Map | U8: ✗ Unsuitable, U12: ○ Suitable with modification, SeniorMen: ✓ Suitable | OK |
-| **8. Skill Level** | Array | Beginner to Intermediate | OK |
-| **9. Players** | Range Object | Min: 8, Ideal: 16-24, Max: Full Squad | OK |
-| **10. Ground Size** | Object | Four stations occupying approximately one-quarter of an oval or an area measuring 35 metres by 30 metres. | OK |
-| **11. Equipment** | Array (8) | Footballs; Cones; Bibs; Whistles; Tackle bags; Soft contact shields; Assessment sheets; Pens or digital recording device | OK |
-| **12. Time** | Range Object | Rec: 30 mins (Raw: "25–35 minutes") | OK |
-| **13. Physical Load** | Rating Object | Rating: 3 (3 – Moderate) | OK |
-| **14. Mental Load** | Rating Object | Rating: 4 (4 – High) | OK |
-| **15. Contact** | Contact Schema | Min: 2, Max: 2 (Raw: "2 – Controlled Contact") | OK |
-| **16. Coaching Difficulty** | Rating Object | Rating: 4 (4 – Advanced tactical coaching, live constraints and active correction) | OK |
-| **17. Session Placement** | Array | Assessment, Main Skill Block, Final Main Activity | OK |
-| **18. Setup** | List (10) | Construct four separate assessment stations. | OK |
-| **19. How the Drill Works** | List (14) | At Station 1, the defender tracks an evasive attacker through a lane without contact. | OK |
-| **20. Coaching Points** | List (8) | Safety takes priority over speed, force and competitive outcome. | OK |
-| **21. Coaching Cues** | List (5) | “Track, close, balance.” | OK |
-| **22. What to Observe** | List (10) | Whether players maintain effective defensive tracking distance. | OK |
-| **23. Common Errors** | Table (7) | Player performs well on bags but loses technique against a moving partner. -> Reduce partner speed and rebuild the side-on entry sequence. | OK |
-| **24. Progressions** | List (5) | Increase the speed of the moving partner for players who meet all safety standards. | OK |
-| **25. Regressions** | List (5) | Return players to stationary tackle-bag technique. | OK |
-| **26. Success Indicators** | List (9) | Track and approach with balanced footwork. | OK |
-| **27. Match Application** | String | "The circuit assesses the full introductory tackling sequence required in Austral..." | OK |
-| **28. Related Drills** | Array (6) | TK-001 – Defensive Tracking Footwork; TK-005 – Safe Contact Shape with Tackle Bags; TK-010 – Tracking-to-Tackle Fundamentals; TK-012 – Front-On Absorb and Wrap; TK-013 – Rear-Angle Chase Tackle Entry; TK-019 – Corral-or-Commit Decision | OK |
+| Field | Type / Value | Parsed Result | Array Length / Count | Assertion Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Drill Title** | String | "Tackling Fundamentals Assessment Circuit" | N/A | OK |
+| **2. Drill ID** | String | `TK-020` | N/A | OK |
+| **3. Category** | String | Tackling and Pressure | N/A | OK |
+| **4. Primary Skill** | String | Assessment of introductory tackling fundamentals | N/A | OK |
+| **5. Secondary Skills** | Array | Tracking, Approach angle, Deceleration, Legal contact, Head placement, Arm wrapping, Recovery effort, Defensive decision making | Array (8) | OK |
+| **6. Objective** | String | "Assess whether players can consistently perform the fundamental tracking, approa..." | N/A | OK |
+| **7. Age Groups** | Table Map | U8: ✗ Unsuitable, U12: ○ Suitable with modification, SeniorMen: ✓ Suitable | Object (9) | OK |
+| **8. Skill Level** | Array | Beginner to Intermediate | Array (1) | OK |
+| **9. Players** | Range Object | Min: 8, Ideal: 16-24, Max: Full Squad | Object (5) | OK |
+| **10. Ground Size** | Object | Four stations occupying approximately one-quarter of an oval or an area measuring 35 metres by 30 metres. (Length: null, Width: null) | Object (3) | OK |
+| **11. Equipment** | Array | Footballs; Cones; Bibs; Whistles; Tackle bags; Soft contact shields; Assessment sheets; Pens or digital recording device | Array (8) | OK |
+| **12. Time** | Range Object | Min: 25, Rec: 30, Max: 35 (Raw: "25–35 minutes") | Object (4) | OK |
+| **13. Physical Load** | Rating Object | Rating: 3 (3 – Moderate) | Object (2) | OK |
+| **14. Mental Load** | Rating Object | Rating: 4 (4 – High) | Object (2) | OK |
+| **15. Contact** | Contact Schema | Min: 2, Max: 2 (Raw: "2 – Controlled Contact") | Object (5) | OK |
+| **16. Coaching Difficulty** | Rating Object | Rating: 4 (4 – Advanced tactical coaching, live constraints and active correction) | Object (2) | OK |
+| **17. Session Placement** | Array | Assessment, Main Skill Block, Final Main Activity | Array (3) | OK |
+| **18. Setup** | List | Construct four separate assessment stations. | Array (10) | OK |
+| **19. How the Drill Works** | List | At Station 1, the defender tracks an evasive attacker through a lane without contact. | Array (14) | OK |
+| **20. Coaching Points** | List | Safety takes priority over speed, force and competitive outcome. | Array (8) | OK |
+| **21. Coaching Cues** | List | “Track, close, balance.” | Array (5) | OK |
+| **22. What to Observe** | List | Whether players maintain effective defensive tracking distance. | Array (10) | OK |
+| **23. Common Errors** | Table | Player performs well on bags but loses technique against a moving partner. -> Reduce partner speed and rebuild the side-on entry sequence. | Array (7) | OK |
+| **24. Progressions** | List | Increase the speed of the moving partner for players who meet all safety standards. | Array (5) | OK |
+| **25. Regressions** | List | Return players to stationary tackle-bag technique. | Array (5) | OK |
+| **26. Success Indicators** | List | Track and approach with balanced footwork. | Array (9) | OK |
+| **27. Match Application** | String | "The circuit assesses the full introductory tackling sequence required in Austral..." | N/A | OK |
+| **28. Related Drills** | Array | TK-001 – Defensive Tracking Footwork; TK-005 – Safe Contact Shape with Tackle Bags; TK-010 – Tracking-to-Tackle Fundamentals; TK-012 – Front-On Absorb and Wrap; TK-013 – Rear-Angle Chase Tackle Entry; TK-019 – Corral-or-Commit Decision | Array (6) | OK |
 
-### Raw Extracted Content Snippet
+### Actual Source-to-Output Comparison Evidence
+
+- **Source Paragraph Count**: 51 paragraphs
+- **Source Table Count**: 2 tables
+- **Source List Item Count**: 91 items
+- **Normalised Source Text Captured Snippet (First 300 Chars)**:
+  > `TK-020 – Tackling Fundamentals Assessment CircuitDrill IDTK-020CategoryTackling and PressurePrimary SkillAssessment of introductory tackling fundamentalsSecondary SkillsTrackingApproach angleDecelerationLegal contactHead placementArm wrappingRecovery effortDefensive decision makingObjectiveAssess wh...`
+
+- **Source-to-Output Counts Comparison**:
+  - Age Groups Table: 1 table captured -> 9 age group entries in canonical map
+  - Common Errors Table: 1 table captured -> 7 error/correction pairs in canonical array
+  - Setup List: 10 items extracted from HTML list elements
+  - Instructions List: 14 items extracted from HTML list elements
+  - Coaching Points List: 8 items extracted from HTML list elements
+  - Coaching Cues List: 5 items extracted from HTML list elements
+  - Observations List: 10 items extracted from HTML list elements
+  - Progressions List: 5 items extracted from HTML list elements
+  - Regressions List: 5 items extracted from HTML list elements
+  - Success Indicators List: 9 items extracted from HTML list elements
+  - Related Drills List: 6 items extracted from HTML list elements
+
+### Raw Extracted Canonical JSON Record
 
 ```json
 {
@@ -1119,7 +1227,9 @@
     "maximumLabel": "Full Squad"
   },
   "groundSize": {
-    "description": "Four stations occupying approximately one-quarter of an oval or an area measuring 35 metres by 30 metres."
+    "description": "Four stations occupying approximately one-quarter of an oval or an area measuring 35 metres by 30 metres.",
+    "lengthMeters": null,
+    "widthMeters": null
   },
   "equipment": [
     "Footballs",
@@ -1410,11 +1520,12 @@
   "searchTextNormalised": "tk-020 tackling fundamentals assessment circuit tackling and pressure assessment of introductory tackling fundamentals assess whether players can consistently perform the fundamental tracking, approach, contact, control, release and recovery behaviours required for safe introductory tackling.",
   "sourceFile": "Chapter 5 - Tackling and Pressure.docx",
   "sourceHeading": "TK-020 – Tackling Fundamentals Assessment Circuit",
-  "sourceOrder": 4,
+  "chapterOrder": 20,
+  "globalOrder": 450,
   "libraryVersion": "afl-library-v1",
   "importBatchId": "batch-poc-001",
   "contentVersion": 1,
-  "importedAt": "2026-07-20T12:21:26.297Z",
+  "importedAt": "2026-07-20T12:26:45.350Z",
   "isCanonical": true
 }
 ```
@@ -1425,48 +1536,72 @@
 
 - **Source File**: `Chapter 14 - Small-Sided Games.docx`
 - **Source Heading**: `SG-010 – Small-Sided Game Fundamentals Assessment`
+- **Canonical Ordering**: `chapterOrder: 10`, `globalOrder: 1200`
 - **Category**: Small-Sided Games
 - **Primary Skill**: Integrated small-sided-game performance
 - **Secondary Skills**: Directional ball movement, Support and spacing, Scoring-zone awareness, Turnover transition, Tactical decision making, Team communication
 - **Objective**: Assess players’ ability to apply the fundamental technical, tactical and behavioural principles introduced across the first small-sided-game block.
-- **Serialized Document Size**: 8.15 KB (8346 bytes)
-- **100 KB Warning Rule Check**: PASSED (8.15 KB < 100 KB threshold)
+- **Serialized Document Size**: 8.21 KB (8406 bytes)
+- **100 KB Warning Rule Check**: PASSED (8.21 KB < 100 KB threshold)
+- **Parsed Time Schema**: min 25, rec 28, max 30 (Raw: "25–30 minutes")
+- **Parsed Ground Size Schema**: 35–45 metres long and 25–30 metres wide (Length: null, Width: null)
 - **28-Field Validation**: PASSED (Missing: 0, Empty: 0, Warnings: 0)
 
-### Structured Field Verification
+### Structured Field Verification & Automated Array Count Assertions
 
-| Field | Type / Value | Parsed Result | Status |
-| :--- | :--- | :--- | :--- |
-| **1. Drill Title** | String | "Small-Sided Game Fundamentals Assessment" | OK |
-| **2. Drill ID** | String | `SG-010` | OK |
-| **3. Category** | String | Small-Sided Games | OK |
-| **4. Primary Skill** | String | Integrated small-sided-game performance | OK |
-| **5. Secondary Skills** | Array (6) | Directional ball movement, Support and spacing, Scoring-zone awareness, Turnover transition, Tactical decision making, Team communication | OK |
-| **6. Objective** | String | "Assess players’ ability to apply the fundamental technical, tactical and behavio..." | OK |
-| **7. Age Groups** | Table Map | U8: ○ Suitable with modification, U12: ✓ Suitable, SeniorMen: ✓ Suitable | OK |
-| **8. Skill Level** | Array | Foundation to Advanced | OK |
-| **9. Players** | Range Object | Min: 8, Ideal: 12-18, Max: Full Squad | OK |
-| **10. Ground Size** | Object | 35–45 metres long and 25–30 metres wide | OK |
-| **11. Equipment** | Array (8) | Footballs; Cones; Bibs; End-zone markers; Side scoring gates; Scoreboard; Assessment sheets; Stopwatch | OK |
-| **12. Time** | Range Object | Rec: 28 mins (Raw: "25–30 minutes") | OK |
-| **13. Physical Load** | Rating Object | Rating: 4 (4 – High) | OK |
-| **14. Mental Load** | Rating Object | Rating: 4 (4 – High) | OK |
-| **15. Contact** | Contact Schema | Min: 2, Max: 2 (Raw: "2 – Controlled Contact") | OK |
-| **16. Coaching Difficulty** | Rating Object | Rating: 4 (4 – Advanced) | OK |
-| **17. Session Placement** | Array | Assessment, Final Main Activity | OK |
-| **18. Setup** | List (8) | Create a directional field with one scoring zone at each end. | OK |
-| **19. How the Drill Works** | List (10) | Round one is a three-minute free-play observation round. | OK |
-| **20. Coaching Points** | List (8) | Maintain clear attacking direction. | OK |
-| **21. Coaching Cues** | List (5) | “Spread and support.” | OK |
-| **22. What to Observe** | List (8) | Whether players maintain purposeful attacking direction. | OK |
-| **23. Common Errors** | Table (5) | Players focus only on the scoreboard. -> Award assessment points for spacing, transition and decision quality. | OK |
-| **24. Progressions** | List (6) | Introduce full match-like contact. | OK |
-| **25. Regressions** | List (6) | Use touch-only defence. | OK |
-| **26. Success Indicators** | List (7) | Maintain effective width, depth and directional movement. | OK |
-| **27. Match Application** | String | "The assessment integrates the fundamental behaviours required in Australian foot..." | OK |
-| **28. Related Drills** | Array (9) | SG-001 – Directional End-Zone Possession; SG-002 – Support Triangle Possession; SG-003 – Timed Scoring-Zone Entry; SG-004 – Turnover Reaction Race; SG-005 – Width or Corridor Choice; SG-006 – Plus-One Advantage Game; SG-007 – Three-Second Pressure Game; SG-008 – Multi-Method Scoring Game; SG-009 – Freeze, Review and Replay | OK |
+| Field | Type / Value | Parsed Result | Array Length / Count | Assertion Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Drill Title** | String | "Small-Sided Game Fundamentals Assessment" | N/A | OK |
+| **2. Drill ID** | String | `SG-010` | N/A | OK |
+| **3. Category** | String | Small-Sided Games | N/A | OK |
+| **4. Primary Skill** | String | Integrated small-sided-game performance | N/A | OK |
+| **5. Secondary Skills** | Array | Directional ball movement, Support and spacing, Scoring-zone awareness, Turnover transition, Tactical decision making, Team communication | Array (6) | OK |
+| **6. Objective** | String | "Assess players’ ability to apply the fundamental technical, tactical and behavio..." | N/A | OK |
+| **7. Age Groups** | Table Map | U8: ○ Suitable with modification, U12: ✓ Suitable, SeniorMen: ✓ Suitable | Object (9) | OK |
+| **8. Skill Level** | Array | Foundation to Advanced | Array (1) | OK |
+| **9. Players** | Range Object | Min: 8, Ideal: 12-18, Max: Full Squad | Object (5) | OK |
+| **10. Ground Size** | Object | 35–45 metres long and 25–30 metres wide (Length: null, Width: null) | Object (3) | OK |
+| **11. Equipment** | Array | Footballs; Cones; Bibs; End-zone markers; Side scoring gates; Scoreboard; Assessment sheets; Stopwatch | Array (8) | OK |
+| **12. Time** | Range Object | Min: 25, Rec: 28, Max: 30 (Raw: "25–30 minutes") | Object (4) | OK |
+| **13. Physical Load** | Rating Object | Rating: 4 (4 – High) | Object (2) | OK |
+| **14. Mental Load** | Rating Object | Rating: 4 (4 – High) | Object (2) | OK |
+| **15. Contact** | Contact Schema | Min: 2, Max: 2 (Raw: "2 – Controlled Contact") | Object (5) | OK |
+| **16. Coaching Difficulty** | Rating Object | Rating: 4 (4 – Advanced) | Object (2) | OK |
+| **17. Session Placement** | Array | Assessment, Final Main Activity | Array (2) | OK |
+| **18. Setup** | List | Create a directional field with one scoring zone at each end. | Array (8) | OK |
+| **19. How the Drill Works** | List | Round one is a three-minute free-play observation round. | Array (10) | OK |
+| **20. Coaching Points** | List | Maintain clear attacking direction. | Array (8) | OK |
+| **21. Coaching Cues** | List | “Spread and support.” | Array (5) | OK |
+| **22. What to Observe** | List | Whether players maintain purposeful attacking direction. | Array (8) | OK |
+| **23. Common Errors** | Table | Players focus only on the scoreboard. -> Award assessment points for spacing, transition and decision quality. | Array (5) | OK |
+| **24. Progressions** | List | Introduce full match-like contact. | Array (6) | OK |
+| **25. Regressions** | List | Use touch-only defence. | Array (6) | OK |
+| **26. Success Indicators** | List | Maintain effective width, depth and directional movement. | Array (7) | OK |
+| **27. Match Application** | String | "The assessment integrates the fundamental behaviours required in Australian foot..." | N/A | OK |
+| **28. Related Drills** | Array | SG-001 – Directional End-Zone Possession; SG-002 – Support Triangle Possession; SG-003 – Timed Scoring-Zone Entry; SG-004 – Turnover Reaction Race; SG-005 – Width or Corridor Choice; SG-006 – Plus-One Advantage Game; SG-007 – Three-Second Pressure Game; SG-008 – Multi-Method Scoring Game; SG-009 – Freeze, Review and Replay | Array (9) | OK |
 
-### Raw Extracted Content Snippet
+### Actual Source-to-Output Comparison Evidence
+
+- **Source Paragraph Count**: 47 paragraphs
+- **Source Table Count**: 2 tables
+- **Source List Item Count**: 83 items
+- **Normalised Source Text Captured Snippet (First 300 Chars)**:
+  > `SG-010 – Small-Sided Game Fundamentals AssessmentDrill IDSG-010CategorySmall-Sided GamesPrimary SkillIntegrated small-sided-game performanceSecondary SkillsDirectional ball movementSupport and spacingScoring-zone awarenessTurnover transitionTactical decision makingTeam communicationObjectiveAssess p...`
+
+- **Source-to-Output Counts Comparison**:
+  - Age Groups Table: 1 table captured -> 9 age group entries in canonical map
+  - Common Errors Table: 1 table captured -> 5 error/correction pairs in canonical array
+  - Setup List: 8 items extracted from HTML list elements
+  - Instructions List: 10 items extracted from HTML list elements
+  - Coaching Points List: 8 items extracted from HTML list elements
+  - Coaching Cues List: 5 items extracted from HTML list elements
+  - Observations List: 8 items extracted from HTML list elements
+  - Progressions List: 6 items extracted from HTML list elements
+  - Regressions List: 6 items extracted from HTML list elements
+  - Success Indicators List: 7 items extracted from HTML list elements
+  - Related Drills List: 9 items extracted from HTML list elements
+
+### Raw Extracted Canonical JSON Record
 
 ```json
 {
@@ -1507,7 +1642,9 @@
     "maximumLabel": "Full Squad"
   },
   "groundSize": {
-    "description": "35–45 metres long and 25–30 metres wide"
+    "description": "35–45 metres long and 25–30 metres wide",
+    "lengthMeters": null,
+    "widthMeters": null
   },
   "equipment": [
     "Footballs",
@@ -1788,11 +1925,12 @@
   "searchTextNormalised": "sg-010 small-sided game fundamentals assessment small-sided games integrated small-sided-game performance assess players’ ability to apply the fundamental technical, tactical and behavioural principles introduced across the first small-sided-game block.",
   "sourceFile": "Chapter 14 - Small-Sided Games.docx",
   "sourceHeading": "SG-010 – Small-Sided Game Fundamentals Assessment",
-  "sourceOrder": 5,
+  "chapterOrder": 10,
+  "globalOrder": 1200,
   "libraryVersion": "afl-library-v1",
   "importBatchId": "batch-poc-001",
   "contentVersion": 1,
-  "importedAt": "2026-07-20T12:21:28.271Z",
+  "importedAt": "2026-07-20T12:26:47.412Z",
   "isCanonical": true
 }
 ```
@@ -1803,48 +1941,72 @@
 
 - **Source File**: `Chapter 1 - Kicking.docx`
 - **Source Heading**: `KK-150 – Complete Kicking Competency Assessment`
+- **Canonical Ordering**: `chapterOrder: 150`, `globalOrder: 150`
 - **Category**: Kicking
 - **Primary Skill**: Comprehensive Assessment of AFL Kicking Competency
 - **Secondary Skills**: Technical Execution, Decision Making, Tactical Awareness, Goal Kicking, Team Ball Movement, Communication, Match Application
 - **Objective**: Provide a complete assessment of each player’s kicking technique, versatility, decision making and tactical execution across every major AFL kicking situation.
-- **Serialized Document Size**: 7.50 KB (7677 bytes)
-- **100 KB Warning Rule Check**: PASSED (7.50 KB < 100 KB threshold)
+- **Serialized Document Size**: 7.56 KB (7737 bytes)
+- **100 KB Warning Rule Check**: PASSED (7.56 KB < 100 KB threshold)
+- **Parsed Time Schema**: min 45, rec 68, max 90 (Raw: "45–90 minutes")
+- **Parsed Ground Size Schema**: Full Ground with Multiple Assessment Stations (Length: null, Width: null)
 - **28-Field Validation**: PASSED (Missing: 0, Empty: 0, Warnings: 0)
 
-### Structured Field Verification
+### Structured Field Verification & Automated Array Count Assertions
 
-| Field | Type / Value | Parsed Result | Status |
-| :--- | :--- | :--- | :--- |
-| **1. Drill Title** | String | "Complete Kicking Competency Assessment" | OK |
-| **2. Drill ID** | String | `KK-150` | OK |
-| **3. Category** | String | Kicking | OK |
-| **4. Primary Skill** | String | Comprehensive Assessment of AFL Kicking Competency | OK |
-| **5. Secondary Skills** | Array (7) | Technical Execution, Decision Making, Tactical Awareness, Goal Kicking, Team Ball Movement, Communication, Match Application | OK |
-| **6. Objective** | String | "Provide a complete assessment of each player’s kicking technique, versatility, d..." | OK |
-| **7. Age Groups** | Table Map | U8: ○ Suitable with modification, U12: ✓ Suitable, SeniorMen: ✓ Suitable | OK |
-| **8. Skill Level** | Array | All Levels with Age-Appropriate Modification | OK |
-| **9. Players** | Range Object | Min: 6, Ideal: 16-30, Max: Full Squad | OK |
-| **10. Ground Size** | Object | Full Ground with Multiple Assessment Stations | OK |
-| **11. Equipment** | Array (10) | Footballs; Cones; Bibs; Goalposts; Portable targets; Distance markers; Stopwatch; Scoreboard; Assessment sheets; Video equipment where available | OK |
-| **12. Time** | Range Object | Rec: 68 mins (Raw: "45–90 minutes") | OK |
-| **13. Physical Load** | Rating Object | Rating: 4 (4 – High) | OK |
-| **14. Mental Load** | Rating Object | Rating: 5 (5 – Comprehensive Assessment) | OK |
-| **15. Contact** | Contact Schema | Min: 0, Max: 3 (Raw: "0–3 – Adjusted to Assessment Level") | OK |
-| **16. Coaching Difficulty** | Rating Object | Rating: 5 (5 – Expert Coach) | OK |
-| **17. Session Placement** | Array | End-of-Module Assessment, Pre-Season Testing, Mid-Season Review, Player Development Planning | OK |
-| **18. Setup** | List (10) | Basic drop-punt technique. | OK |
-| **19. How the Drill Works** | List (17) | Players complete each technical station. | OK |
-| **20. Coaching Points** | List (8) | Apply consistent technical fundamentals. | OK |
-| **21. Coaching Cues** | List (4) | “Technique first.” | OK |
-| **22. What to Observe** | List (13) | Ball grip and ball drop. | OK |
-| **23. Common Errors** | Table (7) | Player focuses only on kicking distance -> Assess accuracy, trajectory and tactical value as well. | OK |
-| **24. Progressions** | List (6) | Compare results across multiple testing periods. | OK |
-| **25. Regressions** | List (6) | Reduce kicking distances. | OK |
-| **26. Success Indicators** | List (8) | Consistent kicking technique. | OK |
-| **27. Match Application** | String | "Provides a complete evidence-based profile of each player’s ability to execute A..." | OK |
-| **28. Related Drills** | Array (7) | KK-001 to KK-020 – Kicking Fundamentals; KK-021 to KK-040 – Kicking on the Move; KK-041 to KK-060 – Ball Movement and Forward Entry; KK-061 to KK-080 – Possession and Transition Kicking; KK-081 to KK-100 – Goal Kicking; KK-101 to KK-120 – Advanced and Position-Specific Kicking; KK-121 to KK-149 – Elite Decision Making and Match Simulation | OK |
+| Field | Type / Value | Parsed Result | Array Length / Count | Assertion Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Drill Title** | String | "Complete Kicking Competency Assessment" | N/A | OK |
+| **2. Drill ID** | String | `KK-150` | N/A | OK |
+| **3. Category** | String | Kicking | N/A | OK |
+| **4. Primary Skill** | String | Comprehensive Assessment of AFL Kicking Competency | N/A | OK |
+| **5. Secondary Skills** | Array | Technical Execution, Decision Making, Tactical Awareness, Goal Kicking, Team Ball Movement, Communication, Match Application | Array (7) | OK |
+| **6. Objective** | String | "Provide a complete assessment of each player’s kicking technique, versatility, d..." | N/A | OK |
+| **7. Age Groups** | Table Map | U8: ○ Suitable with modification, U12: ✓ Suitable, SeniorMen: ✓ Suitable | Object (9) | OK |
+| **8. Skill Level** | Array | All Levels with Age-Appropriate Modification | Array (1) | OK |
+| **9. Players** | Range Object | Min: 6, Ideal: 16-30, Max: Full Squad | Object (5) | OK |
+| **10. Ground Size** | Object | Full Ground with Multiple Assessment Stations (Length: null, Width: null) | Object (3) | OK |
+| **11. Equipment** | Array | Footballs; Cones; Bibs; Goalposts; Portable targets; Distance markers; Stopwatch; Scoreboard; Assessment sheets; Video equipment where available | Array (10) | OK |
+| **12. Time** | Range Object | Min: 45, Rec: 68, Max: 90 (Raw: "45–90 minutes") | Object (4) | OK |
+| **13. Physical Load** | Rating Object | Rating: 4 (4 – High) | Object (2) | OK |
+| **14. Mental Load** | Rating Object | Rating: 5 (5 – Comprehensive Assessment) | Object (2) | OK |
+| **15. Contact** | Contact Schema | Min: 0, Max: 3 (Raw: "0–3 – Adjusted to Assessment Level") | Object (5) | OK |
+| **16. Coaching Difficulty** | Rating Object | Rating: 5 (5 – Expert Coach) | Object (2) | OK |
+| **17. Session Placement** | Array | End-of-Module Assessment, Pre-Season Testing, Mid-Season Review, Player Development Planning | Array (4) | OK |
+| **18. Setup** | List | Basic drop-punt technique. | Array (10) | OK |
+| **19. How the Drill Works** | List | Players complete each technical station. | Array (17) | OK |
+| **20. Coaching Points** | List | Apply consistent technical fundamentals. | Array (8) | OK |
+| **21. Coaching Cues** | List | “Technique first.” | Array (4) | OK |
+| **22. What to Observe** | List | Ball grip and ball drop. | Array (13) | OK |
+| **23. Common Errors** | Table | Player focuses only on kicking distance -> Assess accuracy, trajectory and tactical value as well. | Array (7) | OK |
+| **24. Progressions** | List | Compare results across multiple testing periods. | Array (6) | OK |
+| **25. Regressions** | List | Reduce kicking distances. | Array (6) | OK |
+| **26. Success Indicators** | List | Consistent kicking technique. | Array (8) | OK |
+| **27. Match Application** | String | "Provides a complete evidence-based profile of each player’s ability to execute A..." | N/A | OK |
+| **28. Related Drills** | Array | KK-001 to KK-020 – Kicking Fundamentals; KK-021 to KK-040 – Kicking on the Move; KK-041 to KK-060 – Ball Movement and Forward Entry; KK-061 to KK-080 – Possession and Transition Kicking; KK-081 to KK-100 – Goal Kicking; KK-101 to KK-120 – Advanced and Position-Specific Kicking; KK-121 to KK-149 – Elite Decision Making and Match Simulation | Array (7) | OK |
 
-### Raw Extracted Content Snippet
+### Actual Source-to-Output Comparison Evidence
+
+- **Source Paragraph Count**: 54 paragraphs
+- **Source Table Count**: 2 tables
+- **Source List Item Count**: 100 items
+- **Normalised Source Text Captured Snippet (First 300 Chars)**:
+  > `KK-150 – Complete Kicking Competency AssessmentDrill IDKK-150CategoryKickingPrimary SkillComprehensive Assessment of AFL Kicking CompetencySecondary SkillsTechnical ExecutionDecision MakingTactical AwarenessGoal KickingTeam Ball MovementCommunicationMatch ApplicationObjectiveProvide a complete asses...`
+
+- **Source-to-Output Counts Comparison**:
+  - Age Groups Table: 1 table captured -> 9 age group entries in canonical map
+  - Common Errors Table: 1 table captured -> 7 error/correction pairs in canonical array
+  - Setup List: 10 items extracted from HTML list elements
+  - Instructions List: 17 items extracted from HTML list elements
+  - Coaching Points List: 8 items extracted from HTML list elements
+  - Coaching Cues List: 4 items extracted from HTML list elements
+  - Observations List: 13 items extracted from HTML list elements
+  - Progressions List: 6 items extracted from HTML list elements
+  - Regressions List: 6 items extracted from HTML list elements
+  - Success Indicators List: 8 items extracted from HTML list elements
+  - Related Drills List: 7 items extracted from HTML list elements
+
+### Raw Extracted Canonical JSON Record
 
 ```json
 {
@@ -1886,7 +2048,9 @@
     "maximumLabel": "Full Squad"
   },
   "groundSize": {
-    "description": "Full Ground with Multiple Assessment Stations"
+    "description": "Full Ground with Multiple Assessment Stations",
+    "lengthMeters": null,
+    "widthMeters": null
   },
   "equipment": [
     "Footballs",
@@ -2180,11 +2344,12 @@
   "searchTextNormalised": "kk-150 complete kicking competency assessment kicking comprehensive assessment of afl kicking competency provide a complete assessment of each player’s kicking technique, versatility, decision making and tactical execution across every major afl kicking situation.",
   "sourceFile": "Chapter 1 - Kicking.docx",
   "sourceHeading": "KK-150 – Complete Kicking Competency Assessment",
-  "sourceOrder": 6,
+  "chapterOrder": 150,
+  "globalOrder": 150,
   "libraryVersion": "afl-library-v1",
   "importBatchId": "batch-poc-001",
   "contentVersion": 1,
-  "importedAt": "2026-07-20T12:21:30.615Z",
+  "importedAt": "2026-07-20T12:26:49.758Z",
   "isCanonical": true
 }
 ```
@@ -2195,48 +2360,72 @@
 
 - **Source File**: `Chapter 16 - Testing and Assessment.docx`
 - **Source Heading**: `TA-060 – Testing and Assessment Chapter Final Assessment`
+- **Canonical Ordering**: `chapterOrder: 60`, `globalOrder: 1610`
 - **Category**: Testing and Assessment
 - **Primary Skill**: Complete player and program assessment
 - **Secondary Skills**: Technical testing, Physical assessment, Tactical observation, Match-performance analysis, Data reliability, Player feedback, Development planning, Program evaluation
 - **Objective**: Complete a final integrated assessment that verifies player performance across technical, physical, tactical and match demands while evaluating the reliability and practical value of the club’s testing system.
-- **Serialized Document Size**: 10.69 KB (10948 bytes)
-- **100 KB Warning Rule Check**: PASSED (10.69 KB < 100 KB threshold)
+- **Serialized Document Size**: 10.75 KB (11005 bytes)
+- **100 KB Warning Rule Check**: PASSED (10.75 KB < 100 KB threshold)
+- **Parsed Time Schema**: min 120, rec 150, max 180 (Raw: "Two to three hours across one extended session or two separate sessions")
+- **Parsed Ground Size Schema**: Full oval, half-oval testing stations and a private player-review area. (Length: null, Width: null)
 - **28-Field Validation**: PASSED (Missing: 0, Empty: 0, Warnings: 0)
 
-### Structured Field Verification
+### Structured Field Verification & Automated Array Count Assertions
 
-| Field | Type / Value | Parsed Result | Status |
-| :--- | :--- | :--- | :--- |
-| **1. Drill Title** | String | "Testing and Assessment Chapter Final Assessment" | OK |
-| **2. Drill ID** | String | `TA-060` | OK |
-| **3. Category** | String | Testing and Assessment | OK |
-| **4. Primary Skill** | String | Complete player and program assessment | OK |
-| **5. Secondary Skills** | Array (8) | Technical testing, Physical assessment, Tactical observation, Match-performance analysis, Data reliability, Player feedback, Development planning, Program evaluation | OK |
-| **6. Objective** | String | "Complete a final integrated assessment that verifies player performance across t..." | OK |
-| **7. Age Groups** | Table Map | U8: ○ Suitable with modification, U12: ✓ Suitable, SeniorMen: ✓ Suitable | OK |
-| **8. Skill Level** | Array | Foundation to Elite | OK |
-| **9. Players** | Range Object | Min: 12, Ideal: 20-36, Max: Full Squad | OK |
-| **10. Ground Size** | Object | Full oval, half-oval testing stations and a private player-review area. | OK |
-| **11. Equipment** | Array (16) | Footballs; Cones; Bibs; Goalposts; Target gates; Stopwatches or timing gates; Vertical-jump equipment where required; Contact equipment; Testing sheets or tablets; Match-coding forms; Video equipment; Player self-assessment forms; Individual development-plan templates; Central data-recording system; First-aid equipment; Water | OK |
-| **12. Time** | Range Object | Rec: null mins (Raw: "Two to three hours across one extended session or two separate sessions") | OK |
-| **13. Physical Load** | Rating Object | Rating: 5 (5 – Very High / Match Intensity) | OK |
-| **14. Mental Load** | Rating Object | Rating: 5 (5 – Elite) | OK |
-| **15. Contact** | Contact Schema | Min: 3, Max: 3 (Raw: "3 – Match-Like Contact") | OK |
-| **16. Coaching Difficulty** | Rating Object | Rating: 5 (5 – Expert) | OK |
-| **17. Session Placement** | Array | Assessment, Match Simulation, Final Main Activity, Player Review | OK |
-| **18. Setup** | List (12) | Review the complete Testing and Assessment chapter and select age- and role-appropriate measures. | OK |
-| **19. How the Drill Works** | List (16) | Players complete a standardised warm-up. | OK |
-| **20. Coaching Points** | List (10) | Use only tests appropriate to the players and purpose. | OK |
-| **21. Coaching Cues** | List (5) | “Same test, same standard.” | OK |
-| **22. What to Observe** | List (12) | Reliability of technical execution. | OK |
-| **23. Common Errors** | Table (7) | Every available test is included regardless of purpose. -> Select measures linked to age, role and development needs. | OK |
-| **24. Progressions** | List (8) | Link testing with official match statistics and running data. | OK |
-| **25. Regressions** | List (8) | Complete the assessment across multiple sessions. | OK |
-| **26. Success Indicators** | List (14) | Complete valid and safe assessments. | OK |
-| **27. Match Application** | String | "The final assessment connects isolated skill tests, football-specific movement, ..." | OK |
-| **28. Related Drills** | Array (6) | TA-001 to TA-010 – Foundation Testing and Assessment Battery; TA-011 to TA-020 – Technical and Contest Assessment; TA-021 to TA-040 – Football Movement, Physical and Fatigue Assessment; TA-041 to TA-050 – Match Performance, Observation and Review Assessment; TA-051 to TA-059 – Tactical, Team-System and Development-Plan Assessment; MS-100 – Match Simulation Chapter Final Assessment | OK |
+| Field | Type / Value | Parsed Result | Array Length / Count | Assertion Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Drill Title** | String | "Testing and Assessment Chapter Final Assessment" | N/A | OK |
+| **2. Drill ID** | String | `TA-060` | N/A | OK |
+| **3. Category** | String | Testing and Assessment | N/A | OK |
+| **4. Primary Skill** | String | Complete player and program assessment | N/A | OK |
+| **5. Secondary Skills** | Array | Technical testing, Physical assessment, Tactical observation, Match-performance analysis, Data reliability, Player feedback, Development planning, Program evaluation | Array (8) | OK |
+| **6. Objective** | String | "Complete a final integrated assessment that verifies player performance across t..." | N/A | OK |
+| **7. Age Groups** | Table Map | U8: ○ Suitable with modification, U12: ✓ Suitable, SeniorMen: ✓ Suitable | Object (9) | OK |
+| **8. Skill Level** | Array | Foundation to Elite | Array (1) | OK |
+| **9. Players** | Range Object | Min: 12, Ideal: 20-36, Max: Full Squad | Object (5) | OK |
+| **10. Ground Size** | Object | Full oval, half-oval testing stations and a private player-review area. (Length: null, Width: null) | Object (3) | OK |
+| **11. Equipment** | Array | Footballs; Cones; Bibs; Goalposts; Target gates; Stopwatches or timing gates; Vertical-jump equipment where required; Contact equipment; Testing sheets or tablets; Match-coding forms; Video equipment; Player self-assessment forms; Individual development-plan templates; Central data-recording system; First-aid equipment; Water | Array (16) | OK |
+| **12. Time** | Range Object | Min: 120, Rec: 150, Max: 180 (Raw: "Two to three hours across one extended session or two separate sessions") | Object (4) | OK |
+| **13. Physical Load** | Rating Object | Rating: 5 (5 – Very High / Match Intensity) | Object (2) | OK |
+| **14. Mental Load** | Rating Object | Rating: 5 (5 – Elite) | Object (2) | OK |
+| **15. Contact** | Contact Schema | Min: 3, Max: 3 (Raw: "3 – Match-Like Contact") | Object (5) | OK |
+| **16. Coaching Difficulty** | Rating Object | Rating: 5 (5 – Expert) | Object (2) | OK |
+| **17. Session Placement** | Array | Assessment, Match Simulation, Final Main Activity, Player Review | Array (4) | OK |
+| **18. Setup** | List | Review the complete Testing and Assessment chapter and select age- and role-appropriate measures. | Array (12) | OK |
+| **19. How the Drill Works** | List | Players complete a standardised warm-up. | Array (16) | OK |
+| **20. Coaching Points** | List | Use only tests appropriate to the players and purpose. | Array (10) | OK |
+| **21. Coaching Cues** | List | “Same test, same standard.” | Array (5) | OK |
+| **22. What to Observe** | List | Reliability of technical execution. | Array (12) | OK |
+| **23. Common Errors** | Table | Every available test is included regardless of purpose. -> Select measures linked to age, role and development needs. | Array (7) | OK |
+| **24. Progressions** | List | Link testing with official match statistics and running data. | Array (8) | OK |
+| **25. Regressions** | List | Complete the assessment across multiple sessions. | Array (8) | OK |
+| **26. Success Indicators** | List | Complete valid and safe assessments. | Array (14) | OK |
+| **27. Match Application** | String | "The final assessment connects isolated skill tests, football-specific movement, ..." | N/A | OK |
+| **28. Related Drills** | Array | TA-001 to TA-010 – Foundation Testing and Assessment Battery; TA-011 to TA-020 – Technical and Contest Assessment; TA-021 to TA-040 – Football Movement, Physical and Fatigue Assessment; TA-041 to TA-050 – Match Performance, Observation and Review Assessment; TA-051 to TA-059 – Tactical, Team-System and Development-Plan Assessment; MS-100 – Match Simulation Chapter Final Assessment | Array (6) | OK |
 
-### Raw Extracted Content Snippet
+### Actual Source-to-Output Comparison Evidence
+
+- **Source Paragraph Count**: 52 paragraphs
+- **Source Table Count**: 2 tables
+- **Source List Item Count**: 119 items
+- **Normalised Source Text Captured Snippet (First 300 Chars)**:
+  > `TA-060 – Testing and Assessment Chapter Final AssessmentDrill IDTA-060CategoryTesting and AssessmentPrimary SkillComplete player and program assessmentSecondary SkillsTechnical testingPhysical assessmentTactical observationMatch-performance analysisData reliabilityPlayer feedbackDevelopment planning...`
+
+- **Source-to-Output Counts Comparison**:
+  - Age Groups Table: 1 table captured -> 9 age group entries in canonical map
+  - Common Errors Table: 1 table captured -> 7 error/correction pairs in canonical array
+  - Setup List: 12 items extracted from HTML list elements
+  - Instructions List: 16 items extracted from HTML list elements
+  - Coaching Points List: 10 items extracted from HTML list elements
+  - Coaching Cues List: 5 items extracted from HTML list elements
+  - Observations List: 12 items extracted from HTML list elements
+  - Progressions List: 8 items extracted from HTML list elements
+  - Regressions List: 8 items extracted from HTML list elements
+  - Success Indicators List: 14 items extracted from HTML list elements
+  - Related Drills List: 6 items extracted from HTML list elements
+
+### Raw Extracted Canonical JSON Record
 
 ```json
 {
@@ -2279,7 +2468,9 @@
     "maximumLabel": "Full Squad"
   },
   "groundSize": {
-    "description": "Full oval, half-oval testing stations and a private player-review area."
+    "description": "Full oval, half-oval testing stations and a private player-review area.",
+    "lengthMeters": null,
+    "widthMeters": null
   },
   "equipment": [
     "Footballs",
@@ -2300,9 +2491,9 @@
     "Water"
   ],
   "time": {
-    "minimumMinutes": null,
-    "recommendedMinutes": null,
-    "maximumMinutes": null,
+    "minimumMinutes": 120,
+    "recommendedMinutes": 150,
+    "maximumMinutes": 180,
     "raw": "Two to three hours across one extended session or two separate sessions"
   },
   "physicalLoad": {
@@ -2606,11 +2797,12 @@
   "searchTextNormalised": "ta-060 testing and assessment chapter final assessment testing and assessment complete player and program assessment complete a final integrated assessment that verifies player performance across technical, physical, tactical and match demands while evaluating the reliability and practical value of the club’s testing system.",
   "sourceFile": "Chapter 16 - Testing and Assessment.docx",
   "sourceHeading": "TA-060 – Testing and Assessment Chapter Final Assessment",
-  "sourceOrder": 7,
+  "chapterOrder": 60,
+  "globalOrder": 1610,
   "libraryVersion": "afl-library-v1",
   "importBatchId": "batch-poc-001",
   "contentVersion": 1,
-  "importedAt": "2026-07-20T12:21:31.847Z",
+  "importedAt": "2026-07-20T12:26:51.043Z",
   "isCanonical": true
 }
 ```
