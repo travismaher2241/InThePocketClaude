@@ -1,9 +1,108 @@
 {
-  "generatedAt": "2026-07-20T12:26:51.043Z",
+  "generatedAt": "2026-07-20T12:30:58.354Z",
   "pocSampleCount": 7,
   "chapterWhitelistVerified": true,
   "nestedSchemaValidationPassed": true,
   "automatedArrayCountAssertionsPassed": true,
+  "orderingAssertionsPassed": true,
+  "chapterManifest": [
+    {
+      "prefix": "KK",
+      "chapterNumber": 1,
+      "count": 150,
+      "offset": 0
+    },
+    {
+      "prefix": "HB",
+      "chapterNumber": 2,
+      "count": 120,
+      "offset": 150
+    },
+    {
+      "prefix": "MK",
+      "chapterNumber": 3,
+      "count": 120,
+      "offset": 270
+    },
+    {
+      "prefix": "GB",
+      "chapterNumber": 4,
+      "count": 120,
+      "offset": 390
+    },
+    {
+      "prefix": "TK",
+      "chapterNumber": 5,
+      "count": 120,
+      "offset": 510
+    },
+    {
+      "prefix": "SP",
+      "chapterNumber": 6,
+      "count": 80,
+      "offset": 630
+    },
+    {
+      "prefix": "RK",
+      "chapterNumber": 7,
+      "count": 80,
+      "offset": 710
+    },
+    {
+      "prefix": "EA",
+      "chapterNumber": 8,
+      "count": 80,
+      "offset": 790
+    },
+    {
+      "prefix": "DM",
+      "chapterNumber": 9,
+      "count": 100,
+      "offset": 870
+    },
+    {
+      "prefix": "TO",
+      "chapterNumber": 10,
+      "count": 100,
+      "offset": 970
+    },
+    {
+      "prefix": "TD",
+      "chapterNumber": 11,
+      "count": 100,
+      "offset": 1070
+    },
+    {
+      "prefix": "TR",
+      "chapterNumber": 12,
+      "count": 100,
+      "offset": 1170
+    },
+    {
+      "prefix": "CF",
+      "chapterNumber": 13,
+      "count": 80,
+      "offset": 1270
+    },
+    {
+      "prefix": "SG",
+      "chapterNumber": 14,
+      "count": 100,
+      "offset": 1350
+    },
+    {
+      "prefix": "MS",
+      "chapterNumber": 15,
+      "count": 100,
+      "offset": 1450
+    },
+    {
+      "prefix": "TA",
+      "chapterNumber": 16,
+      "count": 60,
+      "offset": 1550
+    }
+  ],
   "totalWarningsCount": 0,
   "status": "COMPLETE_ZERO_WARNINGS",
   "drills": [
@@ -281,7 +380,7 @@
       "libraryVersion": "afl-library-v1",
       "importBatchId": "batch-poc-001",
       "contentVersion": 1,
-      "importedAt": "2026-07-20T12:26:37.883Z",
+      "importedAt": "2026-07-20T12:30:45.461Z",
       "isCanonical": true
     },
     {
@@ -578,7 +677,7 @@
       "libraryVersion": "afl-library-v1",
       "importBatchId": "batch-poc-001",
       "contentVersion": 1,
-      "importedAt": "2026-07-20T12:26:40.270Z",
+      "importedAt": "2026-07-20T12:30:47.900Z",
       "isCanonical": true
     },
     {
@@ -876,11 +975,11 @@
       "sourceFile": "Chapter 3 - Marking.docx",
       "sourceHeading": "MK-045 – High-Ball Mark Under Contact",
       "chapterOrder": 45,
-      "globalOrder": 295,
+      "globalOrder": 315,
       "libraryVersion": "afl-library-v1",
       "importBatchId": "batch-poc-001",
       "contentVersion": 1,
-      "importedAt": "2026-07-20T12:26:42.937Z",
+      "importedAt": "2026-07-20T12:30:50.244Z",
       "isCanonical": true
     },
     {
@@ -1217,11 +1316,11 @@
       "sourceFile": "Chapter 5 - Tackling and Pressure.docx",
       "sourceHeading": "TK-020 – Tackling Fundamentals Assessment Circuit",
       "chapterOrder": 20,
-      "globalOrder": 450,
+      "globalOrder": 530,
       "libraryVersion": "afl-library-v1",
       "importBatchId": "batch-poc-001",
       "contentVersion": 1,
-      "importedAt": "2026-07-20T12:26:45.350Z",
+      "importedAt": "2026-07-20T12:30:52.605Z",
       "isCanonical": true
     },
     {
@@ -1546,11 +1645,11 @@
       "sourceFile": "Chapter 14 - Small-Sided Games.docx",
       "sourceHeading": "SG-010 – Small-Sided Game Fundamentals Assessment",
       "chapterOrder": 10,
-      "globalOrder": 1200,
+      "globalOrder": 1360,
       "libraryVersion": "afl-library-v1",
       "importBatchId": "batch-poc-001",
       "contentVersion": 1,
-      "importedAt": "2026-07-20T12:26:47.412Z",
+      "importedAt": "2026-07-20T12:30:54.648Z",
       "isCanonical": true
     },
     {
@@ -1893,7 +1992,7 @@
       "libraryVersion": "afl-library-v1",
       "importBatchId": "batch-poc-001",
       "contentVersion": 1,
-      "importedAt": "2026-07-20T12:26:49.758Z",
+      "importedAt": "2026-07-20T12:30:57.036Z",
       "isCanonical": true
     },
     {
@@ -2270,7 +2369,7 @@
       "libraryVersion": "afl-library-v1",
       "importBatchId": "batch-poc-001",
       "contentVersion": 1,
-      "importedAt": "2026-07-20T12:26:51.043Z",
+      "importedAt": "2026-07-20T12:30:58.354Z",
       "isCanonical": true
     }
   ],
@@ -2412,7 +2511,7 @@
       "title": "High-Ball Mark Under Contact",
       "sourceFile": "Chapter 3 - Marking.docx",
       "chapterOrder": 45,
-      "globalOrder": 295,
+      "globalOrder": 315,
       "serializedSizeBytes": 7120,
       "missingFieldCount": 0,
       "emptyFieldCount": 0,
@@ -2478,7 +2577,7 @@
       "title": "Tackling Fundamentals Assessment Circuit",
       "sourceFile": "Chapter 5 - Tackling and Pressure.docx",
       "chapterOrder": 20,
-      "globalOrder": 450,
+      "globalOrder": 530,
       "serializedSizeBytes": 9651,
       "missingFieldCount": 0,
       "emptyFieldCount": 0,
@@ -2544,7 +2643,7 @@
       "title": "Small-Sided Game Fundamentals Assessment",
       "sourceFile": "Chapter 14 - Small-Sided Games.docx",
       "chapterOrder": 10,
-      "globalOrder": 1200,
+      "globalOrder": 1360,
       "serializedSizeBytes": 8406,
       "missingFieldCount": 0,
       "emptyFieldCount": 0,

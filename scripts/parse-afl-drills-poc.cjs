@@ -37,25 +37,25 @@ const EXCLUDED_FILES = [
   'AFL_Coaching_Reference_Library_Master_Document_v16.0.docx'
 ];
 
-// Global Chapter Offset Map for deterministic globalOrder calculation
-const CHAPTER_OFFSETS = {
-  'KK': { offset: 0, prefix: 'KK' },
-  'HB': { offset: 150, prefix: 'HB' },
-  'MK': { offset: 250, prefix: 'MK' },
-  'GB': { offset: 350, prefix: 'GB' },
-  'TK': { offset: 430, prefix: 'TK' },
-  'SP': { offset: 530, prefix: 'SP' },
-  'RK': { offset: 590, prefix: 'RK' },
-  'EA': { offset: 670, prefix: 'EA' },
-  'DM': { offset: 750, prefix: 'DM' },
-  'TO': { offset: 850, prefix: 'TO' },
-  'TD': { offset: 950, prefix: 'TD' },
-  'TR': { offset: 1050, prefix: 'TR' },
-  'CF': { offset: 1130, prefix: 'CF' },
-  'SG': { offset: 1190, prefix: 'SG' },
-  'MS': { offset: 1290, prefix: 'MS' },
-  'TA': { offset: 1550, prefix: 'TA' }
-};
+// Canonical Chapter Manifest — Single Source of Truth
+const AFL_CHAPTER_MANIFEST = [
+  { prefix: "KK", chapterNumber: 1, count: 150, offset: 0 },
+  { prefix: "HB", chapterNumber: 2, count: 120, offset: 150 },
+  { prefix: "MK", chapterNumber: 3, count: 120, offset: 270 },
+  { prefix: "GB", chapterNumber: 4, count: 120, offset: 390 },
+  { prefix: "TK", chapterNumber: 5, count: 120, offset: 510 },
+  { prefix: "SP", chapterNumber: 6, count: 80, offset: 630 },
+  { prefix: "RK", chapterNumber: 7, count: 80, offset: 710 },
+  { prefix: "EA", chapterNumber: 8, count: 80, offset: 790 },
+  { prefix: "DM", chapterNumber: 9, count: 100, offset: 870 },
+  { prefix: "TO", chapterNumber: 10, count: 100, offset: 970 },
+  { prefix: "TD", chapterNumber: 11, count: 100, offset: 1070 },
+  { prefix: "TR", chapterNumber: 12, count: 100, offset: 1170 },
+  { prefix: "CF", chapterNumber: 13, count: 80, offset: 1270 },
+  { prefix: "SG", chapterNumber: 14, count: 100, offset: 1350 },
+  { prefix: "MS", chapterNumber: 15, count: 100, offset: 1450 },
+  { prefix: "TA", chapterNumber: 16, count: 60, offset: 1550 }
+];
 
 const targetDrills = [
   { id: 'KK-001', file: 'Chapter 1 - Kicking.docx', chapterId: 'chapter-1-kicking', chapterName: 'Chapter 1 - Kicking' },
@@ -69,6 +69,88 @@ const targetDrills = [
 
 const WARN_SIZE_BYTES = 100 * 1024; // 100 KB
 const CRITICAL_SIZE_BYTES = 800 * 1024; // 800 KB
+
+function calculateCanonicalOrdering(drillId) {
+  const parts = drillId.split('-');
+  const prefix = parts[0].toUpperCase();
+  const chapterOrder = parseInt(parts[1], 10);
+
+  const ch = AFL_CHAPTER_MANIFEST.find(c => c.prefix === prefix);
+  if (!ch) {
+    throw new Error(`Unknown drill prefix ${prefix} for drill ${drillId}`);
+  }
+  if (chapterOrder < 1 || chapterOrder > ch.count) {
+    throw new Error(`Out of range chapterOrder ${chapterOrder} for chapter ${ch.prefix} (max ${ch.count})`);
+  }
+
+  const globalOrder = ch.offset + chapterOrder;
+  return { chapterOrder, globalOrder };
+}
+
+function validateAllChapterBoundaries() {
+  const boundaryTests = [
+    { id: 'KK-001', expectedChapter: 1, expectedGlobal: 1 },
+    { id: 'KK-150', expectedChapter: 150, expectedGlobal: 150 },
+    { id: 'HB-001', expectedChapter: 1, expectedGlobal: 151 },
+    { id: 'HB-120', expectedChapter: 120, expectedGlobal: 270 },
+    { id: 'MK-001', expectedChapter: 1, expectedGlobal: 271 },
+    { id: 'MK-120', expectedChapter: 120, expectedGlobal: 390 },
+    { id: 'GB-001', expectedChapter: 1, expectedGlobal: 391 },
+    { id: 'GB-120', expectedChapter: 120, expectedGlobal: 510 },
+    { id: 'TK-001', expectedChapter: 1, expectedGlobal: 511 },
+    { id: 'TK-120', expectedChapter: 120, expectedGlobal: 630 },
+    { id: 'SP-001', expectedChapter: 1, expectedGlobal: 631 },
+    { id: 'SP-080', expectedChapter: 80, expectedGlobal: 710 },
+    { id: 'RK-001', expectedChapter: 1, expectedGlobal: 711 },
+    { id: 'RK-080', expectedChapter: 80, expectedGlobal: 790 },
+    { id: 'EA-001', expectedChapter: 1, expectedGlobal: 791 },
+    { id: 'EA-080', expectedChapter: 80, expectedGlobal: 870 },
+    { id: 'DM-001', expectedChapter: 1, expectedGlobal: 871 },
+    { id: 'DM-100', expectedChapter: 100, expectedGlobal: 970 },
+    { id: 'TO-001', expectedChapter: 1, expectedGlobal: 971 },
+    { id: 'TO-100', expectedChapter: 100, expectedGlobal: 1070 },
+    { id: 'TD-001', expectedChapter: 1, expectedGlobal: 1071 },
+    { id: 'TD-100', expectedChapter: 100, expectedGlobal: 1170 },
+    { id: 'TR-001', expectedChapter: 1, expectedGlobal: 1171 },
+    { id: 'TR-100', expectedChapter: 100, expectedGlobal: 1270 },
+    { id: 'CF-001', expectedChapter: 1, expectedGlobal: 1271 },
+    { id: 'CF-080', expectedChapter: 80, expectedGlobal: 1350 },
+    { id: 'SG-001', expectedChapter: 1, expectedGlobal: 1351 },
+    { id: 'SG-100', expectedChapter: 100, expectedGlobal: 1450 },
+    { id: 'MS-001', expectedChapter: 1, expectedGlobal: 1451 },
+    { id: 'MS-100', expectedChapter: 100, expectedGlobal: 1550 },
+    { id: 'TA-001', expectedChapter: 1, expectedGlobal: 1551 },
+    { id: 'TA-060', expectedChapter: 60, expectedGlobal: 1610 }
+  ];
+
+  boundaryTests.forEach(bt => {
+    const res = calculateCanonicalOrdering(bt.id);
+    if (res.chapterOrder !== bt.expectedChapter || res.globalOrder !== bt.expectedGlobal) {
+      throw new Error(`Boundary Assertion Failed for ${bt.id}: expected chapterOrder ${bt.expectedChapter}, globalOrder ${bt.expectedGlobal}, got chapterOrder ${res.chapterOrder}, globalOrder ${res.globalOrder}`);
+    }
+  });
+
+  const globalOrderSet = new Set();
+  AFL_CHAPTER_MANIFEST.forEach(ch => {
+    for (let i = 1; i <= ch.count; i++) {
+      const gOrder = ch.offset + i;
+      if (globalOrderSet.has(gOrder)) {
+        throw new Error(`Duplicate globalOrder detected: ${gOrder}`);
+      }
+      globalOrderSet.add(gOrder);
+    }
+  });
+
+  if (globalOrderSet.size !== 1610) {
+    throw new Error(`Expected 1610 unique globalOrder values, got ${globalOrderSet.size}`);
+  }
+  for (let g = 1; g <= 1610; g++) {
+    if (!globalOrderSet.has(g)) {
+      throw new Error(`Missing globalOrder in sequence: ${g}`);
+    }
+  }
+  return true;
+}
 
 function cleanText(str) {
   if (!str) return '';
@@ -379,27 +461,9 @@ function generateSearchTokens(drill) {
   return Array.from(tokens);
 }
 
-function calculateCanonicalOrdering(drillId) {
-  const parts = drillId.split('-');
-  const prefix = parts[0].toUpperCase();
-  const chapterNum = parseInt(parts[1], 10);
-
-  const info = CHAPTER_OFFSETS[prefix];
-  if (!info) {
-    throw new Error(`Unknown drill prefix ${prefix} for drill ${drillId}`);
-  }
-
-  return {
-    chapterOrder: chapterNum,
-    globalOrder: info.offset + chapterNum
-  };
-}
-
-// Complete Recursive Nested Schema Validator
 function validateNestedSchema(record) {
   const errors = [];
 
-  // Required top-level keys
   const topKeys = [
     'id', 'title', 'chapterId', 'chapterName', 'category', 'primarySkill', 'secondarySkills',
     'objective', 'ageGroups', 'skillLevel', 'players', 'groundSize', 'equipment', 'time',
@@ -417,7 +481,6 @@ function validateNestedSchema(record) {
     }
   });
 
-  // players schema validation
   const players = record.players;
   if (!players || typeof players !== 'object') {
     errors.push('players is not an object');
@@ -427,7 +490,6 @@ function validateNestedSchema(record) {
     });
   }
 
-  // groundSize schema validation
   const groundSize = record.groundSize;
   if (!groundSize || typeof groundSize !== 'object') {
     errors.push('groundSize is not an object');
@@ -437,7 +499,6 @@ function validateNestedSchema(record) {
     });
   }
 
-  // time schema validation
   const time = record.time;
   if (!time || typeof time !== 'object') {
     errors.push('time is not an object');
@@ -445,13 +506,11 @@ function validateNestedSchema(record) {
     ['minimumMinutes', 'recommendedMinutes', 'maximumMinutes', 'raw'].forEach(tk => {
       if (time[tk] === undefined) errors.push(`time missing key: ${tk}`);
     });
-    // Require numeric time or explicit raw text
     if (time.minimumMinutes === null && time.recommendedMinutes === null && time.maximumMinutes === null && !time.raw) {
       errors.push('time range contains no numeric minutes and empty raw string');
     }
   }
 
-  // physicalLoad schema validation
   const physicalLoad = record.physicalLoad;
   if (!physicalLoad || typeof physicalLoad !== 'object') {
     errors.push('physicalLoad is not an object');
@@ -461,7 +520,6 @@ function validateNestedSchema(record) {
     });
   }
 
-  // mentalLoad schema validation
   const mentalLoad = record.mentalLoad;
   if (!mentalLoad || typeof mentalLoad !== 'object') {
     errors.push('mentalLoad is not an object');
@@ -471,7 +529,6 @@ function validateNestedSchema(record) {
     });
   }
 
-  // contact schema validation
   const contact = record.contact;
   if (!contact || typeof contact !== 'object') {
     errors.push('contact is not an object');
@@ -481,7 +538,6 @@ function validateNestedSchema(record) {
     });
   }
 
-  // coachingDifficulty schema validation
   const coachingDifficulty = record.coachingDifficulty;
   if (!coachingDifficulty || typeof coachingDifficulty !== 'object') {
     errors.push('coachingDifficulty is not an object');
@@ -495,8 +551,12 @@ function validateNestedSchema(record) {
 }
 
 async function runPoCExtraction() {
-  console.log('Starting Phase 2 — Parser Proof of Concept re-extraction with automated assertions...');
-  
+  console.log('Starting Phase 2 — Parser Proof of Concept re-extraction with ordering assertions...');
+
+  // Assert all 16 chapter ordering boundaries
+  validateAllChapterBoundaries();
+  console.log('Full Chapter Boundary & Sequence Continuity Validation: PASSED (1,610 unique globalOrder entries 1..1610)');
+
   const extractedRecords = [];
   const validationResults = [];
   let totalWarningsCount = 0;
@@ -504,7 +564,6 @@ async function runPoCExtraction() {
   for (let i = 0; i < targetDrills.length; i++) {
     const t = targetDrills[i];
 
-    // Whitelist & Exclusion Checks
     if (!CHAPTER_WHITELIST.includes(t.file)) {
       throw new Error(`Validation Error: File ${t.file} is not in the explicit chapter whitelist!`);
     }
@@ -515,7 +574,6 @@ async function runPoCExtraction() {
     const filePath = path.resolve(contentDir, t.file);
     const html = (await mammoth.convertToHtml({ path: filePath })).value;
 
-    // Use H1 block splitting for exact H1 header matching
     const h1Blocks = html.split(/<h1[^>]*>/i);
     let titleHeading = '';
     let startPos = -1;
@@ -545,12 +603,10 @@ async function runPoCExtraction() {
     const drillHtml = html.slice(startPos, endPos);
     const textBetweenBoundaries = cleanText(drillHtml);
 
-    // Count source paragraphs, tables, lists
     const pMatches = drillHtml.match(/<p[^>]*>([\s\S]*?)<\/p>/gi) || [];
     const tableMatches = drillHtml.match(/<table[^>]*>([\s\S]*?)<\/table>/gi) || [];
     const liMatches = drillHtml.match(/<li[^>]*>([\s\S]*?)<\/li>/gi) || [];
 
-    // Extract section blocks by h2 headings
     const sectionMap = {};
     const sections = drillHtml.split(/<h2[^>]*>/i);
 
@@ -614,10 +670,8 @@ async function runPoCExtraction() {
     record.searchTokens = generateSearchTokens(record);
     record.searchTextNormalised = `${record.id} ${record.title} ${record.category} ${record.primarySkill} ${record.objective}`.toLowerCase();
 
-    // Nested Schema Validation
     const nestedSchemaErrors = validateNestedSchema(record);
 
-    // Field Integrity Verification
     const fieldChecks = {};
     const warnings = [];
 
@@ -657,7 +711,6 @@ async function runPoCExtraction() {
 
     const serializedBytes = Buffer.byteLength(JSON.stringify(record), 'utf8');
 
-    // 100 KB Warning Rule & Critical Limit Check
     if (serializedBytes > WARN_SIZE_BYTES) {
       warnings.push(`Record size (${(serializedBytes / 1024).toFixed(2)} KB) exceeds 100 KB warning threshold`);
     }
@@ -665,7 +718,6 @@ async function runPoCExtraction() {
       warnings.push(`CRITICAL: Record size (${(serializedBytes / 1024).toFixed(2)} KB) approaches 1 MB Firestore document limit!`);
     }
 
-    // Automated Array Count Assertions (14 Arrays)
     const arrayLengths = {
       secondarySkills: record.secondarySkills.length,
       equipment: record.equipment.length,
@@ -726,6 +778,8 @@ async function runPoCExtraction() {
     chapterWhitelistVerified: true,
     nestedSchemaValidationPassed: true,
     automatedArrayCountAssertionsPassed: true,
+    orderingAssertionsPassed: true,
+    chapterManifest: AFL_CHAPTER_MANIFEST,
     totalWarningsCount: totalWarningsCount,
     status: totalWarningsCount === 0 ? 'COMPLETE_ZERO_WARNINGS' : 'COMPLETE_WITH_WARNINGS',
     drills: extractedRecords,
@@ -745,7 +799,7 @@ async function runPoCExtraction() {
   mdContent += `**Whitelist Verification**: PASSED (Only whitelisted 16 chapter DOCX files processed; compilation volumes excluded)\n`;
   mdContent += `**Nested Schema Validation**: PASSED (All sub-properties validated: players, groundSize, time, physicalLoad, mentalLoad, contact, coachingDifficulty)\n`;
   mdContent += `**Automated Array Count Assertions**: PASSED (100% match between Markdown table counts and JSON array lengths across all 14 arrays)\n`;
-  mdContent += `**Canonical Ordering Verification**: PASSED (chapterOrder and globalOrder calculated deterministically)\n`;
+  mdContent += `**Canonical Ordering Validation**: PASSED (1,610 unique globalOrder entries 1..1610 calculated via AFL_CHAPTER_MANIFEST)\n`;
   mdContent += `**Total Warnings Count**: ${totalWarningsCount}\n`;
   mdContent += `**Extraction Status**: ${jsonReport.status}\n\n`;
   mdContent += `---\n\n`;

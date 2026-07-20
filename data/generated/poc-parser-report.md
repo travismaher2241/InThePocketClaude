@@ -1,11 +1,11 @@
 # AFL Drill Library DOCX Parser — Proof of Concept Report
 
-**Generated At**: 2026-07-20T12:26:51.045Z
+**Generated At**: 2026-07-20T12:30:58.357Z
 **Sample Count**: 7 distinct drill records
 **Whitelist Verification**: PASSED (Only whitelisted 16 chapter DOCX files processed; compilation volumes excluded)
 **Nested Schema Validation**: PASSED (All sub-properties validated: players, groundSize, time, physicalLoad, mentalLoad, contact, coachingDifficulty)
 **Automated Array Count Assertions**: PASSED (100% match between Markdown table counts and JSON array lengths across all 14 arrays)
-**Canonical Ordering Verification**: PASSED (chapterOrder and globalOrder calculated deterministically)
+**Canonical Ordering Validation**: PASSED (1,610 unique globalOrder entries 1..1610 calculated via AFL_CHAPTER_MANIFEST)
 **Total Warnings Count**: 0
 **Extraction Status**: COMPLETE_ZERO_WARNINGS
 
@@ -357,7 +357,7 @@
   "libraryVersion": "afl-library-v1",
   "importBatchId": "batch-poc-001",
   "contentVersion": 1,
-  "importedAt": "2026-07-20T12:26:37.883Z",
+  "importedAt": "2026-07-20T12:30:45.461Z",
   "isCanonical": true
 }
 ```
@@ -730,7 +730,7 @@
   "libraryVersion": "afl-library-v1",
   "importBatchId": "batch-poc-001",
   "contentVersion": 1,
-  "importedAt": "2026-07-20T12:26:40.270Z",
+  "importedAt": "2026-07-20T12:30:47.900Z",
   "isCanonical": true
 }
 ```
@@ -741,7 +741,7 @@
 
 - **Source File**: `Chapter 3 - Marking.docx`
 - **Source Heading**: `MK-045 – High-Ball Mark Under Contact`
-- **Canonical Ordering**: `chapterOrder: 45`, `globalOrder: 295`
+- **Canonical Ordering**: `chapterOrder: 45`, `globalOrder: 315`
 - **Category**: Marking
 - **Primary Skill**: Completing a high mark while absorbing controlled body contact
 - **Secondary Skills**: High-point marking, Jump timing, Core stability, Landing balance, Strong hands, Ball security
@@ -1104,11 +1104,11 @@
   "sourceFile": "Chapter 3 - Marking.docx",
   "sourceHeading": "MK-045 – High-Ball Mark Under Contact",
   "chapterOrder": 45,
-  "globalOrder": 295,
+  "globalOrder": 315,
   "libraryVersion": "afl-library-v1",
   "importBatchId": "batch-poc-001",
   "contentVersion": 1,
-  "importedAt": "2026-07-20T12:26:42.937Z",
+  "importedAt": "2026-07-20T12:30:50.244Z",
   "isCanonical": true
 }
 ```
@@ -1119,7 +1119,7 @@
 
 - **Source File**: `Chapter 5 - Tackling and Pressure.docx`
 - **Source Heading**: `TK-020 – Tackling Fundamentals Assessment Circuit`
-- **Canonical Ordering**: `chapterOrder: 20`, `globalOrder: 450`
+- **Canonical Ordering**: `chapterOrder: 20`, `globalOrder: 530`
 - **Category**: Tackling and Pressure
 - **Primary Skill**: Assessment of introductory tackling fundamentals
 - **Secondary Skills**: Tracking, Approach angle, Deceleration, Legal contact, Head placement, Arm wrapping, Recovery effort, Defensive decision making
@@ -1521,11 +1521,11 @@
   "sourceFile": "Chapter 5 - Tackling and Pressure.docx",
   "sourceHeading": "TK-020 – Tackling Fundamentals Assessment Circuit",
   "chapterOrder": 20,
-  "globalOrder": 450,
+  "globalOrder": 530,
   "libraryVersion": "afl-library-v1",
   "importBatchId": "batch-poc-001",
   "contentVersion": 1,
-  "importedAt": "2026-07-20T12:26:45.350Z",
+  "importedAt": "2026-07-20T12:30:52.605Z",
   "isCanonical": true
 }
 ```
@@ -1536,7 +1536,7 @@
 
 - **Source File**: `Chapter 14 - Small-Sided Games.docx`
 - **Source Heading**: `SG-010 – Small-Sided Game Fundamentals Assessment`
-- **Canonical Ordering**: `chapterOrder: 10`, `globalOrder: 1200`
+- **Canonical Ordering**: `chapterOrder: 10`, `globalOrder: 1360`
 - **Category**: Small-Sided Games
 - **Primary Skill**: Integrated small-sided-game performance
 - **Secondary Skills**: Directional ball movement, Support and spacing, Scoring-zone awareness, Turnover transition, Tactical decision making, Team communication
@@ -1926,11 +1926,11 @@
   "sourceFile": "Chapter 14 - Small-Sided Games.docx",
   "sourceHeading": "SG-010 – Small-Sided Game Fundamentals Assessment",
   "chapterOrder": 10,
-  "globalOrder": 1200,
+  "globalOrder": 1360,
   "libraryVersion": "afl-library-v1",
   "importBatchId": "batch-poc-001",
   "contentVersion": 1,
-  "importedAt": "2026-07-20T12:26:47.412Z",
+  "importedAt": "2026-07-20T12:30:54.648Z",
   "isCanonical": true
 }
 ```
@@ -2349,7 +2349,7 @@
   "libraryVersion": "afl-library-v1",
   "importBatchId": "batch-poc-001",
   "contentVersion": 1,
-  "importedAt": "2026-07-20T12:26:49.758Z",
+  "importedAt": "2026-07-20T12:30:57.036Z",
   "isCanonical": true
 }
 ```
@@ -2802,7 +2802,7 @@
   "libraryVersion": "afl-library-v1",
   "importBatchId": "batch-poc-001",
   "contentVersion": 1,
-  "importedAt": "2026-07-20T12:26:51.043Z",
+  "importedAt": "2026-07-20T12:30:58.354Z",
   "isCanonical": true
 }
 ```
