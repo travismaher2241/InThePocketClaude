@@ -1134,9 +1134,9 @@ async function runFullExtraction() {
         chapterOrder: chapterOrder,
         globalOrder: globalOrder,
         libraryVersion: 'afl-library-v1',
-        importBatchId: 'batch-prod-001',
+        importBatchId: null,
         contentVersion: 1,
-        importedAt: new Date().toISOString(),
+        importedAt: null,
         isCanonical: true
       };
 
@@ -1249,6 +1249,7 @@ async function runFullExtraction() {
   let sourceAbsentSemanticDefaultCount = 0;
   let sourceAbsentNonEmptyValueCount = 0;
   let sourceAbsentInvalidRepresentationCount = 0;
+  let sourcePresentIncorrectlyEmptyCount = 0;
 
   allExtractedDrills.forEach(record => {
     const provs = drillFieldProvenances.get(record.id);
@@ -1487,14 +1488,182 @@ async function runFullExtraction() {
   });
 
   // Assertion check
-  if (sourceAbsentSemanticDefaultCount !== 0 || sourceAbsentNonEmptyValueCount !== 0 || sourceAbsentInvalidRepresentationCount !== 0) {
+  if (sourceAbsentSemanticDefaultCount !== 0 || sourceAbsentNonEmptyValueCount !== 0 || sourceAbsentInvalidRepresentationCount !== 0 || sourcePresentIncorrectlyEmptyCount !== 0) {
     console.error("AUDIT FAILURE DETAILS:");
     console.error("sourceAbsentSemanticDefaultCount:", sourceAbsentSemanticDefaultCount);
     console.error("sourceAbsentNonEmptyValueCount:", sourceAbsentNonEmptyValueCount);
     console.error("sourceAbsentInvalidRepresentationCount:", sourceAbsentInvalidRepresentationCount);
+    console.error("sourcePresentIncorrectlyEmptyCount:", sourcePresentIncorrectlyEmptyCount);
     console.error("First 10 detections:", JSON.stringify(semanticDefaultDetections.slice(0, 10), null, 2));
     throw new Error('Assertion failed: source absent validation is not zero');
   }
+
+  // Import Metadata Null Audits
+  let importBatchIdNullCount = 0;
+  let importedAtNullCount = 0;
+  let nonNullImportBatchIdCount = 0;
+  let nonNullImportedAtCount = 0;
+  let libraryVersionValidCount = 0;
+  let contentVersionValidCount = 0;
+  let isCanonicalValidCount = 0;
+
+  allExtractedDrills.forEach(record => {
+    if (record.importBatchId === null) importBatchIdNullCount++;
+    else nonNullImportBatchIdCount++;
+
+    if (record.importedAt === null) importedAtNullCount++;
+    else nonNullImportedAtCount++;
+
+    if (record.libraryVersion === "afl-library-v1") libraryVersionValidCount++;
+    if (record.contentVersion === 1) contentVersionValidCount++;
+    if (record.isCanonical === true) isCanonicalValidCount++;
+  });
+
+  if (allExtractedDrills.length !== 1610) throw new Error('Assertion failed: drill count is not 1610');
+  if (importBatchIdNullCount !== 1610) throw new Error('Assertion failed: importBatchId null count is not 1610');
+  if (importedAtNullCount !== 1610) throw new Error('Assertion failed: importedAt null count is not 1610');
+  if (nonNullImportBatchIdCount !== 0) throw new Error('Assertion failed: nonNullImportBatchIdCount is not zero');
+  if (nonNullImportedAtCount !== 0) throw new Error('Assertion failed: nonNullImportedAtCount is not zero');
+  if (libraryVersionValidCount !== 1610) throw new Error('Assertion failed: libraryVersion mismatch');
+  if (contentVersionValidCount !== 1610) throw new Error('Assertion failed: contentVersion mismatch');
+  if (isCanonicalValidCount !== 1610) throw new Error('Assertion failed: isCanonical mismatch');
+
+  // Source-Absent IDs Arrays population and validation
+  const sourceAbsentIdsByField = {
+    ageGroups: [],
+    players: [],
+    groundSize: [],
+    time: [],
+    physicalLoad: [],
+    mentalLoad: [],
+    contact: [],
+    coachingDifficulty: [],
+    sessionPlacement: [],
+    category: [],
+    primarySkill: [],
+    secondarySkills: [],
+    skillLevel: [],
+    equipment: [],
+    setup: [],
+    instructions: [],
+    coachingPoints: [],
+    coachingCues: [],
+    observations: [],
+    commonErrors: [],
+    progressions: [],
+    regressions: [],
+    successIndicators: [],
+    matchApplication: [],
+    relatedDrills: []
+  };
+
+  allExtractedDrills.forEach(record => {
+    const provs = drillFieldProvenances.get(record.id);
+    Object.keys(sourceAbsentIdsByField).forEach(field => {
+      if (provs[field] === 'SOURCE_ABSENT') {
+        sourceAbsentIdsByField[field].push(record.id);
+      }
+    });
+  });
+
+  sourcePresentIncorrectlyEmptyCount = 0;
+  allExtractedDrills.forEach(record => {
+    const provs = drillFieldProvenances.get(record.id);
+    Object.keys(provs).forEach(field => {
+      if (provs[field] !== 'SOURCE_ABSENT') {
+        let isEmpty = false;
+        if (field === 'ageGroups') {
+          isEmpty = Object.values(record.ageGroups).every(v => v === null);
+        } else if (field === 'players') {
+          isEmpty = (record.players.minimum === null && record.players.idealMinimum === null && record.players.idealMaximum === null && record.players.maximum === null && record.players.maximumLabel === null);
+        } else if (field === 'groundSize') {
+          isEmpty = (record.groundSize.description === "" && record.groundSize.lengthMeters === null && record.groundSize.widthMeters === null);
+        } else if (field === 'time') {
+          isEmpty = (record.time.minimumMinutes === null && record.time.recommendedMinutes === null && record.time.maximumMinutes === null && record.time.raw === null);
+        } else if (field === 'physicalLoad') {
+          isEmpty = (record.physicalLoad.rating === null && record.physicalLoad.description === "");
+        } else if (field === 'mentalLoad') {
+          isEmpty = (record.mentalLoad.rating === null && record.mentalLoad.description === "");
+        } else if (field === 'contact') {
+          isEmpty = (record.contact.minimumRating === null && record.contact.maximumRating === null && record.contact.recommendedRating === null && record.contact.description === "" && record.contact.raw === "");
+        } else if (field === 'coachingDifficulty') {
+          isEmpty = (record.coachingDifficulty.rating === null && record.coachingDifficulty.description === "");
+        } else if (Array.isArray(record[field])) {
+          isEmpty = record[field].length === 0;
+        } else {
+          isEmpty = record[field] === "";
+        }
+        if (isEmpty) {
+          const sectionMap = drillSectionMaps.get(record.id) || {};
+          let isExplicitlyEmptyInSource = false;
+          if (field === 'commonErrors') {
+            const html = sectionMap['Common Errors'] || '';
+            if (!html.includes('<tr')) {
+              isExplicitlyEmptyInSource = true;
+            }
+          } else if (field === 'matchApplication') {
+            const html = sectionMap['Match Application'] || '';
+            if (cleanText(html) === "") {
+              isExplicitlyEmptyInSource = true;
+            }
+          } else {
+            const sectionKey = KNOWN_SECTION_HEADINGS.find(h => h.toLowerCase() === field.toLowerCase() || (field === 'observations' && h === 'What the Coach Should Observe') || (field === 'instructions' && h === 'How the Drill Works') || (field === 'sessionPlacement' && h === 'Session Placement') || (field === 'secondarySkills' && h === 'Secondary Skills') || (field === 'skillLevel' && h === 'Skill Level') || (field === 'successIndicators' && h === 'Success Indicators') || (field === 'coachingPoints' && h === 'Coaching Points') || (field === 'coachingCues' && h === 'Coaching Cues') || (field === 'commonErrors' && h === 'Common Errors') || (field === 'progressions' && h === 'Progressions') || (field === 'regressions' && h === 'Regressions'));
+            if (sectionKey && sectionMap[sectionKey] !== undefined) {
+              if (cleanText(sectionMap[sectionKey]) === "") {
+                isExplicitlyEmptyInSource = true;
+              }
+            }
+          }
+
+          if (!isExplicitlyEmptyInSource) {
+            sourcePresentIncorrectlyEmptyCount++;
+          }
+        }
+      }
+    });
+  });
+
+  Object.keys(sourceAbsentIdsByField).forEach(field => {
+    const idsList = sourceAbsentIdsByField[field];
+    if (idsList.length !== provenanceTotals[field].SOURCE_ABSENT) {
+      throw new Error(`Assertion failed: source absent ID count mismatch for ${field}`);
+    }
+
+    const seenIds = new Set();
+    idsList.forEach(id => {
+      const exists = allExtractedDrills.some(d => d.id === id);
+      if (!exists) throw new Error(`Assertion failed: ID ${id} does not exist in dataset`);
+
+      if (seenIds.has(id)) throw new Error(`Assertion failed: ID ${id} is duplicated in ${field}`);
+      seenIds.add(id);
+
+      const rec = allExtractedDrills.find(d => d.id === id);
+      let isCorrectRepr = false;
+      if (field === 'ageGroups') {
+        isCorrectRepr = Object.values(rec.ageGroups).every(v => v === null);
+      } else if (field === 'players') {
+        isCorrectRepr = (rec.players.minimum === null && rec.players.idealMinimum === null && rec.players.idealMaximum === null && rec.players.maximum === null && rec.players.maximumLabel === null);
+      } else if (field === 'groundSize') {
+        isCorrectRepr = (rec.groundSize.description === "" && rec.groundSize.lengthMeters === null && rec.groundSize.widthMeters === null);
+      } else if (field === 'time') {
+        isCorrectRepr = (rec.time.minimumMinutes === null && rec.time.recommendedMinutes === null && rec.time.maximumMinutes === null && rec.time.raw === null);
+      } else if (field === 'physicalLoad') {
+        isCorrectRepr = (rec.physicalLoad.rating === null && rec.physicalLoad.description === "");
+      } else if (field === 'mentalLoad') {
+        isCorrectRepr = (rec.mentalLoad.rating === null && rec.mentalLoad.description === "");
+      } else if (field === 'contact') {
+        isCorrectRepr = (rec.contact.minimumRating === null && rec.contact.maximumRating === null && rec.contact.recommendedRating === null && rec.contact.description === "" && rec.contact.raw === "");
+      } else if (field === 'coachingDifficulty') {
+        isCorrectRepr = (rec.coachingDifficulty.rating === null && rec.coachingDifficulty.description === "");
+      } else if (Array.isArray(rec[field])) {
+        isCorrectRepr = rec[field].length === 0;
+      } else {
+        isCorrectRepr = rec[field] === "";
+      }
+
+      if (!isCorrectRepr) throw new Error(`Assertion failed: ID ${id} field ${field} does not use approved source-absent representation`);
+    });
+  });
 
   // Canonical metadata audit
   let chapterIdMismatchCount = 0;
@@ -1572,10 +1741,12 @@ async function runFullExtraction() {
       incorrectAcceptedEarlyOccurrences: totalIncorrectEarlyHeadingSelections
     },
     semanticDefaultDetections: semanticDefaultDetections,
+    sourceAbsentIdsByField: sourceAbsentIdsByField,
     sourceAbsentAudit: {
       sourceAbsentSemanticDefaultCount,
       sourceAbsentNonEmptyValueCount,
-      sourceAbsentInvalidRepresentationCount
+      sourceAbsentInvalidRepresentationCount,
+      sourcePresentIncorrectlyEmptyCount
     },
     canonicalMetadataAudit: {
       chapterIdMismatchCount,
@@ -1642,12 +1813,26 @@ async function runFullExtraction() {
   mdContent += `- **sourceAbsentSemanticDefaultCount**: ${sourceAbsentSemanticDefaultCount}\n`;
   mdContent += `- **sourceAbsentNonEmptyValueCount**: ${sourceAbsentNonEmptyValueCount}\n`;
   mdContent += `- **sourceAbsentInvalidRepresentationCount**: ${sourceAbsentInvalidRepresentationCount}\n`;
+  mdContent += `- **sourcePresentIncorrectlyEmptyCount**: ${sourcePresentIncorrectlyEmptyCount}\n`;
   mdContent += `- **chapterIdMismatchCount**: ${chapterIdMismatchCount}\n`;
   mdContent += `- **chapterNameMismatchCount**: ${chapterNameMismatchCount}\n`;
   mdContent += `- **sourceFileMismatchCount**: ${sourceFileMismatchCount}\n`;
   mdContent += `- **prefixMismatchCount**: ${prefixMismatchCount}\n`;
   mdContent += `- **chapterOrderMismatchCount**: ${chapterOrderMismatchCount}\n`;
-  mdContent += `- **globalOrderMismatchCount**: ${globalOrderMismatchCount}\n\n`;
+  mdContent += `- **globalOrderMismatchCount**: ${globalOrderMismatchCount}\n`;
+  mdContent += `- **importBatchIdNullCount**: ${importBatchIdNullCount} / 1610\n`;
+  mdContent += `- **importedAtNullCount**: ${importedAtNullCount} / 1610\n\n`;
+
+  mdContent += `### Count-Versus-Array-Length Validation Table\n\n`;
+  mdContent += `| Field Name | Reported SOURCE_ABSENT Count | Exact ID Array Length | Match Status |\n`;
+  mdContent += `| :--- | :---: | :---: | :--- |\n`;
+  Object.keys(sourceAbsentIdsByField).forEach(field => {
+    const ptCount = provenanceTotals[field].SOURCE_ABSENT || 0;
+    const arrayLen = sourceAbsentIdsByField[field].length;
+    const matchStatus = ptCount === arrayLen ? "**MATCHED**" : "**MISMATCHED**";
+    mdContent += `| \`${field}\` | ${ptCount} | ${arrayLen} | ${matchStatus} |\n`;
+  });
+  mdContent += `\n`;
 
   mdContent += `## 4. Provenance Totals by Field\n\n`;
   mdContent += `| Field Name | NORMALISED_SOURCE | SOURCE_ABSENT | STRUCTURED_FROM_SOURCE | APPROVED_METADATA | DERIVED_FALLBACK | PARSER_FAILURE | Status |\n`;

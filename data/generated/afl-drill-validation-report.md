@@ -1,10 +1,10 @@
 # AFL Coaching Reference Library — Final Provenance & Heading Identity Audit Report
 
-**Generated At**: 2026-07-20T22:31:04.936Z
+**Generated At**: 2026-07-20T22:44:34.650Z
 **Total Extracted Records**: 1610 / 1,610 drills (100% Complete)
 **Exact Committed Heading Regex**: `/^([A-Z]{2}-\d{3})\s*[\u2013\-]\s*(.+)$/` (`^` and `$` anchored, mandatory separator dash)
-**Actual File Size on Disk**: 14.11 MB (14794362 bytes)
-**Compact Dataset Size**: 10.88 MB (11409831 bytes)
+**Actual File Size on Disk**: 14.06 MB (14739622 bytes)
+**Compact Dataset Size**: 10.83 MB (11355091 bytes)
 **Derived Fallback Count (Coaching Content)**: 0 | **Parser Failure Count**: 0
 **Phase 3 Status**: PASSED_ALL_CHECKS
 
@@ -32,12 +32,45 @@
 - **sourceAbsentSemanticDefaultCount**: 0
 - **sourceAbsentNonEmptyValueCount**: 0
 - **sourceAbsentInvalidRepresentationCount**: 0
+- **sourcePresentIncorrectlyEmptyCount**: 0
 - **chapterIdMismatchCount**: 0
 - **chapterNameMismatchCount**: 0
 - **sourceFileMismatchCount**: 0
 - **prefixMismatchCount**: 0
 - **chapterOrderMismatchCount**: 0
 - **globalOrderMismatchCount**: 0
+- **importBatchIdNullCount**: 1610 / 1610
+- **importedAtNullCount**: 1610 / 1610
+
+### Count-Versus-Array-Length Validation Table
+
+| Field Name | Reported SOURCE_ABSENT Count | Exact ID Array Length | Match Status |
+| :--- | :---: | :---: | :--- |
+| `ageGroups` | 23 | 23 | **MATCHED** |
+| `players` | 22 | 22 | **MATCHED** |
+| `groundSize` | 22 | 22 | **MATCHED** |
+| `time` | 23 | 23 | **MATCHED** |
+| `physicalLoad` | 23 | 23 | **MATCHED** |
+| `mentalLoad` | 23 | 23 | **MATCHED** |
+| `contact` | 25 | 25 | **MATCHED** |
+| `coachingDifficulty` | 36 | 36 | **MATCHED** |
+| `sessionPlacement` | 36 | 36 | **MATCHED** |
+| `category` | 10 | 10 | **MATCHED** |
+| `primarySkill` | 7 | 7 | **MATCHED** |
+| `secondarySkills` | 8 | 8 | **MATCHED** |
+| `skillLevel` | 33 | 33 | **MATCHED** |
+| `equipment` | 23 | 23 | **MATCHED** |
+| `setup` | 8 | 8 | **MATCHED** |
+| `instructions` | 35 | 35 | **MATCHED** |
+| `coachingPoints` | 9 | 9 | **MATCHED** |
+| `coachingCues` | 23 | 23 | **MATCHED** |
+| `observations` | 35 | 35 | **MATCHED** |
+| `commonErrors` | 25 | 25 | **MATCHED** |
+| `progressions` | 26 | 26 | **MATCHED** |
+| `regressions` | 26 | 26 | **MATCHED** |
+| `successIndicators` | 33 | 33 | **MATCHED** |
+| `matchApplication` | 9 | 9 | **MATCHED** |
+| `relatedDrills` | 62 | 62 | **MATCHED** |
 
 ## 4. Provenance Totals by Field
 
