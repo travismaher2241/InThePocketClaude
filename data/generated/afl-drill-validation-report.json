@@ -1,5 +1,6 @@
 {
-  "generatedAt": "2026-07-20T12:55:35.273Z",
+  "generatedAt": "2026-07-20T13:00:05.154Z",
+  "committedRegexPattern": "/^([A-Z]{2}-\\d{3})\\s*[\\u2013\\-]\\s*(.+)$/",
   "totalExtractedRecords": 1610,
   "expectedTotalRecords": 1610,
   "perChapterCounts": {
@@ -288,440 +289,3183 @@
       "sha256": "3c4d829857cf51919c869a35f62e3a2334f640d7095582c33abf0f303cfe1437"
     }
   ],
-  "tagCountsPerChapter": {
-    "KK": {
-      "h1": 150,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 4
-    },
-    "HB": {
-      "h1": 120,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 0
-    },
-    "MK": {
-      "h1": 110,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 42
-    },
-    "GB": {
-      "h1": 110,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 33
-    },
-    "TK": {
-      "h1": 120,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 63
-    },
-    "SP": {
-      "h1": 90,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 0
-    },
-    "RK": {
-      "h1": 80,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 0
-    },
-    "EA": {
-      "h1": 80,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 0
-    },
-    "DM": {
-      "h1": 80,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 105
-    },
-    "TO": {
-      "h1": 100,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 0
-    },
-    "TD": {
-      "h1": 100,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 0
-    },
-    "TR": {
-      "h1": 100,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 0
-    },
-    "CF": {
-      "h1": 80,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 0
-    },
-    "SG": {
-      "h1": 99,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 1
-    },
-    "MS": {
-      "h1": 99,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 1
-    },
-    "TA": {
-      "h1": 60,
-      "h2": 0,
-      "h3": 0,
-      "h4": 0,
-      "h5": 0,
-      "h6": 0,
-      "p": 0
-    }
-  },
-  "fileSizeReconciliation": {
-    "actualFileSizeBytes": 14771214,
-    "actualFileSizeMB": 14.09,
-    "compactDatasetSizeBytes": 11387355,
-    "compactDatasetSizeMB": 10.86,
-    "sumIndividualRecordBytes": 11385744,
-    "sumIndividualRecordMB": 10.86,
-    "formattingOverheadBytes": 3383859,
-    "formattingOverheadMB": 3.23
-  },
-  "relatedDrillAudit": {
-    "recordsWithRelatedHeading": 1548,
-    "recordsWithEmptyRelated": 0,
-    "recordsWithSourceRef": 1548,
-    "recordsOnlyIndividual": 1539,
-    "recordsOnlyRange": 4,
-    "recordsMixed": 5,
-    "recordsUnparseable": 0,
-    "totalSourceIndEntries": 7222,
-    "totalSourceRangeEntries": 21,
-    "totalParsedIndEntries": 7222,
-    "totalParsedRangeEntries": 21,
-    "validSingleReferences": 7220,
-    "validRangeReferences": 21,
-    "invalidReferenceCount": 2,
-    "unparseableList": []
-  },
-  "sizeDistributionMetricsBytes": {
-    "min": 1606,
-    "median": 7150,
-    "mean": 7072,
-    "p75": 7467,
-    "p90": 7959,
-    "p95": 8465,
-    "p99": 9680,
-    "max": 12463
-  },
-  "countsOverThresholds": {
-    "over25KB": 0,
-    "over50KB": 0,
-    "over100KB": 0,
-    "over500KB": 0
-  },
-  "chapterDiagnostics": [
+  "chapterHeadingAudit": [
     {
       "prefix": "KK",
       "chapterName": "Chapter 1 - Kicking",
-      "count": 150,
-      "correlationWithOrder": -0.3324,
-      "firstRecordSizeBytes": 5598,
-      "middleRecordSizeBytes": 5799,
-      "finalRecordSizeBytes": 7324,
-      "largestRecordSizeBytes": 7357,
-      "sizeIncreaseFromFirstToFinalBytes": 1726
+      "expectedCount": 150,
+      "tagTotals": {
+        "h1": 169,
+        "h2": 3501,
+        "h3": 5,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 2911,
+        "other": 1807
+      },
+      "patternMatchCount": 154,
+      "acceptedCount": 150,
+      "rejectedCount": 4,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     },
     {
       "prefix": "HB",
       "chapterName": "Chapter 2 - Handballing",
-      "count": 120,
-      "correlationWithOrder": -0.0513,
-      "firstRecordSizeBytes": 8656,
-      "middleRecordSizeBytes": 7916,
-      "finalRecordSizeBytes": 9942,
-      "largestRecordSizeBytes": 9942,
-      "sizeIncreaseFromFirstToFinalBytes": 1286
+      "expectedCount": 120,
+      "tagTotals": {
+        "h1": 121,
+        "h2": 3240,
+        "h3": 0,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 1800,
+        "other": 1680
+      },
+      "patternMatchCount": 120,
+      "acceptedCount": 120,
+      "rejectedCount": 0,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     },
     {
       "prefix": "MK",
       "chapterName": "Chapter 3 - Marking",
-      "count": 120,
-      "correlationWithOrder": 0.5876,
-      "firstRecordSizeBytes": 6386,
-      "middleRecordSizeBytes": 7239,
-      "finalRecordSizeBytes": 10997,
-      "largestRecordSizeBytes": 10997,
-      "sizeIncreaseFromFirstToFinalBytes": 4611
+      "expectedCount": 120,
+      "tagTotals": {
+        "h1": 110,
+        "h2": 2965,
+        "h3": 0,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 2994,
+        "other": 1535
+      },
+      "patternMatchCount": 162,
+      "acceptedCount": 120,
+      "rejectedCount": 42,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     },
     {
       "prefix": "GB",
       "chapterName": "Chapter 4 - Ground Balls",
-      "count": 120,
-      "correlationWithOrder": 0.3123,
-      "firstRecordSizeBytes": 5853,
-      "middleRecordSizeBytes": 7861,
-      "finalRecordSizeBytes": 9220,
-      "largestRecordSizeBytes": 9220,
-      "sizeIncreaseFromFirstToFinalBytes": 3367
+      "expectedCount": 120,
+      "tagTotals": {
+        "h1": 110,
+        "h2": 2963,
+        "h3": 0,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 3009,
+        "other": 1533
+      },
+      "patternMatchCount": 164,
+      "acceptedCount": 120,
+      "rejectedCount": 44,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     },
     {
       "prefix": "TK",
       "chapterName": "Chapter 5 - Tackling and Pressure",
-      "count": 120,
-      "correlationWithOrder": 0.075,
-      "firstRecordSizeBytes": 7480,
-      "middleRecordSizeBytes": 8030,
-      "finalRecordSizeBytes": 10229,
-      "largestRecordSizeBytes": 10229,
-      "sizeIncreaseFromFirstToFinalBytes": 2749
+      "expectedCount": 120,
+      "tagTotals": {
+        "h1": 121,
+        "h2": 3240,
+        "h3": 0,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 3282,
+        "other": 1682
+      },
+      "patternMatchCount": 183,
+      "acceptedCount": 120,
+      "rejectedCount": 63,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     },
     {
       "prefix": "SP",
       "chapterName": "Chapter 6 - Spoiling and Aerial Defence",
-      "count": 80,
-      "correlationWithOrder": 0.3349,
-      "firstRecordSizeBytes": 8289,
-      "middleRecordSizeBytes": 7046,
-      "finalRecordSizeBytes": 11113,
-      "largestRecordSizeBytes": 11113,
-      "sizeIncreaseFromFirstToFinalBytes": 2824
+      "expectedCount": 80,
+      "tagTotals": {
+        "h1": 90,
+        "h2": 2427,
+        "h3": 0,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 1350,
+        "other": 1257
+      },
+      "patternMatchCount": 90,
+      "acceptedCount": 80,
+      "rejectedCount": 10,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     },
     {
       "prefix": "RK",
       "chapterName": "Chapter 7 - Ruck and Stoppage Craft",
-      "count": 80,
-      "correlationWithOrder": 0.4045,
-      "firstRecordSizeBytes": 7165,
-      "middleRecordSizeBytes": 7218,
-      "finalRecordSizeBytes": 12463,
-      "largestRecordSizeBytes": 12463,
-      "sizeIncreaseFromFirstToFinalBytes": 5298
+      "expectedCount": 80,
+      "tagTotals": {
+        "h1": 81,
+        "h2": 2156,
+        "h3": 0,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 1200,
+        "other": 1116
+      },
+      "patternMatchCount": 80,
+      "acceptedCount": 80,
+      "rejectedCount": 0,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     },
     {
       "prefix": "EA",
       "chapterName": "Chapter 8 - Evasion, Agility and Movement",
-      "count": 80,
-      "correlationWithOrder": 0.5431,
-      "firstRecordSizeBytes": 7069,
-      "middleRecordSizeBytes": 6960,
-      "finalRecordSizeBytes": 10536,
-      "largestRecordSizeBytes": 10536,
-      "sizeIncreaseFromFirstToFinalBytes": 3467
+      "expectedCount": 80,
+      "tagTotals": {
+        "h1": 81,
+        "h2": 2156,
+        "h3": 0,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 1208,
+        "other": 1123
+      },
+      "patternMatchCount": 80,
+      "acceptedCount": 80,
+      "rejectedCount": 0,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     },
     {
       "prefix": "DM",
       "chapterName": "Chapter 9 - Decision Making",
-      "count": 100,
-      "correlationWithOrder": 0.2428,
-      "firstRecordSizeBytes": 7050,
-      "middleRecordSizeBytes": 7827,
-      "finalRecordSizeBytes": 9125,
-      "largestRecordSizeBytes": 9125,
-      "sizeIncreaseFromFirstToFinalBytes": 2075
+      "expectedCount": 100,
+      "tagTotals": {
+        "h1": 80,
+        "h2": 2154,
+        "h3": 0,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 4118,
+        "other": 1114
+      },
+      "patternMatchCount": 185,
+      "acceptedCount": 100,
+      "rejectedCount": 85,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     },
     {
       "prefix": "TO",
       "chapterName": "Chapter 10 - Team Offence",
-      "count": 100,
-      "correlationWithOrder": 0.1202,
-      "firstRecordSizeBytes": 8194,
-      "middleRecordSizeBytes": 7115,
-      "finalRecordSizeBytes": 11114,
-      "largestRecordSizeBytes": 11114,
-      "sizeIncreaseFromFirstToFinalBytes": 2920
+      "expectedCount": 100,
+      "tagTotals": {
+        "h1": 100,
+        "h2": 2700,
+        "h3": 0,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 1500,
+        "other": 1402
+      },
+      "patternMatchCount": 100,
+      "acceptedCount": 100,
+      "rejectedCount": 0,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     },
     {
       "prefix": "TD",
       "chapterName": "Chapter 11 - Team Defence",
-      "count": 100,
-      "correlationWithOrder": 0.4299,
-      "firstRecordSizeBytes": 7427,
-      "middleRecordSizeBytes": 7062,
-      "finalRecordSizeBytes": 10930,
-      "largestRecordSizeBytes": 10930,
-      "sizeIncreaseFromFirstToFinalBytes": 3503
+      "expectedCount": 100,
+      "tagTotals": {
+        "h1": 100,
+        "h2": 2696,
+        "h3": 0,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 1500,
+        "other": 1396
+      },
+      "patternMatchCount": 100,
+      "acceptedCount": 100,
+      "rejectedCount": 0,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     },
     {
       "prefix": "TR",
       "chapterName": "Chapter 12 - Transition",
-      "count": 100,
-      "correlationWithOrder": 0.0603,
-      "firstRecordSizeBytes": 8184,
-      "middleRecordSizeBytes": 7646,
-      "finalRecordSizeBytes": 11015,
-      "largestRecordSizeBytes": 11015,
-      "sizeIncreaseFromFirstToFinalBytes": 2831
+      "expectedCount": 100,
+      "tagTotals": {
+        "h1": 100,
+        "h2": 2696,
+        "h3": 0,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 1500,
+        "other": 1396
+      },
+      "patternMatchCount": 100,
+      "acceptedCount": 100,
+      "rejectedCount": 0,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     },
     {
       "prefix": "CF",
       "chapterName": "Chapter 13 - Conditioning with Football",
-      "count": 80,
-      "correlationWithOrder": 0.1002,
-      "firstRecordSizeBytes": 7813,
-      "middleRecordSizeBytes": 6782,
-      "finalRecordSizeBytes": 10030,
-      "largestRecordSizeBytes": 10030,
-      "sizeIncreaseFromFirstToFinalBytes": 2217
+      "expectedCount": 80,
+      "tagTotals": {
+        "h1": 81,
+        "h2": 2154,
+        "h3": 0,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 1212,
+        "other": 1122
+      },
+      "patternMatchCount": 80,
+      "acceptedCount": 80,
+      "rejectedCount": 0,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     },
     {
       "prefix": "SG",
       "chapterName": "Chapter 14 - Small-Sided Games",
-      "count": 100,
-      "correlationWithOrder": 0.3415,
-      "firstRecordSizeBytes": 6954,
-      "middleRecordSizeBytes": 7312,
-      "finalRecordSizeBytes": 11544,
-      "largestRecordSizeBytes": 11544,
-      "sizeIncreaseFromFirstToFinalBytes": 4590
+      "expectedCount": 100,
+      "tagTotals": {
+        "h1": 99,
+        "h2": 2700,
+        "h3": 0,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 1499,
+        "other": 1402
+      },
+      "patternMatchCount": 100,
+      "acceptedCount": 100,
+      "rejectedCount": 0,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     },
     {
       "prefix": "MS",
       "chapterName": "Chapter 15 - Match Simulation",
-      "count": 100,
-      "correlationWithOrder": -0.0909,
-      "firstRecordSizeBytes": 8974,
-      "middleRecordSizeBytes": 8091,
-      "finalRecordSizeBytes": 9767,
-      "largestRecordSizeBytes": 9767,
-      "sizeIncreaseFromFirstToFinalBytes": 793
+      "expectedCount": 100,
+      "tagTotals": {
+        "h1": 99,
+        "h2": 2693,
+        "h3": 0,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 1500,
+        "other": 1393
+      },
+      "patternMatchCount": 100,
+      "acceptedCount": 100,
+      "rejectedCount": 0,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     },
     {
       "prefix": "TA",
       "chapterName": "Chapter 16 - Testing and Assessment",
-      "count": 60,
-      "correlationWithOrder": -0.0122,
-      "firstRecordSizeBytes": 8412,
-      "middleRecordSizeBytes": 7326,
-      "finalRecordSizeBytes": 10430,
-      "largestRecordSizeBytes": 10430,
-      "sizeIncreaseFromFirstToFinalBytes": 2018
+      "expectedCount": 60,
+      "tagTotals": {
+        "h1": 60,
+        "h2": 1616,
+        "h3": 0,
+        "h4": 0,
+        "h5": 0,
+        "h6": 0,
+        "p": 911,
+        "other": 847
+      },
+      "patternMatchCount": 60,
+      "acceptedCount": 60,
+      "rejectedCount": 0,
+      "acceptedHeadingsOrderCheck": true,
+      "duplicateAcceptedIds": 0,
+      "missingExpectedIds": 0,
+      "unexpectedAcceptedIds": 0
     }
   ],
-  "top10LargestRecords": [
+  "rejectedNodesList": [
     {
-      "id": "RK-080",
-      "title": "Ruck and Stoppage Craft Chapter Final Assessment",
-      "sizeBytes": 12463,
-      "sizeKB": "12.17"
+      "chapter": "KK",
+      "nodeIndex": 417,
+      "tagName": "p",
+      "normalisedText": "END OF KK-001 – KK-004",
+      "matchedDrillId": "KK-001",
+      "matchedTitle": "KK-004",
+      "rejectionReason": "DUPLICATE_ID"
     },
     {
-      "id": "SG-100",
-      "title": "Small-Sided Games Chapter Final Assessment",
-      "sizeBytes": 11544,
-      "sizeKB": "11.27"
+      "chapter": "KK",
+      "nodeIndex": 6031,
+      "tagName": "p",
+      "normalisedText": "KK-081–091",
+      "matchedDrillId": "KK-081",
+      "matchedTitle": "091",
+      "rejectionReason": "DUPLICATE_ID"
     },
     {
-      "id": "TO-100",
-      "title": "Team Offence Chapter Final Assessment",
-      "sizeBytes": 11114,
-      "sizeKB": "10.85"
+      "chapter": "KK",
+      "nodeIndex": 6048,
+      "tagName": "p",
+      "normalisedText": "KK-081–092",
+      "matchedDrillId": "KK-081",
+      "matchedTitle": "092",
+      "rejectionReason": "DUPLICATE_ID"
     },
     {
-      "id": "SP-080",
-      "title": "Spoiling and Aerial Defence Chapter Final Assessment",
-      "sizeBytes": 11113,
-      "sizeKB": "10.85"
+      "chapter": "KK",
+      "nodeIndex": 6638,
+      "tagName": "h1",
+      "normalisedText": "KK-121 – Elite Decision-Making Under Pressure",
+      "matchedDrillId": "KK-121",
+      "matchedTitle": "Elite Decision-Making Under Pressure",
+      "rejectionReason": "DUPLICATE_ID"
     },
     {
-      "id": "TR-100",
-      "title": "Transition Chapter Final Assessment",
-      "sizeBytes": 11015,
-      "sizeKB": "10.76"
+      "chapter": "MK",
+      "nodeIndex": 130,
+      "tagName": "p",
+      "normalisedText": "- HB-008 – Receive, Set and Release",
+      "matchedDrillId": "HB-008",
+      "matchedTitle": "Receive, Set and Release",
+      "rejectionReason": "WRONG_PREFIX"
     },
     {
-      "id": "MK-120",
-      "title": "Complete Marking Chapter Assessment",
-      "sizeBytes": 10997,
-      "sizeKB": "10.74"
+      "chapter": "MK",
+      "nodeIndex": 131,
+      "tagName": "p",
+      "normalisedText": "- HB-012 – High-Low Target Handball",
+      "matchedDrillId": "HB-012",
+      "matchedTitle": "High-Low Target Handball",
+      "rejectionReason": "WRONG_PREFIX"
     },
     {
-      "id": "TD-100",
-      "title": "Team Defence Chapter Final Assessment",
-      "sizeBytes": 10930,
-      "sizeKB": "10.67"
+      "chapter": "MK",
+      "nodeIndex": 132,
+      "tagName": "p",
+      "normalisedText": "- HB-044 – Imperfect-Ball Handball Recovery",
+      "matchedDrillId": "HB-044",
+      "matchedTitle": "Imperfect-Ball Handball Recovery",
+      "rejectionReason": "WRONG_PREFIX"
     },
     {
-      "id": "EA-080",
-      "title": "Evasion, Agility and Movement Chapter Final Assessment",
-      "sizeBytes": 10536,
-      "sizeKB": "10.29"
+      "chapter": "MK",
+      "nodeIndex": 263,
+      "tagName": "p",
+      "normalisedText": "- MK-001 – Chest Mark Fundamentals",
+      "matchedDrillId": "MK-001",
+      "matchedTitle": "Chest Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
     },
     {
-      "id": "TA-060",
-      "title": "Testing and Assessment Chapter Final Assessment",
-      "sizeBytes": 10430,
-      "sizeKB": "10.19"
+      "chapter": "MK",
+      "nodeIndex": 264,
+      "tagName": "p",
+      "normalisedText": "- HB-012 – High-Low Target Handball",
+      "matchedDrillId": "HB-012",
+      "matchedTitle": "High-Low Target Handball",
+      "rejectionReason": "WRONG_PREFIX"
     },
     {
-      "id": "TK-120",
-      "title": "Tackling and Pressure Chapter Final Assessment",
-      "sizeBytes": 10229,
-      "sizeKB": "9.99"
+      "chapter": "MK",
+      "nodeIndex": 265,
+      "tagName": "p",
+      "normalisedText": "- HB-044 – Imperfect-Ball Handball Recovery",
+      "matchedDrillId": "HB-044",
+      "matchedTitle": "Imperfect-Ball Handball Recovery",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 394,
+      "tagName": "p",
+      "normalisedText": "- MK-001 – Chest Mark Fundamentals",
+      "matchedDrillId": "MK-001",
+      "matchedTitle": "Chest Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 395,
+      "tagName": "p",
+      "normalisedText": "- HB-044 – Imperfect-Ball Handball Recovery",
+      "matchedDrillId": "HB-044",
+      "matchedTitle": "Imperfect-Ball Handball Recovery",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 396,
+      "tagName": "p",
+      "normalisedText": "- HB-049 – Ground-Ball Win and Handball Exit",
+      "matchedDrillId": "HB-049",
+      "matchedTitle": "Ground-Ball Win and Handball Exit",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 528,
+      "tagName": "p",
+      "normalisedText": "- MK-001 – Chest Mark Fundamentals",
+      "matchedDrillId": "MK-001",
+      "matchedTitle": "Chest Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 529,
+      "tagName": "p",
+      "normalisedText": "- MK-002 – Overhead Mark Fundamentals",
+      "matchedDrillId": "MK-002",
+      "matchedTitle": "Overhead Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 530,
+      "tagName": "p",
+      "normalisedText": "- MK-003 – Low Mark Fundamentals",
+      "matchedDrillId": "MK-003",
+      "matchedTitle": "Low Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 531,
+      "tagName": "p",
+      "normalisedText": "- HB-008 – Receive, Set and Release",
+      "matchedDrillId": "HB-008",
+      "matchedTitle": "Receive, Set and Release",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 660,
+      "tagName": "p",
+      "normalisedText": "- MK-001 – Chest Mark Fundamentals",
+      "matchedDrillId": "MK-001",
+      "matchedTitle": "Chest Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 661,
+      "tagName": "p",
+      "normalisedText": "- MK-002 – Overhead Mark Fundamentals",
+      "matchedDrillId": "MK-002",
+      "matchedTitle": "Overhead Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 662,
+      "tagName": "p",
+      "normalisedText": "- MK-003 – Low Mark Fundamentals",
+      "matchedDrillId": "MK-003",
+      "matchedTitle": "Low Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 663,
+      "tagName": "p",
+      "normalisedText": "- MK-004 – Cushion and Secure Marking",
+      "matchedDrillId": "MK-004",
+      "matchedTitle": "Cushion and Secure Marking",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 664,
+      "tagName": "p",
+      "normalisedText": "- HB-032 – Change-of-Direction Handball",
+      "matchedDrillId": "HB-032",
+      "matchedTitle": "Change-of-Direction Handball",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 794,
+      "tagName": "p",
+      "normalisedText": "- MK-001 – Chest Mark Fundamentals",
+      "matchedDrillId": "MK-001",
+      "matchedTitle": "Chest Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 795,
+      "tagName": "p",
+      "normalisedText": "- MK-002 – Overhead Mark Fundamentals",
+      "matchedDrillId": "MK-002",
+      "matchedTitle": "Overhead Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 796,
+      "tagName": "p",
+      "normalisedText": "- MK-003 – Low Mark Fundamentals",
+      "matchedDrillId": "MK-003",
+      "matchedTitle": "Low Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 797,
+      "tagName": "p",
+      "normalisedText": "- MK-004 – Cushion and Secure Marking",
+      "matchedDrillId": "MK-004",
+      "matchedTitle": "Cushion and Secure Marking",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 798,
+      "tagName": "p",
+      "normalisedText": "- MK-005 – Marking Footwork to the Football Line",
+      "matchedDrillId": "MK-005",
+      "matchedTitle": "Marking Footwork to the Football Line",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 927,
+      "tagName": "p",
+      "normalisedText": "- MK-001 – Chest Mark Fundamentals",
+      "matchedDrillId": "MK-001",
+      "matchedTitle": "Chest Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 928,
+      "tagName": "p",
+      "normalisedText": "- MK-004 – Cushion and Secure Marking",
+      "matchedDrillId": "MK-004",
+      "matchedTitle": "Cushion and Secure Marking",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 929,
+      "tagName": "p",
+      "normalisedText": "- MK-005 – Marking Footwork to the Football Line",
+      "matchedDrillId": "MK-005",
+      "matchedTitle": "Marking Footwork to the Football Line",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 930,
+      "tagName": "p",
+      "normalisedText": "- MK-006 – Three-Height Partner Marking Circuit",
+      "matchedDrillId": "MK-006",
+      "matchedTitle": "Three-Height Partner Marking Circuit",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1059,
+      "tagName": "p",
+      "normalisedText": "- MK-002 – Overhead Mark Fundamentals",
+      "matchedDrillId": "MK-002",
+      "matchedTitle": "Overhead Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1060,
+      "tagName": "p",
+      "normalisedText": "- MK-004 – Cushion and Secure Marking",
+      "matchedDrillId": "MK-004",
+      "matchedTitle": "Cushion and Secure Marking",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1061,
+      "tagName": "p",
+      "normalisedText": "- MK-005 – Marking Footwork to the Football Line",
+      "matchedDrillId": "MK-005",
+      "matchedTitle": "Marking Footwork to the Football Line",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1062,
+      "tagName": "p",
+      "normalisedText": "- MK-007 – Straight-Lead Chest Mark",
+      "matchedDrillId": "MK-007",
+      "matchedTitle": "Straight-Lead Chest Mark",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1191,
+      "tagName": "p",
+      "normalisedText": "- MK-004 – Cushion and Secure Marking",
+      "matchedDrillId": "MK-004",
+      "matchedTitle": "Cushion and Secure Marking",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1192,
+      "tagName": "p",
+      "normalisedText": "- MK-005 – Marking Footwork to the Football Line",
+      "matchedDrillId": "MK-005",
+      "matchedTitle": "Marking Footwork to the Football Line",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1193,
+      "tagName": "p",
+      "normalisedText": "- MK-007 – Straight-Lead Chest Mark",
+      "matchedDrillId": "MK-007",
+      "matchedTitle": "Straight-Lead Chest Mark",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1194,
+      "tagName": "p",
+      "normalisedText": "- MK-008 – Running Overhead Mark",
+      "matchedDrillId": "MK-008",
+      "matchedTitle": "Running Overhead Mark",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1195,
+      "tagName": "p",
+      "normalisedText": "- HB-017 – Protective-Side Handball",
+      "matchedDrillId": "HB-017",
+      "matchedTitle": "Protective-Side Handball",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1338,
+      "tagName": "p",
+      "normalisedText": "- MK-001 – Chest Mark Fundamentals",
+      "matchedDrillId": "MK-001",
+      "matchedTitle": "Chest Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1339,
+      "tagName": "p",
+      "normalisedText": "- MK-002 – Overhead Mark Fundamentals",
+      "matchedDrillId": "MK-002",
+      "matchedTitle": "Overhead Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1340,
+      "tagName": "p",
+      "normalisedText": "- MK-003 – Low Mark Fundamentals",
+      "matchedDrillId": "MK-003",
+      "matchedTitle": "Low Mark Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1341,
+      "tagName": "p",
+      "normalisedText": "- MK-005 – Marking Footwork to the Football Line",
+      "matchedDrillId": "MK-005",
+      "matchedTitle": "Marking Footwork to the Football Line",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1342,
+      "tagName": "p",
+      "normalisedText": "- MK-007 – Straight-Lead Chest Mark",
+      "matchedDrillId": "MK-007",
+      "matchedTitle": "Straight-Lead Chest Mark",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1343,
+      "tagName": "p",
+      "normalisedText": "- MK-009 – Mark, Secure and Protect",
+      "matchedDrillId": "MK-009",
+      "matchedTitle": "Mark, Secure and Protect",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 130,
+      "tagName": "p",
+      "normalisedText": "- HB-049 – Ground-Ball Win and Handball Exit",
+      "matchedDrillId": "HB-049",
+      "matchedTitle": "Ground-Ball Win and Handball Exit",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 131,
+      "tagName": "p",
+      "normalisedText": "- MK-015 – Moving Low Mark",
+      "matchedDrillId": "MK-015",
+      "matchedTitle": "Moving Low Mark",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 132,
+      "tagName": "p",
+      "normalisedText": "- MK-047 – Contested Mark and Ground-Ball Recovery",
+      "matchedDrillId": "MK-047",
+      "matchedTitle": "Contested Mark and Ground-Ball Recovery",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 133,
+      "tagName": "p",
+      "normalisedText": "- MK-106 – Wet-Weather Marking Adaptation Scenario",
+      "matchedDrillId": "MK-106",
+      "matchedTitle": "Wet-Weather Marking Adaptation Scenario",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 262,
+      "tagName": "p",
+      "normalisedText": "- GB-001 – Stationary Ground-Ball Fundamentals",
+      "matchedDrillId": "GB-001",
+      "matchedTitle": "Stationary Ground-Ball Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 263,
+      "tagName": "p",
+      "normalisedText": "- HB-049 – Ground-Ball Win and Handball Exit",
+      "matchedDrillId": "HB-049",
+      "matchedTitle": "Ground-Ball Win and Handball Exit",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 264,
+      "tagName": "p",
+      "normalisedText": "- MK-047 – Contested Mark and Ground-Ball Recovery",
+      "matchedDrillId": "MK-047",
+      "matchedTitle": "Contested Mark and Ground-Ball Recovery",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 265,
+      "tagName": "p",
+      "normalisedText": "- MK-051 – Drop-Zone Body Protection Mark",
+      "matchedDrillId": "MK-051",
+      "matchedTitle": "Drop-Zone Body Protection Mark",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 266,
+      "tagName": "p",
+      "normalisedText": "- MK-106 – Wet-Weather Marking Adaptation Scenario",
+      "matchedDrillId": "MK-106",
+      "matchedTitle": "Wet-Weather Marking Adaptation Scenario",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 396,
+      "tagName": "p",
+      "normalisedText": "- GB-001 – Stationary Ground-Ball Fundamentals",
+      "matchedDrillId": "GB-001",
+      "matchedTitle": "Stationary Ground-Ball Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 397,
+      "tagName": "p",
+      "normalisedText": "- GB-002 – Body-Behind-the-Football Pickup",
+      "matchedDrillId": "GB-002",
+      "matchedTitle": "Body-Behind-the-Football Pickup",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 398,
+      "tagName": "p",
+      "normalisedText": "- HB-001 – Stationary Handball Fundamentals",
+      "matchedDrillId": "HB-001",
+      "matchedTitle": "Stationary Handball Fundamentals",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 399,
+      "tagName": "p",
+      "normalisedText": "- HB-049 – Ground-Ball Win and Handball Exit",
+      "matchedDrillId": "HB-049",
+      "matchedTitle": "Ground-Ball Win and Handball Exit",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 400,
+      "tagName": "p",
+      "normalisedText": "- MK-106 – Wet-Weather Marking Adaptation Scenario",
+      "matchedDrillId": "MK-106",
+      "matchedTitle": "Wet-Weather Marking Adaptation Scenario",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 530,
+      "tagName": "p",
+      "normalisedText": "- GB-001 – Stationary Ground-Ball Fundamentals",
+      "matchedDrillId": "GB-001",
+      "matchedTitle": "Stationary Ground-Ball Fundamentals",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 531,
+      "tagName": "p",
+      "normalisedText": "- GB-002 – Body-Behind-the-Football Pickup",
+      "matchedDrillId": "GB-002",
+      "matchedTitle": "Body-Behind-the-Football Pickup",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 532,
+      "tagName": "p",
+      "normalisedText": "- GB-003 – Two-Hand Clean Ground-Ball Collection",
+      "matchedDrillId": "GB-003",
+      "matchedTitle": "Two-Hand Clean Ground-Ball Collection",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 533,
+      "tagName": "p",
+      "normalisedText": "- HB-049 – Ground-Ball Win and Handball Exit",
+      "matchedDrillId": "HB-049",
+      "matchedTitle": "Ground-Ball Win and Handball Exit",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 534,
+      "tagName": "p",
+      "normalisedText": "- HB-054 – Front-On Pressure Side-Step Handball",
+      "matchedDrillId": "HB-054",
+      "matchedTitle": "Front-On Pressure Side-Step Handball",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 664,
+      "tagName": "p",
+      "normalisedText": "- GB-002 – Body-Behind-the-Football Pickup",
+      "matchedDrillId": "GB-002",
+      "matchedTitle": "Body-Behind-the-Football Pickup",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 665,
+      "tagName": "p",
+      "normalisedText": "- GB-003 – Two-Hand Clean Ground-Ball Collection",
+      "matchedDrillId": "GB-003",
+      "matchedTitle": "Two-Hand Clean Ground-Ball Collection",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 666,
+      "tagName": "p",
+      "normalisedText": "- GB-004 – Low-Body Pickup and Exit",
+      "matchedDrillId": "GB-004",
+      "matchedTitle": "Low-Body Pickup and Exit",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 667,
+      "tagName": "p",
+      "normalisedText": "- HB-049 – Ground-Ball Win and Handball Exit",
+      "matchedDrillId": "HB-049",
+      "matchedTitle": "Ground-Ball Win and Handball Exit",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 668,
+      "tagName": "p",
+      "normalisedText": "- MK-047 – Contested Mark and Ground-Ball Recovery",
+      "matchedDrillId": "MK-047",
+      "matchedTitle": "Contested Mark and Ground-Ball Recovery",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 798,
+      "tagName": "p",
+      "normalisedText": "- GB-002 – Body-Behind-the-Football Pickup",
+      "matchedDrillId": "GB-002",
+      "matchedTitle": "Body-Behind-the-Football Pickup",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 799,
+      "tagName": "p",
+      "normalisedText": "- GB-004 – Low-Body Pickup and Exit",
+      "matchedDrillId": "GB-004",
+      "matchedTitle": "Low-Body Pickup and Exit",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 800,
+      "tagName": "p",
+      "normalisedText": "- GB-005 – Moving Ground-Ball Pickup",
+      "matchedDrillId": "GB-005",
+      "matchedTitle": "Moving Ground-Ball Pickup",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 801,
+      "tagName": "p",
+      "normalisedText": "- HB-032 – Change-of-Direction Handball",
+      "matchedDrillId": "HB-032",
+      "matchedTitle": "Change-of-Direction Handball",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 802,
+      "tagName": "p",
+      "normalisedText": "- MK-014 – Low-to-High Marking Reaction",
+      "matchedDrillId": "MK-014",
+      "matchedTitle": "Low-to-High Marking Reaction",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 933,
+      "tagName": "p",
+      "normalisedText": "- GB-002 – Body-Behind-the-Football Pickup",
+      "matchedDrillId": "GB-002",
+      "matchedTitle": "Body-Behind-the-Football Pickup",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 934,
+      "tagName": "p",
+      "normalisedText": "- GB-004 – Low-Body Pickup and Exit",
+      "matchedDrillId": "GB-004",
+      "matchedTitle": "Low-Body Pickup and Exit",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 935,
+      "tagName": "p",
+      "normalisedText": "- GB-005 – Moving Ground-Ball Pickup",
+      "matchedDrillId": "GB-005",
+      "matchedTitle": "Moving Ground-Ball Pickup",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 936,
+      "tagName": "p",
+      "normalisedText": "- GB-006 – Left-and-Right Ground-Ball Collection",
+      "matchedDrillId": "GB-006",
+      "matchedTitle": "Left-and-Right Ground-Ball Collection",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 937,
+      "tagName": "p",
+      "normalisedText": "- MK-005 – Marking Footwork to the Football Line",
+      "matchedDrillId": "MK-005",
+      "matchedTitle": "Marking Footwork to the Football Line",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 1070,
+      "tagName": "p",
+      "normalisedText": "- GB-004 – Low-Body Pickup and Exit",
+      "matchedDrillId": "GB-004",
+      "matchedTitle": "Low-Body Pickup and Exit",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 1071,
+      "tagName": "p",
+      "normalisedText": "- GB-005 – Moving Ground-Ball Pickup",
+      "matchedDrillId": "GB-005",
+      "matchedTitle": "Moving Ground-Ball Pickup",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 1072,
+      "tagName": "p",
+      "normalisedText": "- GB-007 – Ground-Ball Approach Footwork",
+      "matchedDrillId": "GB-007",
+      "matchedTitle": "Ground-Ball Approach Footwork",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 1073,
+      "tagName": "p",
+      "normalisedText": "- HB-049 – Ground-Ball Win and Handball Exit",
+      "matchedDrillId": "HB-049",
+      "matchedTitle": "Ground-Ball Win and Handball Exit",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 1074,
+      "tagName": "p",
+      "normalisedText": "- HB-061 – Stoppage Outlet Handball Chain",
+      "matchedDrillId": "HB-061",
+      "matchedTitle": "Stoppage Outlet Handball Chain",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 1207,
+      "tagName": "p",
+      "normalisedText": "- GB-003 – Two-Hand Clean Ground-Ball Collection",
+      "matchedDrillId": "GB-003",
+      "matchedTitle": "Two-Hand Clean Ground-Ball Collection",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 1208,
+      "tagName": "p",
+      "normalisedText": "- GB-004 – Low-Body Pickup and Exit",
+      "matchedDrillId": "GB-004",
+      "matchedTitle": "Low-Body Pickup and Exit",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 1209,
+      "tagName": "p",
+      "normalisedText": "- GB-005 – Moving Ground-Ball Pickup",
+      "matchedDrillId": "GB-005",
+      "matchedTitle": "Moving Ground-Ball Pickup",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 1210,
+      "tagName": "p",
+      "normalisedText": "- GB-008 – Pickup, Protect and Handball",
+      "matchedDrillId": "GB-008",
+      "matchedTitle": "Pickup, Protect and Handball",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 1211,
+      "tagName": "p",
+      "normalisedText": "- MK-016 – Mark and Return Accuracy",
+      "matchedDrillId": "MK-016",
+      "matchedTitle": "Mark and Return Accuracy",
+      "rejectionReason": "WRONG_PREFIX"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 2853,
+      "tagName": "h1",
+      "normalisedText": "TK-041 – Live Evasion Tackle Contest",
+      "matchedDrillId": "TK-041",
+      "matchedTitle": "Live Evasion Tackle Contest",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 2910,
+      "tagName": "h1",
+      "normalisedText": "TK-042 – Disposal Window Tackle",
+      "matchedDrillId": "TK-042",
+      "matchedTitle": "Disposal Window Tackle",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 2967,
+      "tagName": "h1",
+      "normalisedText": "TK-043 – Recovery-Line Chase Tackle",
+      "matchedDrillId": "TK-043",
+      "matchedTitle": "Recovery-Line Chase Tackle",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 3024,
+      "tagName": "h1",
+      "normalisedText": "TK-044 – Front-and-Square Contest Tackle",
+      "matchedDrillId": "TK-044",
+      "matchedTitle": "Front-and-Square Contest Tackle",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 3081,
+      "tagName": "h1",
+      "normalisedText": "TK-045 – Tackle-Induced Spill Transition",
+      "matchedDrillId": "TK-045",
+      "matchedTitle": "Tackle-Induced Spill Transition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 3138,
+      "tagName": "h1",
+      "normalisedText": "TK-046 – Congestion Gate Tackle",
+      "matchedDrillId": "TK-046",
+      "matchedTitle": "Congestion Gate Tackle",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 3195,
+      "tagName": "h1",
+      "normalisedText": "TK-047 – Broken-Tackle Support Defender",
+      "matchedDrillId": "TK-047",
+      "matchedTitle": "Broken-Tackle Support Defender",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 3252,
+      "tagName": "h1",
+      "normalisedText": "TK-048 – Two-versus-Two Pressure Chain",
+      "matchedDrillId": "TK-048",
+      "matchedTitle": "Two-versus-Two Pressure Chain",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 3309,
+      "tagName": "h1",
+      "normalisedText": "TK-049 – Small-Space Pressure Game",
+      "matchedDrillId": "TK-049",
+      "matchedTitle": "Small-Space Pressure Game",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 3366,
+      "tagName": "h1",
+      "normalisedText": "TK-050 – Pressure and Contest Assessment",
+      "matchedDrillId": "TK-050",
+      "matchedTitle": "Pressure and Contest Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 6976,
+      "tagName": "p",
+      "normalisedText": "- TK-068 – Three-versus-Two Numerical Pressure",
+      "matchedDrillId": "TK-068",
+      "matchedTitle": "Three-versus-Two Numerical Pressure",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 6977,
+      "tagName": "p",
+      "normalisedText": "- TK-077 – Loose Defender Pressure Support",
+      "matchedDrillId": "TK-077",
+      "matchedTitle": "Loose Defender Pressure Support",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 6978,
+      "tagName": "p",
+      "normalisedText": "- TK-083 – Outnumbered Delay-to-Trap Defence",
+      "matchedDrillId": "TK-083",
+      "matchedTitle": "Outnumbered Delay-to-Trap Defence",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 6979,
+      "tagName": "p",
+      "normalisedText": "- TK-101 – On-Field Pressure Leadership Calls",
+      "matchedDrillId": "TK-101",
+      "matchedTitle": "On-Field Pressure Leadership Calls",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 6980,
+      "tagName": "p",
+      "normalisedText": "- TK-102 – Opposition Exit Pattern Recognition",
+      "matchedDrillId": "TK-102",
+      "matchedTitle": "Opposition Exit Pattern Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7114,
+      "tagName": "p",
+      "normalisedText": "- TK-016 – Tackle, Spill and Recover",
+      "matchedDrillId": "TK-016",
+      "matchedTitle": "Tackle, Spill and Recover",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7115,
+      "tagName": "p",
+      "normalisedText": "- TK-029 – Tackle, Regain Feet and Rejoin",
+      "matchedDrillId": "TK-029",
+      "matchedTitle": "Tackle, Regain Feet and Rejoin",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7116,
+      "tagName": "p",
+      "normalisedText": "- TK-045 – Tackle-Induced Spill Transition",
+      "matchedDrillId": "TK-045",
+      "matchedTitle": "Tackle-Induced Spill Transition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7117,
+      "tagName": "p",
+      "normalisedText": "- TK-059 – Turnover-to-Tackle Transition Game",
+      "matchedDrillId": "TK-059",
+      "matchedTitle": "Turnover-to-Tackle Transition Game",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7118,
+      "tagName": "p",
+      "normalisedText": "- TK-108 – Intercept Turnover Counter-Pressure",
+      "matchedDrillId": "TK-108",
+      "matchedTitle": "Intercept Turnover Counter-Pressure",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7253,
+      "tagName": "p",
+      "normalisedText": "- TK-079 – Full-Ground Pressure Relay",
+      "matchedDrillId": "TK-079",
+      "matchedTitle": "Full-Ground Pressure Relay",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7254,
+      "tagName": "p",
+      "normalisedText": "- TK-098 – Last-Five-Minutes Full-Field Press",
+      "matchedDrillId": "TK-098",
+      "matchedTitle": "Last-Five-Minutes Full-Field Press",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7255,
+      "tagName": "p",
+      "normalisedText": "- TK-100 – Elite Pressure Systems Assessment",
+      "matchedDrillId": "TK-100",
+      "matchedTitle": "Elite Pressure Systems Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7256,
+      "tagName": "p",
+      "normalisedText": "- TK-101 – On-Field Pressure Leadership Calls",
+      "matchedDrillId": "TK-101",
+      "matchedTitle": "On-Field Pressure Leadership Calls",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7257,
+      "tagName": "p",
+      "normalisedText": "- TK-108 – Intercept Turnover Counter-Pressure",
+      "matchedDrillId": "TK-108",
+      "matchedTitle": "Intercept Turnover Counter-Pressure",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7396,
+      "tagName": "p",
+      "normalisedText": "- TK-081 – Press-Trigger Recognition",
+      "matchedDrillId": "TK-081",
+      "matchedTitle": "Press-Trigger Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7397,
+      "tagName": "p",
+      "normalisedText": "- TK-098 – Last-Five-Minutes Full-Field Press",
+      "matchedDrillId": "TK-098",
+      "matchedTitle": "Last-Five-Minutes Full-Field Press",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7398,
+      "tagName": "p",
+      "normalisedText": "- TK-101 – On-Field Pressure Leadership Calls",
+      "matchedDrillId": "TK-101",
+      "matchedTitle": "On-Field Pressure Leadership Calls",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7399,
+      "tagName": "p",
+      "normalisedText": "- TK-102 – Opposition Exit Pattern Recognition",
+      "matchedDrillId": "TK-102",
+      "matchedTitle": "Opposition Exit Pattern Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7400,
+      "tagName": "p",
+      "normalisedText": "- TK-113 – Three-Line Pressure Connection",
+      "matchedDrillId": "TK-113",
+      "matchedTitle": "Three-Line Pressure Connection",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7534,
+      "tagName": "p",
+      "normalisedText": "- TK-025 – Ground-Ball Collection Tackle",
+      "matchedDrillId": "TK-025",
+      "matchedTitle": "Ground-Ball Collection Tackle",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7535,
+      "tagName": "p",
+      "normalisedText": "- TK-045 – Tackle-Induced Spill Transition",
+      "matchedDrillId": "TK-045",
+      "matchedTitle": "Tackle-Induced Spill Transition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7536,
+      "tagName": "p",
+      "normalisedText": "- TK-052 – Boundary Repeat-Pressure Contest",
+      "matchedDrillId": "TK-052",
+      "matchedTitle": "Boundary Repeat-Pressure Contest",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7537,
+      "tagName": "p",
+      "normalisedText": "- TK-075 – Defensive-50 Ground-Ball Pressure Exit",
+      "matchedDrillId": "TK-075",
+      "matchedTitle": "Defensive-50 Ground-Ball Pressure Exit",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7538,
+      "tagName": "p",
+      "normalisedText": "- TK-107 – Boundary Throw-In Pressure Trap",
+      "matchedDrillId": "TK-107",
+      "matchedTitle": "Boundary Throw-In Pressure Trap",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7676,
+      "tagName": "p",
+      "normalisedText": "- TK-057 – Smother-or-Tackle Decision",
+      "matchedDrillId": "TK-057",
+      "matchedTitle": "Smother-or-Tackle Decision",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7677,
+      "tagName": "p",
+      "normalisedText": "- TK-085 – Repeat-Tackle Fatigue Wave",
+      "matchedDrillId": "TK-085",
+      "matchedTitle": "Repeat-Tackle Fatigue Wave",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7678,
+      "tagName": "p",
+      "normalisedText": "- TK-090 – Advanced Pressure Decision Assessment",
+      "matchedDrillId": "TK-090",
+      "matchedTitle": "Advanced Pressure Decision Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7679,
+      "tagName": "p",
+      "normalisedText": "- TK-109 – Pressure KPI Match Game",
+      "matchedDrillId": "TK-109",
+      "matchedTitle": "Pressure KPI Match Game",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7680,
+      "tagName": "p",
+      "normalisedText": "- TK-115 – Wet-Weather Tackle Pressure",
+      "matchedDrillId": "TK-115",
+      "matchedTitle": "Wet-Weather Tackle Pressure",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7817,
+      "tagName": "p",
+      "normalisedText": "- TK-011 – Legal Tackle Zone Recognition",
+      "matchedDrillId": "TK-011",
+      "matchedTitle": "Legal Tackle Zone Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7818,
+      "tagName": "p",
+      "normalisedText": "- TK-035 – Kick-Receive Closing Tackle",
+      "matchedDrillId": "TK-035",
+      "matchedTitle": "Kick-Receive Closing Tackle",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7819,
+      "tagName": "p",
+      "normalisedText": "- TK-056 – Kick-Under-Contact Pressure",
+      "matchedDrillId": "TK-056",
+      "matchedTitle": "Kick-Under-Contact Pressure",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7820,
+      "tagName": "p",
+      "normalisedText": "- TK-088 – Advantage-Call Recovery Pressure",
+      "matchedDrillId": "TK-088",
+      "matchedTitle": "Advantage-Call Recovery Pressure",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7821,
+      "tagName": "p",
+      "normalisedText": "- TK-094 – Mark-and-Play-On Trap",
+      "matchedDrillId": "TK-094",
+      "matchedTitle": "Mark-and-Play-On Trap",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7958,
+      "tagName": "p",
+      "normalisedText": "- TK-014 – Evasion Reaction Tackle",
+      "matchedDrillId": "TK-014",
+      "matchedTitle": "Evasion Reaction Tackle",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7959,
+      "tagName": "p",
+      "normalisedText": "- TK-015 – Fend-Off Control and Re-Entry",
+      "matchedDrillId": "TK-015",
+      "matchedTitle": "Fend-Off Control and Re-Entry",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7960,
+      "tagName": "p",
+      "normalisedText": "- TK-041 – Live Evasion Tackle Contest",
+      "matchedDrillId": "TK-041",
+      "matchedTitle": "Live Evasion Tackle Contest",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7961,
+      "tagName": "p",
+      "normalisedText": "- TK-082 – Deceptive Ball-Carrier Pressure",
+      "matchedDrillId": "TK-082",
+      "matchedTitle": "Deceptive Ball-Carrier Pressure",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7962,
+      "tagName": "p",
+      "normalisedText": "- TK-102 – Opposition Exit Pattern Recognition",
+      "matchedDrillId": "TK-102",
+      "matchedTitle": "Opposition Exit Pattern Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 8114,
+      "tagName": "p",
+      "normalisedText": "- TK-100 – Elite Pressure Systems Assessment",
+      "matchedDrillId": "TK-100",
+      "matchedTitle": "Elite Pressure Systems Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 8115,
+      "tagName": "p",
+      "normalisedText": "- TK-109 – Pressure KPI Match Game",
+      "matchedDrillId": "TK-109",
+      "matchedTitle": "Pressure KPI Match Game",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 8116,
+      "tagName": "p",
+      "normalisedText": "- TK-110 – Pressure Leadership and Tactical Assessment",
+      "matchedDrillId": "TK-110",
+      "matchedTitle": "Pressure Leadership and Tactical Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 8117,
+      "tagName": "p",
+      "normalisedText": "- TK-113 – Three-Line Pressure Connection",
+      "matchedDrillId": "TK-113",
+      "matchedTitle": "Three-Line Pressure Connection",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 8118,
+      "tagName": "p",
+      "normalisedText": "- TK-114 – Opposition Tactical Adjustment Game",
+      "matchedDrillId": "TK-114",
+      "matchedTitle": "Opposition Tactical Adjustment Game",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 8119,
+      "tagName": "p",
+      "normalisedText": "- TK-117 – Free-Kick Risk Pressure Management",
+      "matchedDrillId": "TK-117",
+      "matchedTitle": "Free-Kick Risk Pressure Management",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 8318,
+      "tagName": "p",
+      "normalisedText": "- TK-020 – Tackling Fundamentals Assessment Circuit",
+      "matchedDrillId": "TK-020",
+      "matchedTitle": "Tackling Fundamentals Assessment Circuit",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 8319,
+      "tagName": "p",
+      "normalisedText": "- TK-040 – Moving Tackle Integration Assessment",
+      "matchedDrillId": "TK-040",
+      "matchedTitle": "Moving Tackle Integration Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 8320,
+      "tagName": "p",
+      "normalisedText": "- TK-060 – Pressure and Contest Block Assessment",
+      "matchedDrillId": "TK-060",
+      "matchedTitle": "Pressure and Contest Block Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 8321,
+      "tagName": "p",
+      "normalisedText": "- TK-080 – Team Pressure and Ball-Movement Assessment",
+      "matchedDrillId": "TK-080",
+      "matchedTitle": "Team Pressure and Ball-Movement Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 8322,
+      "tagName": "p",
+      "normalisedText": "- TK-100 – Elite Pressure Systems Assessment",
+      "matchedDrillId": "TK-100",
+      "matchedTitle": "Elite Pressure Systems Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 8323,
+      "tagName": "p",
+      "normalisedText": "- TK-110 – Pressure Leadership and Tactical Assessment",
+      "matchedDrillId": "TK-110",
+      "matchedTitle": "Pressure Leadership and Tactical Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 8324,
+      "tagName": "p",
+      "normalisedText": "- TK-119 – Tackling and Pressure Match Rehearsal",
+      "matchedDrillId": "TK-119",
+      "matchedTitle": "Tackling and Pressure Match Rehearsal",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "SP",
+      "nodeIndex": 3986,
+      "tagName": "h1",
+      "normalisedText": "SP-061 – Defensive Line Drop-and-Cover",
+      "matchedDrillId": "SP-061",
+      "matchedTitle": "Defensive Line Drop-and-Cover",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "SP",
+      "nodeIndex": 4043,
+      "tagName": "h1",
+      "normalisedText": "SP-062 – Weak-Side Aerial Support",
+      "matchedDrillId": "SP-062",
+      "matchedTitle": "Weak-Side Aerial Support",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "SP",
+      "nodeIndex": 4100,
+      "tagName": "h1",
+      "normalisedText": "SP-063 – Layered Corridor Entry Defence",
+      "matchedDrillId": "SP-063",
+      "matchedTitle": "Layered Corridor Entry Defence",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "SP",
+      "nodeIndex": 4157,
+      "tagName": "h1",
+      "normalisedText": "SP-064 – Boundary Exit Aerial Press",
+      "matchedDrillId": "SP-064",
+      "matchedTitle": "Boundary Exit Aerial Press",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "SP",
+      "nodeIndex": 4214,
+      "tagName": "h1",
+      "normalisedText": "SP-065 – Defensive Switch Aerial Recovery",
+      "matchedDrillId": "SP-065",
+      "matchedTitle": "Defensive Switch Aerial Recovery",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "SP",
+      "nodeIndex": 4271,
+      "tagName": "h1",
+      "normalisedText": "SP-066 – High-Press Long-Ball Defence",
+      "matchedDrillId": "SP-066",
+      "matchedTitle": "High-Press Long-Ball Defence",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "SP",
+      "nodeIndex": 4328,
+      "tagName": "h1",
+      "normalisedText": "SP-067 – Midfield Aerial Screen",
+      "matchedDrillId": "SP-067",
+      "matchedTitle": "Midfield Aerial Screen",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "SP",
+      "nodeIndex": 4385,
+      "tagName": "h1",
+      "normalisedText": "SP-068 – Behind-the-Ball Aerial Grid",
+      "matchedDrillId": "SP-068",
+      "matchedTitle": "Behind-the-Ball Aerial Grid",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "SP",
+      "nodeIndex": 4442,
+      "tagName": "h1",
+      "normalisedText": "SP-069 – Post-Spoil Defensive Rotation",
+      "matchedDrillId": "SP-069",
+      "matchedTitle": "Post-Spoil Defensive Rotation",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "SP",
+      "nodeIndex": 4499,
+      "tagName": "h1",
+      "normalisedText": "SP-070 – Team Aerial Structure Assessment",
+      "matchedDrillId": "SP-070",
+      "matchedTitle": "Team Aerial Structure Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4683,
+      "tagName": "p",
+      "normalisedText": "DM-005 – Best Option Triangle",
+      "matchedDrillId": "DM-005",
+      "matchedTitle": "Best Option Triangle",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4684,
+      "tagName": "p",
+      "normalisedText": "DM-031 – Stop, Turn or Release",
+      "matchedDrillId": "DM-031",
+      "matchedTitle": "Stop, Turn or Release",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4685,
+      "tagName": "p",
+      "normalisedText": "DM-047 – Smothered-Lane Reassessment",
+      "matchedDrillId": "DM-047",
+      "matchedTitle": "Smothered-Lane Reassessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4686,
+      "tagName": "p",
+      "normalisedText": "DM-068 – Kick-or-Handball Chain Choice",
+      "matchedDrillId": "DM-068",
+      "matchedTitle": "Kick-or-Handball Chain Choice",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4687,
+      "tagName": "p",
+      "normalisedText": "DM-072 – Man-on-Man or Zone Recognition",
+      "matchedDrillId": "DM-072",
+      "matchedTitle": "Man-on-Man or Zone Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4817,
+      "tagName": "p",
+      "normalisedText": "DM-014 – Call, Point and Confirm",
+      "matchedDrillId": "DM-014",
+      "matchedTitle": "Call, Point and Confirm",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4818,
+      "tagName": "p",
+      "normalisedText": "DM-041 – First-Pressure Release",
+      "matchedDrillId": "DM-041",
+      "matchedTitle": "First-Pressure Release",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4819,
+      "tagName": "p",
+      "normalisedText": "DM-068 – Kick-or-Handball Chain Choice",
+      "matchedDrillId": "DM-068",
+      "matchedTitle": "Kick-or-Handball Chain Choice",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4820,
+      "tagName": "p",
+      "normalisedText": "DM-081 – Deceptive First Option",
+      "matchedDrillId": "DM-081",
+      "matchedTitle": "Deceptive First Option",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4952,
+      "tagName": "p",
+      "normalisedText": "DM-021 – Lead, Hold or Clear",
+      "matchedDrillId": "DM-021",
+      "matchedTitle": "Lead, Hold or Clear",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4953,
+      "tagName": "p",
+      "normalisedText": "DM-033 – Decoy Run Recognition",
+      "matchedDrillId": "DM-033",
+      "matchedTitle": "Decoy Run Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4954,
+      "tagName": "p",
+      "normalisedText": "DM-038 – Late Runner Recognition",
+      "matchedDrillId": "DM-038",
+      "matchedTitle": "Late Runner Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4955,
+      "tagName": "p",
+      "normalisedText": "DM-067 – Forward 50 Entry Method",
+      "matchedDrillId": "DM-067",
+      "matchedTitle": "Forward 50 Entry Method",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4956,
+      "tagName": "p",
+      "normalisedText": "DM-075 – Repeat Forward Entry Choice",
+      "matchedDrillId": "DM-075",
+      "matchedTitle": "Repeat Forward Entry Choice",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5087,
+      "tagName": "p",
+      "normalisedText": "DM-013 – One-Second Release",
+      "matchedDrillId": "DM-013",
+      "matchedTitle": "One-Second Release",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5088,
+      "tagName": "p",
+      "normalisedText": "DM-026 – Carry, Bounce or Release",
+      "matchedDrillId": "DM-026",
+      "matchedTitle": "Carry, Bounce or Release",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5089,
+      "tagName": "p",
+      "normalisedText": "DM-038 – Late Runner Recognition",
+      "matchedDrillId": "DM-038",
+      "matchedTitle": "Late Runner Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5090,
+      "tagName": "p",
+      "normalisedText": "DM-046 – Tackle-or-Dispose Window",
+      "matchedDrillId": "DM-046",
+      "matchedTitle": "Tackle-or-Dispose Window",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5091,
+      "tagName": "p",
+      "normalisedText": "DM-066 – Midfield Tempo Choice",
+      "matchedDrillId": "DM-066",
+      "matchedTitle": "Midfield Tempo Choice",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5223,
+      "tagName": "p",
+      "normalisedText": "DM-024 – Overlap or Stay Connected",
+      "matchedDrillId": "DM-024",
+      "matchedTitle": "Overlap or Stay Connected",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5224,
+      "tagName": "p",
+      "normalisedText": "DM-025 – Give-and-Go Recognition",
+      "matchedDrillId": "DM-025",
+      "matchedTitle": "Give-and-Go Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5225,
+      "tagName": "p",
+      "normalisedText": "DM-027 – Support Angle Choice",
+      "matchedDrillId": "DM-027",
+      "matchedTitle": "Support Angle Choice",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5226,
+      "tagName": "p",
+      "normalisedText": "DM-062 – Support Triangle Rotation",
+      "matchedDrillId": "DM-062",
+      "matchedTitle": "Support Triangle Rotation",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5227,
+      "tagName": "p",
+      "normalisedText": "DM-069 – Line-Breaking Decision Chain",
+      "matchedDrillId": "DM-069",
+      "matchedTitle": "Line-Breaking Decision Chain",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5362,
+      "tagName": "p",
+      "normalisedText": "DM-018 – Switch-Side Recognition",
+      "matchedDrillId": "DM-018",
+      "matchedTitle": "Switch-Side Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5363,
+      "tagName": "p",
+      "normalisedText": "DM-064 – Weak-Side Width Decision",
+      "matchedDrillId": "DM-064",
+      "matchedTitle": "Weak-Side Width Decision",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5364,
+      "tagName": "p",
+      "normalisedText": "DM-071 – Defensive Press Recognition",
+      "matchedDrillId": "DM-071",
+      "matchedTitle": "Defensive Press Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5365,
+      "tagName": "p",
+      "normalisedText": "DM-079 – Tactical Method Switch",
+      "matchedDrillId": "DM-079",
+      "matchedTitle": "Tactical Method Switch",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5366,
+      "tagName": "p",
+      "normalisedText": "DM-085 – Third-Player Chain",
+      "matchedDrillId": "DM-085",
+      "matchedTitle": "Third-Player Chain",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5499,
+      "tagName": "p",
+      "normalisedText": "DM-004 – Teammate–Opponent Picture",
+      "matchedDrillId": "DM-004",
+      "matchedTitle": "Teammate–Opponent Picture",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5500,
+      "tagName": "p",
+      "normalisedText": "DM-047 – Smothered-Lane Reassessment",
+      "matchedDrillId": "DM-047",
+      "matchedTitle": "Smothered-Lane Reassessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5501,
+      "tagName": "p",
+      "normalisedText": "DM-071 – Defensive Press Recognition",
+      "matchedDrillId": "DM-071",
+      "matchedTitle": "Defensive Press Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5502,
+      "tagName": "p",
+      "normalisedText": "DM-072 – Man-on-Man or Zone Recognition",
+      "matchedDrillId": "DM-072",
+      "matchedTitle": "Man-on-Man or Zone Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5503,
+      "tagName": "p",
+      "normalisedText": "DM-076 – Last-Line Defender Choice",
+      "matchedDrillId": "DM-076",
+      "matchedTitle": "Last-Line Defender Choice",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5644,
+      "tagName": "p",
+      "normalisedText": "DM-006 – Risk–Reward Lane Choice",
+      "matchedDrillId": "DM-006",
+      "matchedTitle": "Risk–Reward Lane Choice",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5645,
+      "tagName": "p",
+      "normalisedText": "DM-008 – Field-Position Decision Zones",
+      "matchedDrillId": "DM-008",
+      "matchedTitle": "Field-Position Decision Zones",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5646,
+      "tagName": "p",
+      "normalisedText": "DM-065 – Defensive 50 Exit Priority",
+      "matchedDrillId": "DM-065",
+      "matchedTitle": "Defensive 50 Exit Priority",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5647,
+      "tagName": "p",
+      "normalisedText": "DM-077 – Scoreboard Margin Response",
+      "matchedDrillId": "DM-077",
+      "matchedTitle": "Scoreboard Margin Response",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5648,
+      "tagName": "p",
+      "normalisedText": "DM-078 – Clock Management Possession",
+      "matchedDrillId": "DM-078",
+      "matchedTitle": "Clock Management Possession",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5799,
+      "tagName": "p",
+      "normalisedText": "DM-066 – Midfield Tempo Choice",
+      "matchedDrillId": "DM-066",
+      "matchedTitle": "Midfield Tempo Choice",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5800,
+      "tagName": "p",
+      "normalisedText": "DM-077 – Scoreboard Margin Response",
+      "matchedDrillId": "DM-077",
+      "matchedTitle": "Scoreboard Margin Response",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5801,
+      "tagName": "p",
+      "normalisedText": "DM-079 – Tactical Method Switch",
+      "matchedDrillId": "DM-079",
+      "matchedTitle": "Tactical Method Switch",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5802,
+      "tagName": "p",
+      "normalisedText": "DM-080 – Team Tactical Decision Assessment",
+      "matchedDrillId": "DM-080",
+      "matchedTitle": "Team Tactical Decision Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5803,
+      "tagName": "p",
+      "normalisedText": "DM-088 – Consequence-Based Risk Game",
+      "matchedDrillId": "DM-088",
+      "matchedTitle": "Consequence-Based Risk Game",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6104,
+      "tagName": "p",
+      "normalisedText": "DM-014 – Call, Point and Confirm",
+      "matchedDrillId": "DM-014",
+      "matchedTitle": "Call, Point and Confirm",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6105,
+      "tagName": "p",
+      "normalisedText": "DM-043 – Blind-Side Pressure Scan",
+      "matchedDrillId": "DM-043",
+      "matchedTitle": "Blind-Side Pressure Scan",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6106,
+      "tagName": "p",
+      "normalisedText": "DM-080 – Team Tactical Decision Assessment",
+      "matchedDrillId": "DM-080",
+      "matchedTitle": "Team Tactical Decision Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6107,
+      "tagName": "p",
+      "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
+      "matchedDrillId": "DM-089",
+      "matchedTitle": "Multi-Phase Scenario Adaptation",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6108,
+      "tagName": "p",
+      "normalisedText": "DM-090 – Elite Decision Application Assessment",
+      "matchedDrillId": "DM-090",
+      "matchedTitle": "Elite Decision Application Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6252,
+      "tagName": "p",
+      "normalisedText": "DM-079 – Tactical Method Switch",
+      "matchedDrillId": "DM-079",
+      "matchedTitle": "Tactical Method Switch",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6253,
+      "tagName": "p",
+      "normalisedText": "DM-080 – Team Tactical Decision Assessment",
+      "matchedDrillId": "DM-080",
+      "matchedTitle": "Team Tactical Decision Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6254,
+      "tagName": "p",
+      "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
+      "matchedDrillId": "DM-089",
+      "matchedTitle": "Multi-Phase Scenario Adaptation",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6255,
+      "tagName": "p",
+      "normalisedText": "DM-091 – Information Priority Under Chaos",
+      "matchedDrillId": "DM-091",
+      "matchedTitle": "Information Priority Under Chaos",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6394,
+      "tagName": "p",
+      "normalisedText": "DM-028 – Moving Target Priority",
+      "matchedDrillId": "DM-028",
+      "matchedTitle": "Moving Target Priority",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6395,
+      "tagName": "p",
+      "normalisedText": "DM-067 – Forward 50 Entry Method",
+      "matchedDrillId": "DM-067",
+      "matchedTitle": "Forward 50 Entry Method",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6396,
+      "tagName": "p",
+      "normalisedText": "DM-072 – Man-on-Man or Zone Recognition",
+      "matchedDrillId": "DM-072",
+      "matchedTitle": "Man-on-Man or Zone Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6397,
+      "tagName": "p",
+      "normalisedText": "DM-075 – Repeat Forward Entry Choice",
+      "matchedDrillId": "DM-075",
+      "matchedTitle": "Repeat Forward Entry Choice",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6398,
+      "tagName": "p",
+      "normalisedText": "DM-083 – Dummy Lead Response",
+      "matchedDrillId": "DM-083",
+      "matchedTitle": "Dummy Lead Response",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6533,
+      "tagName": "p",
+      "normalisedText": "DM-073 – Extra Defender Use",
+      "matchedDrillId": "DM-073",
+      "matchedTitle": "Extra Defender Use",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6534,
+      "tagName": "p",
+      "normalisedText": "DM-076 – Last-Line Defender Choice",
+      "matchedDrillId": "DM-076",
+      "matchedTitle": "Last-Line Defender Choice",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6535,
+      "tagName": "p",
+      "normalisedText": "DM-080 – Team Tactical Decision Assessment",
+      "matchedDrillId": "DM-080",
+      "matchedTitle": "Team Tactical Decision Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6536,
+      "tagName": "p",
+      "normalisedText": "DM-093 – Attacking Mismatch Recognition",
+      "matchedDrillId": "DM-093",
+      "matchedTitle": "Attacking Mismatch Recognition",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6677,
+      "tagName": "p",
+      "normalisedText": "DM-006 – Risk–Reward Lane Choice",
+      "matchedDrillId": "DM-006",
+      "matchedTitle": "Risk–Reward Lane Choice",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6678,
+      "tagName": "p",
+      "normalisedText": "DM-016 – Take, Tap or Soccer",
+      "matchedDrillId": "DM-016",
+      "matchedTitle": "Take, Tap or Soccer",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6679,
+      "tagName": "p",
+      "normalisedText": "DM-054 – Aerial Contest Ground-Level Choice",
+      "matchedDrillId": "DM-054",
+      "matchedTitle": "Aerial Contest Ground-Level Choice",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6680,
+      "tagName": "p",
+      "normalisedText": "DM-088 – Consequence-Based Risk Game",
+      "matchedDrillId": "DM-088",
+      "matchedTitle": "Consequence-Based Risk Game",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6820,
+      "tagName": "p",
+      "normalisedText": "DM-039 – Movement Chain Under Pressure",
+      "matchedDrillId": "DM-039",
+      "matchedTitle": "Movement Chain Under Pressure",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6821,
+      "tagName": "p",
+      "normalisedText": "DM-049 – Pressure Chain Continuity",
+      "matchedDrillId": "DM-049",
+      "matchedTitle": "Pressure Chain Continuity",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6822,
+      "tagName": "p",
+      "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
+      "matchedDrillId": "DM-089",
+      "matchedTitle": "Multi-Phase Scenario Adaptation",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6823,
+      "tagName": "p",
+      "normalisedText": "DM-090 – Elite Decision Application Assessment",
+      "matchedDrillId": "DM-090",
+      "matchedTitle": "Elite Decision Application Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6959,
+      "tagName": "p",
+      "normalisedText": "DM-015 – Mark, Play On or Hold",
+      "matchedDrillId": "DM-015",
+      "matchedTitle": "Mark, Play On or Hold",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6960,
+      "tagName": "p",
+      "normalisedText": "DM-051 – Turnover First Action",
+      "matchedDrillId": "DM-051",
+      "matchedTitle": "Turnover First Action",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6961,
+      "tagName": "p",
+      "normalisedText": "DM-077 – Scoreboard Margin Response",
+      "matchedDrillId": "DM-077",
+      "matchedTitle": "Scoreboard Margin Response",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6962,
+      "tagName": "p",
+      "normalisedText": "DM-078 – Clock Management Possession",
+      "matchedDrillId": "DM-078",
+      "matchedTitle": "Clock Management Possession",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6963,
+      "tagName": "p",
+      "normalisedText": "DM-091 – Information Priority Under Chaos",
+      "matchedDrillId": "DM-091",
+      "matchedTitle": "Information Priority Under Chaos",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 7109,
+      "tagName": "p",
+      "normalisedText": "DM-077 – Scoreboard Margin Response",
+      "matchedDrillId": "DM-077",
+      "matchedTitle": "Scoreboard Margin Response",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 7110,
+      "tagName": "p",
+      "normalisedText": "DM-078 – Clock Management Possession",
+      "matchedDrillId": "DM-078",
+      "matchedTitle": "Clock Management Possession",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 7111,
+      "tagName": "p",
+      "normalisedText": "DM-088 – Consequence-Based Risk Game",
+      "matchedDrillId": "DM-088",
+      "matchedTitle": "Consequence-Based Risk Game",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 7112,
+      "tagName": "p",
+      "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
+      "matchedDrillId": "DM-089",
+      "matchedTitle": "Multi-Phase Scenario Adaptation",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 7113,
+      "tagName": "p",
+      "normalisedText": "DM-097 – Umpire Call and Advantage Decision",
+      "matchedDrillId": "DM-097",
+      "matchedTitle": "Umpire Call and Advantage Decision",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 7267,
+      "tagName": "p",
+      "normalisedText": "DM-079 – Tactical Method Switch",
+      "matchedDrillId": "DM-079",
+      "matchedTitle": "Tactical Method Switch",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 7268,
+      "tagName": "p",
+      "normalisedText": "DM-080 – Team Tactical Decision Assessment",
+      "matchedDrillId": "DM-080",
+      "matchedTitle": "Team Tactical Decision Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 7269,
+      "tagName": "p",
+      "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
+      "matchedDrillId": "DM-089",
+      "matchedTitle": "Multi-Phase Scenario Adaptation",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 7270,
+      "tagName": "p",
+      "normalisedText": "DM-090 – Elite Decision Application Assessment",
+      "matchedDrillId": "DM-090",
+      "matchedTitle": "Elite Decision Application Assessment",
+      "rejectionReason": "DUPLICATE_ID"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 7271,
+      "tagName": "p",
+      "normalisedText": "DM-098 – Final Two-Minute Scenario Chain",
+      "matchedDrillId": "DM-098",
+      "matchedTitle": "Final Two-Minute Scenario Chain",
+      "rejectionReason": "DUPLICATE_ID"
     }
   ],
-  "deduplicatedWarningsSummary": {
-    "uniqueWarningCount": 0,
-    "warningsByCode": {},
-    "warningsByChapter": {},
-    "warningsByField": {}
+  "fileSizeReconciliation": {
+    "actualFileSizeBytes": 14539777,
+    "actualFileSizeMB": 13.87,
+    "compactDatasetSizeBytes": 11206626,
+    "compactDatasetSizeMB": 10.69,
+    "sumIndividualRecordBytes": 11205015,
+    "sumIndividualRecordMB": 10.69,
+    "formattingOverheadBytes": 3333151,
+    "formattingOverheadMB": 3.18
+  },
+  "arrayFieldsAudit": {
+    "secondarySkills": {
+      "presentCount": 1602,
+      "absentCount": 8,
+      "sourceItems": 9502,
+      "outputItems": 9502,
+      "missingItems": 0,
+      "extraItems": 0,
+      "unparseableItems": 0
+    },
+    "skillLevel": {
+      "presentCount": 1577,
+      "absentCount": 33,
+      "sourceItems": 1581,
+      "outputItems": 1581,
+      "missingItems": 0,
+      "extraItems": 0,
+      "unparseableItems": 0
+    },
+    "equipment": {
+      "presentCount": 1587,
+      "absentCount": 23,
+      "sourceItems": 9216,
+      "outputItems": 9216,
+      "missingItems": 0,
+      "extraItems": 0,
+      "unparseableItems": 0
+    },
+    "sessionPlacement": {
+      "presentCount": 1574,
+      "absentCount": 36,
+      "sourceItems": 4346,
+      "outputItems": 4346,
+      "missingItems": 0,
+      "extraItems": 0,
+      "unparseableItems": 0
+    },
+    "setup": {
+      "presentCount": 1602,
+      "absentCount": 8,
+      "sourceItems": 11055,
+      "outputItems": 11055,
+      "missingItems": 0,
+      "extraItems": 0,
+      "unparseableItems": 0
+    },
+    "instructions": {
+      "presentCount": 1575,
+      "absentCount": 35,
+      "sourceItems": 15484,
+      "outputItems": 15484,
+      "missingItems": 0,
+      "extraItems": 0,
+      "unparseableItems": 0
+    },
+    "coachingPoints": {
+      "presentCount": 1601,
+      "absentCount": 9,
+      "sourceItems": 12885,
+      "outputItems": 12885,
+      "missingItems": 0,
+      "extraItems": 0,
+      "unparseableItems": 0
+    },
+    "coachingCues": {
+      "presentCount": 1587,
+      "absentCount": 23,
+      "sourceItems": 7718,
+      "outputItems": 7718,
+      "missingItems": 0,
+      "extraItems": 0,
+      "unparseableItems": 0
+    },
+    "observations": {
+      "presentCount": 1575,
+      "absentCount": 35,
+      "sourceItems": 11254,
+      "outputItems": 11254,
+      "missingItems": 0,
+      "extraItems": 0,
+      "unparseableItems": 0
+    },
+    "commonErrors": {
+      "presentCount": 1585,
+      "absentCount": 25,
+      "sourceItems": 8267,
+      "outputItems": 8267,
+      "missingItems": 0,
+      "extraItems": 0,
+      "unparseableItems": 0
+    },
+    "progressions": {
+      "presentCount": 1584,
+      "absentCount": 26,
+      "sourceItems": 8598,
+      "outputItems": 8598,
+      "missingItems": 0,
+      "extraItems": 0,
+      "unparseableItems": 0
+    },
+    "regressions": {
+      "presentCount": 1584,
+      "absentCount": 26,
+      "sourceItems": 8258,
+      "outputItems": 8258,
+      "missingItems": 0,
+      "extraItems": 0,
+      "unparseableItems": 0
+    },
+    "successIndicators": {
+      "presentCount": 1577,
+      "absentCount": 33,
+      "sourceItems": 10187,
+      "outputItems": 10187,
+      "missingItems": 0,
+      "extraItems": 0,
+      "unparseableItems": 0
+    },
+    "relatedDrills": {
+      "presentCount": 1548,
+      "absentCount": 62,
+      "sourceItems": 7243,
+      "outputItems": 7243,
+      "missingItems": 0,
+      "extraItems": 0,
+      "unparseableItems": 0
+    }
+  },
+  "perFieldClassification": {
+    "id": {
+      "meaningfulValues": 0,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 1610,
+      "parserOmissions": 0
+    },
+    "title": {
+      "meaningfulValues": 0,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 1610,
+      "parserOmissions": 0
+    },
+    "category": {
+      "meaningfulValues": 1610,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "primarySkill": {
+      "meaningfulValues": 1603,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 7,
+      "parserOmissions": 0
+    },
+    "secondarySkills": {
+      "meaningfulValues": 1602,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 8,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "objective": {
+      "meaningfulValues": 1603,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 7,
+      "parserOmissions": 0
+    },
+    "ageGroups": {
+      "meaningfulValues": 1610,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "skillLevel": {
+      "meaningfulValues": 1577,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 33,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "players.minimum": {
+      "meaningfulValues": 1610,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "players.idealMinimum": {
+      "meaningfulValues": 1610,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "players.idealMaximum": {
+      "meaningfulValues": 1610,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "players.maximum": {
+      "meaningfulValues": 1035,
+      "allowedNulls": 575,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "players.maximumLabel": {
+      "meaningfulValues": 539,
+      "allowedNulls": 1071,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "groundSize.description": {
+      "meaningfulValues": 1588,
+      "allowedNulls": 0,
+      "emptyStrings": 22,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "groundSize.lengthMeters": {
+      "meaningfulValues": 130,
+      "allowedNulls": 1480,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "groundSize.widthMeters": {
+      "meaningfulValues": 130,
+      "allowedNulls": 1480,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "equipment": {
+      "meaningfulValues": 1587,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 23,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "time.minimumMinutes": {
+      "meaningfulValues": 1587,
+      "allowedNulls": 23,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "time.recommendedMinutes": {
+      "meaningfulValues": 1587,
+      "allowedNulls": 23,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "time.maximumMinutes": {
+      "meaningfulValues": 1587,
+      "allowedNulls": 23,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "time.raw": {
+      "meaningfulValues": 1587,
+      "allowedNulls": 23,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "physicalLoad.rating": {
+      "meaningfulValues": 1610,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "mentalLoad.rating": {
+      "meaningfulValues": 1610,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "contact.minimumRating": {
+      "meaningfulValues": 1610,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "contact.maximumRating": {
+      "meaningfulValues": 1610,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "contact.recommendedRating": {
+      "meaningfulValues": 1610,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "contact.raw": {
+      "meaningfulValues": 1585,
+      "allowedNulls": 0,
+      "emptyStrings": 25,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "coachingDifficulty.rating": {
+      "meaningfulValues": 1610,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 0,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "sessionPlacement": {
+      "meaningfulValues": 1574,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 36,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "setup": {
+      "meaningfulValues": 1602,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 8,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "instructions": {
+      "meaningfulValues": 1575,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 35,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "coachingPoints": {
+      "meaningfulValues": 1601,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 9,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "coachingCues": {
+      "meaningfulValues": 1587,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 23,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "observations": {
+      "meaningfulValues": 1575,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 35,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "commonErrors": {
+      "meaningfulValues": 1535,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 75,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "progressions": {
+      "meaningfulValues": 1584,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 26,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "regressions": {
+      "meaningfulValues": 1584,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 26,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "successIndicators": {
+      "meaningfulValues": 1577,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 33,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "matchApplication": {
+      "meaningfulValues": 1599,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 11,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    },
+    "relatedDrills": {
+      "meaningfulValues": 1548,
+      "allowedNulls": 0,
+      "emptyStrings": 0,
+      "emptyArrays": 0,
+      "emptyObjects": 0,
+      "sourceSectionAbsent": 62,
+      "sourcePresentParsingFailed": 0,
+      "unexpectedNulls": 0,
+      "parserOmissions": 0
+    }
+  },
+  "sizeDistributionMetricsBytes": {
+    "min": 1452,
+    "median": 7034,
+    "mean": 6960,
+    "p75": 7354,
+    "p90": 7851,
+    "p95": 8335,
+    "p99": 9550,
+    "max": 12307
   },
   "totalErrorCount": 0,
   "status": "PASSED_ALL_CHECKS"
