@@ -20,6 +20,8 @@ Every legacy AFL drill knowledge source identified in the application codebase w
 | `firestore.rules` | `firestore.rules` | `backups/legacy-afl-drill-knowledge-base/configuration/firestore.rules` | Original Firestore security rules |
 | `AGENTS.md` | `.agents/AGENTS.md` | `backups/legacy-afl-drill-knowledge-base/configuration/AGENTS.md` | Workspace agent rules configuration |
 | `package.json` | `package.json` | `backups/legacy-afl-drill-knowledge-base/configuration/package.json` | Root project package declaration |
+| `package-lock.json` | `package-lock.json` | `backups/legacy-afl-drill-knowledge-base/configuration/package-lock.json` | Baseline lockfile extracted from commit `e54e53e` (96,291 bytes) |
+| `firestore.indexes.json` | `firestore.indexes.json` | N/A | Verified non-existent at baseline commit `e54e53e` |
 | `firebase.json` | `firebase.json` | `backups/legacy-afl-drill-knowledge-base/configuration/firebase.json` | Firebase configuration |
 
 ---
