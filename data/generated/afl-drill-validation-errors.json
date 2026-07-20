@@ -1,16 +1,28 @@
 {
-  "errors": [],
+  "errors": [
+    {
+      "chapter": "MK",
+      "error": "Accepted heading count (111) !== expected (120)"
+    },
+    {
+      "chapter": "GB",
+      "error": "Accepted heading count (111) !== expected (120)"
+    },
+    {
+      "chapter": "TK",
+      "error": "Accepted heading count (110) !== expected (120)"
+    },
+    {
+      "chapter": "DM",
+      "error": "Accepted heading count (82) !== expected (100)"
+    },
+    {
+      "chapter": "SG",
+      "error": "Accepted heading count (99) !== expected (100)"
+    }
+  ],
   "warnings": [],
   "rejectedNodes": [
-    {
-      "chapter": "KK",
-      "nodeIndex": 417,
-      "tagName": "p",
-      "normalisedText": "END OF KK-001 – KK-004",
-      "matchedDrillId": "KK-001",
-      "matchedTitle": "KK-004",
-      "rejectionReason": "DUPLICATE_ID"
-    },
     {
       "chapter": "KK",
       "nodeIndex": 6031,
@@ -18,7 +30,7 @@
       "normalisedText": "KK-081–091",
       "matchedDrillId": "KK-081",
       "matchedTitle": "091",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "KK",
@@ -27,7 +39,7 @@
       "normalisedText": "KK-081–092",
       "matchedDrillId": "KK-081",
       "matchedTitle": "092",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "KK",
@@ -36,781 +48,169 @@
       "normalisedText": "KK-121 – Elite Decision-Making Under Pressure",
       "matchedDrillId": "KK-121",
       "matchedTitle": "Elite Decision-Making Under Pressure",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "MK",
-      "nodeIndex": 130,
-      "tagName": "p",
-      "normalisedText": "- HB-008 – Receive, Set and Release",
-      "matchedDrillId": "HB-008",
-      "matchedTitle": "Receive, Set and Release",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 131,
-      "tagName": "p",
-      "normalisedText": "- HB-012 – High-Low Target Handball",
-      "matchedDrillId": "HB-012",
-      "matchedTitle": "High-Low Target Handball",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 132,
-      "tagName": "p",
-      "normalisedText": "- HB-044 – Imperfect-Ball Handball Recovery",
-      "matchedDrillId": "HB-044",
-      "matchedTitle": "Imperfect-Ball Handball Recovery",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 263,
-      "tagName": "p",
-      "normalisedText": "- MK-001 – Chest Mark Fundamentals",
-      "matchedDrillId": "MK-001",
-      "matchedTitle": "Chest Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 264,
-      "tagName": "p",
-      "normalisedText": "- HB-012 – High-Low Target Handball",
-      "matchedDrillId": "HB-012",
-      "matchedTitle": "High-Low Target Handball",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 265,
-      "tagName": "p",
-      "normalisedText": "- HB-044 – Imperfect-Ball Handball Recovery",
-      "matchedDrillId": "HB-044",
-      "matchedTitle": "Imperfect-Ball Handball Recovery",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 394,
-      "tagName": "p",
-      "normalisedText": "- MK-001 – Chest Mark Fundamentals",
-      "matchedDrillId": "MK-001",
-      "matchedTitle": "Chest Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 395,
-      "tagName": "p",
-      "normalisedText": "- HB-044 – Imperfect-Ball Handball Recovery",
-      "matchedDrillId": "HB-044",
-      "matchedTitle": "Imperfect-Ball Handball Recovery",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 396,
-      "tagName": "p",
-      "normalisedText": "- HB-049 – Ground-Ball Win and Handball Exit",
-      "matchedDrillId": "HB-049",
-      "matchedTitle": "Ground-Ball Win and Handball Exit",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 528,
-      "tagName": "p",
-      "normalisedText": "- MK-001 – Chest Mark Fundamentals",
-      "matchedDrillId": "MK-001",
-      "matchedTitle": "Chest Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 529,
-      "tagName": "p",
-      "normalisedText": "- MK-002 – Overhead Mark Fundamentals",
-      "matchedDrillId": "MK-002",
-      "matchedTitle": "Overhead Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 530,
-      "tagName": "p",
-      "normalisedText": "- MK-003 – Low Mark Fundamentals",
-      "matchedDrillId": "MK-003",
-      "matchedTitle": "Low Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 531,
-      "tagName": "p",
-      "normalisedText": "- HB-008 – Receive, Set and Release",
-      "matchedDrillId": "HB-008",
-      "matchedTitle": "Receive, Set and Release",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 660,
-      "tagName": "p",
-      "normalisedText": "- MK-001 – Chest Mark Fundamentals",
-      "matchedDrillId": "MK-001",
-      "matchedTitle": "Chest Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 661,
-      "tagName": "p",
-      "normalisedText": "- MK-002 – Overhead Mark Fundamentals",
-      "matchedDrillId": "MK-002",
-      "matchedTitle": "Overhead Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 662,
-      "tagName": "p",
-      "normalisedText": "- MK-003 – Low Mark Fundamentals",
-      "matchedDrillId": "MK-003",
-      "matchedTitle": "Low Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 663,
-      "tagName": "p",
-      "normalisedText": "- MK-004 – Cushion and Secure Marking",
-      "matchedDrillId": "MK-004",
-      "matchedTitle": "Cushion and Secure Marking",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 664,
-      "tagName": "p",
-      "normalisedText": "- HB-032 – Change-of-Direction Handball",
-      "matchedDrillId": "HB-032",
-      "matchedTitle": "Change-of-Direction Handball",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 794,
-      "tagName": "p",
-      "normalisedText": "- MK-001 – Chest Mark Fundamentals",
-      "matchedDrillId": "MK-001",
-      "matchedTitle": "Chest Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 795,
-      "tagName": "p",
-      "normalisedText": "- MK-002 – Overhead Mark Fundamentals",
-      "matchedDrillId": "MK-002",
-      "matchedTitle": "Overhead Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 796,
-      "tagName": "p",
-      "normalisedText": "- MK-003 – Low Mark Fundamentals",
-      "matchedDrillId": "MK-003",
-      "matchedTitle": "Low Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 797,
-      "tagName": "p",
-      "normalisedText": "- MK-004 – Cushion and Secure Marking",
-      "matchedDrillId": "MK-004",
-      "matchedTitle": "Cushion and Secure Marking",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 798,
-      "tagName": "p",
-      "normalisedText": "- MK-005 – Marking Footwork to the Football Line",
-      "matchedDrillId": "MK-005",
-      "matchedTitle": "Marking Footwork to the Football Line",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 927,
-      "tagName": "p",
-      "normalisedText": "- MK-001 – Chest Mark Fundamentals",
-      "matchedDrillId": "MK-001",
-      "matchedTitle": "Chest Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 928,
-      "tagName": "p",
-      "normalisedText": "- MK-004 – Cushion and Secure Marking",
-      "matchedDrillId": "MK-004",
-      "matchedTitle": "Cushion and Secure Marking",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 929,
-      "tagName": "p",
-      "normalisedText": "- MK-005 – Marking Footwork to the Football Line",
-      "matchedDrillId": "MK-005",
-      "matchedTitle": "Marking Footwork to the Football Line",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 930,
-      "tagName": "p",
-      "normalisedText": "- MK-006 – Three-Height Partner Marking Circuit",
-      "matchedDrillId": "MK-006",
-      "matchedTitle": "Three-Height Partner Marking Circuit",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1059,
-      "tagName": "p",
-      "normalisedText": "- MK-002 – Overhead Mark Fundamentals",
-      "matchedDrillId": "MK-002",
-      "matchedTitle": "Overhead Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1060,
-      "tagName": "p",
-      "normalisedText": "- MK-004 – Cushion and Secure Marking",
-      "matchedDrillId": "MK-004",
-      "matchedTitle": "Cushion and Secure Marking",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1061,
-      "tagName": "p",
-      "normalisedText": "- MK-005 – Marking Footwork to the Football Line",
-      "matchedDrillId": "MK-005",
-      "matchedTitle": "Marking Footwork to the Football Line",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1062,
-      "tagName": "p",
-      "normalisedText": "- MK-007 – Straight-Lead Chest Mark",
-      "matchedDrillId": "MK-007",
-      "matchedTitle": "Straight-Lead Chest Mark",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1191,
-      "tagName": "p",
-      "normalisedText": "- MK-004 – Cushion and Secure Marking",
-      "matchedDrillId": "MK-004",
-      "matchedTitle": "Cushion and Secure Marking",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1192,
-      "tagName": "p",
-      "normalisedText": "- MK-005 – Marking Footwork to the Football Line",
-      "matchedDrillId": "MK-005",
-      "matchedTitle": "Marking Footwork to the Football Line",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1193,
-      "tagName": "p",
-      "normalisedText": "- MK-007 – Straight-Lead Chest Mark",
-      "matchedDrillId": "MK-007",
-      "matchedTitle": "Straight-Lead Chest Mark",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1194,
-      "tagName": "p",
-      "normalisedText": "- MK-008 – Running Overhead Mark",
-      "matchedDrillId": "MK-008",
-      "matchedTitle": "Running Overhead Mark",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1195,
-      "tagName": "p",
-      "normalisedText": "- HB-017 – Protective-Side Handball",
-      "matchedDrillId": "HB-017",
-      "matchedTitle": "Protective-Side Handball",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1338,
-      "tagName": "p",
-      "normalisedText": "- MK-001 – Chest Mark Fundamentals",
-      "matchedDrillId": "MK-001",
-      "matchedTitle": "Chest Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1339,
-      "tagName": "p",
-      "normalisedText": "- MK-002 – Overhead Mark Fundamentals",
-      "matchedDrillId": "MK-002",
-      "matchedTitle": "Overhead Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1340,
-      "tagName": "p",
-      "normalisedText": "- MK-003 – Low Mark Fundamentals",
-      "matchedDrillId": "MK-003",
-      "matchedTitle": "Low Mark Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1341,
-      "tagName": "p",
-      "normalisedText": "- MK-005 – Marking Footwork to the Football Line",
-      "matchedDrillId": "MK-005",
-      "matchedTitle": "Marking Footwork to the Football Line",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1342,
-      "tagName": "p",
-      "normalisedText": "- MK-007 – Straight-Lead Chest Mark",
-      "matchedDrillId": "MK-007",
-      "matchedTitle": "Straight-Lead Chest Mark",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1343,
-      "tagName": "p",
-      "normalisedText": "- MK-009 – Mark, Secure and Protect",
-      "matchedDrillId": "MK-009",
-      "matchedTitle": "Mark, Secure and Protect",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 130,
-      "tagName": "p",
-      "normalisedText": "- HB-049 – Ground-Ball Win and Handball Exit",
-      "matchedDrillId": "HB-049",
-      "matchedTitle": "Ground-Ball Win and Handball Exit",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 131,
-      "tagName": "p",
-      "normalisedText": "- MK-015 – Moving Low Mark",
-      "matchedDrillId": "MK-015",
-      "matchedTitle": "Moving Low Mark",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 132,
-      "tagName": "p",
-      "normalisedText": "- MK-047 – Contested Mark and Ground-Ball Recovery",
-      "matchedDrillId": "MK-047",
-      "matchedTitle": "Contested Mark and Ground-Ball Recovery",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
       "nodeIndex": 133,
       "tagName": "p",
-      "normalisedText": "- MK-106 – Wet-Weather Marking Adaptation Scenario",
-      "matchedDrillId": "MK-106",
-      "matchedTitle": "Wet-Weather Marking Adaptation Scenario",
-      "rejectionReason": "WRONG_PREFIX"
+      "normalisedText": "MK-002 – Overhead Mark Fundamentals",
+      "matchedDrillId": "MK-002",
+      "matchedTitle": "Overhead Mark Fundamentals",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
-      "chapter": "GB",
-      "nodeIndex": 262,
-      "tagName": "p",
-      "normalisedText": "- GB-001 – Stationary Ground-Ball Fundamentals",
-      "matchedDrillId": "GB-001",
-      "matchedTitle": "Stationary Ground-Ball Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 263,
-      "tagName": "p",
-      "normalisedText": "- HB-049 – Ground-Ball Win and Handball Exit",
-      "matchedDrillId": "HB-049",
-      "matchedTitle": "Ground-Ball Win and Handball Exit",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 264,
-      "tagName": "p",
-      "normalisedText": "- MK-047 – Contested Mark and Ground-Ball Recovery",
-      "matchedDrillId": "MK-047",
-      "matchedTitle": "Contested Mark and Ground-Ball Recovery",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 265,
-      "tagName": "p",
-      "normalisedText": "- MK-051 – Drop-Zone Body Protection Mark",
-      "matchedDrillId": "MK-051",
-      "matchedTitle": "Drop-Zone Body Protection Mark",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
+      "chapter": "MK",
       "nodeIndex": 266,
       "tagName": "p",
-      "normalisedText": "- MK-106 – Wet-Weather Marking Adaptation Scenario",
-      "matchedDrillId": "MK-106",
-      "matchedTitle": "Wet-Weather Marking Adaptation Scenario",
-      "rejectionReason": "WRONG_PREFIX"
+      "normalisedText": "MK-003 – Low Mark Fundamentals",
+      "matchedDrillId": "MK-003",
+      "matchedTitle": "Low Mark Fundamentals",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
-      "chapter": "GB",
-      "nodeIndex": 396,
-      "tagName": "p",
-      "normalisedText": "- GB-001 – Stationary Ground-Ball Fundamentals",
-      "matchedDrillId": "GB-001",
-      "matchedTitle": "Stationary Ground-Ball Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
+      "chapter": "MK",
       "nodeIndex": 397,
       "tagName": "p",
-      "normalisedText": "- GB-002 – Body-Behind-the-Football Pickup",
-      "matchedDrillId": "GB-002",
-      "matchedTitle": "Body-Behind-the-Football Pickup",
-      "rejectionReason": "DUPLICATE_ID"
+      "normalisedText": "MK-004 – Cushion and Secure Marking",
+      "matchedDrillId": "MK-004",
+      "matchedTitle": "Cushion and Secure Marking",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
-      "chapter": "GB",
-      "nodeIndex": 398,
-      "tagName": "p",
-      "normalisedText": "- HB-001 – Stationary Handball Fundamentals",
-      "matchedDrillId": "HB-001",
-      "matchedTitle": "Stationary Handball Fundamentals",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 399,
-      "tagName": "p",
-      "normalisedText": "- HB-049 – Ground-Ball Win and Handball Exit",
-      "matchedDrillId": "HB-049",
-      "matchedTitle": "Ground-Ball Win and Handball Exit",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 400,
-      "tagName": "p",
-      "normalisedText": "- MK-106 – Wet-Weather Marking Adaptation Scenario",
-      "matchedDrillId": "MK-106",
-      "matchedTitle": "Wet-Weather Marking Adaptation Scenario",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 530,
-      "tagName": "p",
-      "normalisedText": "- GB-001 – Stationary Ground-Ball Fundamentals",
-      "matchedDrillId": "GB-001",
-      "matchedTitle": "Stationary Ground-Ball Fundamentals",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 531,
-      "tagName": "p",
-      "normalisedText": "- GB-002 – Body-Behind-the-Football Pickup",
-      "matchedDrillId": "GB-002",
-      "matchedTitle": "Body-Behind-the-Football Pickup",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
+      "chapter": "MK",
       "nodeIndex": 532,
       "tagName": "p",
-      "normalisedText": "- GB-003 – Two-Hand Clean Ground-Ball Collection",
-      "matchedDrillId": "GB-003",
-      "matchedTitle": "Two-Hand Clean Ground-Ball Collection",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 533,
-      "tagName": "p",
-      "normalisedText": "- HB-049 – Ground-Ball Win and Handball Exit",
-      "matchedDrillId": "HB-049",
-      "matchedTitle": "Ground-Ball Win and Handball Exit",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 534,
-      "tagName": "p",
-      "normalisedText": "- HB-054 – Front-On Pressure Side-Step Handball",
-      "matchedDrillId": "HB-054",
-      "matchedTitle": "Front-On Pressure Side-Step Handball",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 664,
-      "tagName": "p",
-      "normalisedText": "- GB-002 – Body-Behind-the-Football Pickup",
-      "matchedDrillId": "GB-002",
-      "matchedTitle": "Body-Behind-the-Football Pickup",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 665,
-      "tagName": "p",
-      "normalisedText": "- GB-003 – Two-Hand Clean Ground-Ball Collection",
-      "matchedDrillId": "GB-003",
-      "matchedTitle": "Two-Hand Clean Ground-Ball Collection",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 666,
-      "tagName": "p",
-      "normalisedText": "- GB-004 – Low-Body Pickup and Exit",
-      "matchedDrillId": "GB-004",
-      "matchedTitle": "Low-Body Pickup and Exit",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 667,
-      "tagName": "p",
-      "normalisedText": "- HB-049 – Ground-Ball Win and Handball Exit",
-      "matchedDrillId": "HB-049",
-      "matchedTitle": "Ground-Ball Win and Handball Exit",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 668,
-      "tagName": "p",
-      "normalisedText": "- MK-047 – Contested Mark and Ground-Ball Recovery",
-      "matchedDrillId": "MK-047",
-      "matchedTitle": "Contested Mark and Ground-Ball Recovery",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 798,
-      "tagName": "p",
-      "normalisedText": "- GB-002 – Body-Behind-the-Football Pickup",
-      "matchedDrillId": "GB-002",
-      "matchedTitle": "Body-Behind-the-Football Pickup",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 799,
-      "tagName": "p",
-      "normalisedText": "- GB-004 – Low-Body Pickup and Exit",
-      "matchedDrillId": "GB-004",
-      "matchedTitle": "Low-Body Pickup and Exit",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 800,
-      "tagName": "p",
-      "normalisedText": "- GB-005 – Moving Ground-Ball Pickup",
-      "matchedDrillId": "GB-005",
-      "matchedTitle": "Moving Ground-Ball Pickup",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 801,
-      "tagName": "p",
-      "normalisedText": "- HB-032 – Change-of-Direction Handball",
-      "matchedDrillId": "HB-032",
-      "matchedTitle": "Change-of-Direction Handball",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 802,
-      "tagName": "p",
-      "normalisedText": "- MK-014 – Low-to-High Marking Reaction",
-      "matchedDrillId": "MK-014",
-      "matchedTitle": "Low-to-High Marking Reaction",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 933,
-      "tagName": "p",
-      "normalisedText": "- GB-002 – Body-Behind-the-Football Pickup",
-      "matchedDrillId": "GB-002",
-      "matchedTitle": "Body-Behind-the-Football Pickup",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 934,
-      "tagName": "p",
-      "normalisedText": "- GB-004 – Low-Body Pickup and Exit",
-      "matchedDrillId": "GB-004",
-      "matchedTitle": "Low-Body Pickup and Exit",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 935,
-      "tagName": "p",
-      "normalisedText": "- GB-005 – Moving Ground-Ball Pickup",
-      "matchedDrillId": "GB-005",
-      "matchedTitle": "Moving Ground-Ball Pickup",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 936,
-      "tagName": "p",
-      "normalisedText": "- GB-006 – Left-and-Right Ground-Ball Collection",
-      "matchedDrillId": "GB-006",
-      "matchedTitle": "Left-and-Right Ground-Ball Collection",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 937,
-      "tagName": "p",
-      "normalisedText": "- MK-005 – Marking Footwork to the Football Line",
+      "normalisedText": "MK-005 – Marking Footwork to the Football Line",
       "matchedDrillId": "MK-005",
       "matchedTitle": "Marking Footwork to the Football Line",
-      "rejectionReason": "WRONG_PREFIX"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 665,
+      "tagName": "p",
+      "normalisedText": "MK-006 – Three-Height Partner Marking Circuit",
+      "matchedDrillId": "MK-006",
+      "matchedTitle": "Three-Height Partner Marking Circuit",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 799,
+      "tagName": "p",
+      "normalisedText": "MK-007 – Straight-Lead Chest Mark",
+      "matchedDrillId": "MK-007",
+      "matchedTitle": "Straight-Lead Chest Mark",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 931,
+      "tagName": "p",
+      "normalisedText": "MK-008 – Running Overhead Mark",
+      "matchedDrillId": "MK-008",
+      "matchedTitle": "Running Overhead Mark",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1063,
+      "tagName": "p",
+      "normalisedText": "MK-009 – Mark, Secure and Protect",
+      "matchedDrillId": "MK-009",
+      "matchedTitle": "Mark, Secure and Protect",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "MK",
+      "nodeIndex": 1196,
+      "tagName": "p",
+      "normalisedText": "MK-010 – Fundamental Marking Competency Assessment",
+      "matchedDrillId": "MK-010",
+      "matchedTitle": "Fundamental Marking Competency Assessment",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "GB",
-      "nodeIndex": 1070,
+      "nodeIndex": 134,
       "tagName": "p",
-      "normalisedText": "- GB-004 – Low-Body Pickup and Exit",
-      "matchedDrillId": "GB-004",
-      "matchedTitle": "Low-Body Pickup and Exit",
-      "rejectionReason": "DUPLICATE_ID"
+      "normalisedText": "GB-002 – Body-Behind-the-Football Pickup",
+      "matchedDrillId": "GB-002",
+      "matchedTitle": "Body-Behind-the-Football Pickup",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "GB",
-      "nodeIndex": 1071,
+      "nodeIndex": 267,
       "tagName": "p",
-      "normalisedText": "- GB-005 – Moving Ground-Ball Pickup",
-      "matchedDrillId": "GB-005",
-      "matchedTitle": "Moving Ground-Ball Pickup",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 1072,
-      "tagName": "p",
-      "normalisedText": "- GB-007 – Ground-Ball Approach Footwork",
-      "matchedDrillId": "GB-007",
-      "matchedTitle": "Ground-Ball Approach Footwork",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 1073,
-      "tagName": "p",
-      "normalisedText": "- HB-049 – Ground-Ball Win and Handball Exit",
-      "matchedDrillId": "HB-049",
-      "matchedTitle": "Ground-Ball Win and Handball Exit",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 1074,
-      "tagName": "p",
-      "normalisedText": "- HB-061 – Stoppage Outlet Handball Chain",
-      "matchedDrillId": "HB-061",
-      "matchedTitle": "Stoppage Outlet Handball Chain",
-      "rejectionReason": "WRONG_PREFIX"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 1207,
-      "tagName": "p",
-      "normalisedText": "- GB-003 – Two-Hand Clean Ground-Ball Collection",
+      "normalisedText": "GB-003 – Two-Hand Clean Ground-Ball Collection",
       "matchedDrillId": "GB-003",
       "matchedTitle": "Two-Hand Clean Ground-Ball Collection",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "GB",
-      "nodeIndex": 1208,
+      "nodeIndex": 401,
       "tagName": "p",
-      "normalisedText": "- GB-004 – Low-Body Pickup and Exit",
+      "normalisedText": "GB-004 – Low-Body Pickup and Exit",
       "matchedDrillId": "GB-004",
       "matchedTitle": "Low-Body Pickup and Exit",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "GB",
-      "nodeIndex": 1209,
+      "nodeIndex": 535,
       "tagName": "p",
-      "normalisedText": "- GB-005 – Moving Ground-Ball Pickup",
+      "normalisedText": "GB-005 – Moving Ground-Ball Pickup",
       "matchedDrillId": "GB-005",
       "matchedTitle": "Moving Ground-Ball Pickup",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "GB",
-      "nodeIndex": 1210,
+      "nodeIndex": 669,
       "tagName": "p",
-      "normalisedText": "- GB-008 – Pickup, Protect and Handball",
+      "normalisedText": "GB-006 – Left-and-Right Ground-Ball Collection",
+      "matchedDrillId": "GB-006",
+      "matchedTitle": "Left-and-Right Ground-Ball Collection",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 803,
+      "tagName": "p",
+      "normalisedText": "GB-007 – Ground-Ball Approach Footwork",
+      "matchedDrillId": "GB-007",
+      "matchedTitle": "Ground-Ball Approach Footwork",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 938,
+      "tagName": "p",
+      "normalisedText": "GB-008 – Pickup, Protect and Handball",
       "matchedDrillId": "GB-008",
       "matchedTitle": "Pickup, Protect and Handball",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "GB",
-      "nodeIndex": 1211,
+      "nodeIndex": 1075,
       "tagName": "p",
-      "normalisedText": "- MK-016 – Mark and Return Accuracy",
-      "matchedDrillId": "MK-016",
-      "matchedTitle": "Mark and Return Accuracy",
-      "rejectionReason": "WRONG_PREFIX"
+      "normalisedText": "GB-009 – Pickup, Balance and Kick",
+      "matchedDrillId": "GB-009",
+      "matchedTitle": "Pickup, Balance and Kick",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "GB",
+      "nodeIndex": 1212,
+      "tagName": "p",
+      "normalisedText": "GB-010 – Ground-Ball Fundamentals Assessment",
+      "matchedDrillId": "GB-010",
+      "matchedTitle": "Ground-Ball Fundamentals Assessment",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "TK",
@@ -819,7 +219,7 @@
       "normalisedText": "TK-041 – Live Evasion Tackle Contest",
       "matchedDrillId": "TK-041",
       "matchedTitle": "Live Evasion Tackle Contest",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "TK",
@@ -828,7 +228,7 @@
       "normalisedText": "TK-042 – Disposal Window Tackle",
       "matchedDrillId": "TK-042",
       "matchedTitle": "Disposal Window Tackle",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "TK",
@@ -837,7 +237,7 @@
       "normalisedText": "TK-043 – Recovery-Line Chase Tackle",
       "matchedDrillId": "TK-043",
       "matchedTitle": "Recovery-Line Chase Tackle",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "TK",
@@ -846,7 +246,7 @@
       "normalisedText": "TK-044 – Front-and-Square Contest Tackle",
       "matchedDrillId": "TK-044",
       "matchedTitle": "Front-and-Square Contest Tackle",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "TK",
@@ -855,7 +255,7 @@
       "normalisedText": "TK-045 – Tackle-Induced Spill Transition",
       "matchedDrillId": "TK-045",
       "matchedTitle": "Tackle-Induced Spill Transition",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "TK",
@@ -864,7 +264,7 @@
       "normalisedText": "TK-046 – Congestion Gate Tackle",
       "matchedDrillId": "TK-046",
       "matchedTitle": "Congestion Gate Tackle",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "TK",
@@ -873,7 +273,7 @@
       "normalisedText": "TK-047 – Broken-Tackle Support Defender",
       "matchedDrillId": "TK-047",
       "matchedTitle": "Broken-Tackle Support Defender",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "TK",
@@ -882,7 +282,7 @@
       "normalisedText": "TK-048 – Two-versus-Two Pressure Chain",
       "matchedDrillId": "TK-048",
       "matchedTitle": "Two-versus-Two Pressure Chain",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "TK",
@@ -891,7 +291,7 @@
       "normalisedText": "TK-049 – Small-Space Pressure Game",
       "matchedDrillId": "TK-049",
       "matchedTitle": "Small-Space Pressure Game",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "TK",
@@ -900,484 +300,97 @@
       "normalisedText": "TK-050 – Pressure and Contest Assessment",
       "matchedDrillId": "TK-050",
       "matchedTitle": "Pressure and Contest Assessment",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "TK",
-      "nodeIndex": 6976,
+      "nodeIndex": 6843,
       "tagName": "p",
-      "normalisedText": "- TK-068 – Three-versus-Two Numerical Pressure",
-      "matchedDrillId": "TK-068",
-      "matchedTitle": "Three-versus-Two Numerical Pressure",
-      "rejectionReason": "DUPLICATE_ID"
+      "normalisedText": "TK-111 – Opposition Spare Counter-Pressure",
+      "matchedDrillId": "TK-111",
+      "matchedTitle": "Opposition Spare Counter-Pressure",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "TK",
-      "nodeIndex": 6977,
+      "nodeIndex": 6981,
       "tagName": "p",
-      "normalisedText": "- TK-077 – Loose Defender Pressure Support",
-      "matchedDrillId": "TK-077",
-      "matchedTitle": "Loose Defender Pressure Support",
-      "rejectionReason": "DUPLICATE_ID"
+      "normalisedText": "TK-112 – Tackle-to-Spread Transition",
+      "matchedDrillId": "TK-112",
+      "matchedTitle": "Tackle-to-Spread Transition",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "TK",
-      "nodeIndex": 6978,
+      "nodeIndex": 7119,
       "tagName": "p",
-      "normalisedText": "- TK-083 – Outnumbered Delay-to-Trap Defence",
-      "matchedDrillId": "TK-083",
-      "matchedTitle": "Outnumbered Delay-to-Trap Defence",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 6979,
-      "tagName": "p",
-      "normalisedText": "- TK-101 – On-Field Pressure Leadership Calls",
-      "matchedDrillId": "TK-101",
-      "matchedTitle": "On-Field Pressure Leadership Calls",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 6980,
-      "tagName": "p",
-      "normalisedText": "- TK-102 – Opposition Exit Pattern Recognition",
-      "matchedDrillId": "TK-102",
-      "matchedTitle": "Opposition Exit Pattern Recognition",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7114,
-      "tagName": "p",
-      "normalisedText": "- TK-016 – Tackle, Spill and Recover",
-      "matchedDrillId": "TK-016",
-      "matchedTitle": "Tackle, Spill and Recover",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7115,
-      "tagName": "p",
-      "normalisedText": "- TK-029 – Tackle, Regain Feet and Rejoin",
-      "matchedDrillId": "TK-029",
-      "matchedTitle": "Tackle, Regain Feet and Rejoin",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7116,
-      "tagName": "p",
-      "normalisedText": "- TK-045 – Tackle-Induced Spill Transition",
-      "matchedDrillId": "TK-045",
-      "matchedTitle": "Tackle-Induced Spill Transition",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7117,
-      "tagName": "p",
-      "normalisedText": "- TK-059 – Turnover-to-Tackle Transition Game",
-      "matchedDrillId": "TK-059",
-      "matchedTitle": "Turnover-to-Tackle Transition Game",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7118,
-      "tagName": "p",
-      "normalisedText": "- TK-108 – Intercept Turnover Counter-Pressure",
-      "matchedDrillId": "TK-108",
-      "matchedTitle": "Intercept Turnover Counter-Pressure",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7253,
-      "tagName": "p",
-      "normalisedText": "- TK-079 – Full-Ground Pressure Relay",
-      "matchedDrillId": "TK-079",
-      "matchedTitle": "Full-Ground Pressure Relay",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7254,
-      "tagName": "p",
-      "normalisedText": "- TK-098 – Last-Five-Minutes Full-Field Press",
-      "matchedDrillId": "TK-098",
-      "matchedTitle": "Last-Five-Minutes Full-Field Press",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7255,
-      "tagName": "p",
-      "normalisedText": "- TK-100 – Elite Pressure Systems Assessment",
-      "matchedDrillId": "TK-100",
-      "matchedTitle": "Elite Pressure Systems Assessment",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7256,
-      "tagName": "p",
-      "normalisedText": "- TK-101 – On-Field Pressure Leadership Calls",
-      "matchedDrillId": "TK-101",
-      "matchedTitle": "On-Field Pressure Leadership Calls",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7257,
-      "tagName": "p",
-      "normalisedText": "- TK-108 – Intercept Turnover Counter-Pressure",
-      "matchedDrillId": "TK-108",
-      "matchedTitle": "Intercept Turnover Counter-Pressure",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7396,
-      "tagName": "p",
-      "normalisedText": "- TK-081 – Press-Trigger Recognition",
-      "matchedDrillId": "TK-081",
-      "matchedTitle": "Press-Trigger Recognition",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7397,
-      "tagName": "p",
-      "normalisedText": "- TK-098 – Last-Five-Minutes Full-Field Press",
-      "matchedDrillId": "TK-098",
-      "matchedTitle": "Last-Five-Minutes Full-Field Press",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7398,
-      "tagName": "p",
-      "normalisedText": "- TK-101 – On-Field Pressure Leadership Calls",
-      "matchedDrillId": "TK-101",
-      "matchedTitle": "On-Field Pressure Leadership Calls",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7399,
-      "tagName": "p",
-      "normalisedText": "- TK-102 – Opposition Exit Pattern Recognition",
-      "matchedDrillId": "TK-102",
-      "matchedTitle": "Opposition Exit Pattern Recognition",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7400,
-      "tagName": "p",
-      "normalisedText": "- TK-113 – Three-Line Pressure Connection",
+      "normalisedText": "TK-113 – Three-Line Pressure Connection",
       "matchedDrillId": "TK-113",
       "matchedTitle": "Three-Line Pressure Connection",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "TK",
-      "nodeIndex": 7534,
+      "nodeIndex": 7258,
       "tagName": "p",
-      "normalisedText": "- TK-025 – Ground-Ball Collection Tackle",
-      "matchedDrillId": "TK-025",
-      "matchedTitle": "Ground-Ball Collection Tackle",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7535,
-      "tagName": "p",
-      "normalisedText": "- TK-045 – Tackle-Induced Spill Transition",
-      "matchedDrillId": "TK-045",
-      "matchedTitle": "Tackle-Induced Spill Transition",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7536,
-      "tagName": "p",
-      "normalisedText": "- TK-052 – Boundary Repeat-Pressure Contest",
-      "matchedDrillId": "TK-052",
-      "matchedTitle": "Boundary Repeat-Pressure Contest",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7537,
-      "tagName": "p",
-      "normalisedText": "- TK-075 – Defensive-50 Ground-Ball Pressure Exit",
-      "matchedDrillId": "TK-075",
-      "matchedTitle": "Defensive-50 Ground-Ball Pressure Exit",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7538,
-      "tagName": "p",
-      "normalisedText": "- TK-107 – Boundary Throw-In Pressure Trap",
-      "matchedDrillId": "TK-107",
-      "matchedTitle": "Boundary Throw-In Pressure Trap",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7676,
-      "tagName": "p",
-      "normalisedText": "- TK-057 – Smother-or-Tackle Decision",
-      "matchedDrillId": "TK-057",
-      "matchedTitle": "Smother-or-Tackle Decision",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7677,
-      "tagName": "p",
-      "normalisedText": "- TK-085 – Repeat-Tackle Fatigue Wave",
-      "matchedDrillId": "TK-085",
-      "matchedTitle": "Repeat-Tackle Fatigue Wave",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7678,
-      "tagName": "p",
-      "normalisedText": "- TK-090 – Advanced Pressure Decision Assessment",
-      "matchedDrillId": "TK-090",
-      "matchedTitle": "Advanced Pressure Decision Assessment",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7679,
-      "tagName": "p",
-      "normalisedText": "- TK-109 – Pressure KPI Match Game",
-      "matchedDrillId": "TK-109",
-      "matchedTitle": "Pressure KPI Match Game",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7680,
-      "tagName": "p",
-      "normalisedText": "- TK-115 – Wet-Weather Tackle Pressure",
-      "matchedDrillId": "TK-115",
-      "matchedTitle": "Wet-Weather Tackle Pressure",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7817,
-      "tagName": "p",
-      "normalisedText": "- TK-011 – Legal Tackle Zone Recognition",
-      "matchedDrillId": "TK-011",
-      "matchedTitle": "Legal Tackle Zone Recognition",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7818,
-      "tagName": "p",
-      "normalisedText": "- TK-035 – Kick-Receive Closing Tackle",
-      "matchedDrillId": "TK-035",
-      "matchedTitle": "Kick-Receive Closing Tackle",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7819,
-      "tagName": "p",
-      "normalisedText": "- TK-056 – Kick-Under-Contact Pressure",
-      "matchedDrillId": "TK-056",
-      "matchedTitle": "Kick-Under-Contact Pressure",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7820,
-      "tagName": "p",
-      "normalisedText": "- TK-088 – Advantage-Call Recovery Pressure",
-      "matchedDrillId": "TK-088",
-      "matchedTitle": "Advantage-Call Recovery Pressure",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7821,
-      "tagName": "p",
-      "normalisedText": "- TK-094 – Mark-and-Play-On Trap",
-      "matchedDrillId": "TK-094",
-      "matchedTitle": "Mark-and-Play-On Trap",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7958,
-      "tagName": "p",
-      "normalisedText": "- TK-014 – Evasion Reaction Tackle",
-      "matchedDrillId": "TK-014",
-      "matchedTitle": "Evasion Reaction Tackle",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7959,
-      "tagName": "p",
-      "normalisedText": "- TK-015 – Fend-Off Control and Re-Entry",
-      "matchedDrillId": "TK-015",
-      "matchedTitle": "Fend-Off Control and Re-Entry",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7960,
-      "tagName": "p",
-      "normalisedText": "- TK-041 – Live Evasion Tackle Contest",
-      "matchedDrillId": "TK-041",
-      "matchedTitle": "Live Evasion Tackle Contest",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7961,
-      "tagName": "p",
-      "normalisedText": "- TK-082 – Deceptive Ball-Carrier Pressure",
-      "matchedDrillId": "TK-082",
-      "matchedTitle": "Deceptive Ball-Carrier Pressure",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7962,
-      "tagName": "p",
-      "normalisedText": "- TK-102 – Opposition Exit Pattern Recognition",
-      "matchedDrillId": "TK-102",
-      "matchedTitle": "Opposition Exit Pattern Recognition",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 8114,
-      "tagName": "p",
-      "normalisedText": "- TK-100 – Elite Pressure Systems Assessment",
-      "matchedDrillId": "TK-100",
-      "matchedTitle": "Elite Pressure Systems Assessment",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 8115,
-      "tagName": "p",
-      "normalisedText": "- TK-109 – Pressure KPI Match Game",
-      "matchedDrillId": "TK-109",
-      "matchedTitle": "Pressure KPI Match Game",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 8116,
-      "tagName": "p",
-      "normalisedText": "- TK-110 – Pressure Leadership and Tactical Assessment",
-      "matchedDrillId": "TK-110",
-      "matchedTitle": "Pressure Leadership and Tactical Assessment",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 8117,
-      "tagName": "p",
-      "normalisedText": "- TK-113 – Three-Line Pressure Connection",
-      "matchedDrillId": "TK-113",
-      "matchedTitle": "Three-Line Pressure Connection",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 8118,
-      "tagName": "p",
-      "normalisedText": "- TK-114 – Opposition Tactical Adjustment Game",
+      "normalisedText": "TK-114 – Opposition Tactical Adjustment Game",
       "matchedDrillId": "TK-114",
       "matchedTitle": "Opposition Tactical Adjustment Game",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "TK",
-      "nodeIndex": 8119,
+      "nodeIndex": 7401,
       "tagName": "p",
-      "normalisedText": "- TK-117 – Free-Kick Risk Pressure Management",
+      "normalisedText": "TK-115 – Wet-Weather Tackle Pressure",
+      "matchedDrillId": "TK-115",
+      "matchedTitle": "Wet-Weather Tackle Pressure",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7539,
+      "tagName": "p",
+      "normalisedText": "TK-116 – Fatigue Decision Pressure Circuit",
+      "matchedDrillId": "TK-116",
+      "matchedTitle": "Fatigue Decision Pressure Circuit",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 7681,
+      "tagName": "p",
+      "normalisedText": "TK-117 – Free-Kick Risk Pressure Management",
       "matchedDrillId": "TK-117",
       "matchedTitle": "Free-Kick Risk Pressure Management",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "TK",
-      "nodeIndex": 8318,
+      "nodeIndex": 7822,
       "tagName": "p",
-      "normalisedText": "- TK-020 – Tackling Fundamentals Assessment Circuit",
-      "matchedDrillId": "TK-020",
-      "matchedTitle": "Tackling Fundamentals Assessment Circuit",
-      "rejectionReason": "DUPLICATE_ID"
+      "normalisedText": "TK-118 – Match-Up Specific Tackle Planning",
+      "matchedDrillId": "TK-118",
+      "matchedTitle": "Match-Up Specific Tackle Planning",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "TK",
-      "nodeIndex": 8319,
+      "nodeIndex": 7963,
       "tagName": "p",
-      "normalisedText": "- TK-040 – Moving Tackle Integration Assessment",
-      "matchedDrillId": "TK-040",
-      "matchedTitle": "Moving Tackle Integration Assessment",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 8320,
-      "tagName": "p",
-      "normalisedText": "- TK-060 – Pressure and Contest Block Assessment",
-      "matchedDrillId": "TK-060",
-      "matchedTitle": "Pressure and Contest Block Assessment",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 8321,
-      "tagName": "p",
-      "normalisedText": "- TK-080 – Team Pressure and Ball-Movement Assessment",
-      "matchedDrillId": "TK-080",
-      "matchedTitle": "Team Pressure and Ball-Movement Assessment",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 8322,
-      "tagName": "p",
-      "normalisedText": "- TK-100 – Elite Pressure Systems Assessment",
-      "matchedDrillId": "TK-100",
-      "matchedTitle": "Elite Pressure Systems Assessment",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 8323,
-      "tagName": "p",
-      "normalisedText": "- TK-110 – Pressure Leadership and Tactical Assessment",
-      "matchedDrillId": "TK-110",
-      "matchedTitle": "Pressure Leadership and Tactical Assessment",
-      "rejectionReason": "DUPLICATE_ID"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 8324,
-      "tagName": "p",
-      "normalisedText": "- TK-119 – Tackling and Pressure Match Rehearsal",
+      "normalisedText": "TK-119 – Tackling and Pressure Match Rehearsal",
       "matchedDrillId": "TK-119",
       "matchedTitle": "Tackling and Pressure Match Rehearsal",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "TK",
+      "nodeIndex": 8120,
+      "tagName": "p",
+      "normalisedText": "TK-120 – Tackling and Pressure Chapter Final Assessment",
+      "matchedDrillId": "TK-120",
+      "matchedTitle": "Tackling and Pressure Chapter Final Assessment",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "SP",
@@ -1386,7 +399,7 @@
       "normalisedText": "SP-061 – Defensive Line Drop-and-Cover",
       "matchedDrillId": "SP-061",
       "matchedTitle": "Defensive Line Drop-and-Cover",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "SP",
@@ -1395,7 +408,7 @@
       "normalisedText": "SP-062 – Weak-Side Aerial Support",
       "matchedDrillId": "SP-062",
       "matchedTitle": "Weak-Side Aerial Support",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "SP",
@@ -1404,7 +417,7 @@
       "normalisedText": "SP-063 – Layered Corridor Entry Defence",
       "matchedDrillId": "SP-063",
       "matchedTitle": "Layered Corridor Entry Defence",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "SP",
@@ -1413,7 +426,7 @@
       "normalisedText": "SP-064 – Boundary Exit Aerial Press",
       "matchedDrillId": "SP-064",
       "matchedTitle": "Boundary Exit Aerial Press",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "SP",
@@ -1422,7 +435,7 @@
       "normalisedText": "SP-065 – Defensive Switch Aerial Recovery",
       "matchedDrillId": "SP-065",
       "matchedTitle": "Defensive Switch Aerial Recovery",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "SP",
@@ -1431,7 +444,7 @@
       "normalisedText": "SP-066 – High-Press Long-Ball Defence",
       "matchedDrillId": "SP-066",
       "matchedTitle": "High-Press Long-Ball Defence",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "SP",
@@ -1440,7 +453,7 @@
       "normalisedText": "SP-067 – Midfield Aerial Screen",
       "matchedDrillId": "SP-067",
       "matchedTitle": "Midfield Aerial Screen",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "SP",
@@ -1449,7 +462,7 @@
       "normalisedText": "SP-068 – Behind-the-Ball Aerial Grid",
       "matchedDrillId": "SP-068",
       "matchedTitle": "Behind-the-Ball Aerial Grid",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "SP",
@@ -1458,7 +471,7 @@
       "normalisedText": "SP-069 – Post-Spoil Defensive Rotation",
       "matchedDrillId": "SP-069",
       "matchedTitle": "Post-Spoil Defensive Rotation",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "SP",
@@ -1467,7 +480,7 @@
       "normalisedText": "SP-070 – Team Aerial Structure Assessment",
       "matchedDrillId": "SP-070",
       "matchedTitle": "Team Aerial Structure Assessment",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
     },
     {
       "chapter": "DM",
@@ -1476,7 +489,7 @@
       "normalisedText": "DM-005 – Best Option Triangle",
       "matchedDrillId": "DM-005",
       "matchedTitle": "Best Option Triangle",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1485,7 +498,7 @@
       "normalisedText": "DM-031 – Stop, Turn or Release",
       "matchedDrillId": "DM-031",
       "matchedTitle": "Stop, Turn or Release",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1494,7 +507,7 @@
       "normalisedText": "DM-047 – Smothered-Lane Reassessment",
       "matchedDrillId": "DM-047",
       "matchedTitle": "Smothered-Lane Reassessment",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1503,7 +516,7 @@
       "normalisedText": "DM-068 – Kick-or-Handball Chain Choice",
       "matchedDrillId": "DM-068",
       "matchedTitle": "Kick-or-Handball Chain Choice",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1512,7 +525,16 @@
       "normalisedText": "DM-072 – Man-on-Man or Zone Recognition",
       "matchedDrillId": "DM-072",
       "matchedTitle": "Man-on-Man or Zone Recognition",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4689,
+      "tagName": "p",
+      "normalisedText": "DM-082 – Look-Off and Release",
+      "matchedDrillId": "DM-082",
+      "matchedTitle": "Look-Off and Release",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1521,7 +543,7 @@
       "normalisedText": "DM-014 – Call, Point and Confirm",
       "matchedDrillId": "DM-014",
       "matchedTitle": "Call, Point and Confirm",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1530,7 +552,7 @@
       "normalisedText": "DM-041 – First-Pressure Release",
       "matchedDrillId": "DM-041",
       "matchedTitle": "First-Pressure Release",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1539,7 +561,7 @@
       "normalisedText": "DM-068 – Kick-or-Handball Chain Choice",
       "matchedDrillId": "DM-068",
       "matchedTitle": "Kick-or-Handball Chain Choice",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1548,7 +570,16 @@
       "normalisedText": "DM-081 – Deceptive First Option",
       "matchedDrillId": "DM-081",
       "matchedTitle": "Deceptive First Option",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4822,
+      "tagName": "p",
+      "normalisedText": "DM-083 – Dummy Lead Response",
+      "matchedDrillId": "DM-083",
+      "matchedTitle": "Dummy Lead Response",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1557,7 +588,7 @@
       "normalisedText": "DM-021 – Lead, Hold or Clear",
       "matchedDrillId": "DM-021",
       "matchedTitle": "Lead, Hold or Clear",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1566,7 +597,7 @@
       "normalisedText": "DM-033 – Decoy Run Recognition",
       "matchedDrillId": "DM-033",
       "matchedTitle": "Decoy Run Recognition",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1575,7 +606,7 @@
       "normalisedText": "DM-038 – Late Runner Recognition",
       "matchedDrillId": "DM-038",
       "matchedTitle": "Late Runner Recognition",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1584,7 +615,7 @@
       "normalisedText": "DM-067 – Forward 50 Entry Method",
       "matchedDrillId": "DM-067",
       "matchedTitle": "Forward 50 Entry Method",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1593,7 +624,16 @@
       "normalisedText": "DM-075 – Repeat Forward Entry Choice",
       "matchedDrillId": "DM-075",
       "matchedTitle": "Repeat Forward Entry Choice",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 4958,
+      "tagName": "p",
+      "normalisedText": "DM-084 – Delayed Disposal Window",
+      "matchedDrillId": "DM-084",
+      "matchedTitle": "Delayed Disposal Window",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1602,7 +642,7 @@
       "normalisedText": "DM-013 – One-Second Release",
       "matchedDrillId": "DM-013",
       "matchedTitle": "One-Second Release",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1611,7 +651,7 @@
       "normalisedText": "DM-026 – Carry, Bounce or Release",
       "matchedDrillId": "DM-026",
       "matchedTitle": "Carry, Bounce or Release",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1620,7 +660,7 @@
       "normalisedText": "DM-038 – Late Runner Recognition",
       "matchedDrillId": "DM-038",
       "matchedTitle": "Late Runner Recognition",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1629,7 +669,7 @@
       "normalisedText": "DM-046 – Tackle-or-Dispose Window",
       "matchedDrillId": "DM-046",
       "matchedTitle": "Tackle-or-Dispose Window",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1638,7 +678,16 @@
       "normalisedText": "DM-066 – Midfield Tempo Choice",
       "matchedDrillId": "DM-066",
       "matchedTitle": "Midfield Tempo Choice",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5093,
+      "tagName": "p",
+      "normalisedText": "DM-085 – Third-Player Chain",
+      "matchedDrillId": "DM-085",
+      "matchedTitle": "Third-Player Chain",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1647,7 +696,7 @@
       "normalisedText": "DM-024 – Overlap or Stay Connected",
       "matchedDrillId": "DM-024",
       "matchedTitle": "Overlap or Stay Connected",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1656,7 +705,7 @@
       "normalisedText": "DM-025 – Give-and-Go Recognition",
       "matchedDrillId": "DM-025",
       "matchedTitle": "Give-and-Go Recognition",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1665,7 +714,7 @@
       "normalisedText": "DM-027 – Support Angle Choice",
       "matchedDrillId": "DM-027",
       "matchedTitle": "Support Angle Choice",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1674,7 +723,7 @@
       "normalisedText": "DM-062 – Support Triangle Rotation",
       "matchedDrillId": "DM-062",
       "matchedTitle": "Support Triangle Rotation",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1683,7 +732,16 @@
       "normalisedText": "DM-069 – Line-Breaking Decision Chain",
       "matchedDrillId": "DM-069",
       "matchedTitle": "Line-Breaking Decision Chain",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5229,
+      "tagName": "p",
+      "normalisedText": "DM-086 – Numerical Bait and Switch",
+      "matchedDrillId": "DM-086",
+      "matchedTitle": "Numerical Bait and Switch",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1692,7 +750,7 @@
       "normalisedText": "DM-018 – Switch-Side Recognition",
       "matchedDrillId": "DM-018",
       "matchedTitle": "Switch-Side Recognition",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1701,7 +759,7 @@
       "normalisedText": "DM-064 – Weak-Side Width Decision",
       "matchedDrillId": "DM-064",
       "matchedTitle": "Weak-Side Width Decision",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1710,7 +768,7 @@
       "normalisedText": "DM-071 – Defensive Press Recognition",
       "matchedDrillId": "DM-071",
       "matchedTitle": "Defensive Press Recognition",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1719,7 +777,7 @@
       "normalisedText": "DM-079 – Tactical Method Switch",
       "matchedDrillId": "DM-079",
       "matchedTitle": "Tactical Method Switch",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1728,7 +786,16 @@
       "normalisedText": "DM-085 – Third-Player Chain",
       "matchedDrillId": "DM-085",
       "matchedTitle": "Third-Player Chain",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5368,
+      "tagName": "p",
+      "normalisedText": "DM-087 – Turnover Trap Recognition",
+      "matchedDrillId": "DM-087",
+      "matchedTitle": "Turnover Trap Recognition",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1737,7 +804,7 @@
       "normalisedText": "DM-004 – Teammate–Opponent Picture",
       "matchedDrillId": "DM-004",
       "matchedTitle": "Teammate–Opponent Picture",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1746,7 +813,7 @@
       "normalisedText": "DM-047 – Smothered-Lane Reassessment",
       "matchedDrillId": "DM-047",
       "matchedTitle": "Smothered-Lane Reassessment",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1755,7 +822,7 @@
       "normalisedText": "DM-071 – Defensive Press Recognition",
       "matchedDrillId": "DM-071",
       "matchedTitle": "Defensive Press Recognition",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1764,7 +831,7 @@
       "normalisedText": "DM-072 – Man-on-Man or Zone Recognition",
       "matchedDrillId": "DM-072",
       "matchedTitle": "Man-on-Man or Zone Recognition",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1773,7 +840,16 @@
       "normalisedText": "DM-076 – Last-Line Defender Choice",
       "matchedDrillId": "DM-076",
       "matchedTitle": "Last-Line Defender Choice",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5505,
+      "tagName": "p",
+      "normalisedText": "DM-088 – Consequence-Based Risk Game",
+      "matchedDrillId": "DM-088",
+      "matchedTitle": "Consequence-Based Risk Game",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1782,7 +858,7 @@
       "normalisedText": "DM-006 – Risk–Reward Lane Choice",
       "matchedDrillId": "DM-006",
       "matchedTitle": "Risk–Reward Lane Choice",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1791,7 +867,7 @@
       "normalisedText": "DM-008 – Field-Position Decision Zones",
       "matchedDrillId": "DM-008",
       "matchedTitle": "Field-Position Decision Zones",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1800,7 +876,7 @@
       "normalisedText": "DM-065 – Defensive 50 Exit Priority",
       "matchedDrillId": "DM-065",
       "matchedTitle": "Defensive 50 Exit Priority",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1809,7 +885,7 @@
       "normalisedText": "DM-077 – Scoreboard Margin Response",
       "matchedDrillId": "DM-077",
       "matchedTitle": "Scoreboard Margin Response",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1818,7 +894,16 @@
       "normalisedText": "DM-078 – Clock Management Possession",
       "matchedDrillId": "DM-078",
       "matchedTitle": "Clock Management Possession",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5650,
+      "tagName": "p",
+      "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
+      "matchedDrillId": "DM-089",
+      "matchedTitle": "Multi-Phase Scenario Adaptation",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1827,7 +912,7 @@
       "normalisedText": "DM-066 – Midfield Tempo Choice",
       "matchedDrillId": "DM-066",
       "matchedTitle": "Midfield Tempo Choice",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1836,7 +921,7 @@
       "normalisedText": "DM-077 – Scoreboard Margin Response",
       "matchedDrillId": "DM-077",
       "matchedTitle": "Scoreboard Margin Response",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1845,7 +930,7 @@
       "normalisedText": "DM-079 – Tactical Method Switch",
       "matchedDrillId": "DM-079",
       "matchedTitle": "Tactical Method Switch",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1854,7 +939,7 @@
       "normalisedText": "DM-080 – Team Tactical Decision Assessment",
       "matchedDrillId": "DM-080",
       "matchedTitle": "Team Tactical Decision Assessment",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1863,7 +948,16 @@
       "normalisedText": "DM-088 – Consequence-Based Risk Game",
       "matchedDrillId": "DM-088",
       "matchedTitle": "Consequence-Based Risk Game",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 5805,
+      "tagName": "p",
+      "normalisedText": "DM-090 – Elite Decision Application Assessment",
+      "matchedDrillId": "DM-090",
+      "matchedTitle": "Elite Decision Application Assessment",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1872,7 +966,7 @@
       "normalisedText": "DM-014 – Call, Point and Confirm",
       "matchedDrillId": "DM-014",
       "matchedTitle": "Call, Point and Confirm",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1881,7 +975,7 @@
       "normalisedText": "DM-043 – Blind-Side Pressure Scan",
       "matchedDrillId": "DM-043",
       "matchedTitle": "Blind-Side Pressure Scan",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1890,7 +984,7 @@
       "normalisedText": "DM-080 – Team Tactical Decision Assessment",
       "matchedDrillId": "DM-080",
       "matchedTitle": "Team Tactical Decision Assessment",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1899,7 +993,7 @@
       "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
       "matchedDrillId": "DM-089",
       "matchedTitle": "Multi-Phase Scenario Adaptation",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1908,7 +1002,16 @@
       "normalisedText": "DM-090 – Elite Decision Application Assessment",
       "matchedDrillId": "DM-090",
       "matchedTitle": "Elite Decision Application Assessment",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6110,
+      "tagName": "p",
+      "normalisedText": "DM-092 – Leadership Call and Player Override",
+      "matchedDrillId": "DM-092",
+      "matchedTitle": "Leadership Call and Player Override",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1917,7 +1020,7 @@
       "normalisedText": "DM-079 – Tactical Method Switch",
       "matchedDrillId": "DM-079",
       "matchedTitle": "Tactical Method Switch",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1926,7 +1029,7 @@
       "normalisedText": "DM-080 – Team Tactical Decision Assessment",
       "matchedDrillId": "DM-080",
       "matchedTitle": "Team Tactical Decision Assessment",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1935,7 +1038,7 @@
       "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
       "matchedDrillId": "DM-089",
       "matchedTitle": "Multi-Phase Scenario Adaptation",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1944,7 +1047,16 @@
       "normalisedText": "DM-091 – Information Priority Under Chaos",
       "matchedDrillId": "DM-091",
       "matchedTitle": "Information Priority Under Chaos",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6257,
+      "tagName": "p",
+      "normalisedText": "DM-093 – Attacking Mismatch Recognition",
+      "matchedDrillId": "DM-093",
+      "matchedTitle": "Attacking Mismatch Recognition",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1953,7 +1065,7 @@
       "normalisedText": "DM-028 – Moving Target Priority",
       "matchedDrillId": "DM-028",
       "matchedTitle": "Moving Target Priority",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1962,7 +1074,7 @@
       "normalisedText": "DM-067 – Forward 50 Entry Method",
       "matchedDrillId": "DM-067",
       "matchedTitle": "Forward 50 Entry Method",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1971,7 +1083,7 @@
       "normalisedText": "DM-072 – Man-on-Man or Zone Recognition",
       "matchedDrillId": "DM-072",
       "matchedTitle": "Man-on-Man or Zone Recognition",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1980,7 +1092,7 @@
       "normalisedText": "DM-075 – Repeat Forward Entry Choice",
       "matchedDrillId": "DM-075",
       "matchedTitle": "Repeat Forward Entry Choice",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1989,7 +1101,16 @@
       "normalisedText": "DM-083 – Dummy Lead Response",
       "matchedDrillId": "DM-083",
       "matchedTitle": "Dummy Lead Response",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6400,
+      "tagName": "p",
+      "normalisedText": "DM-094 – Defensive Mismatch Protection",
+      "matchedDrillId": "DM-094",
+      "matchedTitle": "Defensive Mismatch Protection",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -1998,7 +1119,7 @@
       "normalisedText": "DM-073 – Extra Defender Use",
       "matchedDrillId": "DM-073",
       "matchedTitle": "Extra Defender Use",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2007,7 +1128,7 @@
       "normalisedText": "DM-076 – Last-Line Defender Choice",
       "matchedDrillId": "DM-076",
       "matchedTitle": "Last-Line Defender Choice",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2016,7 +1137,7 @@
       "normalisedText": "DM-080 – Team Tactical Decision Assessment",
       "matchedDrillId": "DM-080",
       "matchedTitle": "Team Tactical Decision Assessment",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2025,7 +1146,16 @@
       "normalisedText": "DM-093 – Attacking Mismatch Recognition",
       "matchedDrillId": "DM-093",
       "matchedTitle": "Attacking Mismatch Recognition",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6538,
+      "tagName": "p",
+      "normalisedText": "DM-095 – Weather-Adjusted Decision Game",
+      "matchedDrillId": "DM-095",
+      "matchedTitle": "Weather-Adjusted Decision Game",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2034,7 +1164,7 @@
       "normalisedText": "DM-006 – Risk–Reward Lane Choice",
       "matchedDrillId": "DM-006",
       "matchedTitle": "Risk–Reward Lane Choice",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2043,7 +1173,7 @@
       "normalisedText": "DM-016 – Take, Tap or Soccer",
       "matchedDrillId": "DM-016",
       "matchedTitle": "Take, Tap or Soccer",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2052,7 +1182,7 @@
       "normalisedText": "DM-054 – Aerial Contest Ground-Level Choice",
       "matchedDrillId": "DM-054",
       "matchedTitle": "Aerial Contest Ground-Level Choice",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2061,7 +1191,16 @@
       "normalisedText": "DM-088 – Consequence-Based Risk Game",
       "matchedDrillId": "DM-088",
       "matchedTitle": "Consequence-Based Risk Game",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6682,
+      "tagName": "p",
+      "normalisedText": "DM-096 – Fatigue Decision Integrity",
+      "matchedDrillId": "DM-096",
+      "matchedTitle": "Fatigue Decision Integrity",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2070,7 +1209,7 @@
       "normalisedText": "DM-039 – Movement Chain Under Pressure",
       "matchedDrillId": "DM-039",
       "matchedTitle": "Movement Chain Under Pressure",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2079,7 +1218,7 @@
       "normalisedText": "DM-049 – Pressure Chain Continuity",
       "matchedDrillId": "DM-049",
       "matchedTitle": "Pressure Chain Continuity",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2088,7 +1227,7 @@
       "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
       "matchedDrillId": "DM-089",
       "matchedTitle": "Multi-Phase Scenario Adaptation",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2097,7 +1236,16 @@
       "normalisedText": "DM-090 – Elite Decision Application Assessment",
       "matchedDrillId": "DM-090",
       "matchedTitle": "Elite Decision Application Assessment",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6825,
+      "tagName": "p",
+      "normalisedText": "DM-097 – Umpire Call and Advantage Decision",
+      "matchedDrillId": "DM-097",
+      "matchedTitle": "Umpire Call and Advantage Decision",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2106,7 +1254,7 @@
       "normalisedText": "DM-015 – Mark, Play On or Hold",
       "matchedDrillId": "DM-015",
       "matchedTitle": "Mark, Play On or Hold",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2115,7 +1263,7 @@
       "normalisedText": "DM-051 – Turnover First Action",
       "matchedDrillId": "DM-051",
       "matchedTitle": "Turnover First Action",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2124,7 +1272,7 @@
       "normalisedText": "DM-077 – Scoreboard Margin Response",
       "matchedDrillId": "DM-077",
       "matchedTitle": "Scoreboard Margin Response",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2133,7 +1281,7 @@
       "normalisedText": "DM-078 – Clock Management Possession",
       "matchedDrillId": "DM-078",
       "matchedTitle": "Clock Management Possession",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2142,7 +1290,16 @@
       "normalisedText": "DM-091 – Information Priority Under Chaos",
       "matchedDrillId": "DM-091",
       "matchedTitle": "Information Priority Under Chaos",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 6965,
+      "tagName": "p",
+      "normalisedText": "DM-098 – Final Two-Minute Scenario Chain",
+      "matchedDrillId": "DM-098",
+      "matchedTitle": "Final Two-Minute Scenario Chain",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2151,7 +1308,7 @@
       "normalisedText": "DM-077 – Scoreboard Margin Response",
       "matchedDrillId": "DM-077",
       "matchedTitle": "Scoreboard Margin Response",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2160,7 +1317,7 @@
       "normalisedText": "DM-078 – Clock Management Possession",
       "matchedDrillId": "DM-078",
       "matchedTitle": "Clock Management Possession",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2169,7 +1326,7 @@
       "normalisedText": "DM-088 – Consequence-Based Risk Game",
       "matchedDrillId": "DM-088",
       "matchedTitle": "Consequence-Based Risk Game",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2178,7 +1335,7 @@
       "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
       "matchedDrillId": "DM-089",
       "matchedTitle": "Multi-Phase Scenario Adaptation",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2187,7 +1344,16 @@
       "normalisedText": "DM-097 – Umpire Call and Advantage Decision",
       "matchedDrillId": "DM-097",
       "matchedTitle": "Umpire Call and Advantage Decision",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 7115,
+      "tagName": "p",
+      "normalisedText": "DM-099 – Unscripted Chaos Match",
+      "matchedDrillId": "DM-099",
+      "matchedTitle": "Unscripted Chaos Match",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2196,7 +1362,7 @@
       "normalisedText": "DM-079 – Tactical Method Switch",
       "matchedDrillId": "DM-079",
       "matchedTitle": "Tactical Method Switch",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2205,7 +1371,7 @@
       "normalisedText": "DM-080 – Team Tactical Decision Assessment",
       "matchedDrillId": "DM-080",
       "matchedTitle": "Team Tactical Decision Assessment",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2214,7 +1380,7 @@
       "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
       "matchedDrillId": "DM-089",
       "matchedTitle": "Multi-Phase Scenario Adaptation",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2223,7 +1389,7 @@
       "normalisedText": "DM-090 – Elite Decision Application Assessment",
       "matchedDrillId": "DM-090",
       "matchedTitle": "Elite Decision Application Assessment",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "DM",
@@ -2232,7 +1398,25 @@
       "normalisedText": "DM-098 – Final Two-Minute Scenario Chain",
       "matchedDrillId": "DM-098",
       "matchedTitle": "Final Two-Minute Scenario Chain",
-      "rejectionReason": "DUPLICATE_ID"
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "DM",
+      "nodeIndex": 7273,
+      "tagName": "p",
+      "normalisedText": "DM-100 – Decision Making Chapter Final Assessment",
+      "matchedDrillId": "DM-100",
+      "matchedTitle": "Decision Making Chapter Final Assessment",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "chapter": "SG",
+      "nodeIndex": 5130,
+      "tagName": "p",
+      "normalisedText": "SG-091 – Six-Six-Six Restart Game",
+      "matchedDrillId": "SG-091",
+      "matchedTitle": "Six-Six-Six Restart Game",
+      "rejectionReason": "RELATED_DRILL_REFERENCE"
     }
   ]
 }
