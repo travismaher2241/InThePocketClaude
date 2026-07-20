@@ -1,0 +1,25 @@
+{
+  "configuredProjectId": "com-example-coachcore-16e8b",
+  "explicitlyConfirmedProjectId": "com-example-coachcore-16e8b",
+  "resolvedAdminTargetProjectId": null,
+  "firestoreConnectivity": "NOT_TESTED_NO_CREDENTIALS",
+  "sourceArtifactHashes": {
+    "aflDrillsJson": "fdc24251f2aa7b80656cf58f8759c25e0ba4a23ce4c5189f39a3792ed1f4056c",
+    "validationReportJson": "0904d60d429e824d7a48bce6b51393c3cdd1579253355a985a5fead556ec230d",
+    "validationErrorsJson": "9a41fd7bdddd492a183345f0451eef5d4866ddf32c348948f2d0f38c2878782b",
+    "validationReportMd": "a995d02a33097993f6b6d4be89212ca3bb453074de261cd26fc940ea0e486b9c"
+  },
+  "targetVersion": "afl-library-v1",
+  "totalDrillsToImport": 1610,
+  "totalChaptersToImport": 16,
+  "batchPlan": {
+    "totalManifestDocs": 1,
+    "totalChapterDocs": 16,
+    "totalDrillDocs": 1610,
+    "batchSizeLimit": 400,
+    "batchesNeeded": 5
+  },
+  "activeConfigurationSnapshotBeforeHash": "non-existent",
+  "firestoreRulesBeforeHash": "0a4aae21e4f5a27fff0ce38f1772d70fbef81d926c5b3cebb77c2598512d0ed2",
+  "hasExistingStagedVersion": false
+}
