@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-20T12:46:50.376Z",
+  "generatedAt": "2026-07-20T12:55:35.273Z",
   "totalExtractedRecords": 1610,
   "expectedTotalRecords": 1610,
   "perChapterCounts": {
@@ -288,24 +288,188 @@
       "sha256": "3c4d829857cf51919c869a35f62e3a2334f640d7095582c33abf0f303cfe1437"
     }
   ],
+  "tagCountsPerChapter": {
+    "KK": {
+      "h1": 150,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 4
+    },
+    "HB": {
+      "h1": 120,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 0
+    },
+    "MK": {
+      "h1": 110,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 42
+    },
+    "GB": {
+      "h1": 110,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 33
+    },
+    "TK": {
+      "h1": 120,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 63
+    },
+    "SP": {
+      "h1": 90,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 0
+    },
+    "RK": {
+      "h1": 80,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 0
+    },
+    "EA": {
+      "h1": 80,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 0
+    },
+    "DM": {
+      "h1": 80,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 105
+    },
+    "TO": {
+      "h1": 100,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 0
+    },
+    "TD": {
+      "h1": 100,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 0
+    },
+    "TR": {
+      "h1": 100,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 0
+    },
+    "CF": {
+      "h1": 80,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 0
+    },
+    "SG": {
+      "h1": 99,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 1
+    },
+    "MS": {
+      "h1": 99,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 1
+    },
+    "TA": {
+      "h1": 60,
+      "h2": 0,
+      "h3": 0,
+      "h4": 0,
+      "h5": 0,
+      "h6": 0,
+      "p": 0
+    }
+  },
+  "fileSizeReconciliation": {
+    "actualFileSizeBytes": 14771214,
+    "actualFileSizeMB": 14.09,
+    "compactDatasetSizeBytes": 11387355,
+    "compactDatasetSizeMB": 10.86,
+    "sumIndividualRecordBytes": 11385744,
+    "sumIndividualRecordMB": 10.86,
+    "formattingOverheadBytes": 3383859,
+    "formattingOverheadMB": 3.23
+  },
   "relatedDrillAudit": {
-    "recordsWithRelatedSource": 1501,
-    "recordsWithoutRelatedSource": 109,
-    "totalParsedSingleRefs": 7001,
-    "totalParsedRangeRefs": 16,
-    "validSingleReferences": 7000,
-    "validRangeReferences": 16,
-    "invalidReferenceCount": 1
+    "recordsWithRelatedHeading": 1548,
+    "recordsWithEmptyRelated": 0,
+    "recordsWithSourceRef": 1548,
+    "recordsOnlyIndividual": 1539,
+    "recordsOnlyRange": 4,
+    "recordsMixed": 5,
+    "recordsUnparseable": 0,
+    "totalSourceIndEntries": 7222,
+    "totalSourceRangeEntries": 21,
+    "totalParsedIndEntries": 7222,
+    "totalParsedRangeEntries": 21,
+    "validSingleReferences": 7220,
+    "validRangeReferences": 21,
+    "invalidReferenceCount": 2,
+    "unparseableList": []
   },
   "sizeDistributionMetricsBytes": {
-    "min": 1488,
-    "median": 7426,
-    "mean": 7186,
-    "p75": 7779,
-    "p90": 8226,
-    "p95": 8767,
-    "p99": 10125,
-    "max": 12898
+    "min": 1606,
+    "median": 7150,
+    "mean": 7072,
+    "p75": 7467,
+    "p90": 7959,
+    "p95": 8465,
+    "p99": 9680,
+    "max": 12463
   },
   "countsOverThresholds": {
     "over25KB": 0,
@@ -318,239 +482,239 @@
       "prefix": "KK",
       "chapterName": "Chapter 1 - Kicking",
       "count": 150,
-      "correlationWithOrder": -0.3185,
-      "firstRecordSizeBytes": 5810,
-      "middleRecordSizeBytes": 6031,
-      "finalRecordSizeBytes": 7733,
-      "largestRecordSizeBytes": 7879,
-      "sizeIncreaseFromFirstToFinalBytes": 1923
+      "correlationWithOrder": -0.3324,
+      "firstRecordSizeBytes": 5598,
+      "middleRecordSizeBytes": 5799,
+      "finalRecordSizeBytes": 7324,
+      "largestRecordSizeBytes": 7357,
+      "sizeIncreaseFromFirstToFinalBytes": 1726
     },
     {
       "prefix": "HB",
       "chapterName": "Chapter 2 - Handballing",
       "count": 120,
-      "correlationWithOrder": -0.0149,
-      "firstRecordSizeBytes": 8904,
-      "middleRecordSizeBytes": 8291,
-      "finalRecordSizeBytes": 10406,
-      "largestRecordSizeBytes": 10406,
-      "sizeIncreaseFromFirstToFinalBytes": 1502
+      "correlationWithOrder": -0.0513,
+      "firstRecordSizeBytes": 8656,
+      "middleRecordSizeBytes": 7916,
+      "finalRecordSizeBytes": 9942,
+      "largestRecordSizeBytes": 9942,
+      "sizeIncreaseFromFirstToFinalBytes": 1286
     },
     {
       "prefix": "MK",
       "chapterName": "Chapter 3 - Marking",
       "count": 120,
-      "correlationWithOrder": 0.6086,
-      "firstRecordSizeBytes": 1520,
-      "middleRecordSizeBytes": 7544,
-      "finalRecordSizeBytes": 11473,
-      "largestRecordSizeBytes": 11473,
-      "sizeIncreaseFromFirstToFinalBytes": 9953
+      "correlationWithOrder": 0.5876,
+      "firstRecordSizeBytes": 6386,
+      "middleRecordSizeBytes": 7239,
+      "finalRecordSizeBytes": 10997,
+      "largestRecordSizeBytes": 10997,
+      "sizeIncreaseFromFirstToFinalBytes": 4611
     },
     {
       "prefix": "GB",
       "chapterName": "Chapter 4 - Ground Balls",
       "count": 120,
-      "correlationWithOrder": 0.4515,
-      "firstRecordSizeBytes": 1580,
-      "middleRecordSizeBytes": 8220,
-      "finalRecordSizeBytes": 9692,
-      "largestRecordSizeBytes": 9692,
-      "sizeIncreaseFromFirstToFinalBytes": 8112
+      "correlationWithOrder": 0.3123,
+      "firstRecordSizeBytes": 5853,
+      "middleRecordSizeBytes": 7861,
+      "finalRecordSizeBytes": 9220,
+      "largestRecordSizeBytes": 9220,
+      "sizeIncreaseFromFirstToFinalBytes": 3367
     },
     {
       "prefix": "TK",
       "chapterName": "Chapter 5 - Tackling and Pressure",
       "count": 120,
-      "correlationWithOrder": -0.3806,
-      "firstRecordSizeBytes": 7665,
-      "middleRecordSizeBytes": 8359,
-      "finalRecordSizeBytes": 1648,
-      "largestRecordSizeBytes": 10560,
-      "sizeIncreaseFromFirstToFinalBytes": -6017
+      "correlationWithOrder": 0.075,
+      "firstRecordSizeBytes": 7480,
+      "middleRecordSizeBytes": 8030,
+      "finalRecordSizeBytes": 10229,
+      "largestRecordSizeBytes": 10229,
+      "sizeIncreaseFromFirstToFinalBytes": 2749
     },
     {
       "prefix": "SP",
       "chapterName": "Chapter 6 - Spoiling and Aerial Defence",
       "count": 80,
-      "correlationWithOrder": 0.3574,
-      "firstRecordSizeBytes": 8525,
-      "middleRecordSizeBytes": 7329,
-      "finalRecordSizeBytes": 11680,
-      "largestRecordSizeBytes": 11680,
-      "sizeIncreaseFromFirstToFinalBytes": 3155
+      "correlationWithOrder": 0.3349,
+      "firstRecordSizeBytes": 8289,
+      "middleRecordSizeBytes": 7046,
+      "finalRecordSizeBytes": 11113,
+      "largestRecordSizeBytes": 11113,
+      "sizeIncreaseFromFirstToFinalBytes": 2824
     },
     {
       "prefix": "RK",
       "chapterName": "Chapter 7 - Ruck and Stoppage Craft",
       "count": 80,
-      "correlationWithOrder": 0.4284,
-      "firstRecordSizeBytes": 7386,
-      "middleRecordSizeBytes": 7553,
-      "finalRecordSizeBytes": 12898,
-      "largestRecordSizeBytes": 12898,
-      "sizeIncreaseFromFirstToFinalBytes": 5512
+      "correlationWithOrder": 0.4045,
+      "firstRecordSizeBytes": 7165,
+      "middleRecordSizeBytes": 7218,
+      "finalRecordSizeBytes": 12463,
+      "largestRecordSizeBytes": 12463,
+      "sizeIncreaseFromFirstToFinalBytes": 5298
     },
     {
       "prefix": "EA",
       "chapterName": "Chapter 8 - Evasion, Agility and Movement",
       "count": 80,
-      "correlationWithOrder": 0.5651,
-      "firstRecordSizeBytes": 7309,
-      "middleRecordSizeBytes": 7277,
-      "finalRecordSizeBytes": 11036,
-      "largestRecordSizeBytes": 11036,
-      "sizeIncreaseFromFirstToFinalBytes": 3727
+      "correlationWithOrder": 0.5431,
+      "firstRecordSizeBytes": 7069,
+      "middleRecordSizeBytes": 6960,
+      "finalRecordSizeBytes": 10536,
+      "largestRecordSizeBytes": 10536,
+      "sizeIncreaseFromFirstToFinalBytes": 3467
     },
     {
       "prefix": "DM",
       "chapterName": "Chapter 9 - Decision Making",
       "count": 100,
-      "correlationWithOrder": -0.599,
-      "firstRecordSizeBytes": 7205,
-      "middleRecordSizeBytes": 8071,
-      "finalRecordSizeBytes": 1610,
-      "largestRecordSizeBytes": 9281,
-      "sizeIncreaseFromFirstToFinalBytes": -5595
+      "correlationWithOrder": 0.2428,
+      "firstRecordSizeBytes": 7050,
+      "middleRecordSizeBytes": 7827,
+      "finalRecordSizeBytes": 9125,
+      "largestRecordSizeBytes": 9125,
+      "sizeIncreaseFromFirstToFinalBytes": 2075
     },
     {
       "prefix": "TO",
       "chapterName": "Chapter 10 - Team Offence",
       "count": 100,
-      "correlationWithOrder": 0.1393,
-      "firstRecordSizeBytes": 8458,
-      "middleRecordSizeBytes": 7396,
-      "finalRecordSizeBytes": 11558,
-      "largestRecordSizeBytes": 11558,
-      "sizeIncreaseFromFirstToFinalBytes": 3100
+      "correlationWithOrder": 0.1202,
+      "firstRecordSizeBytes": 8194,
+      "middleRecordSizeBytes": 7115,
+      "finalRecordSizeBytes": 11114,
+      "largestRecordSizeBytes": 11114,
+      "sizeIncreaseFromFirstToFinalBytes": 2920
     },
     {
       "prefix": "TD",
       "chapterName": "Chapter 11 - Team Defence",
       "count": 100,
-      "correlationWithOrder": 0.4287,
-      "firstRecordSizeBytes": 7679,
-      "middleRecordSizeBytes": 7320,
-      "finalRecordSizeBytes": 11446,
-      "largestRecordSizeBytes": 11446,
-      "sizeIncreaseFromFirstToFinalBytes": 3767
+      "correlationWithOrder": 0.4299,
+      "firstRecordSizeBytes": 7427,
+      "middleRecordSizeBytes": 7062,
+      "finalRecordSizeBytes": 10930,
+      "largestRecordSizeBytes": 10930,
+      "sizeIncreaseFromFirstToFinalBytes": 3503
     },
     {
       "prefix": "TR",
       "chapterName": "Chapter 12 - Transition",
       "count": 100,
-      "correlationWithOrder": 0.0728,
-      "firstRecordSizeBytes": 8394,
-      "middleRecordSizeBytes": 7937,
-      "finalRecordSizeBytes": 11759,
-      "largestRecordSizeBytes": 11759,
-      "sizeIncreaseFromFirstToFinalBytes": 3365
+      "correlationWithOrder": 0.0603,
+      "firstRecordSizeBytes": 8184,
+      "middleRecordSizeBytes": 7646,
+      "finalRecordSizeBytes": 11015,
+      "largestRecordSizeBytes": 11015,
+      "sizeIncreaseFromFirstToFinalBytes": 2831
     },
     {
       "prefix": "CF",
       "chapterName": "Chapter 13 - Conditioning with Football",
       "count": 80,
-      "correlationWithOrder": 0.0951,
-      "firstRecordSizeBytes": 8095,
-      "middleRecordSizeBytes": 7060,
-      "finalRecordSizeBytes": 10518,
-      "largestRecordSizeBytes": 10518,
-      "sizeIncreaseFromFirstToFinalBytes": 2423
+      "correlationWithOrder": 0.1002,
+      "firstRecordSizeBytes": 7813,
+      "middleRecordSizeBytes": 6782,
+      "finalRecordSizeBytes": 10030,
+      "largestRecordSizeBytes": 10030,
+      "sizeIncreaseFromFirstToFinalBytes": 2217
     },
     {
       "prefix": "SG",
       "chapterName": "Chapter 14 - Small-Sided Games",
       "count": 100,
-      "correlationWithOrder": 0.3399,
-      "firstRecordSizeBytes": 7145,
-      "middleRecordSizeBytes": 7557,
-      "finalRecordSizeBytes": 12750,
-      "largestRecordSizeBytes": 12750,
-      "sizeIncreaseFromFirstToFinalBytes": 5605
+      "correlationWithOrder": 0.3415,
+      "firstRecordSizeBytes": 6954,
+      "middleRecordSizeBytes": 7312,
+      "finalRecordSizeBytes": 11544,
+      "largestRecordSizeBytes": 11544,
+      "sizeIncreaseFromFirstToFinalBytes": 4590
     },
     {
       "prefix": "MS",
       "chapterName": "Chapter 15 - Match Simulation",
       "count": 100,
-      "correlationWithOrder": -0.1014,
-      "firstRecordSizeBytes": 9264,
-      "middleRecordSizeBytes": 8437,
-      "finalRecordSizeBytes": 10243,
-      "largestRecordSizeBytes": 10243,
-      "sizeIncreaseFromFirstToFinalBytes": 979
+      "correlationWithOrder": -0.0909,
+      "firstRecordSizeBytes": 8974,
+      "middleRecordSizeBytes": 8091,
+      "finalRecordSizeBytes": 9767,
+      "largestRecordSizeBytes": 9767,
+      "sizeIncreaseFromFirstToFinalBytes": 793
     },
     {
       "prefix": "TA",
       "chapterName": "Chapter 16 - Testing and Assessment",
       "count": 60,
-      "correlationWithOrder": 0.0141,
-      "firstRecordSizeBytes": 8716,
-      "middleRecordSizeBytes": 7717,
-      "finalRecordSizeBytes": 10986,
-      "largestRecordSizeBytes": 10986,
-      "sizeIncreaseFromFirstToFinalBytes": 2270
+      "correlationWithOrder": -0.0122,
+      "firstRecordSizeBytes": 8412,
+      "middleRecordSizeBytes": 7326,
+      "finalRecordSizeBytes": 10430,
+      "largestRecordSizeBytes": 10430,
+      "sizeIncreaseFromFirstToFinalBytes": 2018
     }
   ],
   "top10LargestRecords": [
     {
       "id": "RK-080",
       "title": "Ruck and Stoppage Craft Chapter Final Assessment",
-      "sizeBytes": 12898,
-      "sizeKB": "12.60"
+      "sizeBytes": 12463,
+      "sizeKB": "12.17"
     },
     {
       "id": "SG-100",
       "title": "Small-Sided Games Chapter Final Assessment",
-      "sizeBytes": 12750,
-      "sizeKB": "12.45"
-    },
-    {
-      "id": "TR-100",
-      "title": "Transition Chapter Final Assessment",
-      "sizeBytes": 11759,
-      "sizeKB": "11.48"
-    },
-    {
-      "id": "SP-080",
-      "title": "Spoiling and Aerial Defence Chapter Final Assessment",
-      "sizeBytes": 11680,
-      "sizeKB": "11.41"
+      "sizeBytes": 11544,
+      "sizeKB": "11.27"
     },
     {
       "id": "TO-100",
       "title": "Team Offence Chapter Final Assessment",
-      "sizeBytes": 11558,
-      "sizeKB": "11.29"
+      "sizeBytes": 11114,
+      "sizeKB": "10.85"
+    },
+    {
+      "id": "SP-080",
+      "title": "Spoiling and Aerial Defence Chapter Final Assessment",
+      "sizeBytes": 11113,
+      "sizeKB": "10.85"
+    },
+    {
+      "id": "TR-100",
+      "title": "Transition Chapter Final Assessment",
+      "sizeBytes": 11015,
+      "sizeKB": "10.76"
     },
     {
       "id": "MK-120",
       "title": "Complete Marking Chapter Assessment",
-      "sizeBytes": 11473,
-      "sizeKB": "11.20"
+      "sizeBytes": 10997,
+      "sizeKB": "10.74"
     },
     {
       "id": "TD-100",
       "title": "Team Defence Chapter Final Assessment",
-      "sizeBytes": 11446,
-      "sizeKB": "11.18"
-    },
-    {
-      "id": "SG-060",
-      "title": "Small-Sided Pressure Phase Assessment",
-      "sizeBytes": 11041,
-      "sizeKB": "10.78"
+      "sizeBytes": 10930,
+      "sizeKB": "10.67"
     },
     {
       "id": "EA-080",
       "title": "Evasion, Agility and Movement Chapter Final Assessment",
-      "sizeBytes": 11036,
-      "sizeKB": "10.78"
+      "sizeBytes": 10536,
+      "sizeKB": "10.29"
     },
     {
       "id": "TA-060",
       "title": "Testing and Assessment Chapter Final Assessment",
-      "sizeBytes": 10986,
-      "sizeKB": "10.73"
+      "sizeBytes": 10430,
+      "sizeKB": "10.19"
+    },
+    {
+      "id": "TK-120",
+      "title": "Tackling and Pressure Chapter Final Assessment",
+      "sizeBytes": 10229,
+      "sizeKB": "9.99"
     }
   ],
   "deduplicatedWarningsSummary": {

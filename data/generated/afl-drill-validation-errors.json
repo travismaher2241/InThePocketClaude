@@ -4,8 +4,13 @@
   "invalidRelatedDrills": [
     {
       "drillId": "KK-080",
-      "raw": "TT-001 – Team Ball Movement Philosophy",
+      "raw": "TT-001",
       "error": "Referenced drill TT-001 does not exist"
+    },
+    {
+      "drillId": "SP-070",
+      "raw": "SP-070",
+      "error": "Self-reference"
     }
   ]
 }
