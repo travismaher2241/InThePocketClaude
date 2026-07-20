@@ -1,0 +1,33 @@
+{
+  "savedAt": "2026-07-20T12:01:44.107Z",
+  "templates": [
+    {
+      "name": "TrainingLab_AI_Plan_Generation_Prompt",
+      "sourceFile": "src/components/TrainingLab.jsx",
+      "lines": "1495-1673",
+      "description": "Main AI session plan generator prompt template incorporating injectedDrillsText, syllabusDrillsText, ratiosText, and cardFormatText",
+      "formatKeys": [
+        "title",
+        "duration",
+        "instructions",
+        "goal",
+        "phase"
+      ],
+      "instructionSubheadings": [
+        "DRILL NAME & OBJECTIVE:",
+        "TARGET KICKING TYPE:",
+        "SETUP & GRID DIMENSIONS:",
+        "EXECUTION & RULES:",
+        "ELITE COACHING CUES:",
+        "PROGRESSIONS & REGRESSIONS:"
+      ]
+    },
+    {
+      "name": "FirebaseHelpers_GenerateAIPlanSecure",
+      "sourceFile": "src/firebaseHelpers.js",
+      "lines": "311-334",
+      "description": "Gemini API call handler using gemini-2.5-flash with structured response JSON schema",
+      "responseMimeType": "application/json"
+    }
+  ]
+}
