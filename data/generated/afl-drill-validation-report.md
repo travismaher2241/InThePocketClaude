@@ -1,10 +1,10 @@
 # AFL Coaching Reference Library — Final Provenance & Heading Identity Audit Report
 
-**Generated At**: 2026-07-20T22:15:58.448Z
+**Generated At**: 2026-07-20T22:31:04.936Z
 **Total Extracted Records**: 1610 / 1,610 drills (100% Complete)
 **Exact Committed Heading Regex**: `/^([A-Z]{2}-\d{3})\s*[\u2013\-]\s*(.+)$/` (`^` and `$` anchored, mandatory separator dash)
-**Actual File Size on Disk**: 14.09 MB (14774431 bytes)
-**Compact Dataset Size**: 10.86 MB (11389900 bytes)
+**Actual File Size on Disk**: 14.11 MB (14794362 bytes)
+**Compact Dataset Size**: 10.88 MB (11409831 bytes)
 **Derived Fallback Count (Coaching Content)**: 0 | **Parser Failure Count**: 0
 **Phase 3 Status**: PASSED_ALL_CHECKS
 
@@ -27,7 +27,19 @@
 - **Earlier instructional mentions**: 0
 - **Incorrect accepted early occurrences**: 0
 
-## 3. Provenance Totals by Field
+## 3. Source Absence & Metadata Audit Summary
+
+- **sourceAbsentSemanticDefaultCount**: 0
+- **sourceAbsentNonEmptyValueCount**: 0
+- **sourceAbsentInvalidRepresentationCount**: 0
+- **chapterIdMismatchCount**: 0
+- **chapterNameMismatchCount**: 0
+- **sourceFileMismatchCount**: 0
+- **prefixMismatchCount**: 0
+- **chapterOrderMismatchCount**: 0
+- **globalOrderMismatchCount**: 0
+
+## 4. Provenance Totals by Field
 
 | Field Name | NORMALISED_SOURCE | SOURCE_ABSENT | STRUCTURED_FROM_SOURCE | APPROVED_METADATA | DERIVED_FALLBACK | PARSER_FAILURE | Status |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
@@ -60,7 +72,7 @@
 
 ---
 
-## 4. TK-111 through TK-120 Earlier Occurrence Audit
+## 5. TK-111 through TK-120 Earlier Occurrence Audit
 
 | Drill ID | Accepted Heading Node Index | Earlier Occurrences | Incorrect Early Selections | Status |
 | :--- | :---: | :---: | :---: | :--- |

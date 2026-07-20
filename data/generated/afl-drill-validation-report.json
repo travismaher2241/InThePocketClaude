@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-20T22:15:58.446Z",
+  "generatedAt": "2026-07-20T22:31:04.934Z",
   "committedRegexPattern": "/^([A-Z]{2}-\\d{3})\\s*[\\u2013\\-]\\s*(.+)$/",
   "totalExtractedRecords": 1610,
   "expectedTotalRecords": 1610,
@@ -3214,6 +3214,20 @@
     "earlierInstructionalMentions": 0,
     "incorrectAcceptedEarlyOccurrences": 0
   },
+  "semanticDefaultDetections": [],
+  "sourceAbsentAudit": {
+    "sourceAbsentSemanticDefaultCount": 0,
+    "sourceAbsentNonEmptyValueCount": 0,
+    "sourceAbsentInvalidRepresentationCount": 0
+  },
+  "canonicalMetadataAudit": {
+    "chapterIdMismatchCount": 0,
+    "chapterNameMismatchCount": 0,
+    "sourceFileMismatchCount": 0,
+    "prefixMismatchCount": 0,
+    "chapterOrderMismatchCount": 0,
+    "globalOrderMismatchCount": 0
+  },
   "tk111to120Audit": [
     {
       "drillId": "TK-111",
@@ -3297,12 +3311,12 @@
     }
   ],
   "fileSizeReconciliation": {
-    "actualFileSizeBytes": 14774431,
-    "actualFileSizeMB": 14.09,
-    "compactDatasetSizeBytes": 11389900,
-    "compactDatasetSizeMB": 10.86,
-    "sumIndividualRecordBytes": 11388289,
-    "sumIndividualRecordMB": 10.86,
+    "actualFileSizeBytes": 14794362,
+    "actualFileSizeMB": 14.11,
+    "compactDatasetSizeBytes": 11409831,
+    "compactDatasetSizeMB": 10.88,
+    "sumIndividualRecordBytes": 11408220,
+    "sumIndividualRecordMB": 10.88,
     "formattingOverheadBytes": 3384531,
     "formattingOverheadMB": 3.23
   },
@@ -3543,14 +3557,14 @@
     }
   },
   "sizeDistributionMetricsBytes": {
-    "min": 1798,
-    "median": 7150,
-    "mean": 7073,
-    "p75": 7467,
-    "p90": 7959,
-    "p95": 8465,
-    "p99": 9680,
-    "max": 12463
+    "min": 1720,
+    "median": 7165,
+    "mean": 7086,
+    "p75": 7483,
+    "p90": 7969,
+    "p95": 8474,
+    "p99": 9695,
+    "max": 12484
   },
   "totalErrorCount": 0,
   "status": "PASSED_ALL_CHECKS"

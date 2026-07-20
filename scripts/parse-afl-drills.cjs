@@ -288,36 +288,6 @@ function parseContactSchema(htmlText) {
   };
 }
 
-function parseContactSchema(htmlText) {
-  const raw = cleanText(htmlText);
-  let min = 0, max = 0, rec = 0, desc = raw;
-
-  const numMatch = raw.match(/(\d+)(?:\s*[\u2013\-]\s*(\d+))?/);
-  if (numMatch) {
-    min = parseInt(numMatch[1], 10);
-    if (numMatch[2]) {
-      max = parseInt(numMatch[2], 10);
-      rec = Math.round((min + max) / 2);
-    } else {
-      max = min;
-      rec = min;
-    }
-  }
-
-  const parts = raw.split(/[\u2013\-]/);
-  if (parts.length > 1) {
-    desc = parts.slice(1).join(' ').trim();
-  }
-
-  return {
-    minimumRating: min,
-    maximumRating: max,
-    recommendedRating: rec,
-    description: desc || raw,
-    raw: raw
-  };
-}
-
 function parseRatingField(htmlText) {
   const raw = cleanText(htmlText);
   let rating = 1;
@@ -519,7 +489,6 @@ function verifyHeadingContext($, element, idx, bodyChildren, matchedId, prefix) 
 
     if (insideRelated) {
       if (isValidContext) {
-        // The Related Drills heading must belong to the previous drill block
         insideRelated = false;
       } else {
         return { isValid: false, reason: 'RELATED_DRILL_REFERENCE' };
@@ -609,6 +578,8 @@ async function runFullExtraction() {
   const headingContextAudit = [];
   const rejectedNodesList = [];
   const paragraphHeadingsAudit = [];
+  const drillSectionMaps = new Map();
+  const drillFieldProvenances = new Map();
 
   const provenanceTotals = {
     category: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
@@ -867,6 +838,7 @@ async function runFullExtraction() {
       const liMatches = sliceHtml.match(/<li[^>]*>([\s\S]*?)<\/li>/gi) || [];
 
       const sectionMap = parseSectionsFromDOMNodes($, sliceNodes);
+      drillSectionMaps.set(hInfo.drillId, sectionMap);
 
       const parsedTitle = hInfo.title;
       const chapterOrder = hIdx + 1;
@@ -876,12 +848,17 @@ async function runFullExtraction() {
       const parsedRelated = parseRelatedDrillsRobust(sectionMap['Related Drills']);
 
       // CATEGORY
+      const fieldProvenances = {};
+
+      // CATEGORY
       let parsedCategory = "";
       if (sectionMap['Category'] !== undefined) {
         parsedCategory = cleanText(sectionMap['Category']);
         provenanceTotals.category.NORMALISED_SOURCE++;
+        fieldProvenances.category = "NORMALISED_SOURCE";
       } else {
         provenanceTotals.category.SOURCE_ABSENT++;
+        fieldProvenances.category = "SOURCE_ABSENT";
       }
 
       // PRIMARY SKILL
@@ -889,8 +866,10 @@ async function runFullExtraction() {
       if (sectionMap['Primary Skill'] !== undefined) {
         parsedPrimarySkill = cleanText(sectionMap['Primary Skill']);
         provenanceTotals.primarySkill.NORMALISED_SOURCE++;
+        fieldProvenances.primarySkill = "NORMALISED_SOURCE";
       } else {
         provenanceTotals.primarySkill.SOURCE_ABSENT++;
+        fieldProvenances.primarySkill = "SOURCE_ABSENT";
       }
 
       // OBJECTIVE
@@ -898,31 +877,39 @@ async function runFullExtraction() {
       if (sectionMap['Objective'] !== undefined) {
         parsedObjective = cleanText(sectionMap['Objective']);
         provenanceTotals.objective.NORMALISED_SOURCE++;
+        fieldProvenances.objective = "NORMALISED_SOURCE";
       } else if (sectionMap['Drill ID'] !== undefined) {
         const drillIdRaw = cleanText(sectionMap['Drill ID']);
         const cleanedIdText = drillIdRaw.replace(hInfo.drillId, '').trim();
         if (cleanedIdText) {
           parsedObjective = cleanedIdText;
           provenanceTotals.objective.NORMALISED_SOURCE++;
+          fieldProvenances.objective = "NORMALISED_SOURCE";
         } else if (sectionMap['_unlabelledBody'] !== undefined) {
           parsedObjective = cleanText(sectionMap['_unlabelledBody']);
           provenanceTotals.objective.NORMALISED_SOURCE++;
+          fieldProvenances.objective = "NORMALISED_SOURCE";
         } else {
           provenanceTotals.objective.SOURCE_ABSENT++;
+          fieldProvenances.objective = "SOURCE_ABSENT";
         }
       } else if (sectionMap['_unlabelledBody'] !== undefined) {
         parsedObjective = cleanText(sectionMap['_unlabelledBody']);
         provenanceTotals.objective.NORMALISED_SOURCE++;
+        fieldProvenances.objective = "NORMALISED_SOURCE";
       } else {
         provenanceTotals.objective.SOURCE_ABSENT++;
+        fieldProvenances.objective = "SOURCE_ABSENT";
       }
 
       function parseArrayFieldWithProvenance(sectionKey, fieldName, parseFn) {
         if (sectionMap[sectionKey] !== undefined) {
           provenanceTotals[fieldName].NORMALISED_SOURCE++;
+          fieldProvenances[fieldName] = "NORMALISED_SOURCE";
           return parseFn(sectionMap[sectionKey]);
         } else {
           provenanceTotals[fieldName].SOURCE_ABSENT++;
+          fieldProvenances[fieldName] = "SOURCE_ABSENT";
           return [];
         }
       }
@@ -932,10 +919,30 @@ async function runFullExtraction() {
       const equipment = parseArrayFieldWithProvenance('Equipment', 'equipment', parseListItems);
       const sessionPlacement = parseArrayFieldWithProvenance('Session Placement', 'sessionPlacement', parseListItems);
       const setup = parseArrayFieldWithProvenance('Setup', 'setup', parseListItems);
-      const instructions = parseArrayFieldWithProvenance('How the Drill Works', 'instructions', htmlVal => parseListItems(htmlVal || sectionMap['Instructions']));
+
+      let instructions = [];
+      if (sectionMap['How the Drill Works'] !== undefined || sectionMap['Instructions'] !== undefined) {
+        provenanceTotals.instructions.NORMALISED_SOURCE++;
+        fieldProvenances.instructions = "NORMALISED_SOURCE";
+        instructions = parseListItems(sectionMap['How the Drill Works'] || sectionMap['Instructions']);
+      } else {
+        provenanceTotals.instructions.SOURCE_ABSENT++;
+        fieldProvenances.instructions = "SOURCE_ABSENT";
+      }
+
       const coachingPoints = parseArrayFieldWithProvenance('Coaching Points', 'coachingPoints', parseListItems);
       const coachingCues = parseArrayFieldWithProvenance('Coaching Cues', 'coachingCues', parseListItems);
-      const observations = parseArrayFieldWithProvenance('What the Coach Should Observe', 'observations', htmlVal => parseListItems(htmlVal || sectionMap['Observations']));
+
+      let observations = [];
+      if (sectionMap['What the Coach Should Observe'] !== undefined || sectionMap['Observations'] !== undefined) {
+        provenanceTotals.observations.NORMALISED_SOURCE++;
+        fieldProvenances.observations = "NORMALISED_SOURCE";
+        observations = parseListItems(sectionMap['What the Coach Should Observe'] || sectionMap['Observations']);
+      } else {
+        provenanceTotals.observations.SOURCE_ABSENT++;
+        fieldProvenances.observations = "SOURCE_ABSENT";
+      }
+
       const commonErrors = parseArrayFieldWithProvenance('Common Errors', 'commonErrors', parseCommonErrorsTable);
       const progressions = parseArrayFieldWithProvenance('Progressions', 'progressions', parseListItems);
       const regressions = parseArrayFieldWithProvenance('Regressions', 'regressions', parseListItems);
@@ -946,33 +953,39 @@ async function runFullExtraction() {
       if (sectionMap['Match Application'] !== undefined) {
         matchApp = cleanText(sectionMap['Match Application']);
         provenanceTotals.matchApplication.NORMALISED_SOURCE++;
+        fieldProvenances.matchApplication = "NORMALISED_SOURCE";
       } else {
         provenanceTotals.matchApplication.SOURCE_ABSENT++;
+        fieldProvenances.matchApplication = "SOURCE_ABSENT";
       }
 
       // RELATED DRILLS
       if (sectionMap['Related Drills'] !== undefined) {
         provenanceTotals.relatedDrills.NORMALISED_SOURCE++;
+        fieldProvenances.relatedDrills = "NORMALISED_SOURCE";
       } else {
         provenanceTotals.relatedDrills.SOURCE_ABSENT++;
+        fieldProvenances.relatedDrills = "SOURCE_ABSENT";
       }
 
       // AGE GROUPS
       let ageGroups = parseAgeGroupsTable(sectionMap['Age Groups']);
       if (sectionMap['Age Groups'] !== undefined) {
         provenanceTotals.ageGroups.STRUCTURED_FROM_SOURCE++;
+        fieldProvenances.ageGroups = "STRUCTURED_FROM_SOURCE";
       } else {
         provenanceTotals.ageGroups.SOURCE_ABSENT++;
+        fieldProvenances.ageGroups = "SOURCE_ABSENT";
         ageGroups = {
-          U8: '✗ Unsuitable',
-          U10: '✗ Unsuitable',
-          U12: '✗ Unsuitable',
-          U14: '✗ Unsuitable',
-          U16: '✗ Unsuitable',
-          U18: '✗ Unsuitable',
-          SeniorWomen: '✗ Unsuitable',
-          SeniorMen: '✗ Unsuitable',
-          Over35Men: '✗ Unsuitable'
+          U8: null,
+          U10: null,
+          U12: null,
+          U14: null,
+          U16: null,
+          U18: null,
+          SeniorWomen: null,
+          SeniorMen: null,
+          Over35Men: null
         };
       }
 
@@ -980,12 +993,14 @@ async function runFullExtraction() {
       let players = parsePlayerCounts(sectionMap['Players']);
       if (sectionMap['Players'] !== undefined) {
         provenanceTotals.players.STRUCTURED_FROM_SOURCE++;
+        fieldProvenances.players = "STRUCTURED_FROM_SOURCE";
       } else {
         provenanceTotals.players.SOURCE_ABSENT++;
+        fieldProvenances.players = "SOURCE_ABSENT";
         players = {
-          minimum: 2,
-          idealMinimum: 10,
-          idealMaximum: 20,
+          minimum: null,
+          idealMinimum: null,
+          idealMaximum: null,
           maximum: null,
           maximumLabel: null
         };
@@ -995,8 +1010,10 @@ async function runFullExtraction() {
       let groundSize = parseGroundSize(sectionMap['Ground Size']);
       if (sectionMap['Ground Size'] !== undefined) {
         provenanceTotals.groundSize.STRUCTURED_FROM_SOURCE++;
+        fieldProvenances.groundSize = "STRUCTURED_FROM_SOURCE";
       } else {
         provenanceTotals.groundSize.SOURCE_ABSENT++;
+        fieldProvenances.groundSize = "SOURCE_ABSENT";
         groundSize = {
           description: "",
           lengthMeters: null,
@@ -1008,8 +1025,10 @@ async function runFullExtraction() {
       let time = parseTimeRange(cleanText(sectionMap['Time']));
       if (sectionMap['Time'] !== undefined) {
         provenanceTotals.time.STRUCTURED_FROM_SOURCE++;
+        fieldProvenances.time = "STRUCTURED_FROM_SOURCE";
       } else {
         provenanceTotals.time.SOURCE_ABSENT++;
+        fieldProvenances.time = "SOURCE_ABSENT";
         time = {
           minimumMinutes: null,
           recommendedMinutes: null,
@@ -1022,10 +1041,12 @@ async function runFullExtraction() {
       let physicalLoad = parseRatingField(sectionMap['Physical Load']);
       if (sectionMap['Physical Load'] !== undefined) {
         provenanceTotals.physicalLoad.STRUCTURED_FROM_SOURCE++;
+        fieldProvenances.physicalLoad = "STRUCTURED_FROM_SOURCE";
       } else {
         provenanceTotals.physicalLoad.SOURCE_ABSENT++;
+        fieldProvenances.physicalLoad = "SOURCE_ABSENT";
         physicalLoad = {
-          rating: 1,
+          rating: null,
           description: ""
         };
       }
@@ -1034,10 +1055,12 @@ async function runFullExtraction() {
       let mentalLoad = parseRatingField(sectionMap['Mental Load']);
       if (sectionMap['Mental Load'] !== undefined) {
         provenanceTotals.mentalLoad.STRUCTURED_FROM_SOURCE++;
+        fieldProvenances.mentalLoad = "STRUCTURED_FROM_SOURCE";
       } else {
         provenanceTotals.mentalLoad.SOURCE_ABSENT++;
+        fieldProvenances.mentalLoad = "SOURCE_ABSENT";
         mentalLoad = {
-          rating: 1,
+          rating: null,
           description: ""
         };
       }
@@ -1046,12 +1069,14 @@ async function runFullExtraction() {
       let contact = parseContactSchema(sectionMap['Contact']);
       if (sectionMap['Contact'] !== undefined) {
         provenanceTotals.contact.STRUCTURED_FROM_SOURCE++;
+        fieldProvenances.contact = "STRUCTURED_FROM_SOURCE";
       } else {
         provenanceTotals.contact.SOURCE_ABSENT++;
+        fieldProvenances.contact = "SOURCE_ABSENT";
         contact = {
-          minimumRating: 0,
-          maximumRating: 0,
-          recommendedRating: 0,
+          minimumRating: null,
+          maximumRating: null,
+          recommendedRating: null,
           description: "",
           raw: ""
         };
@@ -1061,10 +1086,12 @@ async function runFullExtraction() {
       let coachingDifficulty = parseRatingField(sectionMap['Coaching Difficulty']);
       if (sectionMap['Coaching Difficulty'] !== undefined) {
         provenanceTotals.coachingDifficulty.STRUCTURED_FROM_SOURCE++;
+        fieldProvenances.coachingDifficulty = "STRUCTURED_FROM_SOURCE";
       } else {
         provenanceTotals.coachingDifficulty.SOURCE_ABSENT++;
+        fieldProvenances.coachingDifficulty = "SOURCE_ABSENT";
         coachingDifficulty = {
-          rating: 1,
+          rating: null,
           description: ""
         };
       }
@@ -1072,7 +1099,7 @@ async function runFullExtraction() {
       const record = {
         id: hInfo.drillId,
         title: parsedTitle,
-        chapterId: `chapter-${ch.chapterNumber}-${ch.prefix.toLowerCase()}`,
+        chapterId: ch.chapterId,
         chapterName: ch.chapterName,
         category: parsedCategory,
         primarySkill: parsedPrimarySkill,
@@ -1160,6 +1187,7 @@ async function runFullExtraction() {
         });
       }
 
+      drillFieldProvenances.set(record.id, fieldProvenances);
       chapterDrills.push(record);
       allExtractedDrills.push(record);
     }
@@ -1216,6 +1244,293 @@ async function runFullExtraction() {
   if (paragraphHeadingsMissingMatchingValue !== 0) throw new Error('Assertion failed: paragraph headings missing matching value is not zero');
   if (paragraphHeadingsWithMismatchedId !== 0) throw new Error('Assertion failed: paragraph headings with mismatched ID is not zero');
 
+  // Semantic-default detection and source-absent validation checks
+  const semanticDefaultDetections = [];
+  let sourceAbsentSemanticDefaultCount = 0;
+  let sourceAbsentNonEmptyValueCount = 0;
+  let sourceAbsentInvalidRepresentationCount = 0;
+
+  allExtractedDrills.forEach(record => {
+    const provs = drillFieldProvenances.get(record.id);
+
+    function checkAbsentString(field) {
+      if (provs[field] === 'SOURCE_ABSENT') {
+        if (record[field] !== "") {
+          sourceAbsentNonEmptyValueCount++;
+          semanticDefaultDetections.push({
+            drillId: record.id,
+            field: field,
+            currentValue: record[field],
+            sourceStatus: 'SOURCE_ABSENT',
+            defaultSignature: 'Non-empty string',
+            correctionApplied: 'Forced to empty string'
+          });
+          record[field] = "";
+        }
+      }
+    }
+
+    function checkAbsentArray(field) {
+      if (provs[field] === 'SOURCE_ABSENT') {
+        if (record[field].length > 0) {
+          sourceAbsentNonEmptyValueCount++;
+          semanticDefaultDetections.push({
+            drillId: record.id,
+            field: field,
+            currentValue: record[field],
+            sourceStatus: 'SOURCE_ABSENT',
+            defaultSignature: 'Non-empty array',
+            correctionApplied: 'Forced to empty array'
+          });
+          record[field] = [];
+        }
+      }
+    }
+
+    checkAbsentString('category');
+    checkAbsentString('primarySkill');
+    checkAbsentString('matchApplication');
+
+    checkAbsentArray('secondarySkills');
+    checkAbsentArray('skillLevel');
+    checkAbsentArray('equipment');
+    checkAbsentArray('sessionPlacement');
+    checkAbsentArray('setup');
+    checkAbsentArray('instructions');
+    checkAbsentArray('coachingPoints');
+    checkAbsentArray('coachingCues');
+    checkAbsentArray('observations');
+    checkAbsentArray('commonErrors');
+    checkAbsentArray('progressions');
+    checkAbsentArray('regressions');
+    checkAbsentArray('successIndicators');
+    checkAbsentArray('relatedDrills');
+
+    // ageGroups
+    if (provs.ageGroups === 'SOURCE_ABSENT') {
+      const vals = Object.values(record.ageGroups);
+      const hasNonNull = vals.some(v => v !== null);
+      if (hasNonNull) {
+        sourceAbsentNonEmptyValueCount++;
+        const hasSemanticDefault = vals.some(v => v === '✗ Unsuitable' || v === 'Unsuitable' || v === '✓ Suitable' || v === 'Suitable');
+        if (hasSemanticDefault) {
+          sourceAbsentSemanticDefaultCount++;
+        }
+        semanticDefaultDetections.push({
+          drillId: record.id,
+          field: 'ageGroups',
+          currentValue: record.ageGroups,
+          sourceStatus: 'SOURCE_ABSENT',
+          defaultSignature: hasSemanticDefault ? 'Semantic default age groups' : 'Non-null age groups',
+          correctionApplied: 'Set all suitability values to null'
+        });
+        Object.keys(record.ageGroups).forEach(k => {
+          record.ageGroups[k] = null;
+        });
+      }
+    }
+
+    // players
+    if (provs.players === 'SOURCE_ABSENT') {
+      const p = record.players;
+      if (p.minimum !== null || p.idealMinimum !== null || p.idealMaximum !== null || p.maximum !== null || p.maximumLabel !== null) {
+        sourceAbsentNonEmptyValueCount++;
+        const isSemanticDefault = (p.minimum === 2 && p.idealMinimum === 10 && p.idealMaximum === 20);
+        if (isSemanticDefault) {
+          sourceAbsentSemanticDefaultCount++;
+        }
+        semanticDefaultDetections.push({
+          drillId: record.id,
+          field: 'players',
+          currentValue: record.players,
+          sourceStatus: 'SOURCE_ABSENT',
+          defaultSignature: isSemanticDefault ? 'minimum=2, idealMinimum=10, idealMaximum=20' : 'Non-null player metrics',
+          correctionApplied: 'Set all player fields to null'
+        });
+        p.minimum = null;
+        p.idealMinimum = null;
+        p.idealMaximum = null;
+        p.maximum = null;
+        p.maximumLabel = null;
+      }
+    }
+
+    // groundSize
+    if (provs.groundSize === 'SOURCE_ABSENT') {
+      const g = record.groundSize;
+      if (g.description !== "" || g.lengthMeters !== null || g.widthMeters !== null) {
+        sourceAbsentNonEmptyValueCount++;
+        semanticDefaultDetections.push({
+          drillId: record.id,
+          field: 'groundSize',
+          currentValue: record.groundSize,
+          sourceStatus: 'SOURCE_ABSENT',
+          defaultSignature: 'Non-empty groundSize values',
+          correctionApplied: 'Set description to empty, lengths to null'
+        });
+        g.description = "";
+        g.lengthMeters = null;
+        g.widthMeters = null;
+      }
+    }
+
+    // time
+    if (provs.time === 'SOURCE_ABSENT') {
+      const t = record.time;
+      if (t.minimumMinutes !== null || t.recommendedMinutes !== null || t.maximumMinutes !== null || t.raw !== null) {
+        sourceAbsentNonEmptyValueCount++;
+        semanticDefaultDetections.push({
+          drillId: record.id,
+          field: 'time',
+          currentValue: record.time,
+          sourceStatus: 'SOURCE_ABSENT',
+          defaultSignature: 'Non-null time values',
+          correctionApplied: 'Set all time values to null'
+        });
+        t.minimumMinutes = null;
+        t.recommendedMinutes = null;
+        t.maximumMinutes = null;
+        t.raw = null;
+      }
+    }
+
+    // physicalLoad
+    if (provs.physicalLoad === 'SOURCE_ABSENT') {
+      const pl = record.physicalLoad;
+      if (pl.rating !== null || pl.description !== "") {
+        sourceAbsentNonEmptyValueCount++;
+        const isSemanticDefault = pl.rating === 1;
+        if (isSemanticDefault) {
+          sourceAbsentSemanticDefaultCount++;
+        }
+        semanticDefaultDetections.push({
+          drillId: record.id,
+          field: 'physicalLoad',
+          currentValue: record.physicalLoad,
+          sourceStatus: 'SOURCE_ABSENT',
+          defaultSignature: isSemanticDefault ? 'rating = 1' : 'Non-empty physicalLoad',
+          correctionApplied: 'Set rating to null and description to empty'
+        });
+        pl.rating = null;
+        pl.description = "";
+      }
+    }
+
+    // mentalLoad
+    if (provs.mentalLoad === 'SOURCE_ABSENT') {
+      const ml = record.mentalLoad;
+      if (ml.rating !== null || ml.description !== "") {
+        sourceAbsentNonEmptyValueCount++;
+        const isSemanticDefault = ml.rating === 1;
+        if (isSemanticDefault) {
+          sourceAbsentSemanticDefaultCount++;
+        }
+        semanticDefaultDetections.push({
+          drillId: record.id,
+          field: 'mentalLoad',
+          currentValue: record.mentalLoad,
+          sourceStatus: 'SOURCE_ABSENT',
+          defaultSignature: isSemanticDefault ? 'rating = 1' : 'Non-empty mentalLoad',
+          correctionApplied: 'Set rating to null and description to empty'
+        });
+        ml.rating = null;
+        ml.description = "";
+      }
+    }
+
+    // contact
+    if (provs.contact === 'SOURCE_ABSENT') {
+      const c = record.contact;
+      if (c.minimumRating !== null || c.maximumRating !== null || c.recommendedRating !== null || c.description !== "" || c.raw !== "") {
+        sourceAbsentNonEmptyValueCount++;
+        const isSemanticDefault = (c.minimumRating === 0 || c.maximumRating === 0);
+        if (isSemanticDefault) {
+          sourceAbsentSemanticDefaultCount++;
+        }
+        semanticDefaultDetections.push({
+          drillId: record.id,
+          field: 'contact',
+          currentValue: record.contact,
+          sourceStatus: 'SOURCE_ABSENT',
+          defaultSignature: isSemanticDefault ? 'ratings = 0' : 'Non-empty contact values',
+          correctionApplied: 'Set ratings to null, description/raw to empty'
+        });
+        c.minimumRating = null;
+        c.maximumRating = null;
+        c.recommendedRating = null;
+        c.description = "";
+        c.raw = "";
+      }
+    }
+
+    // coachingDifficulty
+    if (provs.coachingDifficulty === 'SOURCE_ABSENT') {
+      const cd = record.coachingDifficulty;
+      if (cd.rating !== null || cd.description !== "") {
+        sourceAbsentNonEmptyValueCount++;
+        const isSemanticDefault = cd.rating === 1;
+        if (isSemanticDefault) {
+          sourceAbsentSemanticDefaultCount++;
+        }
+        semanticDefaultDetections.push({
+          drillId: record.id,
+          field: 'coachingDifficulty',
+          currentValue: record.coachingDifficulty,
+          sourceStatus: 'SOURCE_ABSENT',
+          defaultSignature: isSemanticDefault ? 'rating = 1' : 'Non-empty coachingDifficulty',
+          correctionApplied: 'Set rating to null and description to empty'
+        });
+        cd.rating = null;
+        cd.description = "";
+      }
+    }
+  });
+
+  // Assertion check
+  if (sourceAbsentSemanticDefaultCount !== 0 || sourceAbsentNonEmptyValueCount !== 0 || sourceAbsentInvalidRepresentationCount !== 0) {
+    console.error("AUDIT FAILURE DETAILS:");
+    console.error("sourceAbsentSemanticDefaultCount:", sourceAbsentSemanticDefaultCount);
+    console.error("sourceAbsentNonEmptyValueCount:", sourceAbsentNonEmptyValueCount);
+    console.error("sourceAbsentInvalidRepresentationCount:", sourceAbsentInvalidRepresentationCount);
+    console.error("First 10 detections:", JSON.stringify(semanticDefaultDetections.slice(0, 10), null, 2));
+    throw new Error('Assertion failed: source absent validation is not zero');
+  }
+
+  // Canonical metadata audit
+  let chapterIdMismatchCount = 0;
+  let chapterNameMismatchCount = 0;
+  let sourceFileMismatchCount = 0;
+  let prefixMismatchCount = 0;
+  let chapterOrderMismatchCount = 0;
+  let globalOrderMismatchCount = 0;
+
+  allExtractedDrills.forEach(record => {
+    const ch = AFL_CHAPTER_MANIFEST.find(c => record.id.startsWith(c.prefix));
+    if (!ch) {
+      prefixMismatchCount++;
+      return;
+    }
+    if (record.chapterId !== ch.chapterId) chapterIdMismatchCount++;
+    if (record.chapterName !== ch.chapterName) chapterNameMismatchCount++;
+    if (record.sourceFile !== ch.fileName) sourceFileMismatchCount++;
+    
+    // Prefix check
+    const prefix = record.id.split('-')[0];
+    if (prefix !== ch.prefix) prefixMismatchCount++;
+
+    // Order checks
+    if (record.chapterOrder < 1 || record.chapterOrder > ch.count) chapterOrderMismatchCount++;
+    const expectedGlobalOrder = ch.offset + record.chapterOrder;
+    if (record.globalOrder !== expectedGlobalOrder) globalOrderMismatchCount++;
+  });
+
+  if (chapterIdMismatchCount !== 0) throw new Error('Assertion failed: chapterId mismatch count is not zero');
+  if (chapterNameMismatchCount !== 0) throw new Error('Assertion failed: chapterName mismatch count is not zero');
+  if (sourceFileMismatchCount !== 0) throw new Error('Assertion failed: sourceFile mismatch count is not zero');
+  if (prefixMismatchCount !== 0) throw new Error('Assertion failed: prefix mismatch count is not zero');
+  if (chapterOrderMismatchCount !== 0) throw new Error('Assertion failed: chapterOrder mismatch count is not zero');
+  if (globalOrderMismatchCount !== 0) throw new Error('Assertion failed: globalOrder mismatch count is not zero');
+
   const indSizes = allExtractedDrills.map(d => Buffer.byteLength(JSON.stringify(d), 'utf8'));
   const sumIndBytes = indSizes.reduce((a, b) => a + b, 0);
   const sizeMetrics = calculatePercentiles(indSizes);
@@ -1255,6 +1570,20 @@ async function runFullExtraction() {
       earlierRangeReferences: totalEarlierRangeRefs,
       earlierInstructionalMentions: totalEarlierInstructionalMentions,
       incorrectAcceptedEarlyOccurrences: totalIncorrectEarlyHeadingSelections
+    },
+    semanticDefaultDetections: semanticDefaultDetections,
+    sourceAbsentAudit: {
+      sourceAbsentSemanticDefaultCount,
+      sourceAbsentNonEmptyValueCount,
+      sourceAbsentInvalidRepresentationCount
+    },
+    canonicalMetadataAudit: {
+      chapterIdMismatchCount,
+      chapterNameMismatchCount,
+      sourceFileMismatchCount,
+      prefixMismatchCount,
+      chapterOrderMismatchCount,
+      globalOrderMismatchCount
     },
     tk111to120Audit: tk111to120Audit,
     fileSizeReconciliation: {
@@ -1309,7 +1638,18 @@ async function runFullExtraction() {
   mdContent += `- **Earlier instructional mentions**: ${totalEarlierInstructionalMentions}\n`;
   mdContent += `- **Incorrect accepted early occurrences**: ${totalIncorrectEarlyHeadingSelections}\n\n`;
 
-  mdContent += `## 3. Provenance Totals by Field\n\n`;
+  mdContent += `## 3. Source Absence & Metadata Audit Summary\n\n`;
+  mdContent += `- **sourceAbsentSemanticDefaultCount**: ${sourceAbsentSemanticDefaultCount}\n`;
+  mdContent += `- **sourceAbsentNonEmptyValueCount**: ${sourceAbsentNonEmptyValueCount}\n`;
+  mdContent += `- **sourceAbsentInvalidRepresentationCount**: ${sourceAbsentInvalidRepresentationCount}\n`;
+  mdContent += `- **chapterIdMismatchCount**: ${chapterIdMismatchCount}\n`;
+  mdContent += `- **chapterNameMismatchCount**: ${chapterNameMismatchCount}\n`;
+  mdContent += `- **sourceFileMismatchCount**: ${sourceFileMismatchCount}\n`;
+  mdContent += `- **prefixMismatchCount**: ${prefixMismatchCount}\n`;
+  mdContent += `- **chapterOrderMismatchCount**: ${chapterOrderMismatchCount}\n`;
+  mdContent += `- **globalOrderMismatchCount**: ${globalOrderMismatchCount}\n\n`;
+
+  mdContent += `## 4. Provenance Totals by Field\n\n`;
   mdContent += `| Field Name | NORMALISED_SOURCE | SOURCE_ABSENT | STRUCTURED_FROM_SOURCE | APPROVED_METADATA | DERIVED_FALLBACK | PARSER_FAILURE | Status |\n`;
   mdContent += `| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |\n`;
 
@@ -1319,7 +1659,7 @@ async function runFullExtraction() {
   });
   mdContent += `\n---\n\n`;
 
-  mdContent += `## 4. TK-111 through TK-120 Earlier Occurrence Audit\n\n`;
+  mdContent += `## 5. TK-111 through TK-120 Earlier Occurrence Audit\n\n`;
   mdContent += `| Drill ID | Accepted Heading Node Index | Earlier Occurrences | Incorrect Early Selections | Status |\n`;
   mdContent += `| :--- | :---: | :---: | :---: | :--- |\n`;
 
