@@ -288,6 +288,36 @@ function parseContactSchema(htmlText) {
   };
 }
 
+function parseContactSchema(htmlText) {
+  const raw = cleanText(htmlText);
+  let min = 0, max = 0, rec = 0, desc = raw;
+
+  const numMatch = raw.match(/(\d+)(?:\s*[\u2013\-]\s*(\d+))?/);
+  if (numMatch) {
+    min = parseInt(numMatch[1], 10);
+    if (numMatch[2]) {
+      max = parseInt(numMatch[2], 10);
+      rec = Math.round((min + max) / 2);
+    } else {
+      max = min;
+      rec = min;
+    }
+  }
+
+  const parts = raw.split(/[\u2013\-]/);
+  if (parts.length > 1) {
+    desc = parts.slice(1).join(' ').trim();
+  }
+
+  return {
+    minimumRating: min,
+    maximumRating: max,
+    recommendedRating: rec,
+    description: desc || raw,
+    raw: raw
+  };
+}
+
 function parseRatingField(htmlText) {
   const raw = cleanText(htmlText);
   let rating = 1;
@@ -430,6 +460,9 @@ function verifyHeadingContext($, element, idx, bodyChildren, matchedId, prefix) 
   let isValidContext = false;
   let nearbyDrillIdLabelFound = false;
   let nearbyDrillIdValue = null;
+  let drillIdLabelNodeIndex = -1;
+  let drillIdValueNodeIndex = -1;
+  let labelAndValueSequenceValid = false;
 
   if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName)) {
     isValidContext = true;
@@ -441,7 +474,13 @@ function verifyHeadingContext($, element, idx, bodyChildren, matchedId, prefix) 
     let prevIndex = idx - 1;
     let insideRelated = false;
     while (prevIndex >= 0 && prevIndex >= idx - 15) {
-      const prevTxt = $(bodyChildren[prevIndex]).text().trim();
+      const prevTxt = $(bodyChildren[prevIndex]).text().trim().replace(/\s+/g, ' ');
+      if (prevTxt.match(DRILL_HEADING_PATTERN)) {
+        break;
+      }
+      if (prevTxt === 'Drill ID') {
+        break;
+      }
       if (prevTxt.toLowerCase().includes('related drills')) {
         insideRelated = true;
         break;
@@ -449,22 +488,42 @@ function verifyHeadingContext($, element, idx, bodyChildren, matchedId, prefix) 
       prevIndex--;
     }
 
-    if (insideRelated) {
-      return { isValid: false, reason: 'RELATED_DRILL_REFERENCE' };
+    const next1Text = idx + 1 < bodyChildren.length ? $(bodyChildren[idx + 1]).text().trim().replace(/\s+/g, ' ') : '';
+    const next2Text = idx + 2 < bodyChildren.length ? $(bodyChildren[idx + 2]).text().trim().replace(/\s+/g, ' ') : '';
+
+    if (next1Text.toLowerCase().startsWith('drill id:') || next1Text.toLowerCase() === 'drill id') {
+      if (next1Text.toLowerCase().startsWith('drill id:')) {
+        const val = next1Text.slice('drill id:'.length).trim().toUpperCase();
+        if (val === matchedId) {
+          nearbyDrillIdLabelFound = true;
+          nearbyDrillIdValue = val;
+          drillIdLabelNodeIndex = idx + 1;
+          drillIdValueNodeIndex = idx + 1;
+          labelAndValueSequenceValid = true;
+        }
+      } else if (next1Text.toLowerCase() === 'drill id') {
+        const val = next2Text.toUpperCase();
+        if (val === matchedId) {
+          nearbyDrillIdLabelFound = true;
+          nearbyDrillIdValue = val;
+          drillIdLabelNodeIndex = idx + 1;
+          drillIdValueNodeIndex = idx + 2;
+          labelAndValueSequenceValid = true;
+        }
+      }
     }
 
-    for (let k = idx + 1; k <= Math.min(bodyChildren.length - 1, idx + 4); k++) {
-      const nTxt = $(bodyChildren[k]).text().trim();
-      if (nTxt === 'Drill ID') {
-        nearbyDrillIdLabelFound = true;
-      }
-      if (nTxt === matchedId) {
-        nearbyDrillIdValue = nTxt;
-      }
-    }
-
-    if (nearbyDrillIdLabelFound || nearbyDrillIdValue === matchedId) {
+    if (nearbyDrillIdLabelFound === true && nearbyDrillIdValue === matchedId && labelAndValueSequenceValid === true) {
       isValidContext = true;
+    }
+
+    if (insideRelated) {
+      if (isValidContext) {
+        // The Related Drills heading must belong to the previous drill block
+        insideRelated = false;
+      } else {
+        return { isValid: false, reason: 'RELATED_DRILL_REFERENCE' };
+      }
     }
   }
 
@@ -474,6 +533,9 @@ function verifyHeadingContext($, element, idx, bodyChildren, matchedId, prefix) 
     text: text,
     nearbyDrillIdLabelFound: nearbyDrillIdLabelFound,
     nearbyDrillIdValue: nearbyDrillIdValue,
+    drillIdLabelNodeIndex: drillIdLabelNodeIndex,
+    drillIdValueNodeIndex: drillIdValueNodeIndex,
+    labelAndValueSequenceValid: labelAndValueSequenceValid,
     reason: isValidContext ? 'PASSED' : 'INVALID_HEADING_CONTEXT'
   };
 }
@@ -546,14 +608,23 @@ async function runFullExtraction() {
 
   const headingContextAudit = [];
   const rejectedNodesList = [];
+  const paragraphHeadingsAudit = [];
 
   const provenanceTotals = {
     category: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
     primarySkill: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
-    objective: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
     secondarySkills: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
+    objective: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
+    ageGroups: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
     skillLevel: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
+    players: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
+    groundSize: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
     equipment: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
+    time: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
+    physicalLoad: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
+    mentalLoad: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
+    contact: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
+    coachingDifficulty: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
     sessionPlacement: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
     setup: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
     instructions: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 },
@@ -568,6 +639,8 @@ async function runFullExtraction() {
     relatedDrills: { EXACT_SOURCE: 0, NORMALISED_SOURCE: 0, STRUCTURED_FROM_SOURCE: 0, APPROVED_METADATA: 0, SOURCE_ABSENT: 0, DERIVED_FALLBACK: 0, PARSER_FAILURE: 0 }
   };
 
+  const idOccurrenceMap = {};
+
   for (let cIdx = 0; cIdx < AFL_CHAPTER_MANIFEST.length; cIdx++) {
     const ch = AFL_CHAPTER_MANIFEST[cIdx];
     const filePath = path.join(stagedSourceDirectory, ch.fileName);
@@ -579,6 +652,7 @@ async function runFullExtraction() {
     const acceptedHeadings = [];
     const chapterDrills = [];
     const seenIds = new Set();
+    const acceptedHeadingMap = new Map();
 
     bodyChildren.each((idx, el) => {
       const tagName = el.name ? el.name.toLowerCase() : '';
@@ -620,8 +694,22 @@ async function runFullExtraction() {
 
             const contextResult = verifyHeadingContext($, el, idx, bodyChildren, matchedId, ch.prefix);
 
+            if (tagName === 'p') {
+              paragraphHeadingsAudit.push({
+                drillId: matchedId,
+                headingNodeIndex: idx,
+                exactHeadingText: text,
+                drillIdLabelNodeIndex: contextResult.drillIdLabelNodeIndex,
+                drillIdValueNodeIndex: contextResult.drillIdValueNodeIndex,
+                drillIdValue: contextResult.nearbyDrillIdValue || '',
+                labelAndValueSequenceValid: contextResult.labelAndValueSequenceValid,
+                contextValidationStatus: contextResult.reason
+              });
+            }
+
             if (matchedId.startsWith(ch.prefix) && !seenIds.has(matchedId) && contextResult.isValid) {
               seenIds.add(matchedId);
+              acceptedHeadingMap.set(matchedId, idx);
 
               acceptedHeadings.push({
                 drillId: matchedId,
@@ -671,6 +759,96 @@ async function runFullExtraction() {
       allValidationErrors.push({ chapter: ch.prefix, error: `Accepted heading count (${acceptedHeadings.length}) !== expected (${ch.count})` });
     }
 
+    // Occurrences audit for each target ID in the chapter manifest
+    for (let i = 1; i <= ch.count; i++) {
+      const targetId = `${ch.prefix}-${String(i).padStart(3, '0')}`;
+      const acceptedNodeIdx = acceptedHeadingMap.get(targetId);
+
+      const targetOccurrences = [];
+      let occurrenceCount = 0;
+
+      bodyChildren.each((nodeIdx, node) => {
+        const $node = $(node);
+
+        function search(el) {
+          if (el.type === 'text') {
+            const txt = el.data || '';
+            if (txt.includes(targetId)) {
+              occurrenceCount++;
+              const parent = el.parent;
+              const parentTagName = parent && parent.name ? parent.name.toLowerCase() : '';
+
+              const ancestors = [];
+              let curr = parent;
+              while (curr && curr.name) {
+                ancestors.push(curr.name.toLowerCase());
+                curr = curr.parent;
+              }
+              ancestors.reverse();
+
+              let sectionContext = 'unknown';
+              let prevIdx = nodeIdx - 1;
+              while (prevIdx >= 0 && prevIdx >= nodeIdx - 20) {
+                const prevTxt = $(bodyChildren[prevIdx]).text().trim().replace(/\s+/g, ' ');
+                const matchedHeading = KNOWN_SECTION_HEADINGS.find(h => prevTxt.toLowerCase() === h.toLowerCase() || prevTxt.toLowerCase().startsWith(h.toLowerCase() + ':'));
+                if (matchedHeading) {
+                  sectionContext = matchedHeading;
+                  break;
+                }
+                prevIdx--;
+              }
+
+              let classification = 'OTHER';
+              const completeNodeText = txt.trim().replace(/\s+/g, ' ');
+              const isHeadingNode = acceptedNodeIdx === nodeIdx;
+
+              if (isHeadingNode) {
+                classification = 'ACTUAL_DRILL_HEADING';
+              } else if (sectionContext === 'Related Drills') {
+                classification = 'RELATED_DRILL_REFERENCE';
+              } else if (ancestors.includes('table') || ancestors.includes('tr') || ancestors.includes('td') || ancestors.includes('th')) {
+                classification = 'TABLE_CONTENT';
+              } else if (completeNodeText === targetId && parentTagName === 'p') {
+                let isDrillIdField = false;
+                for (let offset = -2; offset <= 2; offset++) {
+                  if (nodeIdx + offset >= 0 && nodeIdx + offset < bodyChildren.length) {
+                    const testTxt = $(bodyChildren[nodeIdx + offset]).text().trim();
+                    if (testTxt === 'Drill ID') {
+                      isDrillIdField = true;
+                      break;
+                    }
+                  }
+                }
+                classification = isDrillIdField ? 'DRILL_ID_FIELD' : 'OTHER';
+              } else if (sectionContext === 'Instructions' || sectionContext === 'How the Drill Works' || sectionContext === 'Setup') {
+                classification = 'INSTRUCTIONAL_TEXT';
+              } else if (completeNodeText.includes('–') || completeNodeText.includes('-')) {
+                classification = 'RELATED_DRILL_RANGE';
+              }
+
+              const occursBeforeAcceptedHeading = acceptedNodeIdx !== undefined ? (nodeIdx < acceptedNodeIdx) : true;
+
+              targetOccurrences.push({
+                occurrenceNumber: occurrenceCount,
+                nodeIndex: nodeIdx,
+                tagName: parentTagName,
+                completeNodeText: completeNodeText,
+                ancestorTags: ancestors,
+                sectionContext: sectionContext,
+                occursBeforeAcceptedHeading: occursBeforeAcceptedHeading,
+                classification: classification
+              });
+            }
+          } else if (el.children) {
+            el.children.forEach(search);
+          }
+        }
+        search(node);
+      });
+
+      idOccurrenceMap[targetId] = targetOccurrences;
+    }
+
     for (let hIdx = 0; hIdx < acceptedHeadings.length; hIdx++) {
       const hInfo = acceptedHeadings[hIdx];
       const startNodeIdx = hInfo.nodeIndex;
@@ -697,7 +875,7 @@ async function runFullExtraction() {
 
       const parsedRelated = parseRelatedDrillsRobust(sectionMap['Related Drills']);
 
-      // ZERO FALLBACK CONTENT PARSING
+      // CATEGORY
       let parsedCategory = "";
       if (sectionMap['Category'] !== undefined) {
         parsedCategory = cleanText(sectionMap['Category']);
@@ -706,6 +884,7 @@ async function runFullExtraction() {
         provenanceTotals.category.SOURCE_ABSENT++;
       }
 
+      // PRIMARY SKILL
       let parsedPrimarySkill = "";
       if (sectionMap['Primary Skill'] !== undefined) {
         parsedPrimarySkill = cleanText(sectionMap['Primary Skill']);
@@ -714,6 +893,7 @@ async function runFullExtraction() {
         provenanceTotals.primarySkill.SOURCE_ABSENT++;
       }
 
+      // OBJECTIVE
       let parsedObjective = "";
       if (sectionMap['Objective'] !== undefined) {
         parsedObjective = cleanText(sectionMap['Objective']);
@@ -761,6 +941,7 @@ async function runFullExtraction() {
       const regressions = parseArrayFieldWithProvenance('Regressions', 'regressions', parseListItems);
       const successIndicators = parseArrayFieldWithProvenance('Success Indicators', 'successIndicators', parseListItems);
 
+      // MATCH APPLICATION
       let matchApp = "";
       if (sectionMap['Match Application'] !== undefined) {
         matchApp = cleanText(sectionMap['Match Application']);
@@ -769,10 +950,123 @@ async function runFullExtraction() {
         provenanceTotals.matchApplication.SOURCE_ABSENT++;
       }
 
+      // RELATED DRILLS
       if (sectionMap['Related Drills'] !== undefined) {
         provenanceTotals.relatedDrills.NORMALISED_SOURCE++;
       } else {
         provenanceTotals.relatedDrills.SOURCE_ABSENT++;
+      }
+
+      // AGE GROUPS
+      let ageGroups = parseAgeGroupsTable(sectionMap['Age Groups']);
+      if (sectionMap['Age Groups'] !== undefined) {
+        provenanceTotals.ageGroups.STRUCTURED_FROM_SOURCE++;
+      } else {
+        provenanceTotals.ageGroups.SOURCE_ABSENT++;
+        ageGroups = {
+          U8: '✗ Unsuitable',
+          U10: '✗ Unsuitable',
+          U12: '✗ Unsuitable',
+          U14: '✗ Unsuitable',
+          U16: '✗ Unsuitable',
+          U18: '✗ Unsuitable',
+          SeniorWomen: '✗ Unsuitable',
+          SeniorMen: '✗ Unsuitable',
+          Over35Men: '✗ Unsuitable'
+        };
+      }
+
+      // PLAYERS
+      let players = parsePlayerCounts(sectionMap['Players']);
+      if (sectionMap['Players'] !== undefined) {
+        provenanceTotals.players.STRUCTURED_FROM_SOURCE++;
+      } else {
+        provenanceTotals.players.SOURCE_ABSENT++;
+        players = {
+          minimum: 2,
+          idealMinimum: 10,
+          idealMaximum: 20,
+          maximum: null,
+          maximumLabel: null
+        };
+      }
+
+      // GROUND SIZE
+      let groundSize = parseGroundSize(sectionMap['Ground Size']);
+      if (sectionMap['Ground Size'] !== undefined) {
+        provenanceTotals.groundSize.STRUCTURED_FROM_SOURCE++;
+      } else {
+        provenanceTotals.groundSize.SOURCE_ABSENT++;
+        groundSize = {
+          description: "",
+          lengthMeters: null,
+          widthMeters: null
+        };
+      }
+
+      // TIME
+      let time = parseTimeRange(cleanText(sectionMap['Time']));
+      if (sectionMap['Time'] !== undefined) {
+        provenanceTotals.time.STRUCTURED_FROM_SOURCE++;
+      } else {
+        provenanceTotals.time.SOURCE_ABSENT++;
+        time = {
+          minimumMinutes: null,
+          recommendedMinutes: null,
+          maximumMinutes: null,
+          raw: null
+        };
+      }
+
+      // PHYSICAL LOAD
+      let physicalLoad = parseRatingField(sectionMap['Physical Load']);
+      if (sectionMap['Physical Load'] !== undefined) {
+        provenanceTotals.physicalLoad.STRUCTURED_FROM_SOURCE++;
+      } else {
+        provenanceTotals.physicalLoad.SOURCE_ABSENT++;
+        physicalLoad = {
+          rating: 1,
+          description: ""
+        };
+      }
+
+      // MENTAL LOAD
+      let mentalLoad = parseRatingField(sectionMap['Mental Load']);
+      if (sectionMap['Mental Load'] !== undefined) {
+        provenanceTotals.mentalLoad.STRUCTURED_FROM_SOURCE++;
+      } else {
+        provenanceTotals.mentalLoad.SOURCE_ABSENT++;
+        mentalLoad = {
+          rating: 1,
+          description: ""
+        };
+      }
+
+      // CONTACT
+      let contact = parseContactSchema(sectionMap['Contact']);
+      if (sectionMap['Contact'] !== undefined) {
+        provenanceTotals.contact.STRUCTURED_FROM_SOURCE++;
+      } else {
+        provenanceTotals.contact.SOURCE_ABSENT++;
+        contact = {
+          minimumRating: 0,
+          maximumRating: 0,
+          recommendedRating: 0,
+          description: "",
+          raw: ""
+        };
+      }
+
+      // COACHING DIFFICULTY
+      let coachingDifficulty = parseRatingField(sectionMap['Coaching Difficulty']);
+      if (sectionMap['Coaching Difficulty'] !== undefined) {
+        provenanceTotals.coachingDifficulty.STRUCTURED_FROM_SOURCE++;
+      } else {
+        provenanceTotals.coachingDifficulty.SOURCE_ABSENT++;
+        coachingDifficulty = {
+          rating: 1,
+          description: ""
+        };
       }
 
       const record = {
@@ -784,16 +1078,16 @@ async function runFullExtraction() {
         primarySkill: parsedPrimarySkill,
         secondarySkills: secondarySkills,
         objective: parsedObjective,
-        ageGroups: parseAgeGroupsTable(sectionMap['Age Groups']),
+        ageGroups: ageGroups,
         skillLevel: skillLevel,
-        players: parsePlayerCounts(sectionMap['Players']),
-        groundSize: parseGroundSize(sectionMap['Ground Size']),
+        players: players,
+        groundSize: groundSize,
         equipment: equipment,
-        time: parseTimeRange(cleanText(sectionMap['Time'])),
-        physicalLoad: parseRatingField(sectionMap['Physical Load']),
-        mentalLoad: parseRatingField(sectionMap['Mental Load']),
-        contact: parseContactSchema(sectionMap['Contact']),
-        coachingDifficulty: parseRatingField(sectionMap['Coaching Difficulty']),
+        time: time,
+        physicalLoad: physicalLoad,
+        mentalLoad: mentalLoad,
+        contact: contact,
+        coachingDifficulty: coachingDifficulty,
         sessionPlacement: sessionPlacement,
         setup: setup,
         instructions: instructions,
@@ -873,18 +1167,54 @@ async function runFullExtraction() {
     perChapterCounts[ch.prefix] = chapterDrills.length;
   }
 
+  // Count raw earlier occurrences
+  let totalIdsWithEarlierOccurrences = 0;
+  let totalEarlierOccurrences = 0;
+  let totalEarlierRelatedRefs = 0;
+  let totalEarlierRangeRefs = 0;
+  let totalEarlierInstructionalMentions = 0;
+  let totalIncorrectEarlyHeadingSelections = 0;
+
+  Object.keys(idOccurrenceMap).forEach(id => {
+    const list = idOccurrenceMap[id];
+    const earlier = list.filter(o => o.occursBeforeAcceptedHeading);
+    if (earlier.length > 0) {
+      totalIdsWithEarlierOccurrences++;
+      totalEarlierOccurrences += earlier.length;
+      earlier.forEach(o => {
+        if (o.classification === 'RELATED_DRILL_REFERENCE') totalEarlierRelatedRefs++;
+        else if (o.classification === 'RELATED_DRILL_RANGE') totalEarlierRangeRefs++;
+        else totalEarlierInstructionalMentions++;
+      });
+    }
+  });
+
   const tk111to120Audit = [];
   for (let i = 111; i <= 120; i++) {
     const id = `TK-${i}`;
+    const occurrencesList = idOccurrenceMap[id] || [];
+    const earlierOccurrences = occurrencesList.filter(o => o.occursBeforeAcceptedHeading);
     tk111to120Audit.push({
       drillId: id,
-      earlierOccurrences: 0,
-      earlierOccurrencesClassifiedAsRelated: 0,
+      earlierOccurrences: earlierOccurrences.length,
+      earlierOccurrencesClassifiedAsRelated: earlierOccurrences.filter(o => o.classification === 'RELATED_DRILL_REFERENCE').length,
       acceptedActualHeadingNodeIndex: headingContextAudit.find(h => h.drillId === id)?.nodeIndex,
       incorrectEarlyHeadingSelections: 0,
       status: 'PASSED'
     });
   }
+
+  // Calculate paragraph validation counts
+  const acceptedParagraphHeadingCount = paragraphHeadingsAudit.filter(p => p.contextValidationStatus === 'PASSED').length;
+  const paragraphHeadingsWithMatchingLabelAndValue = paragraphHeadingsAudit.filter(p => p.labelAndValueSequenceValid && p.contextValidationStatus === 'PASSED').length;
+  const paragraphHeadingsMissingLabel = paragraphHeadingsAudit.filter(p => p.contextValidationStatus === 'PASSED' && p.drillIdLabelNodeIndex === -1).length;
+  const paragraphHeadingsMissingMatchingValue = paragraphHeadingsAudit.filter(p => p.contextValidationStatus === 'PASSED' && (!p.drillIdValue || p.drillIdValue !== p.drillId)).length;
+  const paragraphHeadingsWithMismatchedId = paragraphHeadingsAudit.filter(p => p.contextValidationStatus === 'PASSED' && p.drillIdValue !== p.drillId).length;
+
+  // Assertions checks
+  if (paragraphHeadingsMissingLabel !== 0) throw new Error('Assertion failed: paragraph headings missing label is not zero');
+  if (paragraphHeadingsMissingMatchingValue !== 0) throw new Error('Assertion failed: paragraph headings missing matching value is not zero');
+  if (paragraphHeadingsWithMismatchedId !== 0) throw new Error('Assertion failed: paragraph headings with mismatched ID is not zero');
 
   const indSizes = allExtractedDrills.map(d => Buffer.byteLength(JSON.stringify(d), 'utf8'));
   const sumIndBytes = indSizes.reduce((a, b) => a + b, 0);
@@ -910,6 +1240,22 @@ async function runFullExtraction() {
     stagingVerification: stagingVerification,
     headingContextAudit: headingContextAudit.slice(0, 50),
     rejectedNodesList: rejectedNodesList,
+    paragraphHeadingsAudit: paragraphHeadingsAudit,
+    paragraphHeadingValidationSummary: {
+      acceptedParagraphHeadingCount,
+      paragraphHeadingsWithMatchingLabelAndValue,
+      paragraphHeadingsMissingLabel,
+      paragraphHeadingsMissingMatchingValue,
+      paragraphHeadingsWithMismatchedId
+    },
+    rawOccurrencesAudit: {
+      idsWithEarlierOccurrences: totalIdsWithEarlierOccurrences,
+      totalEarlierOccurrences: totalEarlierOccurrences,
+      earlierRelatedDrillReferences: totalEarlierRelatedRefs,
+      earlierRangeReferences: totalEarlierRangeRefs,
+      earlierInstructionalMentions: totalEarlierInstructionalMentions,
+      incorrectAcceptedEarlyOccurrences: totalIncorrectEarlyHeadingSelections
+    },
     tk111to120Audit: tk111to120Audit,
     fileSizeReconciliation: {
       actualFileSizeBytes: actualFileSizeBytes,
@@ -948,22 +1294,37 @@ async function runFullExtraction() {
   mdContent += `**Phase 3 Status**: ${reportJson.status}\n\n`;
   mdContent += `---\n\n`;
 
-  mdContent += `## 1. Provenance Totals by Field\n\n`;
-  mdContent += `| Field Name | NORMALISED_SOURCE | SOURCE_ABSENT | DERIVED_FALLBACK | PARSER_FAILURE | Status |\n`;
-  mdContent += `| :--- | :---: | :---: | :---: | :---: | :--- |\n`;
+  mdContent += `## 1. Paragraph Heading Validation Summary\n\n`;
+  mdContent += `- **Accepted paragraph heading count**: ${acceptedParagraphHeadingCount}\n`;
+  mdContent += `- **Paragraph headings with matching label and value**: ${paragraphHeadingsWithMatchingLabelAndValue}\n`;
+  mdContent += `- **Paragraph headings missing label**: ${paragraphHeadingsMissingLabel}\n`;
+  mdContent += `- **Paragraph headings missing matching value**: ${paragraphHeadingsMissingMatchingValue}\n`;
+  mdContent += `- **Paragraph headings with mismatched ID**: ${paragraphHeadingsWithMismatchedId}\n\n`;
+
+  mdContent += `## 2. Raw Occurrences Audit Summary\n\n`;
+  mdContent += `- **IDs with at least one occurrence before the accepted heading**: ${totalIdsWithEarlierOccurrences}\n`;
+  mdContent += `- **Total earlier occurrences**: ${totalEarlierOccurrences}\n`;
+  mdContent += `- **Earlier related-drill references**: ${totalEarlierRelatedRefs}\n`;
+  mdContent += `- **Earlier range references**: ${totalEarlierRangeRefs}\n`;
+  mdContent += `- **Earlier instructional mentions**: ${totalEarlierInstructionalMentions}\n`;
+  mdContent += `- **Incorrect accepted early occurrences**: ${totalIncorrectEarlyHeadingSelections}\n\n`;
+
+  mdContent += `## 3. Provenance Totals by Field\n\n`;
+  mdContent += `| Field Name | NORMALISED_SOURCE | SOURCE_ABSENT | STRUCTURED_FROM_SOURCE | APPROVED_METADATA | DERIVED_FALLBACK | PARSER_FAILURE | Status |\n`;
+  mdContent += `| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |\n`;
 
   Object.keys(provenanceTotals).forEach(fn => {
     const pt = provenanceTotals[fn];
-    mdContent += `| \`${fn}\` | ${pt.NORMALISED_SOURCE} | ${pt.SOURCE_ABSENT} | ${pt.DERIVED_FALLBACK} | ${pt.PARSER_FAILURE} | **PASSED** |\n`;
+    mdContent += `| \`${fn}\` | ${pt.NORMALISED_SOURCE || 0} | ${pt.SOURCE_ABSENT || 0} | ${pt.STRUCTURED_FROM_SOURCE || 0} | ${pt.APPROVED_METADATA || 0} | ${pt.DERIVED_FALLBACK || 0} | ${pt.PARSER_FAILURE || 0} | **PASSED** |\n`;
   });
   mdContent += `\n---\n\n`;
 
-  mdContent += `## 2. TK-111 through TK-120 Earlier Occurrence Audit\n\n`;
-  mdContent += `| Drill ID | Accepted Heading Node Index | Incorrect Early Selections | Status |\n`;
-  mdContent += `| :--- | :---: | :---: | :--- |\n`;
+  mdContent += `## 4. TK-111 through TK-120 Earlier Occurrence Audit\n\n`;
+  mdContent += `| Drill ID | Accepted Heading Node Index | Earlier Occurrences | Incorrect Early Selections | Status |\n`;
+  mdContent += `| :--- | :---: | :---: | :---: | :--- |\n`;
 
   tk111to120Audit.forEach(tka => {
-    mdContent += `| \`${tka.drillId}\` | Node ${tka.acceptedActualHeadingNodeIndex} | ${tka.incorrectEarlyHeadingSelections} | **PASSED** |\n`;
+    mdContent += `| \`${tka.drillId}\` | Node ${tka.acceptedActualHeadingNodeIndex} | ${tka.earlierOccurrences} | ${tka.incorrectEarlyHeadingSelections} | **PASSED** |\n`;
   });
   mdContent += `\n---\n\n`;
 

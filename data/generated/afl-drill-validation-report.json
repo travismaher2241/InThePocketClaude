@@ -1,23 +1,23 @@
 {
-  "generatedAt": "2026-07-20T13:08:52.473Z",
+  "generatedAt": "2026-07-20T22:15:58.446Z",
   "committedRegexPattern": "/^([A-Z]{2}-\\d{3})\\s*[\\u2013\\-]\\s*(.+)$/",
-  "totalExtractedRecords": 1563,
+  "totalExtractedRecords": 1610,
   "expectedTotalRecords": 1610,
   "perChapterCounts": {
     "KK": 150,
     "HB": 120,
-    "MK": 111,
-    "GB": 111,
-    "TK": 110,
+    "MK": 120,
+    "GB": 120,
+    "TK": 120,
     "SP": 80,
     "RK": 80,
     "EA": 80,
-    "DM": 82,
+    "DM": 100,
     "TO": 100,
     "TD": 100,
     "TR": 100,
     "CF": 80,
-    "SG": 99,
+    "SG": 100,
     "MS": 100,
     "TA": 60
   },
@@ -904,174 +904,12 @@
     },
     {
       "chapter": "KK",
-      "nodeIndex": 6638,
-      "tagName": "h1",
-      "normalisedText": "KK-121 – Elite Decision-Making Under Pressure",
+      "nodeIndex": 6637,
+      "tagName": "p",
+      "normalisedText": "KK-121 – Elite Decision-Making Under Pressure.",
       "matchedDrillId": "KK-121",
-      "matchedTitle": "Elite Decision-Making Under Pressure",
-      "rejectionReason": "DUPLICATE_SOURCE_HEADING"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 133,
-      "tagName": "p",
-      "normalisedText": "MK-002 – Overhead Mark Fundamentals",
-      "matchedDrillId": "MK-002",
-      "matchedTitle": "Overhead Mark Fundamentals",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 266,
-      "tagName": "p",
-      "normalisedText": "MK-003 – Low Mark Fundamentals",
-      "matchedDrillId": "MK-003",
-      "matchedTitle": "Low Mark Fundamentals",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 397,
-      "tagName": "p",
-      "normalisedText": "MK-004 – Cushion and Secure Marking",
-      "matchedDrillId": "MK-004",
-      "matchedTitle": "Cushion and Secure Marking",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 532,
-      "tagName": "p",
-      "normalisedText": "MK-005 – Marking Footwork to the Football Line",
-      "matchedDrillId": "MK-005",
-      "matchedTitle": "Marking Footwork to the Football Line",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 665,
-      "tagName": "p",
-      "normalisedText": "MK-006 – Three-Height Partner Marking Circuit",
-      "matchedDrillId": "MK-006",
-      "matchedTitle": "Three-Height Partner Marking Circuit",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 799,
-      "tagName": "p",
-      "normalisedText": "MK-007 – Straight-Lead Chest Mark",
-      "matchedDrillId": "MK-007",
-      "matchedTitle": "Straight-Lead Chest Mark",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 931,
-      "tagName": "p",
-      "normalisedText": "MK-008 – Running Overhead Mark",
-      "matchedDrillId": "MK-008",
-      "matchedTitle": "Running Overhead Mark",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1063,
-      "tagName": "p",
-      "normalisedText": "MK-009 – Mark, Secure and Protect",
-      "matchedDrillId": "MK-009",
-      "matchedTitle": "Mark, Secure and Protect",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "MK",
-      "nodeIndex": 1196,
-      "tagName": "p",
-      "normalisedText": "MK-010 – Fundamental Marking Competency Assessment",
-      "matchedDrillId": "MK-010",
-      "matchedTitle": "Fundamental Marking Competency Assessment",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 134,
-      "tagName": "p",
-      "normalisedText": "GB-002 – Body-Behind-the-Football Pickup",
-      "matchedDrillId": "GB-002",
-      "matchedTitle": "Body-Behind-the-Football Pickup",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 267,
-      "tagName": "p",
-      "normalisedText": "GB-003 – Two-Hand Clean Ground-Ball Collection",
-      "matchedDrillId": "GB-003",
-      "matchedTitle": "Two-Hand Clean Ground-Ball Collection",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 401,
-      "tagName": "p",
-      "normalisedText": "GB-004 – Low-Body Pickup and Exit",
-      "matchedDrillId": "GB-004",
-      "matchedTitle": "Low-Body Pickup and Exit",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 535,
-      "tagName": "p",
-      "normalisedText": "GB-005 – Moving Ground-Ball Pickup",
-      "matchedDrillId": "GB-005",
-      "matchedTitle": "Moving Ground-Ball Pickup",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 669,
-      "tagName": "p",
-      "normalisedText": "GB-006 – Left-and-Right Ground-Ball Collection",
-      "matchedDrillId": "GB-006",
-      "matchedTitle": "Left-and-Right Ground-Ball Collection",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 803,
-      "tagName": "p",
-      "normalisedText": "GB-007 – Ground-Ball Approach Footwork",
-      "matchedDrillId": "GB-007",
-      "matchedTitle": "Ground-Ball Approach Footwork",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 938,
-      "tagName": "p",
-      "normalisedText": "GB-008 – Pickup, Protect and Handball",
-      "matchedDrillId": "GB-008",
-      "matchedTitle": "Pickup, Protect and Handball",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 1075,
-      "tagName": "p",
-      "normalisedText": "GB-009 – Pickup, Balance and Kick",
-      "matchedDrillId": "GB-009",
-      "matchedTitle": "Pickup, Balance and Kick",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "GB",
-      "nodeIndex": 1212,
-      "tagName": "p",
-      "normalisedText": "GB-010 – Ground-Ball Fundamentals Assessment",
-      "matchedDrillId": "GB-010",
-      "matchedTitle": "Ground-Ball Fundamentals Assessment",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "matchedTitle": "Elite Decision-Making Under Pressure.",
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "TK",
@@ -1162,96 +1000,6 @@
       "matchedDrillId": "TK-050",
       "matchedTitle": "Pressure and Contest Assessment",
       "rejectionReason": "DUPLICATE_SOURCE_HEADING"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 6843,
-      "tagName": "p",
-      "normalisedText": "TK-111 – Opposition Spare Counter-Pressure",
-      "matchedDrillId": "TK-111",
-      "matchedTitle": "Opposition Spare Counter-Pressure",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 6981,
-      "tagName": "p",
-      "normalisedText": "TK-112 – Tackle-to-Spread Transition",
-      "matchedDrillId": "TK-112",
-      "matchedTitle": "Tackle-to-Spread Transition",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7119,
-      "tagName": "p",
-      "normalisedText": "TK-113 – Three-Line Pressure Connection",
-      "matchedDrillId": "TK-113",
-      "matchedTitle": "Three-Line Pressure Connection",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7258,
-      "tagName": "p",
-      "normalisedText": "TK-114 – Opposition Tactical Adjustment Game",
-      "matchedDrillId": "TK-114",
-      "matchedTitle": "Opposition Tactical Adjustment Game",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7401,
-      "tagName": "p",
-      "normalisedText": "TK-115 – Wet-Weather Tackle Pressure",
-      "matchedDrillId": "TK-115",
-      "matchedTitle": "Wet-Weather Tackle Pressure",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7539,
-      "tagName": "p",
-      "normalisedText": "TK-116 – Fatigue Decision Pressure Circuit",
-      "matchedDrillId": "TK-116",
-      "matchedTitle": "Fatigue Decision Pressure Circuit",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7681,
-      "tagName": "p",
-      "normalisedText": "TK-117 – Free-Kick Risk Pressure Management",
-      "matchedDrillId": "TK-117",
-      "matchedTitle": "Free-Kick Risk Pressure Management",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7822,
-      "tagName": "p",
-      "normalisedText": "TK-118 – Match-Up Specific Tackle Planning",
-      "matchedDrillId": "TK-118",
-      "matchedTitle": "Match-Up Specific Tackle Planning",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 7963,
-      "tagName": "p",
-      "normalisedText": "TK-119 – Tackling and Pressure Match Rehearsal",
-      "matchedDrillId": "TK-119",
-      "matchedTitle": "Tackling and Pressure Match Rehearsal",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "TK",
-      "nodeIndex": 8120,
-      "tagName": "p",
-      "normalisedText": "TK-120 – Tackling and Pressure Chapter Final Assessment",
-      "matchedDrillId": "TK-120",
-      "matchedTitle": "Tackling and Pressure Chapter Final Assessment",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
     },
     {
       "chapter": "SP",
@@ -1359,7 +1107,7 @@
       "normalisedText": "DM-031 – Stop, Turn or Release",
       "matchedDrillId": "DM-031",
       "matchedTitle": "Stop, Turn or Release",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1368,7 +1116,7 @@
       "normalisedText": "DM-047 – Smothered-Lane Reassessment",
       "matchedDrillId": "DM-047",
       "matchedTitle": "Smothered-Lane Reassessment",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1377,7 +1125,7 @@
       "normalisedText": "DM-068 – Kick-or-Handball Chain Choice",
       "matchedDrillId": "DM-068",
       "matchedTitle": "Kick-or-Handball Chain Choice",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1386,16 +1134,7 @@
       "normalisedText": "DM-072 – Man-on-Man or Zone Recognition",
       "matchedDrillId": "DM-072",
       "matchedTitle": "Man-on-Man or Zone Recognition",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 4689,
-      "tagName": "p",
-      "normalisedText": "DM-082 – Look-Off and Release",
-      "matchedDrillId": "DM-082",
-      "matchedTitle": "Look-Off and Release",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1413,7 +1152,7 @@
       "normalisedText": "DM-041 – First-Pressure Release",
       "matchedDrillId": "DM-041",
       "matchedTitle": "First-Pressure Release",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1422,7 +1161,7 @@
       "normalisedText": "DM-068 – Kick-or-Handball Chain Choice",
       "matchedDrillId": "DM-068",
       "matchedTitle": "Kick-or-Handball Chain Choice",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1431,16 +1170,7 @@
       "normalisedText": "DM-081 – Deceptive First Option",
       "matchedDrillId": "DM-081",
       "matchedTitle": "Deceptive First Option",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 4822,
-      "tagName": "p",
-      "normalisedText": "DM-083 – Dummy Lead Response",
-      "matchedDrillId": "DM-083",
-      "matchedTitle": "Dummy Lead Response",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1458,7 +1188,7 @@
       "normalisedText": "DM-033 – Decoy Run Recognition",
       "matchedDrillId": "DM-033",
       "matchedTitle": "Decoy Run Recognition",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1467,7 +1197,7 @@
       "normalisedText": "DM-038 – Late Runner Recognition",
       "matchedDrillId": "DM-038",
       "matchedTitle": "Late Runner Recognition",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1476,7 +1206,7 @@
       "normalisedText": "DM-067 – Forward 50 Entry Method",
       "matchedDrillId": "DM-067",
       "matchedTitle": "Forward 50 Entry Method",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1485,16 +1215,7 @@
       "normalisedText": "DM-075 – Repeat Forward Entry Choice",
       "matchedDrillId": "DM-075",
       "matchedTitle": "Repeat Forward Entry Choice",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 4958,
-      "tagName": "p",
-      "normalisedText": "DM-084 – Delayed Disposal Window",
-      "matchedDrillId": "DM-084",
-      "matchedTitle": "Delayed Disposal Window",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1512,7 +1233,7 @@
       "normalisedText": "DM-026 – Carry, Bounce or Release",
       "matchedDrillId": "DM-026",
       "matchedTitle": "Carry, Bounce or Release",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1521,7 +1242,7 @@
       "normalisedText": "DM-038 – Late Runner Recognition",
       "matchedDrillId": "DM-038",
       "matchedTitle": "Late Runner Recognition",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1530,7 +1251,7 @@
       "normalisedText": "DM-046 – Tackle-or-Dispose Window",
       "matchedDrillId": "DM-046",
       "matchedTitle": "Tackle-or-Dispose Window",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1539,16 +1260,7 @@
       "normalisedText": "DM-066 – Midfield Tempo Choice",
       "matchedDrillId": "DM-066",
       "matchedTitle": "Midfield Tempo Choice",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 5093,
-      "tagName": "p",
-      "normalisedText": "DM-085 – Third-Player Chain",
-      "matchedDrillId": "DM-085",
-      "matchedTitle": "Third-Player Chain",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1566,7 +1278,7 @@
       "normalisedText": "DM-025 – Give-and-Go Recognition",
       "matchedDrillId": "DM-025",
       "matchedTitle": "Give-and-Go Recognition",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1575,7 +1287,7 @@
       "normalisedText": "DM-027 – Support Angle Choice",
       "matchedDrillId": "DM-027",
       "matchedTitle": "Support Angle Choice",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1584,7 +1296,7 @@
       "normalisedText": "DM-062 – Support Triangle Rotation",
       "matchedDrillId": "DM-062",
       "matchedTitle": "Support Triangle Rotation",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1593,16 +1305,7 @@
       "normalisedText": "DM-069 – Line-Breaking Decision Chain",
       "matchedDrillId": "DM-069",
       "matchedTitle": "Line-Breaking Decision Chain",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 5229,
-      "tagName": "p",
-      "normalisedText": "DM-086 – Numerical Bait and Switch",
-      "matchedDrillId": "DM-086",
-      "matchedTitle": "Numerical Bait and Switch",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1620,7 +1323,7 @@
       "normalisedText": "DM-064 – Weak-Side Width Decision",
       "matchedDrillId": "DM-064",
       "matchedTitle": "Weak-Side Width Decision",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1629,7 +1332,7 @@
       "normalisedText": "DM-071 – Defensive Press Recognition",
       "matchedDrillId": "DM-071",
       "matchedTitle": "Defensive Press Recognition",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1638,7 +1341,7 @@
       "normalisedText": "DM-079 – Tactical Method Switch",
       "matchedDrillId": "DM-079",
       "matchedTitle": "Tactical Method Switch",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1647,16 +1350,7 @@
       "normalisedText": "DM-085 – Third-Player Chain",
       "matchedDrillId": "DM-085",
       "matchedTitle": "Third-Player Chain",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 5368,
-      "tagName": "p",
-      "normalisedText": "DM-087 – Turnover Trap Recognition",
-      "matchedDrillId": "DM-087",
-      "matchedTitle": "Turnover Trap Recognition",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1674,7 +1368,7 @@
       "normalisedText": "DM-047 – Smothered-Lane Reassessment",
       "matchedDrillId": "DM-047",
       "matchedTitle": "Smothered-Lane Reassessment",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1683,7 +1377,7 @@
       "normalisedText": "DM-071 – Defensive Press Recognition",
       "matchedDrillId": "DM-071",
       "matchedTitle": "Defensive Press Recognition",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1692,7 +1386,7 @@
       "normalisedText": "DM-072 – Man-on-Man or Zone Recognition",
       "matchedDrillId": "DM-072",
       "matchedTitle": "Man-on-Man or Zone Recognition",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1701,16 +1395,7 @@
       "normalisedText": "DM-076 – Last-Line Defender Choice",
       "matchedDrillId": "DM-076",
       "matchedTitle": "Last-Line Defender Choice",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 5505,
-      "tagName": "p",
-      "normalisedText": "DM-088 – Consequence-Based Risk Game",
-      "matchedDrillId": "DM-088",
-      "matchedTitle": "Consequence-Based Risk Game",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1728,7 +1413,7 @@
       "normalisedText": "DM-008 – Field-Position Decision Zones",
       "matchedDrillId": "DM-008",
       "matchedTitle": "Field-Position Decision Zones",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1737,7 +1422,7 @@
       "normalisedText": "DM-065 – Defensive 50 Exit Priority",
       "matchedDrillId": "DM-065",
       "matchedTitle": "Defensive 50 Exit Priority",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1746,7 +1431,7 @@
       "normalisedText": "DM-077 – Scoreboard Margin Response",
       "matchedDrillId": "DM-077",
       "matchedTitle": "Scoreboard Margin Response",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1755,16 +1440,7 @@
       "normalisedText": "DM-078 – Clock Management Possession",
       "matchedDrillId": "DM-078",
       "matchedTitle": "Clock Management Possession",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 5650,
-      "tagName": "p",
-      "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
-      "matchedDrillId": "DM-089",
-      "matchedTitle": "Multi-Phase Scenario Adaptation",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1782,7 +1458,7 @@
       "normalisedText": "DM-077 – Scoreboard Margin Response",
       "matchedDrillId": "DM-077",
       "matchedTitle": "Scoreboard Margin Response",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1791,7 +1467,7 @@
       "normalisedText": "DM-079 – Tactical Method Switch",
       "matchedDrillId": "DM-079",
       "matchedTitle": "Tactical Method Switch",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1800,7 +1476,7 @@
       "normalisedText": "DM-080 – Team Tactical Decision Assessment",
       "matchedDrillId": "DM-080",
       "matchedTitle": "Team Tactical Decision Assessment",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1809,16 +1485,7 @@
       "normalisedText": "DM-088 – Consequence-Based Risk Game",
       "matchedDrillId": "DM-088",
       "matchedTitle": "Consequence-Based Risk Game",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 5805,
-      "tagName": "p",
-      "normalisedText": "DM-090 – Elite Decision Application Assessment",
-      "matchedDrillId": "DM-090",
-      "matchedTitle": "Elite Decision Application Assessment",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1836,7 +1503,7 @@
       "normalisedText": "DM-043 – Blind-Side Pressure Scan",
       "matchedDrillId": "DM-043",
       "matchedTitle": "Blind-Side Pressure Scan",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1845,7 +1512,7 @@
       "normalisedText": "DM-080 – Team Tactical Decision Assessment",
       "matchedDrillId": "DM-080",
       "matchedTitle": "Team Tactical Decision Assessment",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1854,7 +1521,7 @@
       "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
       "matchedDrillId": "DM-089",
       "matchedTitle": "Multi-Phase Scenario Adaptation",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1863,16 +1530,7 @@
       "normalisedText": "DM-090 – Elite Decision Application Assessment",
       "matchedDrillId": "DM-090",
       "matchedTitle": "Elite Decision Application Assessment",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 6110,
-      "tagName": "p",
-      "normalisedText": "DM-092 – Leadership Call and Player Override",
-      "matchedDrillId": "DM-092",
-      "matchedTitle": "Leadership Call and Player Override",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1890,7 +1548,7 @@
       "normalisedText": "DM-080 – Team Tactical Decision Assessment",
       "matchedDrillId": "DM-080",
       "matchedTitle": "Team Tactical Decision Assessment",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1899,7 +1557,7 @@
       "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
       "matchedDrillId": "DM-089",
       "matchedTitle": "Multi-Phase Scenario Adaptation",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1908,16 +1566,7 @@
       "normalisedText": "DM-091 – Information Priority Under Chaos",
       "matchedDrillId": "DM-091",
       "matchedTitle": "Information Priority Under Chaos",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 6257,
-      "tagName": "p",
-      "normalisedText": "DM-093 – Attacking Mismatch Recognition",
-      "matchedDrillId": "DM-093",
-      "matchedTitle": "Attacking Mismatch Recognition",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1935,7 +1584,7 @@
       "normalisedText": "DM-067 – Forward 50 Entry Method",
       "matchedDrillId": "DM-067",
       "matchedTitle": "Forward 50 Entry Method",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1944,7 +1593,7 @@
       "normalisedText": "DM-072 – Man-on-Man or Zone Recognition",
       "matchedDrillId": "DM-072",
       "matchedTitle": "Man-on-Man or Zone Recognition",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1953,7 +1602,7 @@
       "normalisedText": "DM-075 – Repeat Forward Entry Choice",
       "matchedDrillId": "DM-075",
       "matchedTitle": "Repeat Forward Entry Choice",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1962,16 +1611,7 @@
       "normalisedText": "DM-083 – Dummy Lead Response",
       "matchedDrillId": "DM-083",
       "matchedTitle": "Dummy Lead Response",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 6400,
-      "tagName": "p",
-      "normalisedText": "DM-094 – Defensive Mismatch Protection",
-      "matchedDrillId": "DM-094",
-      "matchedTitle": "Defensive Mismatch Protection",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1989,7 +1629,7 @@
       "normalisedText": "DM-076 – Last-Line Defender Choice",
       "matchedDrillId": "DM-076",
       "matchedTitle": "Last-Line Defender Choice",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -1998,7 +1638,7 @@
       "normalisedText": "DM-080 – Team Tactical Decision Assessment",
       "matchedDrillId": "DM-080",
       "matchedTitle": "Team Tactical Decision Assessment",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2007,16 +1647,7 @@
       "normalisedText": "DM-093 – Attacking Mismatch Recognition",
       "matchedDrillId": "DM-093",
       "matchedTitle": "Attacking Mismatch Recognition",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 6538,
-      "tagName": "p",
-      "normalisedText": "DM-095 – Weather-Adjusted Decision Game",
-      "matchedDrillId": "DM-095",
-      "matchedTitle": "Weather-Adjusted Decision Game",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2034,7 +1665,7 @@
       "normalisedText": "DM-016 – Take, Tap or Soccer",
       "matchedDrillId": "DM-016",
       "matchedTitle": "Take, Tap or Soccer",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2043,7 +1674,7 @@
       "normalisedText": "DM-054 – Aerial Contest Ground-Level Choice",
       "matchedDrillId": "DM-054",
       "matchedTitle": "Aerial Contest Ground-Level Choice",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2052,16 +1683,7 @@
       "normalisedText": "DM-088 – Consequence-Based Risk Game",
       "matchedDrillId": "DM-088",
       "matchedTitle": "Consequence-Based Risk Game",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 6682,
-      "tagName": "p",
-      "normalisedText": "DM-096 – Fatigue Decision Integrity",
-      "matchedDrillId": "DM-096",
-      "matchedTitle": "Fatigue Decision Integrity",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2079,7 +1701,7 @@
       "normalisedText": "DM-049 – Pressure Chain Continuity",
       "matchedDrillId": "DM-049",
       "matchedTitle": "Pressure Chain Continuity",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2088,7 +1710,7 @@
       "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
       "matchedDrillId": "DM-089",
       "matchedTitle": "Multi-Phase Scenario Adaptation",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2097,16 +1719,7 @@
       "normalisedText": "DM-090 – Elite Decision Application Assessment",
       "matchedDrillId": "DM-090",
       "matchedTitle": "Elite Decision Application Assessment",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 6825,
-      "tagName": "p",
-      "normalisedText": "DM-097 – Umpire Call and Advantage Decision",
-      "matchedDrillId": "DM-097",
-      "matchedTitle": "Umpire Call and Advantage Decision",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2124,7 +1737,7 @@
       "normalisedText": "DM-051 – Turnover First Action",
       "matchedDrillId": "DM-051",
       "matchedTitle": "Turnover First Action",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2133,7 +1746,7 @@
       "normalisedText": "DM-077 – Scoreboard Margin Response",
       "matchedDrillId": "DM-077",
       "matchedTitle": "Scoreboard Margin Response",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2142,7 +1755,7 @@
       "normalisedText": "DM-078 – Clock Management Possession",
       "matchedDrillId": "DM-078",
       "matchedTitle": "Clock Management Possession",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2151,16 +1764,7 @@
       "normalisedText": "DM-091 – Information Priority Under Chaos",
       "matchedDrillId": "DM-091",
       "matchedTitle": "Information Priority Under Chaos",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 6965,
-      "tagName": "p",
-      "normalisedText": "DM-098 – Final Two-Minute Scenario Chain",
-      "matchedDrillId": "DM-098",
-      "matchedTitle": "Final Two-Minute Scenario Chain",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2178,7 +1782,7 @@
       "normalisedText": "DM-078 – Clock Management Possession",
       "matchedDrillId": "DM-078",
       "matchedTitle": "Clock Management Possession",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2187,7 +1791,7 @@
       "normalisedText": "DM-088 – Consequence-Based Risk Game",
       "matchedDrillId": "DM-088",
       "matchedTitle": "Consequence-Based Risk Game",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2196,7 +1800,7 @@
       "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
       "matchedDrillId": "DM-089",
       "matchedTitle": "Multi-Phase Scenario Adaptation",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2205,16 +1809,7 @@
       "normalisedText": "DM-097 – Umpire Call and Advantage Decision",
       "matchedDrillId": "DM-097",
       "matchedTitle": "Umpire Call and Advantage Decision",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 7115,
-      "tagName": "p",
-      "normalisedText": "DM-099 – Unscripted Chaos Match",
-      "matchedDrillId": "DM-099",
-      "matchedTitle": "Unscripted Chaos Match",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2232,7 +1827,7 @@
       "normalisedText": "DM-080 – Team Tactical Decision Assessment",
       "matchedDrillId": "DM-080",
       "matchedTitle": "Team Tactical Decision Assessment",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2241,7 +1836,7 @@
       "normalisedText": "DM-089 – Multi-Phase Scenario Adaptation",
       "matchedDrillId": "DM-089",
       "matchedTitle": "Multi-Phase Scenario Adaptation",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2250,7 +1845,7 @@
       "normalisedText": "DM-090 – Elite Decision Application Assessment",
       "matchedDrillId": "DM-090",
       "matchedTitle": "Elite Decision Application Assessment",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     },
     {
       "chapter": "DM",
@@ -2259,32 +1854,1372 @@
       "normalisedText": "DM-098 – Final Two-Minute Scenario Chain",
       "matchedDrillId": "DM-098",
       "matchedTitle": "Final Two-Minute Scenario Chain",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "DM",
-      "nodeIndex": 7273,
-      "tagName": "p",
-      "normalisedText": "DM-100 – Decision Making Chapter Final Assessment",
-      "matchedDrillId": "DM-100",
-      "matchedTitle": "Decision Making Chapter Final Assessment",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
-    },
-    {
-      "chapter": "SG",
-      "nodeIndex": 5130,
-      "tagName": "p",
-      "normalisedText": "SG-091 – Six-Six-Six Restart Game",
-      "matchedDrillId": "SG-091",
-      "matchedTitle": "Six-Six-Six Restart Game",
-      "rejectionReason": "RELATED_DRILL_REFERENCE"
+      "rejectionReason": "INVALID_HEADING_CONTEXT"
     }
   ],
+  "paragraphHeadingsAudit": [
+    {
+      "drillId": "KK-081",
+      "headingNodeIndex": 6031,
+      "exactHeadingText": "KK-081–091",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "KK-081",
+      "headingNodeIndex": 6048,
+      "exactHeadingText": "KK-081–092",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "KK-121",
+      "headingNodeIndex": 6637,
+      "exactHeadingText": "KK-121 – Elite Decision-Making Under Pressure.",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "MK-001",
+      "headingNodeIndex": 0,
+      "exactHeadingText": "MK-001 – Chest Mark Fundamentals",
+      "drillIdLabelNodeIndex": 1,
+      "drillIdValueNodeIndex": 2,
+      "drillIdValue": "MK-001",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "MK-002",
+      "headingNodeIndex": 133,
+      "exactHeadingText": "MK-002 – Overhead Mark Fundamentals",
+      "drillIdLabelNodeIndex": 134,
+      "drillIdValueNodeIndex": 135,
+      "drillIdValue": "MK-002",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "MK-003",
+      "headingNodeIndex": 266,
+      "exactHeadingText": "MK-003 – Low Mark Fundamentals",
+      "drillIdLabelNodeIndex": 267,
+      "drillIdValueNodeIndex": 268,
+      "drillIdValue": "MK-003",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "MK-004",
+      "headingNodeIndex": 397,
+      "exactHeadingText": "MK-004 – Cushion and Secure Marking",
+      "drillIdLabelNodeIndex": 398,
+      "drillIdValueNodeIndex": 399,
+      "drillIdValue": "MK-004",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "MK-005",
+      "headingNodeIndex": 532,
+      "exactHeadingText": "MK-005 – Marking Footwork to the Football Line",
+      "drillIdLabelNodeIndex": 533,
+      "drillIdValueNodeIndex": 534,
+      "drillIdValue": "MK-005",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "MK-006",
+      "headingNodeIndex": 665,
+      "exactHeadingText": "MK-006 – Three-Height Partner Marking Circuit",
+      "drillIdLabelNodeIndex": 666,
+      "drillIdValueNodeIndex": 667,
+      "drillIdValue": "MK-006",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "MK-007",
+      "headingNodeIndex": 799,
+      "exactHeadingText": "MK-007 – Straight-Lead Chest Mark",
+      "drillIdLabelNodeIndex": 800,
+      "drillIdValueNodeIndex": 801,
+      "drillIdValue": "MK-007",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "MK-008",
+      "headingNodeIndex": 931,
+      "exactHeadingText": "MK-008 – Running Overhead Mark",
+      "drillIdLabelNodeIndex": 932,
+      "drillIdValueNodeIndex": 933,
+      "drillIdValue": "MK-008",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "MK-009",
+      "headingNodeIndex": 1063,
+      "exactHeadingText": "MK-009 – Mark, Secure and Protect",
+      "drillIdLabelNodeIndex": 1064,
+      "drillIdValueNodeIndex": 1065,
+      "drillIdValue": "MK-009",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "MK-010",
+      "headingNodeIndex": 1196,
+      "exactHeadingText": "MK-010 – Fundamental Marking Competency Assessment",
+      "drillIdLabelNodeIndex": 1197,
+      "drillIdValueNodeIndex": 1198,
+      "drillIdValue": "MK-010",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "GB-001",
+      "headingNodeIndex": 1,
+      "exactHeadingText": "GB-001 – Stationary Ground-Ball Fundamentals",
+      "drillIdLabelNodeIndex": 2,
+      "drillIdValueNodeIndex": 3,
+      "drillIdValue": "GB-001",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "GB-002",
+      "headingNodeIndex": 134,
+      "exactHeadingText": "GB-002 – Body-Behind-the-Football Pickup",
+      "drillIdLabelNodeIndex": 135,
+      "drillIdValueNodeIndex": 136,
+      "drillIdValue": "GB-002",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "GB-003",
+      "headingNodeIndex": 267,
+      "exactHeadingText": "GB-003 – Two-Hand Clean Ground-Ball Collection",
+      "drillIdLabelNodeIndex": 268,
+      "drillIdValueNodeIndex": 269,
+      "drillIdValue": "GB-003",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "GB-004",
+      "headingNodeIndex": 401,
+      "exactHeadingText": "GB-004 – Low-Body Pickup and Exit",
+      "drillIdLabelNodeIndex": 402,
+      "drillIdValueNodeIndex": 403,
+      "drillIdValue": "GB-004",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "GB-005",
+      "headingNodeIndex": 535,
+      "exactHeadingText": "GB-005 – Moving Ground-Ball Pickup",
+      "drillIdLabelNodeIndex": 536,
+      "drillIdValueNodeIndex": 537,
+      "drillIdValue": "GB-005",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "GB-006",
+      "headingNodeIndex": 669,
+      "exactHeadingText": "GB-006 – Left-and-Right Ground-Ball Collection",
+      "drillIdLabelNodeIndex": 670,
+      "drillIdValueNodeIndex": 671,
+      "drillIdValue": "GB-006",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "GB-007",
+      "headingNodeIndex": 803,
+      "exactHeadingText": "GB-007 – Ground-Ball Approach Footwork",
+      "drillIdLabelNodeIndex": 804,
+      "drillIdValueNodeIndex": 805,
+      "drillIdValue": "GB-007",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "GB-008",
+      "headingNodeIndex": 938,
+      "exactHeadingText": "GB-008 – Pickup, Protect and Handball",
+      "drillIdLabelNodeIndex": 939,
+      "drillIdValueNodeIndex": 940,
+      "drillIdValue": "GB-008",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "GB-009",
+      "headingNodeIndex": 1075,
+      "exactHeadingText": "GB-009 – Pickup, Balance and Kick",
+      "drillIdLabelNodeIndex": 1076,
+      "drillIdValueNodeIndex": 1077,
+      "drillIdValue": "GB-009",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "GB-010",
+      "headingNodeIndex": 1212,
+      "exactHeadingText": "GB-010 – Ground-Ball Fundamentals Assessment",
+      "drillIdLabelNodeIndex": 1213,
+      "drillIdValueNodeIndex": 1214,
+      "drillIdValue": "GB-010",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "TK-111",
+      "headingNodeIndex": 6843,
+      "exactHeadingText": "TK-111 – Opposition Spare Counter-Pressure",
+      "drillIdLabelNodeIndex": 6844,
+      "drillIdValueNodeIndex": 6845,
+      "drillIdValue": "TK-111",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "TK-112",
+      "headingNodeIndex": 6981,
+      "exactHeadingText": "TK-112 – Tackle-to-Spread Transition",
+      "drillIdLabelNodeIndex": 6982,
+      "drillIdValueNodeIndex": 6983,
+      "drillIdValue": "TK-112",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "TK-113",
+      "headingNodeIndex": 7119,
+      "exactHeadingText": "TK-113 – Three-Line Pressure Connection",
+      "drillIdLabelNodeIndex": 7120,
+      "drillIdValueNodeIndex": 7121,
+      "drillIdValue": "TK-113",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "TK-114",
+      "headingNodeIndex": 7258,
+      "exactHeadingText": "TK-114 – Opposition Tactical Adjustment Game",
+      "drillIdLabelNodeIndex": 7259,
+      "drillIdValueNodeIndex": 7260,
+      "drillIdValue": "TK-114",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "TK-115",
+      "headingNodeIndex": 7401,
+      "exactHeadingText": "TK-115 – Wet-Weather Tackle Pressure",
+      "drillIdLabelNodeIndex": 7402,
+      "drillIdValueNodeIndex": 7403,
+      "drillIdValue": "TK-115",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "TK-116",
+      "headingNodeIndex": 7539,
+      "exactHeadingText": "TK-116 – Fatigue Decision Pressure Circuit",
+      "drillIdLabelNodeIndex": 7540,
+      "drillIdValueNodeIndex": 7541,
+      "drillIdValue": "TK-116",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "TK-117",
+      "headingNodeIndex": 7681,
+      "exactHeadingText": "TK-117 – Free-Kick Risk Pressure Management",
+      "drillIdLabelNodeIndex": 7682,
+      "drillIdValueNodeIndex": 7683,
+      "drillIdValue": "TK-117",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "TK-118",
+      "headingNodeIndex": 7822,
+      "exactHeadingText": "TK-118 – Match-Up Specific Tackle Planning",
+      "drillIdLabelNodeIndex": 7823,
+      "drillIdValueNodeIndex": 7824,
+      "drillIdValue": "TK-118",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "TK-119",
+      "headingNodeIndex": 7963,
+      "exactHeadingText": "TK-119 – Tackling and Pressure Match Rehearsal",
+      "drillIdLabelNodeIndex": 7964,
+      "drillIdValueNodeIndex": 7965,
+      "drillIdValue": "TK-119",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "TK-120",
+      "headingNodeIndex": 8120,
+      "exactHeadingText": "TK-120 – Tackling and Pressure Chapter Final Assessment",
+      "drillIdLabelNodeIndex": 8121,
+      "drillIdValueNodeIndex": 8122,
+      "drillIdValue": "TK-120",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-081",
+      "headingNodeIndex": 4554,
+      "exactHeadingText": "DM-081 – Deceptive First Option",
+      "drillIdLabelNodeIndex": 4555,
+      "drillIdValueNodeIndex": 4556,
+      "drillIdValue": "DM-081",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-005",
+      "headingNodeIndex": 4683,
+      "exactHeadingText": "DM-005 – Best Option Triangle",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-031",
+      "headingNodeIndex": 4684,
+      "exactHeadingText": "DM-031 – Stop, Turn or Release",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-047",
+      "headingNodeIndex": 4685,
+      "exactHeadingText": "DM-047 – Smothered-Lane Reassessment",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-068",
+      "headingNodeIndex": 4686,
+      "exactHeadingText": "DM-068 – Kick-or-Handball Chain Choice",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-072",
+      "headingNodeIndex": 4687,
+      "exactHeadingText": "DM-072 – Man-on-Man or Zone Recognition",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-082",
+      "headingNodeIndex": 4689,
+      "exactHeadingText": "DM-082 – Look-Off and Release",
+      "drillIdLabelNodeIndex": 4690,
+      "drillIdValueNodeIndex": 4691,
+      "drillIdValue": "DM-082",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-014",
+      "headingNodeIndex": 4817,
+      "exactHeadingText": "DM-014 – Call, Point and Confirm",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-041",
+      "headingNodeIndex": 4818,
+      "exactHeadingText": "DM-041 – First-Pressure Release",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-068",
+      "headingNodeIndex": 4819,
+      "exactHeadingText": "DM-068 – Kick-or-Handball Chain Choice",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-081",
+      "headingNodeIndex": 4820,
+      "exactHeadingText": "DM-081 – Deceptive First Option",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-083",
+      "headingNodeIndex": 4822,
+      "exactHeadingText": "DM-083 – Dummy Lead Response",
+      "drillIdLabelNodeIndex": 4823,
+      "drillIdValueNodeIndex": 4824,
+      "drillIdValue": "DM-083",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-021",
+      "headingNodeIndex": 4952,
+      "exactHeadingText": "DM-021 – Lead, Hold or Clear",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-033",
+      "headingNodeIndex": 4953,
+      "exactHeadingText": "DM-033 – Decoy Run Recognition",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-038",
+      "headingNodeIndex": 4954,
+      "exactHeadingText": "DM-038 – Late Runner Recognition",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-067",
+      "headingNodeIndex": 4955,
+      "exactHeadingText": "DM-067 – Forward 50 Entry Method",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-075",
+      "headingNodeIndex": 4956,
+      "exactHeadingText": "DM-075 – Repeat Forward Entry Choice",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-084",
+      "headingNodeIndex": 4958,
+      "exactHeadingText": "DM-084 – Delayed Disposal Window",
+      "drillIdLabelNodeIndex": 4959,
+      "drillIdValueNodeIndex": 4960,
+      "drillIdValue": "DM-084",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-013",
+      "headingNodeIndex": 5087,
+      "exactHeadingText": "DM-013 – One-Second Release",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-026",
+      "headingNodeIndex": 5088,
+      "exactHeadingText": "DM-026 – Carry, Bounce or Release",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-038",
+      "headingNodeIndex": 5089,
+      "exactHeadingText": "DM-038 – Late Runner Recognition",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-046",
+      "headingNodeIndex": 5090,
+      "exactHeadingText": "DM-046 – Tackle-or-Dispose Window",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-066",
+      "headingNodeIndex": 5091,
+      "exactHeadingText": "DM-066 – Midfield Tempo Choice",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-085",
+      "headingNodeIndex": 5093,
+      "exactHeadingText": "DM-085 – Third-Player Chain",
+      "drillIdLabelNodeIndex": 5094,
+      "drillIdValueNodeIndex": 5095,
+      "drillIdValue": "DM-085",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-024",
+      "headingNodeIndex": 5223,
+      "exactHeadingText": "DM-024 – Overlap or Stay Connected",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-025",
+      "headingNodeIndex": 5224,
+      "exactHeadingText": "DM-025 – Give-and-Go Recognition",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-027",
+      "headingNodeIndex": 5225,
+      "exactHeadingText": "DM-027 – Support Angle Choice",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-062",
+      "headingNodeIndex": 5226,
+      "exactHeadingText": "DM-062 – Support Triangle Rotation",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-069",
+      "headingNodeIndex": 5227,
+      "exactHeadingText": "DM-069 – Line-Breaking Decision Chain",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-086",
+      "headingNodeIndex": 5229,
+      "exactHeadingText": "DM-086 – Numerical Bait and Switch",
+      "drillIdLabelNodeIndex": 5230,
+      "drillIdValueNodeIndex": 5231,
+      "drillIdValue": "DM-086",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-018",
+      "headingNodeIndex": 5362,
+      "exactHeadingText": "DM-018 – Switch-Side Recognition",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-064",
+      "headingNodeIndex": 5363,
+      "exactHeadingText": "DM-064 – Weak-Side Width Decision",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-071",
+      "headingNodeIndex": 5364,
+      "exactHeadingText": "DM-071 – Defensive Press Recognition",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-079",
+      "headingNodeIndex": 5365,
+      "exactHeadingText": "DM-079 – Tactical Method Switch",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-085",
+      "headingNodeIndex": 5366,
+      "exactHeadingText": "DM-085 – Third-Player Chain",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-087",
+      "headingNodeIndex": 5368,
+      "exactHeadingText": "DM-087 – Turnover Trap Recognition",
+      "drillIdLabelNodeIndex": 5369,
+      "drillIdValueNodeIndex": 5370,
+      "drillIdValue": "DM-087",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-004",
+      "headingNodeIndex": 5499,
+      "exactHeadingText": "DM-004 – Teammate–Opponent Picture",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-047",
+      "headingNodeIndex": 5500,
+      "exactHeadingText": "DM-047 – Smothered-Lane Reassessment",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-071",
+      "headingNodeIndex": 5501,
+      "exactHeadingText": "DM-071 – Defensive Press Recognition",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-072",
+      "headingNodeIndex": 5502,
+      "exactHeadingText": "DM-072 – Man-on-Man or Zone Recognition",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-076",
+      "headingNodeIndex": 5503,
+      "exactHeadingText": "DM-076 – Last-Line Defender Choice",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-088",
+      "headingNodeIndex": 5505,
+      "exactHeadingText": "DM-088 – Consequence-Based Risk Game",
+      "drillIdLabelNodeIndex": 5506,
+      "drillIdValueNodeIndex": 5507,
+      "drillIdValue": "DM-088",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-006",
+      "headingNodeIndex": 5644,
+      "exactHeadingText": "DM-006 – Risk–Reward Lane Choice",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-008",
+      "headingNodeIndex": 5645,
+      "exactHeadingText": "DM-008 – Field-Position Decision Zones",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-065",
+      "headingNodeIndex": 5646,
+      "exactHeadingText": "DM-065 – Defensive 50 Exit Priority",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-077",
+      "headingNodeIndex": 5647,
+      "exactHeadingText": "DM-077 – Scoreboard Margin Response",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-078",
+      "headingNodeIndex": 5648,
+      "exactHeadingText": "DM-078 – Clock Management Possession",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-089",
+      "headingNodeIndex": 5650,
+      "exactHeadingText": "DM-089 – Multi-Phase Scenario Adaptation",
+      "drillIdLabelNodeIndex": 5651,
+      "drillIdValueNodeIndex": 5652,
+      "drillIdValue": "DM-089",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-066",
+      "headingNodeIndex": 5799,
+      "exactHeadingText": "DM-066 – Midfield Tempo Choice",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-077",
+      "headingNodeIndex": 5800,
+      "exactHeadingText": "DM-077 – Scoreboard Margin Response",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-079",
+      "headingNodeIndex": 5801,
+      "exactHeadingText": "DM-079 – Tactical Method Switch",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-080",
+      "headingNodeIndex": 5802,
+      "exactHeadingText": "DM-080 – Team Tactical Decision Assessment",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-088",
+      "headingNodeIndex": 5803,
+      "exactHeadingText": "DM-088 – Consequence-Based Risk Game",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-090",
+      "headingNodeIndex": 5805,
+      "exactHeadingText": "DM-090 – Elite Decision Application Assessment",
+      "drillIdLabelNodeIndex": 5806,
+      "drillIdValueNodeIndex": 5807,
+      "drillIdValue": "DM-090",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-091",
+      "headingNodeIndex": 5972,
+      "exactHeadingText": "DM-091 – Information Priority Under Chaos",
+      "drillIdLabelNodeIndex": 5973,
+      "drillIdValueNodeIndex": 5974,
+      "drillIdValue": "DM-091",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-014",
+      "headingNodeIndex": 6104,
+      "exactHeadingText": "DM-014 – Call, Point and Confirm",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-043",
+      "headingNodeIndex": 6105,
+      "exactHeadingText": "DM-043 – Blind-Side Pressure Scan",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-080",
+      "headingNodeIndex": 6106,
+      "exactHeadingText": "DM-080 – Team Tactical Decision Assessment",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-089",
+      "headingNodeIndex": 6107,
+      "exactHeadingText": "DM-089 – Multi-Phase Scenario Adaptation",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-090",
+      "headingNodeIndex": 6108,
+      "exactHeadingText": "DM-090 – Elite Decision Application Assessment",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-092",
+      "headingNodeIndex": 6110,
+      "exactHeadingText": "DM-092 – Leadership Call and Player Override",
+      "drillIdLabelNodeIndex": 6111,
+      "drillIdValueNodeIndex": 6112,
+      "drillIdValue": "DM-092",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-079",
+      "headingNodeIndex": 6252,
+      "exactHeadingText": "DM-079 – Tactical Method Switch",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-080",
+      "headingNodeIndex": 6253,
+      "exactHeadingText": "DM-080 – Team Tactical Decision Assessment",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-089",
+      "headingNodeIndex": 6254,
+      "exactHeadingText": "DM-089 – Multi-Phase Scenario Adaptation",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-091",
+      "headingNodeIndex": 6255,
+      "exactHeadingText": "DM-091 – Information Priority Under Chaos",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-093",
+      "headingNodeIndex": 6257,
+      "exactHeadingText": "DM-093 – Attacking Mismatch Recognition",
+      "drillIdLabelNodeIndex": 6258,
+      "drillIdValueNodeIndex": 6259,
+      "drillIdValue": "DM-093",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-028",
+      "headingNodeIndex": 6394,
+      "exactHeadingText": "DM-028 – Moving Target Priority",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-067",
+      "headingNodeIndex": 6395,
+      "exactHeadingText": "DM-067 – Forward 50 Entry Method",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-072",
+      "headingNodeIndex": 6396,
+      "exactHeadingText": "DM-072 – Man-on-Man or Zone Recognition",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-075",
+      "headingNodeIndex": 6397,
+      "exactHeadingText": "DM-075 – Repeat Forward Entry Choice",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-083",
+      "headingNodeIndex": 6398,
+      "exactHeadingText": "DM-083 – Dummy Lead Response",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-094",
+      "headingNodeIndex": 6400,
+      "exactHeadingText": "DM-094 – Defensive Mismatch Protection",
+      "drillIdLabelNodeIndex": 6401,
+      "drillIdValueNodeIndex": 6402,
+      "drillIdValue": "DM-094",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-073",
+      "headingNodeIndex": 6533,
+      "exactHeadingText": "DM-073 – Extra Defender Use",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-076",
+      "headingNodeIndex": 6534,
+      "exactHeadingText": "DM-076 – Last-Line Defender Choice",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-080",
+      "headingNodeIndex": 6535,
+      "exactHeadingText": "DM-080 – Team Tactical Decision Assessment",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-093",
+      "headingNodeIndex": 6536,
+      "exactHeadingText": "DM-093 – Attacking Mismatch Recognition",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-095",
+      "headingNodeIndex": 6538,
+      "exactHeadingText": "DM-095 – Weather-Adjusted Decision Game",
+      "drillIdLabelNodeIndex": 6539,
+      "drillIdValueNodeIndex": 6540,
+      "drillIdValue": "DM-095",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-006",
+      "headingNodeIndex": 6677,
+      "exactHeadingText": "DM-006 – Risk–Reward Lane Choice",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-016",
+      "headingNodeIndex": 6678,
+      "exactHeadingText": "DM-016 – Take, Tap or Soccer",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-054",
+      "headingNodeIndex": 6679,
+      "exactHeadingText": "DM-054 – Aerial Contest Ground-Level Choice",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-088",
+      "headingNodeIndex": 6680,
+      "exactHeadingText": "DM-088 – Consequence-Based Risk Game",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-096",
+      "headingNodeIndex": 6682,
+      "exactHeadingText": "DM-096 – Fatigue Decision Integrity",
+      "drillIdLabelNodeIndex": 6683,
+      "drillIdValueNodeIndex": 6684,
+      "drillIdValue": "DM-096",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-039",
+      "headingNodeIndex": 6820,
+      "exactHeadingText": "DM-039 – Movement Chain Under Pressure",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-049",
+      "headingNodeIndex": 6821,
+      "exactHeadingText": "DM-049 – Pressure Chain Continuity",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-089",
+      "headingNodeIndex": 6822,
+      "exactHeadingText": "DM-089 – Multi-Phase Scenario Adaptation",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-090",
+      "headingNodeIndex": 6823,
+      "exactHeadingText": "DM-090 – Elite Decision Application Assessment",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-097",
+      "headingNodeIndex": 6825,
+      "exactHeadingText": "DM-097 – Umpire Call and Advantage Decision",
+      "drillIdLabelNodeIndex": 6826,
+      "drillIdValueNodeIndex": 6827,
+      "drillIdValue": "DM-097",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-015",
+      "headingNodeIndex": 6959,
+      "exactHeadingText": "DM-015 – Mark, Play On or Hold",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-051",
+      "headingNodeIndex": 6960,
+      "exactHeadingText": "DM-051 – Turnover First Action",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-077",
+      "headingNodeIndex": 6961,
+      "exactHeadingText": "DM-077 – Scoreboard Margin Response",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-078",
+      "headingNodeIndex": 6962,
+      "exactHeadingText": "DM-078 – Clock Management Possession",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-091",
+      "headingNodeIndex": 6963,
+      "exactHeadingText": "DM-091 – Information Priority Under Chaos",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-098",
+      "headingNodeIndex": 6965,
+      "exactHeadingText": "DM-098 – Final Two-Minute Scenario Chain",
+      "drillIdLabelNodeIndex": 6966,
+      "drillIdValueNodeIndex": 6967,
+      "drillIdValue": "DM-098",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-077",
+      "headingNodeIndex": 7109,
+      "exactHeadingText": "DM-077 – Scoreboard Margin Response",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-078",
+      "headingNodeIndex": 7110,
+      "exactHeadingText": "DM-078 – Clock Management Possession",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-088",
+      "headingNodeIndex": 7111,
+      "exactHeadingText": "DM-088 – Consequence-Based Risk Game",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-089",
+      "headingNodeIndex": 7112,
+      "exactHeadingText": "DM-089 – Multi-Phase Scenario Adaptation",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-097",
+      "headingNodeIndex": 7113,
+      "exactHeadingText": "DM-097 – Umpire Call and Advantage Decision",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-099",
+      "headingNodeIndex": 7115,
+      "exactHeadingText": "DM-099 – Unscripted Chaos Match",
+      "drillIdLabelNodeIndex": 7116,
+      "drillIdValueNodeIndex": 7117,
+      "drillIdValue": "DM-099",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "DM-079",
+      "headingNodeIndex": 7267,
+      "exactHeadingText": "DM-079 – Tactical Method Switch",
+      "drillIdValue": "",
+      "contextValidationStatus": "RELATED_DRILL_REFERENCE"
+    },
+    {
+      "drillId": "DM-080",
+      "headingNodeIndex": 7268,
+      "exactHeadingText": "DM-080 – Team Tactical Decision Assessment",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-089",
+      "headingNodeIndex": 7269,
+      "exactHeadingText": "DM-089 – Multi-Phase Scenario Adaptation",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-090",
+      "headingNodeIndex": 7270,
+      "exactHeadingText": "DM-090 – Elite Decision Application Assessment",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-098",
+      "headingNodeIndex": 7271,
+      "exactHeadingText": "DM-098 – Final Two-Minute Scenario Chain",
+      "drillIdLabelNodeIndex": -1,
+      "drillIdValueNodeIndex": -1,
+      "drillIdValue": "",
+      "labelAndValueSequenceValid": false,
+      "contextValidationStatus": "INVALID_HEADING_CONTEXT"
+    },
+    {
+      "drillId": "DM-100",
+      "headingNodeIndex": 7273,
+      "exactHeadingText": "DM-100 – Decision Making Chapter Final Assessment",
+      "drillIdLabelNodeIndex": 7274,
+      "drillIdValueNodeIndex": 7275,
+      "drillIdValue": "DM-100",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "SG-091",
+      "headingNodeIndex": 5130,
+      "exactHeadingText": "SG-091 – Six-Six-Six Restart Game",
+      "drillIdLabelNodeIndex": 5131,
+      "drillIdValueNodeIndex": 5132,
+      "drillIdValue": "SG-091",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    },
+    {
+      "drillId": "MS-061",
+      "headingNodeIndex": 3411,
+      "exactHeadingText": "MS-061 – Defensive-Half Possession Launch Simulation",
+      "drillIdLabelNodeIndex": 3412,
+      "drillIdValueNodeIndex": 3413,
+      "drillIdValue": "MS-061",
+      "labelAndValueSequenceValid": true,
+      "contextValidationStatus": "PASSED"
+    }
+  ],
+  "paragraphHeadingValidationSummary": {
+    "acceptedParagraphHeadingCount": 52,
+    "paragraphHeadingsWithMatchingLabelAndValue": 52,
+    "paragraphHeadingsMissingLabel": 0,
+    "paragraphHeadingsMissingMatchingValue": 0,
+    "paragraphHeadingsWithMismatchedId": 0
+  },
+  "rawOccurrencesAudit": {
+    "idsWithEarlierOccurrences": 320,
+    "totalEarlierOccurrences": 541,
+    "earlierRelatedDrillReferences": 532,
+    "earlierRangeReferences": 9,
+    "earlierInstructionalMentions": 0,
+    "incorrectAcceptedEarlyOccurrences": 0
+  },
   "tk111to120Audit": [
     {
       "drillId": "TK-111",
       "earlierOccurrences": 0,
       "earlierOccurrencesClassifiedAsRelated": 0,
+      "acceptedActualHeadingNodeIndex": 6843,
       "incorrectEarlyHeadingSelections": 0,
       "status": "PASSED"
     },
@@ -2292,6 +3227,7 @@
       "drillId": "TK-112",
       "earlierOccurrences": 0,
       "earlierOccurrencesClassifiedAsRelated": 0,
+      "acceptedActualHeadingNodeIndex": 6981,
       "incorrectEarlyHeadingSelections": 0,
       "status": "PASSED"
     },
@@ -2299,6 +3235,7 @@
       "drillId": "TK-113",
       "earlierOccurrences": 0,
       "earlierOccurrencesClassifiedAsRelated": 0,
+      "acceptedActualHeadingNodeIndex": 7119,
       "incorrectEarlyHeadingSelections": 0,
       "status": "PASSED"
     },
@@ -2306,6 +3243,7 @@
       "drillId": "TK-114",
       "earlierOccurrences": 0,
       "earlierOccurrencesClassifiedAsRelated": 0,
+      "acceptedActualHeadingNodeIndex": 7258,
       "incorrectEarlyHeadingSelections": 0,
       "status": "PASSED"
     },
@@ -2313,6 +3251,7 @@
       "drillId": "TK-115",
       "earlierOccurrences": 0,
       "earlierOccurrencesClassifiedAsRelated": 0,
+      "acceptedActualHeadingNodeIndex": 7401,
       "incorrectEarlyHeadingSelections": 0,
       "status": "PASSED"
     },
@@ -2320,6 +3259,7 @@
       "drillId": "TK-116",
       "earlierOccurrences": 0,
       "earlierOccurrencesClassifiedAsRelated": 0,
+      "acceptedActualHeadingNodeIndex": 7539,
       "incorrectEarlyHeadingSelections": 0,
       "status": "PASSED"
     },
@@ -2327,6 +3267,7 @@
       "drillId": "TK-117",
       "earlierOccurrences": 0,
       "earlierOccurrencesClassifiedAsRelated": 0,
+      "acceptedActualHeadingNodeIndex": 7681,
       "incorrectEarlyHeadingSelections": 0,
       "status": "PASSED"
     },
@@ -2334,6 +3275,7 @@
       "drillId": "TK-118",
       "earlierOccurrences": 0,
       "earlierOccurrencesClassifiedAsRelated": 0,
+      "acceptedActualHeadingNodeIndex": 7822,
       "incorrectEarlyHeadingSelections": 0,
       "status": "PASSED"
     },
@@ -2341,6 +3283,7 @@
       "drillId": "TK-119",
       "earlierOccurrences": 0,
       "earlierOccurrencesClassifiedAsRelated": 0,
+      "acceptedActualHeadingNodeIndex": 7963,
       "incorrectEarlyHeadingSelections": 0,
       "status": "PASSED"
     },
@@ -2348,24 +3291,25 @@
       "drillId": "TK-120",
       "earlierOccurrences": 0,
       "earlierOccurrencesClassifiedAsRelated": 0,
+      "acceptedActualHeadingNodeIndex": 8120,
       "incorrectEarlyHeadingSelections": 0,
       "status": "PASSED"
     }
   ],
   "fileSizeReconciliation": {
-    "actualFileSizeBytes": 14380703,
-    "actualFileSizeMB": 13.71,
-    "compactDatasetSizeBytes": 11081736,
-    "compactDatasetSizeMB": 10.57,
-    "sumIndividualRecordBytes": 11080172,
-    "sumIndividualRecordMB": 10.57,
-    "formattingOverheadBytes": 3298967,
-    "formattingOverheadMB": 3.15
+    "actualFileSizeBytes": 14774431,
+    "actualFileSizeMB": 14.09,
+    "compactDatasetSizeBytes": 11389900,
+    "compactDatasetSizeMB": 10.86,
+    "sumIndividualRecordBytes": 11388289,
+    "sumIndividualRecordMB": 10.86,
+    "formattingOverheadBytes": 3384531,
+    "formattingOverheadMB": 3.23
   },
   "provenanceTotals": {
     "category": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1553,
+      "NORMALISED_SOURCE": 1600,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 10,
@@ -2374,52 +3318,124 @@
     },
     "primarySkill": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1556,
+      "NORMALISED_SOURCE": 1603,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 7,
       "DERIVED_FALLBACK": 0,
       "PARSER_FAILURE": 0
     },
-    "objective": {
-      "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1563,
-      "STRUCTURED_FROM_SOURCE": 0,
-      "APPROVED_METADATA": 0,
-      "SOURCE_ABSENT": 0,
-      "DERIVED_FALLBACK": 0,
-      "PARSER_FAILURE": 0
-    },
     "secondarySkills": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1555,
+      "NORMALISED_SOURCE": 1602,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 8,
       "DERIVED_FALLBACK": 0,
       "PARSER_FAILURE": 0
     },
+    "objective": {
+      "EXACT_SOURCE": 0,
+      "NORMALISED_SOURCE": 1610,
+      "STRUCTURED_FROM_SOURCE": 0,
+      "APPROVED_METADATA": 0,
+      "SOURCE_ABSENT": 0,
+      "DERIVED_FALLBACK": 0,
+      "PARSER_FAILURE": 0
+    },
+    "ageGroups": {
+      "EXACT_SOURCE": 0,
+      "NORMALISED_SOURCE": 0,
+      "STRUCTURED_FROM_SOURCE": 1587,
+      "APPROVED_METADATA": 0,
+      "SOURCE_ABSENT": 23,
+      "DERIVED_FALLBACK": 0,
+      "PARSER_FAILURE": 0
+    },
     "skillLevel": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1530,
+      "NORMALISED_SOURCE": 1577,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 33,
       "DERIVED_FALLBACK": 0,
       "PARSER_FAILURE": 0
     },
+    "players": {
+      "EXACT_SOURCE": 0,
+      "NORMALISED_SOURCE": 0,
+      "STRUCTURED_FROM_SOURCE": 1588,
+      "APPROVED_METADATA": 0,
+      "SOURCE_ABSENT": 22,
+      "DERIVED_FALLBACK": 0,
+      "PARSER_FAILURE": 0
+    },
+    "groundSize": {
+      "EXACT_SOURCE": 0,
+      "NORMALISED_SOURCE": 0,
+      "STRUCTURED_FROM_SOURCE": 1588,
+      "APPROVED_METADATA": 0,
+      "SOURCE_ABSENT": 22,
+      "DERIVED_FALLBACK": 0,
+      "PARSER_FAILURE": 0
+    },
     "equipment": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1540,
+      "NORMALISED_SOURCE": 1587,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 23,
       "DERIVED_FALLBACK": 0,
       "PARSER_FAILURE": 0
     },
+    "time": {
+      "EXACT_SOURCE": 0,
+      "NORMALISED_SOURCE": 0,
+      "STRUCTURED_FROM_SOURCE": 1587,
+      "APPROVED_METADATA": 0,
+      "SOURCE_ABSENT": 23,
+      "DERIVED_FALLBACK": 0,
+      "PARSER_FAILURE": 0
+    },
+    "physicalLoad": {
+      "EXACT_SOURCE": 0,
+      "NORMALISED_SOURCE": 0,
+      "STRUCTURED_FROM_SOURCE": 1587,
+      "APPROVED_METADATA": 0,
+      "SOURCE_ABSENT": 23,
+      "DERIVED_FALLBACK": 0,
+      "PARSER_FAILURE": 0
+    },
+    "mentalLoad": {
+      "EXACT_SOURCE": 0,
+      "NORMALISED_SOURCE": 0,
+      "STRUCTURED_FROM_SOURCE": 1587,
+      "APPROVED_METADATA": 0,
+      "SOURCE_ABSENT": 23,
+      "DERIVED_FALLBACK": 0,
+      "PARSER_FAILURE": 0
+    },
+    "contact": {
+      "EXACT_SOURCE": 0,
+      "NORMALISED_SOURCE": 0,
+      "STRUCTURED_FROM_SOURCE": 1585,
+      "APPROVED_METADATA": 0,
+      "SOURCE_ABSENT": 25,
+      "DERIVED_FALLBACK": 0,
+      "PARSER_FAILURE": 0
+    },
+    "coachingDifficulty": {
+      "EXACT_SOURCE": 0,
+      "NORMALISED_SOURCE": 0,
+      "STRUCTURED_FROM_SOURCE": 1574,
+      "APPROVED_METADATA": 0,
+      "SOURCE_ABSENT": 36,
+      "DERIVED_FALLBACK": 0,
+      "PARSER_FAILURE": 0
+    },
     "sessionPlacement": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1527,
+      "NORMALISED_SOURCE": 1574,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 36,
@@ -2428,7 +3444,7 @@
     },
     "setup": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1555,
+      "NORMALISED_SOURCE": 1602,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 8,
@@ -2437,7 +3453,7 @@
     },
     "instructions": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1528,
+      "NORMALISED_SOURCE": 1575,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 35,
@@ -2446,7 +3462,7 @@
     },
     "coachingPoints": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1554,
+      "NORMALISED_SOURCE": 1601,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 9,
@@ -2455,7 +3471,7 @@
     },
     "coachingCues": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1540,
+      "NORMALISED_SOURCE": 1587,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 23,
@@ -2464,7 +3480,7 @@
     },
     "observations": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1528,
+      "NORMALISED_SOURCE": 1575,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 35,
@@ -2473,7 +3489,7 @@
     },
     "commonErrors": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1538,
+      "NORMALISED_SOURCE": 1585,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 25,
@@ -2482,7 +3498,7 @@
     },
     "progressions": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1537,
+      "NORMALISED_SOURCE": 1584,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 26,
@@ -2491,7 +3507,7 @@
     },
     "regressions": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1537,
+      "NORMALISED_SOURCE": 1584,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 26,
@@ -2500,7 +3516,7 @@
     },
     "successIndicators": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1530,
+      "NORMALISED_SOURCE": 1577,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 33,
@@ -2509,7 +3525,7 @@
     },
     "matchApplication": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1554,
+      "NORMALISED_SOURCE": 1601,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
       "SOURCE_ABSENT": 9,
@@ -2518,24 +3534,24 @@
     },
     "relatedDrills": {
       "EXACT_SOURCE": 0,
-      "NORMALISED_SOURCE": 1504,
+      "NORMALISED_SOURCE": 1548,
       "STRUCTURED_FROM_SOURCE": 0,
       "APPROVED_METADATA": 0,
-      "SOURCE_ABSENT": 59,
+      "SOURCE_ABSENT": 62,
       "DERIVED_FALLBACK": 0,
       "PARSER_FAILURE": 0
     }
   },
   "sizeDistributionMetricsBytes": {
-    "min": 1762,
-    "median": 7160,
-    "mean": 7089,
-    "p75": 7480,
-    "p90": 7970,
-    "p95": 8479,
-    "p99": 9738,
+    "min": 1798,
+    "median": 7150,
+    "mean": 7073,
+    "p75": 7467,
+    "p90": 7959,
+    "p95": 8465,
+    "p99": 9680,
     "max": 12463
   },
-  "totalErrorCount": 5,
-  "status": "FAILED_VALIDATION"
+  "totalErrorCount": 0,
+  "status": "PASSED_ALL_CHECKS"
 }
