@@ -2116,20 +2116,32 @@ PROGRESSIONS & REGRESSIONS: Progression: Add light shoulder bumps in the air. Re
           phase: "Contest"
         };
       } else {
-        const preGameCues = Array.isArray(selectedPreGameDrill.coachingCues) && selectedPreGameDrill.coachingCues.length > 0
-          ? selectedPreGameDrill.coachingCues.join(', ')
-          : (selectedPreGameDrill.cues || "Keep eyes on ball, Move into space, Clean hands");
+        const defaultPreGameDrill = {
+          name: "Dynamic Movement Prep & Ball Handling",
+          goal: "Warm up core muscle groups and establish foot-eye coordination.",
+          desc: "Perform dynamic strides, high knees, butt kicks, and continuous partner handballs on the move.",
+          coachingTip: "Ensure posture remains upright and hands are ready at chest height.",
+          cues: "Keep eyes on ball, Move into space, Clean hands",
+          coachingCues: ["Keep eyes on ball", "Move into space", "Clean hands"],
+          phase: "Contest",
+          setup: `Oval footprint, calibrated to ${groundName} constraints.`
+        };
+        const activePreGameDrill = (typeof selectedPreGameDrill !== 'undefined' && selectedPreGameDrill) ? selectedPreGameDrill : defaultPreGameDrill;
 
-        const preGameSetup = selectedPreGameDrill.setup || `Oval footprint, calibrated to ${groundName} constraints.`;
-        const preGameExec = selectedPreGameDrill.howTheDrillWorks || selectedPreGameDrill.execution || selectedPreGameDrill.desc || 'Execute dynamic movement preparation drills in pairs or lines.';
-        const preGameProgs = Array.isArray(selectedPreGameDrill.progressions) && selectedPreGameDrill.progressions.length > 0
-          ? selectedPreGameDrill.progressions.join(' | ')
-          : (selectedPreGameDrill.coachingTip || 'Focus on landing stability and clean execution.');
+        const preGameCues = Array.isArray(activePreGameDrill.coachingCues) && activePreGameDrill.coachingCues.length > 0
+          ? activePreGameDrill.coachingCues.join(', ')
+          : (activePreGameDrill.cues || "Keep eyes on ball, Move into space, Clean hands");
+
+        const preGameSetup = activePreGameDrill.setup || `Oval footprint, calibrated to ${groundName} constraints.`;
+        const preGameExec = activePreGameDrill.howTheDrillWorks || activePreGameDrill.execution || activePreGameDrill.desc || 'Execute dynamic movement preparation drills in pairs or lines.';
+        const preGameProgs = Array.isArray(activePreGameDrill.progressions) && activePreGameDrill.progressions.length > 0
+          ? activePreGameDrill.progressions.join(' | ')
+          : (activePreGameDrill.coachingTip || 'Focus on landing stability and clean execution.');
 
         preGameCard = {
-          title: `WARM-UP & ACTIVATION: ${selectedPreGameDrill.name.toUpperCase()}`,
+          title: `WARM-UP & ACTIVATION: ${(activePreGameDrill.name || 'Warm-Up').toUpperCase()}`,
           duration: preGameMins,
-          instructions: `DRILL NAME & OBJECTIVE: ${selectedPreGameDrill.name} - ${selectedPreGameDrill.objective || selectedPreGameDrill.goal}
+          instructions: `DRILL NAME & OBJECTIVE: ${activePreGameDrill.name} - ${activePreGameDrill.objective || activePreGameDrill.goal}
           
 SETUP & GRID DIMENSIONS: ${preGameSetup}
 
@@ -2138,9 +2150,9 @@ EXECUTION & RULES: ${preGameExec}
 ELITE COACHING CUES: ${preGameCues}
 
 PROGRESSIONS & REGRESSIONS: ${preGameProgs}`,
-          goal: selectedPreGameDrill.objective || selectedPreGameDrill.goal,
-          phase: selectedPreGameDrill.phase,
-          drillId: selectedPreGameDrill.drillId
+          goal: activePreGameDrill.objective || activePreGameDrill.goal,
+          phase: activePreGameDrill.phase || "Contest",
+          drillId: activePreGameDrill.drillId
         };
       }
 
