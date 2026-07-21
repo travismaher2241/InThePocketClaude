@@ -977,72 +977,46 @@ PROGRESSIONS & REGRESSIONS: CHANGE IT Coaching Tip: ${matchedWarmup.coachingTip}
 
 const renderDrillTextFramework = (card) => {
   if (!card) return null;
-  const title = card.title || '';
   let instructions = card.instructions || '';
 
   // Parse fields first
   let parsed = parseInstructions(instructions);
-  
-  const shouldShowKicking = 
-    parsed.targetKickingType && 
-    parsed.targetKickingType.trim() !== "" && 
-    !parsed.targetKickingType.toLowerCase().includes('none') &&
-    !parsed.targetKickingType.toLowerCase().includes('n/a');
 
-  // Extract cues array for pill rendering
-  const cuesRaw = parsed.eliteCoachingCues || (card.coachingCues ? (Array.isArray(card.coachingCues) ? card.coachingCues.join(', ') : card.coachingCues) : '');
-  const cuesList = cuesRaw ? cuesRaw.split(',').map(c => c.replace(/\*\*/g, '').replace(/[#`[\]"']/g, '').trim()).filter(Boolean) : [];
+  const objectiveText = parsed.drillNameObjective 
+    ? parsed.drillNameObjective.replace(/\*\*/g, '').replace(/[#`[\]]/g, '').trim() 
+    : (card.goal || 'Master core skills under match conditions.').replace(/[#*`[\]]/g, '').trim();
 
-  const objectiveText = parsed.drillNameObjective ? parsed.drillNameObjective.replace(/\*\*/g, '').replace(/[#`[\]]/g, '') : card.goal;
-  const setupText = parsed.setupGridDimensions ? parsed.setupGridDimensions.replace(/\*\*/g, '').replace(/[#`[\]]/g, '') : card.setup;
-  const executionText = parsed.executionRules ? parsed.executionRules.replace(/\*\*/g, '').replace(/[#`[\]]/g, '') : card.howTheDrillWorks;
-  const progressionText = parsed.progressionsRegressions ? parsed.progressionsRegressions.replace(/\*\*/g, '').replace(/[#`[\]]/g, '') : (Array.isArray(card.progressions) ? card.progressions.join(' | ') : card.progressions);
+  let setupText = parsed.setupGridDimensions 
+    ? parsed.setupGridDimensions.replace(/\*\*/g, '').replace(/[#`[\]]/g, '').trim() 
+    : (card.setup || 'Set up marked grid area.').replace(/[#*`[\]]/g, '').trim();
+
+  // Scrub fluff strings from setup text
+  setupText = setupText
+    .replace(/,\s*calibrated\s+to\s+[^.]*\.\s*/gi, '. ')
+    .replace(/,\s*calibrated\s+strictly\s+to\s+[^.]*\.\s*/gi, '. ')
+    .replace(/Oval\s+footprint,\s*calibrated\s+to\s+[^.]*\.\s*/gi, '')
+    .replace(/calibrated\s+to\s+[^.]*constraints\.?/gi, '')
+    .replace(/\[home\s+ground\]/gi, '')
+    .replace(/home\s+ground\s+constraints/gi, '')
+    .trim();
+
+  if (!setupText) {
+    setupText = "Set up marked grid area with cones.";
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.875rem', fontFamily: 'var(--font-family-body)', color: '#d1d5db', lineHeight: '1.5', marginTop: '4px' }}>
       {objectiveText && (
-        <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', padding: '8px 12px', borderRadius: '6px', borderLeft: '3px solid #ffb703' }}>
-          <strong style={{ color: '#ffb703', fontSize: '0.75rem', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>Objective</strong>
-          <span style={{ color: '#ffffff', fontWeight: '500' }}>{objectiveText}</span>
-        </div>
-      )}
-
-      {shouldShowKicking && parsed.targetKickingType && (
-        <div style={{ fontSize: '0.825rem', color: '#3a86ff' }}>
-          <strong>Target Kicking:</strong> {parsed.targetKickingType.replace(/\*\*/g, '').replace(/[#`[\]]/g, '')}
+        <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', padding: '10px 12px', borderRadius: '6px', borderLeft: '3px solid #ffb703' }}>
+          <strong style={{ color: '#ffb703', fontSize: '0.75rem', textTransform: 'uppercase', display: 'block', marginBottom: '2px', letterSpacing: '0.04em' }}>Objective</strong>
+          <span style={{ color: '#ffffff', fontWeight: '500', lineHeight: '1.4' }}>{objectiveText}</span>
         </div>
       )}
 
       {setupText && (
         <div style={{ fontSize: '0.85rem' }}>
-          <strong style={{ color: '#8d939e', textTransform: 'uppercase', fontSize: '0.75rem', display: 'block', marginBottom: '2px' }}>Setup & Grid</strong>
-          <span style={{ color: '#d1d5db' }}>{setupText}</span>
-        </div>
-      )}
-
-      {executionText && (
-        <div style={{ fontSize: '0.85rem' }}>
-          <strong style={{ color: '#8d939e', textTransform: 'uppercase', fontSize: '0.75rem', display: 'block', marginBottom: '2px' }}>Execution & Rules</strong>
-          <span style={{ color: '#d1d5db', lineHeight: '1.5' }}>{executionText}</span>
-        </div>
-      )}
-
-      {cuesList.length > 0 && (
-        <div>
-          <strong style={{ color: '#3a86ff', textTransform: 'uppercase', fontSize: '0.75rem', display: 'block', marginBottom: '4px' }}>Live Coaching Cues</strong>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-            {cuesList.map((cue, idx) => (
-              <span key={idx} style={{ backgroundColor: 'rgba(58, 134, 255, 0.15)', border: '1px solid rgba(58, 134, 255, 0.3)', color: '#3a86ff', fontSize: '0.75rem', fontWeight: '700', padding: '3px 8px', borderRadius: '12px' }}>
-                "{cue}"
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {progressionText && (
-        <div style={{ fontSize: '0.8rem', color: '#38b000', backgroundColor: 'rgba(56, 176, 0, 0.08)', padding: '6px 10px', borderRadius: '6px', border: '1px solid rgba(56, 176, 0, 0.2)' }}>
-          <strong>Variation:</strong> {progressionText}
+          <strong style={{ color: '#8d939e', textTransform: 'uppercase', fontSize: '0.75rem', display: 'block', marginBottom: '2px', letterSpacing: '0.04em' }}>Setup & Grid</strong>
+          <span style={{ color: '#d1d5db', lineHeight: '1.4' }}>{setupText}</span>
         </div>
       )}
     </div>
@@ -1230,48 +1204,59 @@ export default function TrainingLab({
       });
     }
 
-    if (matched) {
-      return {
-        ...matched,
-        duration: card.duration || matched.time,
-        goal: card.goal || matched.objective,
-        instructions: card.instructions || matched.howTheDrillWorks,
-        phase: card.phase || matched.category
-      };
-    }
-
-    // Fallback: structured drill object from card instructions
     const parsedInst = parseInstructions(card.instructions || '');
+
+    const cleanCues = (raw) => {
+      if (!raw) return [];
+      const arr = Array.isArray(raw) ? raw : String(raw).split(',');
+      return arr.map(c => typeof c === 'string' ? c.replace(/^["'\s]+|["'\s]+$/g, '').replace(/\\"/g, '"').trim() : String(c)).filter(Boolean);
+    };
+
+    const cleanSetup = (str) => {
+      if (!str) return 'Set up marked grid area with cones.';
+      return str
+        .replace(/,\s*calibrated\s+to\s+[^.]*\.\s*/gi, '. ')
+        .replace(/Oval\s+footprint,\s*calibrated\s+to\s+[^.]*\.\s*/gi, '')
+        .replace(/calibrated\s+to\s+[^.]*constraints\.?/gi, '')
+        .replace(/\[home\s+ground\]/gi, '')
+        .replace(/home\s+ground\s+constraints/gi, '')
+        .trim();
+    };
+
+    const obj = matched ? { ...matched } : {};
+
+    const cuesList = cleanCues(parsedInst.eliteCoachingCues || card.coachingCues || obj.coachingCues);
+    const progressionsList = parsedInst.progressionsRegressions 
+      ? [parsedInst.progressionsRegressions] 
+      : (Array.isArray(obj.progressions) ? obj.progressions : (obj.progressions ? [obj.progressions] : ['Adjust grid space or defender pressure']));
+
     return {
-      drillId: cardId || 'DRILL',
-      title: cardTitle || 'Drill Segment',
-      category: card.category || card.phase || 'AFL Drill',
-      primarySkill: parsedInst.targetKickingType || card.phase || 'Skill Execution',
-      secondarySkills: ['Decision Making', 'Communication', 'Match Movement'],
-      objective: card.goal || parsedInst.drillNameObjective || 'Develop football skills under match conditions.',
-      ageGroups: { "Under 8": "✓", "Under 10": "✓", "Under 12": "✓", "Under 14": "✓", "Under 16": "✓", "Under 18": "✓", "Senior Women": "✓", "Senior Men": "✓", "Over 35 Men": "✓" },
-      skillLevel: 'Intermediate',
-      players: card.playerLabel || `${card.playerCount || 18} Players`,
-      groundSize: 'Half Oval / Grid',
-      equipment: ['Footballs', 'Cones', 'Bibs'],
+      drillId: cardId || obj.drillId || 'DRILL',
+      title: cardTitle || obj.title || 'Drill Segment',
+      category: card.phase || card.category || obj.category || 'AFL Drill',
+      primarySkill: parsedInst.targetKickingType || obj.primarySkill || 'Skill Execution',
+      secondarySkills: obj.secondarySkills || ['Decision Making', 'Communication', 'Match Movement'],
+      objective: card.goal || parsedInst.drillNameObjective || obj.objective || 'Develop football skills under match conditions.',
+      skillLevel: obj.skillLevel || 'Intermediate',
+      players: card.playerLabel || `${card.playerCount || presentIds.length || 18} Players`,
+      groundSize: obj.groundSize || 'Half Oval / Grid',
+      equipment: obj.equipment || ['Footballs', 'Cones', 'Bibs'],
       time: `${card.duration || 15} Mins`,
-      physicalLoad: '3 – Moderate',
-      mentalLoad: '3 – Moderate',
-      contact: '1 – Controlled Contact',
-      coachingDifficulty: '2 – Basic',
-      sessionPlacement: [cardTitle || 'Skill Segment'],
-      setup: parsedInst.setupGridDimensions || card.instructions || 'Set up marked grid area.',
-      howTheDrillWorks: parsedInst.executionRules || card.instructions || 'Execute drill as directed.',
-      coachingPoints: parsedInst.eliteCoachingCues ? [parsedInst.eliteCoachingCues] : ['Scan field before disposal', 'Maintain clean hands', 'Communicate with receivers'],
-      coachingCues: ['Eyes up', 'Clean hands', 'Accelerate away'],
-      whatTheCoachShouldObserve: ['Disposal accuracy', 'Work rate off the ball', 'Communication'],
-      commonErrors: [
-        { error: 'Disposal under pressure without scanning', correction: 'Scan target before receiving or releasing.' }
-      ],
-      progressions: parsedInst.progressionsRegressions ? [parsedInst.progressionsRegressions] : ['Reduce grid space', 'Add active defender'],
-      regressions: ['Increase grid space', 'Remove passive pressure'],
-      successIndicators: ['Players execute clean disposals', 'Communication remains active throughout'],
-      matchApplication: 'Replicates match pressure, spatial awareness, and disposal under realistic conditions.'
+      physicalLoad: obj.physicalLoad || '3 – Moderate',
+      mentalLoad: obj.mentalLoad || '3 – Moderate',
+      contact: obj.contact || '1 – Controlled Contact',
+      coachingDifficulty: obj.coachingDifficulty || '2 – Basic',
+      sessionPlacement: obj.sessionPlacement || [cardTitle || 'Skill Segment'],
+      setup: cleanSetup(parsedInst.setupGridDimensions || card.setup || obj.setup),
+      howTheDrillWorks: parsedInst.executionRules || card.instructions || obj.howTheDrillWorks || 'Execute drill as directed.',
+      coachingPoints: obj.coachingPoints || (parsedInst.eliteCoachingCues ? [parsedInst.eliteCoachingCues] : ['Scan field before disposal', 'Maintain clean hands']),
+      coachingCues: cuesList.length > 0 ? cuesList : ['Eyes up', 'Clean hands', 'Accelerate away'],
+      whatTheCoachShouldObserve: obj.whatTheCoachShouldObserve || ['Disposal accuracy', 'Work rate off the ball'],
+      commonErrors: obj.commonErrors || [{ error: 'Disposal under pressure without scanning', correction: 'Scan target before receiving or releasing.' }],
+      progressions: progressionsList,
+      regressions: obj.regressions || ['Increase grid space', 'Reduce speed'],
+      successIndicators: obj.successIndicators || ['Clean execution under pressure'],
+      matchApplication: obj.matchApplication || 'Replicates match pressure, spatial awareness, and disposal under realistic conditions.'
     };
   };
 
@@ -3463,40 +3448,8 @@ COACH'S LOGISTICS SUMMARY
                       )}
                     </div>
 
-                    {/* Linear Instructions block displaying exact text framework */}
+                    {/* Summary Framework (Objective & Setup only) */}
                     {renderDrillTextFramework(card)}
-
-                    {/* Focus Goal Accent Block (Sherrin Red Highlight) */}
-                    <div 
-                      style={{
-                        borderLeft: '3px solid var(--color-training)', // Vertical KB Sherrin Red bar
-                        paddingLeft: '12px',
-                        marginTop: '6px'
-                      }}
-                    >
-                      <span 
-                        style={{ 
-                          fontSize: '0.7rem', 
-                          color: '#8d939e', 
-                          textTransform: 'uppercase', 
-                          display: 'block', 
-                          fontWeight: '600',
-                          letterSpacing: '0.02em',
-                          marginBottom: '2px'
-                        }}
-                      >
-                        Drill Focus Goal
-                      </span>
-                      <span 
-                        style={{ 
-                          fontSize: '0.85rem', 
-                          color: 'var(--color-training)', 
-                          fontWeight: '700' 
-                        }}
-                      >
-                        {(card.goal || 'Master core skills.').replace(/[#*`[\]]/g, '')}
-                      </span>
-                    </div>
 
                         {/* Rotation indicator for stations */}
                         {card.isSubCard && card.switchLabel && (

@@ -403,7 +403,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {coachingCues.map((cue, idx) => (
                     <span key={idx} style={{ backgroundColor: '#3a86ff', color: '#ffffff', fontSize: '0.8rem', fontWeight: '700', padding: '6px 12px', borderRadius: '16px' }}>
-                      "{cue.replace(/^["']|["']$/g, '')}"
+                      "{typeof cue === 'string' ? cue.replace(/^["'\s]+|["'\s]+$/g, '').replace(/\\"/g, '"') : String(cue)}"
                     </span>
                   ))}
                 </div>
