@@ -2049,15 +2049,16 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
         suitableDrills = SYLLABUS_DRILLS;
       }
 
-      // Filter to drills that match the selected chapter focus areas
+      // Filter to drills that match the selected focus areas
       let matchingSyllabusDrills = [];
-      if (targetPrefixes.length > 0) {
-        matchingSyllabusDrills = suitableDrills.filter(d => 
-          d.drillId && targetPrefixes.some(pref => d.drillId.startsWith(pref))
-        );
+      if (Array.isArray(focusAreas) && focusAreas.length > 0) {
+        matchingSyllabusDrills = suitableDrills.filter(d => {
+          const searchHaystack = ((d.name || '') + ' ' + (d.objective || '') + ' ' + (d.category || '') + ' ' + (d.desc || '')).toLowerCase();
+          return focusAreas.some(fa => searchHaystack.includes(fa.toLowerCase()));
+        });
       }
 
-      if (matchingSyllabusDrills.length === 0) {
+      if (matchingSyllabusDrills.length < 4) {
         matchingSyllabusDrills = suitableDrills;
       }
 
