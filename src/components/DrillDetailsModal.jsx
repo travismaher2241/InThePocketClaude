@@ -84,32 +84,35 @@ export default function DrillDetailsModal({ drill, onClose }) {
             >
               {drillId}
             </span>
-            <span 
-              style={{
-                fontSize: '0.75rem',
-                fontWeight: '700',
-                color: '#ffb703',
-                backgroundColor: 'rgba(255, 183, 3, 0.12)',
-                border: '1px solid rgba(255, 183, 3, 0.3)',
-                padding: '2px 8px',
-                borderRadius: '4px',
-                textTransform: 'uppercase'
-              }}
-            >
-              {category}
-            </span>
-            {skillLevel && (
+            {category && (
               <span 
                 style={{
                   fontSize: '0.75rem',
-                  fontWeight: '600',
-                  color: '#8d939e',
-                  backgroundColor: '#1c1f26',
+                  fontWeight: '700',
+                  color: '#ffb703',
+                  backgroundColor: 'rgba(255, 183, 3, 0.12)',
+                  border: '1px solid rgba(255, 183, 3, 0.3)',
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  textTransform: 'uppercase'
+                }}
+              >
+                {category}
+              </span>
+            )}
+            {coachingDifficulty && (
+              <span 
+                style={{
+                  fontSize: '0.75rem',
+                  fontWeight: '700',
+                  color: '#38bdf8',
+                  backgroundColor: 'rgba(56, 189, 248, 0.12)',
+                  border: '1px solid rgba(56, 189, 248, 0.3)',
                   padding: '2px 8px',
                   borderRadius: '4px'
                 }}
               >
-                {skillLevel}
+                🎯 {coachingDifficulty}
               </span>
             )}
           </div>
