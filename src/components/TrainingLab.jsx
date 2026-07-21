@@ -1931,15 +1931,17 @@ PROGRESSIONS & REGRESSIONS: Progression: Add light shoulder bumps in the air. Re
         };
       } else {
         const preGameCues = selectedPreGameDrill.cues || "Keep eyes on ball, Move into space, Clean hands";
+        const preGameSetup = selectedPreGameDrill.setup || `Oval footprint, calibrated to ${groundName} constraints.`;
+        const preGameExec = selectedPreGameDrill.execution || selectedPreGameDrill.desc || 'Execute dynamic movement preparation drills in pairs or lines.';
 
         preGameCard = {
           title: `WARM-UP & ACTIVATION: ${selectedPreGameDrill.name.toUpperCase()}`,
           duration: preGameMins,
           instructions: `DRILL NAME & OBJECTIVE: ${selectedPreGameDrill.name} - ${selectedPreGameDrill.goal}
           
-SETUP & GRID DIMENSIONS: Oval footprint, calibrated to ${groundName} constraints.
+SETUP & GRID DIMENSIONS: ${preGameSetup}
 
-EXECUTION & RULES: ${selectedPreGameDrill.desc}
+EXECUTION & RULES: ${preGameExec}
 
 ELITE COACHING CUES: ${preGameCues}
 
