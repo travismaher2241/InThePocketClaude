@@ -1989,28 +1989,43 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       else if (agUpper.includes('SENIOR')) ageKey = "Senior Men";
       else if (agUpper.includes('OVER 35') || agUpper.includes('VETERAN') || agUpper.includes('MASTER')) ageKey = "Over 35 Men";
 
-      // Get selected drill ID prefixes from user's focus area selection
-      const targetPrefixes = focusAreas.map(f => getPrefixFromFocus(f)).filter(Boolean);
+      // Retrieve coach level directly from user profile / user-scoped storage
+      let effectiveCoachLevel = '3';
+      try {
+        const profileStr = localStorage.getItem(getScopedKey('inthepocket_user_profile')) || localStorage.getItem('inthepocket_user_profile');
+        if (profileStr) {
+          const parsedProf = JSON.parse(profileStr);
+          if (parsedProf?.coachLevel) effectiveCoachLevel = String(parsedProf.coachLevel);
+        }
+      } catch (e) {}
+      if (!effectiveCoachLevel && coachLevel) effectiveCoachLevel = String(coachLevel);
 
-      const maxDiff = parseInt(coachLevel || '3', 10);
+      const maxDiff = parseInt(effectiveCoachLevel || '3', 10);
 
       let suitableDrills = SYLLABUS_DRILLS.filter(d => {
         // Age suitability
         const ageMatch = !d.ageGroups || Object.keys(d.ageGroups).length === 0 || d.ageGroups[ageKey] !== '✗';
         if (!ageMatch) return false;
 
-        // Coaching difficulty check
+        // Coaching difficulty check: STRICTLY <= maxDiff (No expert Level 5 drills for Level 2 coach!)
         let diffNum = 3;
         if (d.coachingDifficulty) {
           const match = String(d.coachingDifficulty).match(/^(\d)/);
           if (match) diffNum = parseInt(match[1], 10);
         }
         
-        return diffNum <= maxDiff + 1;
+        return diffNum <= maxDiff;
       });
 
       if (suitableDrills.length === 0) {
-        suitableDrills = SYLLABUS_DRILLS;
+        suitableDrills = SYLLABUS_DRILLS.filter(d => {
+          let diffNum = 3;
+          if (d.coachingDifficulty) {
+            const match = String(d.coachingDifficulty).match(/^(\d)/);
+            if (match) diffNum = parseInt(match[1], 10);
+          }
+          return diffNum <= maxDiff;
+        });
       }
 
       // Filter to drills that match the selected chapter focus areas

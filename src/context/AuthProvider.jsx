@@ -34,7 +34,7 @@ export function AuthProvider({ children }) {
       const keysToRemove = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && (key.startsWith('inthepocket_') || key.startsWith('coachcore_'))) {
+        if (key && (key.startsWith('inthepocket_training_draft') || key.startsWith('inthepocket_active_plan') || key.startsWith('inthepocket_active_matchday') || key.startsWith('inthepocket_training_lab_state'))) {
           keysToRemove.push(key);
         }
       }

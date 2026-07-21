@@ -104,6 +104,19 @@ export default function App() {
     localStorage.setItem(getAppScopedKey('inthepocket_squad_settings'), JSON.stringify(squadSettings));
   }, [squadSettings, currentUser]);
 
+  // Synchronously load profile from user-scoped localStorage whenever currentUser changes
+  useEffect(() => {
+    if (currentUser) {
+      const localProfileStr = localStorage.getItem(getAppScopedKey('inthepocket_user_profile'));
+      if (localProfileStr) {
+        try {
+          const parsed = JSON.parse(localProfileStr);
+          setUserProfile(prev => ({ ...(prev || {}), ...parsed }));
+        } catch (e) {}
+      }
+    }
+  }, [currentUser]);
+
   // Load squad, userProfile, and squad settings from Firestore when user logs in
   useEffect(() => {
     const loadUserData = async () => {
@@ -126,7 +139,8 @@ export default function App() {
           
           const mergedProfile = {
             ...profile,
-            ...localProfile
+            ...localProfile,
+            hasCompletedSetup: (localProfile?.hasCompletedSetup === true) || (profile?.hasCompletedSetup === true)
           };
           setUserProfile(mergedProfile);
 
