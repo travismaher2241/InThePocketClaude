@@ -29,7 +29,19 @@ export function AuthProvider({ children }) {
   }
 
   // Logout function
-  function logout() {
+  async function logout() {
+    try {
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('inthepocket_') || key.startsWith('coachcore_'))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(k => localStorage.removeItem(k));
+    } catch (err) {
+      console.error("Failed to clear localStorage on logout:", err);
+    }
     return signOut(auth);
   }
 

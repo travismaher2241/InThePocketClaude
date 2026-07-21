@@ -1274,9 +1274,16 @@ export default function TrainingLab({
     };
   };
 
+  // User-scoped localStorage key helper
+  const getScopedKey = (baseKey) => {
+    const userIdentifier = currentUser?.uid || currentUser?.email || 'guest';
+    return `${baseKey}_${userIdentifier.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+  };
+
   // Draft Preservation Load
-  const [draft] = useState(() => {
-    const saved = localStorage.getItem('inthepocket_training_draft');
+  const [draft, setDraft] = useState(() => {
+    const key = currentUser?.uid || currentUser?.email ? `inthepocket_training_draft_${(currentUser?.uid || currentUser?.email).toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'inthepocket_training_draft_guest';
+    const saved = localStorage.getItem(key);
     return saved ? JSON.parse(saved) : null;
   });
 
@@ -1334,7 +1341,7 @@ export default function TrainingLab({
     if (squadSettings?.equipment) {
       return squadSettings.equipment;
     }
-    const saved = localStorage.getItem('inthepocket_squad_settings');
+    const saved = localStorage.getItem(getScopedKey('inthepocket_squad_settings')) || localStorage.getItem('inthepocket_squad_settings');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -1354,9 +1361,49 @@ export default function TrainingLab({
   const group1 = Math.floor(totalPlayersCount / 2);
   const group2 = totalPlayersCount - group1;
 
+  // React to User Authentication Changes: Load user-scoped draft or reset to clean generator view
   useEffect(() => {
-    setFocusAreas(prev => sanitizeFocusAreas(prev));
-  }, []);
+    if (!currentUser) {
+      // User logged out: Reset all session state back to clean generator initial view
+      setStep('wizard');
+      setPresentIds([]);
+      setDuration(60);
+      setCoachLevel('3');
+      setFocusAreas(['Kicking']);
+      setCustomPlaybookText('');
+      setPlanCards([]);
+      setDraft(null);
+      return;
+    }
+
+    const key = getScopedKey('inthepocket_training_draft');
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setDraft(parsed);
+        setStep(parsed.step || 'wizard');
+        setPresentIds(parsed.presentIds || []);
+        setDuration(parsed.duration || 60);
+        setCoachLevel(parsed.coachLevel || '3');
+        setFocusAreas(sanitizeFocusAreas(parsed.focusAreas));
+        setCustomPlaybookText(parsed.customPlaybookText || '');
+        setPlanCards(sanitizePlanCards(parsed.planCards || [], squadSettings?.groundName || "home ground", parsed.presentIds?.length || squad?.players?.length || 0));
+      } catch (err) {
+        console.error("Failed to parse user-scoped draft:", err);
+      }
+    } else {
+      // New tester or user with no active session: Reset to clean generator view
+      setStep('wizard');
+      setPresentIds([]);
+      setDuration(60);
+      setCoachLevel('3');
+      setFocusAreas(['Kicking']);
+      setCustomPlaybookText('');
+      setPlanCards([]);
+      setDraft(null);
+    }
+  }, [currentUser?.uid, currentUser?.email]);
 
   const handleToggleFocus = (f) => {
     setFocusAreas((prev) => {
@@ -1396,9 +1443,11 @@ export default function TrainingLab({
     fetchGensCount();
   }, [currentUser]);
 
-  // Sync draft parameters to localStorage on changes
+  // Sync draft parameters to User-Scoped LocalStorage on changes
   useEffect(() => {
-    localStorage.setItem('inthepocket_training_draft', JSON.stringify({
+    if (!currentUser) return;
+    const key = getScopedKey('inthepocket_training_draft');
+    localStorage.setItem(key, JSON.stringify({
       step,
       presentIds,
       duration,
@@ -1407,10 +1456,16 @@ export default function TrainingLab({
       customPlaybookText,
       planCards
     }));
-  }, [step, presentIds, duration, coachLevel, focusAreas, customPlaybookText, planCards]);
+  }, [step, presentIds, duration, coachLevel, focusAreas, customPlaybookText, planCards, currentUser]);
 
   const clearDraft = () => {
+    if (currentUser) {
+      localStorage.removeItem(getScopedKey('inthepocket_training_draft'));
+    }
     localStorage.removeItem('inthepocket_training_draft');
+    localStorage.removeItem('inthepocket_active_plan');
+    localStorage.removeItem('inthepocket_training_lab_state');
+
     setStep('wizard');
     setPresentIds([]);
     setDuration(60);
@@ -1418,6 +1473,7 @@ export default function TrainingLab({
     setFocusAreas(['Kicking']);
     setCustomPlaybookText('');
     setPlanCards([]);
+    setDraft(null);
   };
 
   // Load completed session history from Firestore on mount/user change to enable repetition penalty checks

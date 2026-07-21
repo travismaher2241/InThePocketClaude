@@ -37,24 +37,21 @@ export default function App() {
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   }, [activeTab]);
+  const getAppScopedKey = (baseKey) => {
+    const userIdentifier = currentUser?.uid || currentUser?.email || 'guest';
+    return `${baseKey}_${userIdentifier.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+  };
+
   const [squad, setSquad] = useState(() => {
-    const saved = localStorage.getItem('inthepocket_squad');
+    const key = currentUser?.uid || currentUser?.email ? `inthepocket_squad_${(currentUser?.uid || currentUser?.email).toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'inthepocket_squad_guest';
+    const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_squad');
     return saved ? JSON.parse(saved) : DEFAULT_ROSTER;
   });
 
   const [videoClips, setVideoClips] = useState(() => {
-    const saved = localStorage.getItem('inthepocket_videoclips');
-    return saved ? JSON.parse(saved) : [
-      {
-        id: 'v_seed_1',
-        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-        fileName: 'Fat-Side Clearance Drill.mp4',
-        date: new Date().toISOString().split('T')[0],
-        drillName: 'Fat-Side Clearance Leads',
-        playerIds: ['p1', 'p2', 'p3'], // Tagged: Dustin Martin, Marcus Bontempelli, Patrick Cripps
-        drawings: []
-      }
-    ];
+    const key = currentUser?.uid || currentUser?.email ? `inthepocket_videoclips_${(currentUser?.uid || currentUser?.email).toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'inthepocket_videoclips_guest';
+    const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_videoclips');
+    return saved ? JSON.parse(saved) : [];
   });
 
   const [selectedReviewClip, setSelectedReviewClip] = useState(null);
@@ -84,7 +81,8 @@ export default function App() {
   const [paywallFeature, setPaywallFeature] = useState(null);
 
   const [squadSettings, setSquadSettings] = useState(() => {
-    const saved = localStorage.getItem('inthepocket_squad_settings');
+    const key = currentUser?.uid || currentUser?.email ? `inthepocket_squad_settings_${(currentUser?.uid || currentUser?.email).toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'inthepocket_squad_settings_guest';
+    const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_squad_settings');
     const parsed = saved ? JSON.parse(saved) : { squadName: 'My Squad', ageGroup: 'U14' };
     if (!parsed.equipment) {
       parsed.equipment = {
@@ -99,8 +97,9 @@ export default function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem('inthepocket_squad_settings', JSON.stringify(squadSettings));
-  }, [squadSettings]);
+    if (!currentUser) return;
+    localStorage.setItem(getAppScopedKey('inthepocket_squad_settings'), JSON.stringify(squadSettings));
+  }, [squadSettings, currentUser]);
 
   // Load squad and squad settings from Firestore when user logs in
   useEffect(() => {
@@ -130,9 +129,13 @@ export default function App() {
           console.error("Failed to load user data from Firestore:", err);
         }
       } else {
+        // Reset state on logout
+        setActiveTab(0);
         setSquad([]);
         setSquadSettings({ squadName: 'My Squad', ageGroup: 'U14' });
         setSubscriptionTier('Free');
+        setVideoClips([]);
+        setSelectedReviewClip(null);
       }
     };
     loadUserData();
@@ -140,26 +143,29 @@ export default function App() {
 
   // Sync state changes to LocalStorage
   useEffect(() => {
-    localStorage.setItem('inthepocket_squad', JSON.stringify(squad));
-  }, [squad]);
-
-
-
-  useEffect(() => {
-    localStorage.setItem('inthepocket_tier', subscriptionTier);
-  }, [subscriptionTier]);
+    if (!currentUser) return;
+    localStorage.setItem(getAppScopedKey('inthepocket_squad'), JSON.stringify(squad));
+  }, [squad, currentUser]);
 
   useEffect(() => {
-    localStorage.setItem('inthepocket_stint_limit', maxStintMinutes.toString());
-  }, [maxStintMinutes]);
+    if (!currentUser) return;
+    localStorage.setItem(getAppScopedKey('inthepocket_tier'), subscriptionTier);
+  }, [subscriptionTier, currentUser]);
 
   useEffect(() => {
-    localStorage.setItem('inthepocket_sync_queue', JSON.stringify(syncQueue));
-  }, [syncQueue]);
+    if (!currentUser) return;
+    localStorage.setItem(getAppScopedKey('inthepocket_stint_limit'), maxStintMinutes.toString());
+  }, [maxStintMinutes, currentUser]);
 
   useEffect(() => {
-    localStorage.setItem('inthepocket_videoclips', JSON.stringify(videoClips));
-  }, [videoClips]);
+    if (!currentUser) return;
+    localStorage.setItem(getAppScopedKey('inthepocket_sync_queue'), JSON.stringify(syncQueue));
+  }, [syncQueue, currentUser]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    localStorage.setItem(getAppScopedKey('inthepocket_videoclips'), JSON.stringify(videoClips));
+  }, [videoClips, currentUser]);
 
   // Handle Online status change synchronization flushes
   useEffect(() => {

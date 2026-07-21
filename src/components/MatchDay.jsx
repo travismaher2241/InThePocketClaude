@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ContextualTaggingModal from './ContextualTaggingModal';
 import { hasAccess } from '../firebaseHelpers';
+import { useAuth } from '../context/AuthProvider';
 
 // Formal AFL Positional Layout Definitions (18 on-field positions)
 const FIELD_POSITIONS = [
