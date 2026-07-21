@@ -331,18 +331,54 @@ export default function App() {
   };
 
   const handleSaveSettings = async (newSettings) => {
-    setSquadSettings(newSettings);
+    // 1. Update squadSettings state
+    const nextSquadSettings = {
+      ...squadSettings,
+      squadName: newSettings.squadName || squadSettings.squadName,
+      ageGroup: newSettings.ageGroup || squadSettings.ageGroup,
+      equipment: newSettings.equipment || squadSettings.equipment
+    };
+    setSquadSettings(nextSquadSettings);
+
+    // 2. Update userProfile state with coach name, coach level, squad name, and age group
+    const updatedProfile = {
+      ...(userProfile || {}),
+      name: newSettings.coachName !== undefined ? newSettings.coachName : (userProfile?.name || ''),
+      teamName: newSettings.squadName || userProfile?.teamName || '',
+      ageGroup: newSettings.ageGroup || userProfile?.ageGroup || '',
+      primaryAgeGroup: newSettings.ageGroup || userProfile?.primaryAgeGroup || '',
+      coachLevel: newSettings.coachLevel || userProfile?.coachLevel || '3',
+      hasCompletedSetup: true
+    };
+    setUserProfile(updatedProfile);
+
+    // 3. Persist to user-scoped LocalStorage
+    if (currentUser) {
+      localStorage.setItem(getAppScopedKey('inthepocket_user_profile'), JSON.stringify(updatedProfile));
+      localStorage.setItem(getAppScopedKey('inthepocket_squad_settings'), JSON.stringify(nextSquadSettings));
+    }
+
+    // 4. Cloud sync to Firestore
     if (currentUser?.uid) {
       try {
-        await updateSquadSettings(newSettings, currentUser.uid);
-        showToast("Squad settings saved successfully.");
+        await updateUserProfile(currentUser.uid, updatedProfile);
+        await updateSquadSettings(nextSquadSettings, currentUser.uid);
+        showToast("Profile setup & command center settings updated successfully.");
       } catch (err) {
-        console.error("Failed to save squad settings to Firestore:", err);
-        showToast("Error: Failed to save squad settings to cloud.");
+        console.warn("Cloud sync failed during settings save:", err);
+        showToast("Settings saved locally.");
       }
     } else {
-      showToast("Squad settings saved locally.");
+      showToast("Settings saved locally.");
     }
+  };
+
+  const handleReRunSetup = () => {
+    setUserProfile(prev => ({
+      ...(prev || {}),
+      hasCompletedSetup: false
+    }));
+    setIsSettingsOpen(false);
   };
 
   const triggerPaywall = (featureName) => {
@@ -539,6 +575,8 @@ export default function App() {
       <SettingsModal 
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 
+        currentUser={currentUser}
+        userProfile={userProfile}
         subscriptionTier={subscriptionTier} 
         setSubscriptionTier={handleUpdateSubscriptionTier} 
         maxStintMinutes={maxStintMinutes} 
@@ -550,6 +588,7 @@ export default function App() {
         }}
         squadSettings={squadSettings}
         onSaveSettings={handleSaveSettings}
+        onReRunSetup={handleReRunSetup}
         isOnline={isOnline}
         setIsOnline={setIsOnline}
       />

@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 export default function SettingsModal({
   isOpen,
   onClose,
+  currentUser,
+  userProfile,
   subscriptionTier,
   setSubscriptionTier,
   maxStintMinutes,
@@ -11,11 +13,14 @@ export default function SettingsModal({
   clearSyncQueue,
   squadSettings,
   onSaveSettings,
+  onReRunSetup,
   isOnline,
   setIsOnline
 }) {
-  const [squadName, setSquadName] = useState(squadSettings?.squadName || 'My Squad');
-  const [ageGroup, setAgeGroup] = useState(squadSettings?.ageGroup || 'U14');
+  const [coachName, setCoachName] = useState(userProfile?.name || '');
+  const [coachLevel, setCoachLevel] = useState(userProfile?.coachLevel || '3');
+  const [squadName, setSquadName] = useState(squadSettings?.squadName || userProfile?.teamName || 'My Squad');
+  const [ageGroup, setAgeGroup] = useState(squadSettings?.ageGroup || userProfile?.ageGroup || 'U14');
   const [equipment, setEquipment] = useState(() => {
     return squadSettings?.equipment || {
       cones: 20,
@@ -25,6 +30,14 @@ export default function SettingsModal({
       bibs: 15
     };
   });
+
+  const coachLevels = [
+    { level: '1', title: 'Level 1 – Beginner / Parent Volunteer', desc: 'Simple drill setups, basic technique points, zero-contact exploration.' },
+    { level: '2', title: 'Level 2 – Fundamental / Assistant Coach', desc: 'Basic coaching knowledge, approach-line & footwork corrections.' },
+    { level: '3', title: 'Level 3 – Intermediate / Club Coach', desc: 'Multi-station rotations, 2–3 key observable behaviors & decision cues.' },
+    { level: '4', title: 'Level 4 – Advanced / Tactical Coach', desc: 'Complex constraints, live game pressure & match-style corrections.' },
+    { level: '5', title: 'Level 5 – Expert / High Performance Coach', desc: 'Multi-line scenarios, tactical adaptation, full-ground press & match simulation.' }
+  ];
 
   const handleEquipmentChange = (field, val) => {
     let parsed = parseInt(val, 10);
@@ -61,8 +74,10 @@ export default function SettingsModal({
   // Reset inputs when settings change or modal opens
   useEffect(() => {
     if (isOpen) {
-      setSquadName(squadSettings?.squadName || 'My Squad');
-      setAgeGroup(squadSettings?.ageGroup || 'U14');
+      setCoachName(userProfile?.name || '');
+      setCoachLevel(userProfile?.coachLevel || '3');
+      setSquadName(squadSettings?.squadName || userProfile?.teamName || 'My Squad');
+      setAgeGroup(squadSettings?.ageGroup || userProfile?.ageGroup || 'U14');
       setEquipment(squadSettings?.equipment || {
         cones: 20,
         footballs: 10,
@@ -72,11 +87,11 @@ export default function SettingsModal({
       });
       setDevClickCount(0); // Reset tap count on modal open
     }
-  }, [isOpen, squadSettings]);
+  }, [isOpen, squadSettings, userProfile]);
 
   const handleSave = () => {
     if (typeof onSaveSettings === 'function') {
-      onSaveSettings({ squadName, ageGroup, equipment });
+      onSaveSettings({ coachName, squadName, ageGroup, coachLevel, equipment });
     }
     onClose();
   };
@@ -85,7 +100,7 @@ export default function SettingsModal({
 
   return (
     <div className="overlay-backdrop">
-      <div className="modal-content" style={{ maxWidth: '600px' }}>
+      <div className="modal-content" style={{ maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto' }}>
         <div className="modal-header">
           <h2 
             className="scoreboard-font" 
@@ -96,7 +111,7 @@ export default function SettingsModal({
             }}
             onClick={handleHeaderClick}
           >
-            Command Center Settings
+            Command Center Settings & Setup
           </h2>
           <button className="icon-btn" onClick={onClose} aria-label="Close">
             <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -106,8 +121,101 @@ export default function SettingsModal({
         </div>
 
         <div className="modal-body">
-          {/* Squad Info Settings */}
+          {/* Account & Coaching Profile Setup Section */}
           <div style={{ paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <h3 style={{ fontSize: '0.90rem', margin: 0, color: 'var(--color-training)', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
+                Account & Coaching Profile Setup
+              </h3>
+              {typeof onReRunSetup === 'function' && (
+                <button
+                  type="button"
+                  onClick={onReRunSetup}
+                  style={{
+                    backgroundColor: 'rgba(230, 57, 70, 0.15)',
+                    border: '1px solid var(--color-training)',
+                    color: '#ffffff',
+                    padding: '4px 10px',
+                    borderRadius: '4px',
+                    fontSize: '0.75rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  ⚡ Re-launch Setup Wizard
+                </button>
+              )}
+            </div>
+
+            <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)', marginBottom: '14px' }}>
+              <div style={{ fontSize: '0.75rem', color: '#9ca3af', textTransform: 'uppercase', fontWeight: '700', marginBottom: '4px' }}>
+                Authenticated Account Email
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: '600' }}>
+                {currentUser?.email || 'Tester Sandbox Account'}
+              </div>
+            </div>
+
+            <div className="form-group" style={{ marginBottom: '12px' }}>
+              <label>Coach Full Name</label>
+              <input 
+                type="text" 
+                value={coachName} 
+                onChange={(e) => setCoachName(e.target.value)} 
+                placeholder="e.g. Marcus Vance"
+              />
+            </div>
+
+            {/* Coach Knowledge & Experience Level Selector */}
+            <div className="form-group" style={{ marginTop: '14px' }}>
+              <label style={{ color: 'var(--text-primary)' }}>
+                Coach Knowledge & Experience Level
+              </label>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px', marginBottom: '8px' }}>
+                Configures maximum drill difficulty across training plan generators (Official AFCRL 5-tier Coaching Difficulty scale).
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {coachLevels.map((item) => {
+                  const isSelected = coachLevel === item.level;
+                  return (
+                    <div
+                      key={item.level}
+                      onClick={() => setCoachLevel(item.level)}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '2px',
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        border: isSelected ? '2px solid var(--color-training)' : '1px solid rgba(255, 255, 255, 0.08)',
+                        backgroundColor: isSelected ? 'rgba(230, 57, 70, 0.2)' : 'rgba(0, 0, 0, 0.25)',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.85rem', fontWeight: '700', color: isSelected ? '#ffffff' : 'var(--text-primary)' }}>
+                          {item.title}
+                        </span>
+                        {isSelected && (
+                          <span style={{ fontSize: '0.65rem', fontWeight: '800', backgroundColor: 'var(--color-training)', color: '#ffffff', padding: '2px 8px', borderRadius: '10px', textTransform: 'uppercase' }}>
+                            ACTIVE TIER
+                          </span>
+                        )}
+                      </div>
+                      <span style={{ fontSize: '0.75rem', color: '#9ca3af', lineHeight: '1.3' }}>
+                        {item.desc}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Squad Info Settings */}
+          <div style={{ paddingTop: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
             <h3 style={{ fontSize: '0.90rem', marginBottom: '12px', color: 'var(--color-squad)', textTransform: 'uppercase', fontWeight: '700' }}>Squad Configuration</h3>
             <div className="form-group" style={{ marginBottom: '12px' }}>
               <label>Squad / Team Name</label>
@@ -134,7 +242,7 @@ export default function SettingsModal({
                 <option value="U16">U16</option>
                 <option value="U18">U18</option>
                 <option value="Seniors">Seniors</option>
-                <option value="Veterans (Over 35s)">Veterans (Over 35s)</option>
+                <option value="Over 35s">Over 35s</option>
               </select>
             </div>
           </div>
