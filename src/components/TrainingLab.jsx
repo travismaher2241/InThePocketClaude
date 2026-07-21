@@ -945,28 +945,8 @@ const renderDrillTextFramework = (card) => {
   const title = card.title || '';
   let instructions = card.instructions || '';
 
-  // Parse fields first to check for contradictions
+  // Parse fields first
   let parsed = parseInstructions(instructions);
-  
-  const titleLower = title.toLowerCase();
-  const instLower = instructions.toLowerCase();
-  const textToScan = titleLower + ' ' + instLower;
-
-  const isHandballOnlyContradiction = 
-    (instLower.includes('handball only') || instLower.includes('handballs only') || instLower.includes('handpass only') || instLower.includes('no kicking') || instLower.includes('handball restriction')) && 
-    (instLower.includes('kick') || instLower.includes('punt') || instLower.includes('drop punt') || (parsed.targetKickingType && !parsed.targetKickingType.toLowerCase().includes('n/a') && !parsed.targetKickingType.toLowerCase().includes('none')));
-
-  const hasMismatchedPosture = 
-    (instLower.includes('ground ball') || instLower.includes('gather') || instLower.includes('pickup') || instLower.includes('scoop')) && 
-    (instLower.includes('upright posture') || instLower.includes('high chest') || instLower.includes('drive the knees') || instLower.includes('knee height') || instLower.includes('running form'));
-
-  const isContradiction = isHandballOnlyContradiction || hasMismatchedPosture;
-
-  if (isContradiction) {
-    console.warn("Contradiction detected in card setup cues or actions; rendering verbatim text block from database.", card);
-    instructions = getVerbatimDrillText(card);
-    parsed = parseInstructions(instructions);
-  }
   
   const shouldShowKicking = 
     parsed.targetKickingType && 
@@ -974,25 +954,61 @@ const renderDrillTextFramework = (card) => {
     !parsed.targetKickingType.toLowerCase().includes('none') &&
     !parsed.targetKickingType.toLowerCase().includes('n/a');
 
+  // Extract cues array for pill rendering
+  const cuesRaw = parsed.eliteCoachingCues || (card.coachingCues ? (Array.isArray(card.coachingCues) ? card.coachingCues.join(', ') : card.coachingCues) : '');
+  const cuesList = cuesRaw ? cuesRaw.split(',').map(c => c.replace(/\*\*/g, '').replace(/[#`[\]"']/g, '').trim()).filter(Boolean) : [];
+
+  const objectiveText = parsed.drillNameObjective ? parsed.drillNameObjective.replace(/\*\*/g, '').replace(/[#`[\]]/g, '') : card.goal;
+  const setupText = parsed.setupGridDimensions ? parsed.setupGridDimensions.replace(/\*\*/g, '').replace(/[#`[\]]/g, '') : card.setup;
+  const executionText = parsed.executionRules ? parsed.executionRules.replace(/\*\*/g, '').replace(/[#`[\]]/g, '') : card.howTheDrillWorks;
+  const progressionText = parsed.progressionsRegressions ? parsed.progressionsRegressions.replace(/\*\*/g, '').replace(/[#`[\]]/g, '') : (Array.isArray(card.progressions) ? card.progressions.join(' | ') : card.progressions);
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.925rem', fontFamily: 'var(--font-family-body)', color: '#d1d5db', lineHeight: '1.5', fontWeight: 'normal' }}>
-      {parsed.drillNameObjective && (
-        <div style={{ margin: 0 }}>DRILL NAME & OBJECTIVE: {parsed.drillNameObjective.replace(/\*\*/g, '').replace(/[#`[\]]/g, '')}</div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.875rem', fontFamily: 'var(--font-family-body)', color: '#d1d5db', lineHeight: '1.5', marginTop: '4px' }}>
+      {objectiveText && (
+        <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', padding: '8px 12px', borderRadius: '6px', borderLeft: '3px solid #ffb703' }}>
+          <strong style={{ color: '#ffb703', fontSize: '0.75rem', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>Objective</strong>
+          <span style={{ color: '#ffffff', fontWeight: '500' }}>{objectiveText}</span>
+        </div>
       )}
+
       {shouldShowKicking && parsed.targetKickingType && (
-        <div style={{ margin: 0 }}>TARGET KICKING TYPE: {parsed.targetKickingType.replace(/\*\*/g, '').replace(/[#`[\]]/g, '')}</div>
+        <div style={{ fontSize: '0.825rem', color: '#3a86ff' }}>
+          <strong>Target Kicking:</strong> {parsed.targetKickingType.replace(/\*\*/g, '').replace(/[#`[\]]/g, '')}
+        </div>
       )}
-      {parsed.setupGridDimensions && (
-        <div style={{ margin: 0 }}>SETUP & GRID DIMENSIONS: {parsed.setupGridDimensions.replace(/\*\*/g, '').replace(/[#`[\]]/g, '')}</div>
+
+      {setupText && (
+        <div style={{ fontSize: '0.85rem' }}>
+          <strong style={{ color: '#8d939e', textTransform: 'uppercase', fontSize: '0.75rem', display: 'block', marginBottom: '2px' }}>Setup & Grid</strong>
+          <span style={{ color: '#d1d5db' }}>{setupText}</span>
+        </div>
       )}
-      {parsed.executionRules && (
-        <div style={{ margin: 0 }}>EXECUTION & RULES: {parsed.executionRules.replace(/\*\*/g, '').replace(/[#`[\]]/g, '')}</div>
+
+      {executionText && (
+        <div style={{ fontSize: '0.85rem' }}>
+          <strong style={{ color: '#8d939e', textTransform: 'uppercase', fontSize: '0.75rem', display: 'block', marginBottom: '2px' }}>Execution & Rules</strong>
+          <span style={{ color: '#d1d5db', lineHeight: '1.5' }}>{executionText}</span>
+        </div>
       )}
-      {parsed.eliteCoachingCues && (
-        <div style={{ margin: 0 }}>ELITE COACHING CUES: {parsed.eliteCoachingCues.replace(/\*\*/g, '').replace(/[#`[\]]/g, '')}</div>
+
+      {cuesList.length > 0 && (
+        <div>
+          <strong style={{ color: '#3a86ff', textTransform: 'uppercase', fontSize: '0.75rem', display: 'block', marginBottom: '4px' }}>Live Coaching Cues</strong>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            {cuesList.map((cue, idx) => (
+              <span key={idx} style={{ backgroundColor: 'rgba(58, 134, 255, 0.15)', border: '1px solid rgba(58, 134, 255, 0.3)', color: '#3a86ff', fontSize: '0.75rem', fontWeight: '700', padding: '3px 8px', borderRadius: '12px' }}>
+                "{cue}"
+              </span>
+            ))}
+          </div>
+        </div>
       )}
-      {parsed.progressionsRegressions && (
-        <div style={{ margin: 0 }}>PROGRESSIONS & REGRESSIONS: {parsed.progressionsRegressions.replace(/\*\*/g, '').replace(/[#`[\]]/g, '')}</div>
+
+      {progressionText && (
+        <div style={{ fontSize: '0.8rem', color: '#38b000', backgroundColor: 'rgba(56, 176, 0, 0.08)', padding: '6px 10px', borderRadius: '6px', border: '1px solid rgba(56, 176, 0, 0.2)' }}>
+          <strong>Variation:</strong> {progressionText}
+        </div>
       )}
     </div>
   );
