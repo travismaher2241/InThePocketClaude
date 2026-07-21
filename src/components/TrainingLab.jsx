@@ -2997,57 +2997,6 @@ COACH'S LOGISTICS SUMMARY
               </select>
             </div>
 
-            <div className="form-group">
-              <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600', color: 'var(--text-primary)' }}>
-                Coach Knowledge & Experience Level
-              </label>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px', marginBottom: '8px' }}>
-                Matches drills to your coaching background based on the official AFCRL 5-tier Coaching Difficulty scale.
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {[
-                  { level: '1', title: 'Level 1 – Beginner / Parent Volunteer', desc: 'Simple drill setups, basic technique points, zero-contact exploration.' },
-                  { level: '2', title: 'Level 2 – Fundamental / Assistant Coach', desc: 'Basic coaching knowledge, approach-line & footwork corrections.' },
-                  { level: '3', title: 'Level 3 – Intermediate / Club Coach', desc: 'Multi-station rotations, 2-3 key observable behaviors & decision cues.' },
-                  { level: '4', title: 'Level 4 – Advanced / Tactical Coach', desc: 'Complex constraints, live game pressure & match-style corrections.' },
-                  { level: '5', title: 'Level 5 – Expert / High Performance Coach', desc: 'Multi-line scenarios, tactical adaptation, full-ground press & match simulation.' },
-                ].map((item) => {
-                  const isSelected = coachLevel === item.level;
-                  return (
-                    <div
-                      key={item.level}
-                      onClick={() => setCoachLevel(item.level)}
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '2px',
-                        padding: '10px 14px',
-                        borderRadius: '8px',
-                        border: isSelected ? '2px solid var(--color-training)' : '1px solid rgba(255, 255, 255, 0.08)',
-                        backgroundColor: isSelected ? 'rgba(230, 57, 70, 0.15)' : 'rgba(0, 0, 0, 0.25)',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.85rem', fontWeight: '700', color: isSelected ? '#ffffff' : 'var(--text-primary)' }}>
-                          {item.title}
-                        </span>
-                        {isSelected && (
-                          <span style={{ fontSize: '0.65rem', fontWeight: '800', backgroundColor: 'var(--color-training)', color: '#ffffff', padding: '2px 8px', borderRadius: '10px', textTransform: 'uppercase' }}>
-                            ACTIVE
-                          </span>
-                        )}
-                      </div>
-                      <span style={{ fontSize: '0.75rem', color: '#9ca3af', lineHeight: '1.3' }}>
-                        {item.desc}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
 
 
             <div className="form-group">

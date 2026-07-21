@@ -6,6 +6,7 @@ import MatchDay from './components/MatchDay';
 import VideoAnalyser from './components/VideoAnalyser';
 import SettingsModal from './components/SettingsModal';
 import SubscriptionPage from './components/SubscriptionPage';
+import SetupWizard from './components/SetupWizard';
 import { useAuth } from './context/AuthProvider';
 import { addPlayer, getPlayers, getSquadSettings, updateSquadSettings, getUserProfile, updateUserProfile } from './firebaseHelpers';
 import inThePocketLogo from './assets/In The Pocket.png';
@@ -41,6 +42,8 @@ export default function App() {
     const userIdentifier = currentUser?.uid || currentUser?.email || 'guest';
     return `${baseKey}_${userIdentifier.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
   };
+
+  const [userProfile, setUserProfile] = useState(null);
 
   const [squad, setSquad] = useState(() => {
     const key = currentUser?.uid || currentUser?.email ? `inthepocket_squad_${(currentUser?.uid || currentUser?.email).toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'inthepocket_squad_guest';
@@ -101,7 +104,7 @@ export default function App() {
     localStorage.setItem(getAppScopedKey('inthepocket_squad_settings'), JSON.stringify(squadSettings));
   }, [squadSettings, currentUser]);
 
-  // Load squad and squad settings from Firestore when user logs in
+  // Load squad, userProfile, and squad settings from Firestore when user logs in
   useEffect(() => {
     const loadUserData = async () => {
       if (currentUser?.uid) {
@@ -117,8 +120,18 @@ export default function App() {
           setSquadSettings(dbSettings);
 
           const profile = await getUserProfile(currentUser.uid);
-          if (profile?.subscriptionTier) {
-            const tierLower = profile.subscriptionTier.toLowerCase();
+          // Check scoped localStorage profile fallback
+          const localProfileStr = localStorage.getItem(getAppScopedKey('inthepocket_user_profile'));
+          const localProfile = localProfileStr ? JSON.parse(localProfileStr) : null;
+          
+          const mergedProfile = {
+            ...profile,
+            ...localProfile
+          };
+          setUserProfile(mergedProfile);
+
+          if (mergedProfile?.subscriptionTier) {
+            const tierLower = mergedProfile.subscriptionTier.toLowerCase();
             let matchedTier = 'Free';
             if (tierLower === 'pro') matchedTier = 'Pro';
             else if (tierLower === 'ultra' || tierLower === 'team') matchedTier = 'Ultra';
@@ -134,6 +147,7 @@ export default function App() {
         setSquad([]);
         setSquadSettings({ squadName: 'My Squad', ageGroup: 'U14' });
         setSubscriptionTier('Free');
+        setUserProfile(null);
         setVideoClips([]);
         setSelectedReviewClip(null);
       }
@@ -320,6 +334,55 @@ export default function App() {
   const triggerPaywall = (featureName) => {
     setPaywallFeature(featureName);
   };
+
+  const handleCompleteSetup = async (setupData) => {
+    try {
+      const updatedProfile = {
+        ...userProfile,
+        ...setupData,
+        hasCompletedSetup: true
+      };
+
+      setUserProfile(updatedProfile);
+
+      // Save to user-scoped localStorage
+      if (currentUser) {
+        localStorage.setItem(getAppScopedKey('inthepocket_user_profile'), JSON.stringify(updatedProfile));
+      }
+
+      // Automatically update squad settings with calibrated team name and age group
+      const newSettings = {
+        ...squadSettings,
+        squadName: setupData.teamName || squadSettings.squadName,
+        ageGroup: setupData.ageGroup || squadSettings.ageGroup
+      };
+      setSquadSettings(newSettings);
+
+      // Save to Firestore if online
+      if (currentUser?.uid) {
+        await updateUserProfile(currentUser.uid, updatedProfile);
+        await updateSquadSettings(newSettings, currentUser.uid);
+      }
+
+      showToast(`Setup complete! App calibrated for ${setupData.teamName}`);
+    } catch (err) {
+      console.error("Failed to complete setup:", err);
+      showToast("Error completing setup. Settings saved locally.");
+    }
+  };
+
+  const hasCompletedSetup = userProfile?.hasCompletedSetup === true;
+
+  // ROUTING & AUTH FLOW GUARD: If authenticated user has not completed setup, intercept with SetupWizard
+  if (currentUser && !hasCompletedSetup) {
+    return (
+      <SetupWizard 
+        user={currentUser} 
+        subscriptionTier={subscriptionTier} 
+        onCompleteSetup={handleCompleteSetup} 
+      />
+    );
+  }
 
   return (
     <div className="app-container">
