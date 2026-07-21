@@ -1196,6 +1196,7 @@ export default function TrainingLab({
   logSyncTransaction,
   onSaveVideoClip,
   squadSettings,
+  userProfile,
   setActiveTab
 }) {
   const { currentUser } = useAuth();
@@ -2012,8 +2013,8 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
         return allowedAgeKeys.some(key => d.ageGroups[key] && d.ageGroups[key] !== '✗');
       };
 
-      // Retrieve coach level directly from user profile / user-scoped storage
-      let effectiveCoachLevel = '3';
+      // Retrieve coach level directly from userProfile prop, squadSettings, or user-scoped storage
+      let effectiveCoachLevel = String(userProfile?.coachLevel || squadSettings?.coachLevel || '2');
       try {
         const profileStr = localStorage.getItem(getScopedKey('inthepocket_user_profile')) || localStorage.getItem('inthepocket_user_profile');
         if (profileStr) {
@@ -2021,9 +2022,8 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
           if (parsedProf?.coachLevel) effectiveCoachLevel = String(parsedProf.coachLevel);
         }
       } catch (e) {}
-      if (!effectiveCoachLevel && coachLevel) effectiveCoachLevel = String(coachLevel);
 
-      const maxDiff = parseInt(effectiveCoachLevel || '3', 10);
+      const maxDiff = parseInt(effectiveCoachLevel || '2', 10);
 
       const parseDiff = (d) => {
         if (!d || d.coachingDifficulty === undefined || d.coachingDifficulty === null) return 2;
@@ -2032,28 +2032,21 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
         return match ? parseInt(match[1], 10) : 2;
       };
 
-      // Suitable drills include target age & below, and coach maxDiff & below (e.g. Level 2 coach gets Level 2 + Level 1)
-      let suitableDrills = SYLLABUS_DRILLS.filter(d => {
-        return isAgeSuitable(d) && parseDiff(d) <= maxDiff;
-      });
+      // STRICT HARD CAP FILTER: Drills must NOT exceed coach's max difficulty level (e.g. maxDiff = 2 allows Level 1 & 2 ONLY)
+      const levelPermittedDrills = SYLLABUS_DRILLS.filter(d => parseDiff(d) <= maxDiff);
+
+      // Filter levelPermittedDrills by age suitability (target age & below)
+      let suitableDrills = levelPermittedDrills.filter(d => isAgeSuitable(d));
 
       if (suitableDrills.length === 0) {
-        suitableDrills = SYLLABUS_DRILLS.filter(d => parseDiff(d) <= maxDiff);
+        suitableDrills = levelPermittedDrills;
       }
 
-      if (suitableDrills.length === 0) {
-        suitableDrills = SYLLABUS_DRILLS.filter(d => parseDiff(d) <= maxDiff + 1);
-      }
-
-      if (suitableDrills.length === 0) {
-        suitableDrills = SYLLABUS_DRILLS;
-      }
-
-      // Filter to drills that match the selected focus areas
+      // Filter suitableDrills by focus areas (STRICTLY within levelPermittedDrills!)
       let matchingSyllabusDrills = [];
       if (Array.isArray(focusAreas) && focusAreas.length > 0) {
         matchingSyllabusDrills = suitableDrills.filter(d => {
-          const searchHaystack = ((d.name || '') + ' ' + (d.objective || '') + ' ' + (d.category || '') + ' ' + (d.desc || '')).toLowerCase();
+          const searchHaystack = ((d.name || '') + ' ' + (d.objective || '') + ' ' + (d.category || '') + ' ' + (d.desc || '') + ' ' + (d.primarySkill || '')).toLowerCase();
           return focusAreas.some(fa => searchHaystack.includes(fa.toLowerCase()));
         });
       }

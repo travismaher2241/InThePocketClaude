@@ -541,6 +541,7 @@ export default function App() {
             logSyncTransaction={logSyncTransaction} 
             onSaveVideoClip={(clip) => setVideoClips(prev => [clip, ...prev])}
             squadSettings={squadSettings}
+            userProfile={userProfile}
             setActiveTab={setActiveTab}
           />
         )}
