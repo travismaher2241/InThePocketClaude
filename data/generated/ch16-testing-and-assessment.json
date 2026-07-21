@@ -1,0 +1,3479 @@
+[
+  {
+    "drillId": "TA-001",
+    "title": "Baseline Player Profile and Testing Orientation",
+    "category": "Testing and Assessment",
+    "primarySkill": "Baseline player profiling",
+    "secondarySkills": [
+      "Self-assessment",
+      "Goal setting",
+      "Coach observation",
+      "Role identification",
+      "Performance recording",
+      "Testing familiarity"
+    ],
+    "objective": "Develop a complete starting profile for each player by combining physical information, football background, positional role, self-assessment and coach observation before formal testing begins.",
+    "ageGroups": {},
+    "skillLevel": "Foundation to Elite",
+    "players": "Minimum: 1 Ideal: 12–30 Maximum: Full Squad",
+    "groundSize": "Clubrooms, meeting area and a 20 × 20 metre football area.",
+    "equipment": [
+      "Player profile forms",
+      "Pens or tablets",
+      "Clipboards",
+      "Footballs",
+      "Cones",
+      "Measuring tape",
+      "Scales if body-mass recording is appropriate",
+      "Previous testing records where available"
+    ],
+    "time": "25–40 minutes",
+    "physicalLoad": "1 – Very Low",
+    "mentalLoad": "2 – Low",
+    "contact": "0 – No Contact",
+    "coachingDifficulty": "2 – Basic",
+    "sessionPlacement": [
+      "Assessment",
+      "Leadership Development",
+      "Pre-Season Planning"
+    ],
+    "setup": "Prepare one profile form for every player.\nDivide the form into personal information, football background, preferred positions, current roles, injury considerations, goals and self-ratings.\nEstablish a short football activity area where coaches can observe basic movement, kicking, handballing and communication.\nExplain that the profile is a starting point rather than a selection verdict.\nProtect personal and medical information and restrict access to appropriate coaching or medical staff.",
+    "howTheDrillWorks": "Players complete the personal and football-background sections of the profile form.\nEach player identifies preferred positions, previous positions, dominant side, secondary side and current role understanding.\nPlayers rate their confidence in kicking, handballing, marking, ground-ball work, decision making, endurance, speed and communication.\nPlayers record one short-term development goal and one longer-term football goal.\nCoaches lead a five- to ten-minute low-intensity football activity and record initial observations.\nThe coach meets briefly with each player to clarify goals, injury considerations and role expectations.\nCompleted profiles are stored as the starting reference for future tests and reviews.\nTesting categories are explained so players understand how later results will be used.",
+    "coachingPoints": [
+      "Present profiling as a development tool rather than a judgement exercise.",
+      "Separate demonstrated performance from confidence and self-perception.",
+      "Record the player’s current role before suggesting a future role.",
+      "Ask clear questions and avoid leading the player towards a preferred answer.",
+      "Identify injury history or movement restrictions before physical testing.",
+      "Use consistent wording and rating scales across the squad.",
+      "Record observable behaviour rather than vague impressions.",
+      "Revisit player goals after testing rather than treating the first response as final."
+    ],
+    "coachingCues": [
+      "“Be honest, not harsh.”",
+      "“Record the starting point.”",
+      "“Profile before testing.”",
+      "“Goals must be specific.”",
+      "“Observe, then discuss.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Whether the player’s self-rating matches visible confidence and execution.",
+      "The player’s understanding of positional responsibilities.",
+      "Communication habits during the introductory football activity.",
+      "Movement restrictions, hesitation or discomfort.",
+      "Differences between dominant-side and non-dominant-side confidence.",
+      "Whether the player can identify a specific development goal.",
+      "Players who may require additional explanation or modified testing."
+    ],
+    "commonErrors": [
+      {
+        "error": "Players rate every area highly or poorly without reflection.",
+        "correction": "Ask for one example that supports each major rating."
+      },
+      {
+        "error": "Coaches treat the first profile as a final judgement.",
+        "correction": "Label all ratings as baseline information to be reviewed later."
+      },
+      {
+        "error": "Injury information is ignored during later testing.",
+        "correction": "Mark required modifications clearly before testing begins."
+      },
+      {
+        "error": "Player goals are vague.",
+        "correction": "Convert each goal into a specific behaviour or measurable outcome."
+      },
+      {
+        "error": "Coaches record personality judgements instead of behaviours.",
+        "correction": "Write what the player did, said or demonstrated."
+      }
+    ],
+    "progressions": [
+      "Add individual player interviews with line coaches.",
+      "Compare player self-ratings with coach ratings after the first testing battery.",
+      "Create position-specific profile sections.",
+      "Add leadership, communication and training-behaviour ratings.",
+      "Link every player goal to one training action and one review date."
+    ],
+    "regressions": [
+      "Use a shortened profile for younger players.",
+      "Complete the form through a coach-led conversation.",
+      "Use simple three-point ratings such as developing, capable and confident.",
+      "Remove body measurements where they are unnecessary or inappropriate.",
+      "Allow parents or guardians to assist younger players with background information."
+    ],
+    "successIndicators": [
+      "Complete the profile honestly and with adequate detail.",
+      "Identify at least one meaningful development priority.",
+      "Understand the purpose of future testing.",
+      "Communicate relevant injury or movement restrictions.",
+      "Describe their preferred role and current role expectations.",
+      "Coaches consistently:",
+      "Record objective starting information.",
+      "Apply the same questions and rating scales to all players.",
+      "Use the profile to modify later testing where required."
+    ],
+    "matchApplication": "A complete baseline profile helps coaches interpret football performance in context. Test results become more useful when they are connected to the player’s role, experience, physical condition, confidence and development goals rather than being viewed as isolated numbers.",
+    "relatedDrills": [
+      "TA-002 – Kicking Accuracy Baseline Test"
+    ]
+  },
+  {
+    "drillId": "TA-002",
+    "title": "Kicking Accuracy Baseline Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "Kicking accuracy assessment",
+    "secondarySkills": [
+      "Set kicking",
+      "Kicking on the run",
+      "Left- and right-foot execution",
+      "Target selection",
+      "Ball drop consistency",
+      "Performance recording"
+    ],
+    "objective": "Measure each player’s current kicking accuracy from controlled and moving starts across short and medium distances using a repeatable testing method.",
+    "ageGroups": {},
+    "skillLevel": "Foundation to Elite",
+    "players": "Minimum: 2 Ideal: 6–16 Maximum: 30",
+    "groundSize": "A 40 × 30 metre area with marked kicking stations at 15, 25 and 35 metres.",
+    "equipment": [
+      "Footballs",
+      "Cones",
+      "Three target gates",
+      "Measuring tape",
+      "Recording sheets or tablets",
+      "Numbered player bibs",
+      "Whistle",
+      "Stopwatch"
+    ],
+    "time": "20–30 minutes",
+    "physicalLoad": "2 – Low",
+    "mentalLoad": "3 – Moderate",
+    "contact": "0 – No Contact",
+    "coachingDifficulty": "3 – Intermediate",
+    "sessionPlacement": [
+      "Assessment",
+      "Technical Skill Block",
+      "Pre-Season Testing"
+    ],
+    "setup": "Create three kicking stations at 15, 25 and 35 metres from a target gate.\nMake the short target gate approximately 3 metres wide, the medium gate 4 metres wide and the long gate 5 metres wide.\nEstablish separate starting cones for stationary kicks and kicks after a five-metre approach.\nPrepare a scoring system of two points for a kick through the gate, one point for a kick reaching the target player within one step, and zero points for an inaccurate or unmarkable kick.\nModify distances for younger or developing players while preserving the same scoring method.\nAssign one recorder and one target player to each station where numbers allow.",
+    "howTheDrillWorks": "Each player completes two practice kicks at the first station.\nThe player then performs five scored kicks from 15 metres using the preferred foot.\nThe player performs five scored kicks from 15 metres using the non-preferred foot.\nThe same sequence is completed from 25 metres.\nSuitable players complete five preferred-foot kicks and five non-preferred-foot kicks from 35 metres.\nPlayers then repeat one five-kick set from 25 metres after receiving and moving through the approach cone.\nRecord the score, target side, kick type and any obvious technical breakdown.\nRotate players through kicking, targeting, football return and recording roles.\nCalculate accuracy percentages for preferred foot, non-preferred foot, stationary kicking and kicking on the move.",
+    "coachingPoints": [
+      "Use the same ball condition, distances and target widths for every tested player.",
+      "Do not provide technical coaching during the scored attempts.",
+      "Allow a standardised warm-up before testing.",
+      "Require the target player to remain in the same position.",
+      "Record whether misses are left, right, short or over the target.",
+      "Separate accuracy from distance capability.",
+      "Ensure the player begins each repetition from the marked starting point.",
+      "Retest under comparable conditions."
+    ],
+    "coachingCues": [
+      "“Same routine every kick.”",
+      "“Hit the target gate.”",
+      "“Balance before contact.”",
+      "“Record every result.”",
+      "“No coaching mid-test.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Ball-drop consistency.",
+      "Stability of the plant foot.",
+      "Contact quality and follow-through direction.",
+      "Accuracy changes as distance increases.",
+      "The difference between preferred and non-preferred foot.",
+      "Whether movement before the kick improves or reduces accuracy.",
+      "Repeated miss patterns.",
+      "Whether the player sacrifices control when attempting greater distance."
+    ],
+    "commonErrors": [
+      {
+        "error": "Distances or target widths change between players.",
+        "correction": "Measure and mark every station before testing begins."
+      },
+      {
+        "error": "Players receive technical feedback during scored attempts.",
+        "correction": "Save coaching feedback until the test is complete."
+      },
+      {
+        "error": "Target players move to make inaccurate kicks appear successful.",
+        "correction": "Require the target to hold the marked position."
+      },
+      {
+        "error": "Coaches record only successful kicks.",
+        "correction": "Record the direction and type of every miss."
+      },
+      {
+        "error": "Younger players are tested from unrealistic distances.",
+        "correction": "Shorten the stations while keeping the process consistent."
+      }
+    ],
+    "progressions": [
+      "Add kicks after lateral movement.",
+      "Add kicks after a ground-ball collection.",
+      "Add a time limit from possession to disposal.",
+      "Test passing to moving leads.",
+      "Add position-specific kicks such as inside-50 entries, defensive exits or corridor passes.",
+      "Conduct a separate pressure-kicking test after the baseline has been established."
+    ],
+    "regressions": [
+      "Reduce distances to 10, 15 and 20 metres.",
+      "Increase target-gate width.",
+      "Test only the preferred foot initially.",
+      "Allow a stationary ball-drop rehearsal before each attempt.",
+      "Reduce the number of scored kicks for younger players."
+    ],
+    "successIndicators": [
+      "Complete the required attempts using the same routine.",
+      "Produce accurate, markable kicks at age-appropriate distances.",
+      "Maintain control as distance increases.",
+      "Demonstrate a measurable non-preferred-side baseline.",
+      "Show a clear and repeatable miss pattern that can guide future coaching."
+    ],
+    "matchApplication": "Accurate kicking is central to retaining possession, changing angles, entering the forward line and exiting defence. The test identifies the distances, sides and movement conditions under which each player can currently execute a reliable match disposal.",
+    "relatedDrills": [
+      "TA-001 – Baseline Player Profile and Testing Orientation",
+      "TA-003 – Handball Accuracy and Release-Speed Test"
+    ]
+  },
+  {
+    "drillId": "TA-003",
+    "title": "Handball Accuracy and Release-Speed Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "Handball performance assessment",
+    "secondarySkills": [
+      "Handball accuracy",
+      "Release speed",
+      "Preferred-side execution",
+      "Non-preferred-side execution",
+      "Receiving technique",
+      "Performance under time pressure"
+    ],
+    "objective": "Measure each player’s handball accuracy and release speed from stationary, moving and non-preferred-side conditions using a standardised testing sequence.",
+    "ageGroups": {},
+    "skillLevel": "Foundation to Elite",
+    "players": "Minimum: 3 Ideal: 6–15 Maximum: 24",
+    "groundSize": "A 20 × 15 metre area with handball stations at 5, 8 and 12 metres.",
+    "equipment": [
+      "Footballs",
+      "Cones",
+      "Target boards or marked target gates",
+      "Stopwatch or timing application",
+      "Recording sheets or tablets",
+      "Bibs"
+    ],
+    "time": "15–25 minutes",
+    "physicalLoad": "2 – Low",
+    "mentalLoad": "3 – Moderate",
+    "contact": "0 – No Contact",
+    "coachingDifficulty": "3 – Intermediate",
+    "sessionPlacement": [
+      "Assessment",
+      "Technical Skill Block",
+      "Pre-Season Testing"
+    ],
+    "setup": "Establish target stations at 5, 8 and 12 metres.\nUse a target board, net or marked receiving gate approximately 1.5 metres wide.\nMark a receiving cone three metres before the handball line for the moving test.\nPrepare one preferred-side and one non-preferred-side station.\nNominate a consistent feeder, timer and recorder.\nDefine release time as the period from secure possession to football leaving the hand.",
+    "howTheDrillWorks": "Each player completes three practice handballs on each side.\nThe player performs ten stationary preferred-side handballs at the eight-metre target.\nThe player performs ten stationary non-preferred-side handballs at the same target.\nThe player receives a feed while moving through the approach cone and completes five preferred-side handballs.\nThe player repeats the moving test on the non-preferred side.\nFor advanced players, five handballs are completed at 12 metres.\nThe timer records release time for the moving repetitions.\nAward two points for hitting the central target, one point for entering the receiving gate and zero points for missing.\nRecord accuracy, average release time, fastest controlled release and technical observations.\nRotate players through feeder, receiver, recorder and testing roles.",
+    "coachingPoints": [
+      "Keep feed speed and placement consistent.",
+      "Time only repetitions where the player gains secure possession.",
+      "Do not reward fast release when the handball is inaccurate.",
+      "Record preferred- and non-preferred-side results separately.",
+      "Maintain identical target dimensions for all players.",
+      "Use the same definition of a successful handball throughout the squad.",
+      "Allow adequate recovery so fatigue does not distort the technical baseline.",
+      "Note whether the player steps towards the target or handballs across the body."
+    ],
+    "coachingCues": [
+      "“Secure, then release.”",
+      "“Speed with accuracy.”",
+      "“Strike through the target.”",
+      "“Test both sides.”",
+      "“Same feed every time.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Hand position and support-hand stability.",
+      "Contact point of the striking fist.",
+      "Whether the football travels with a stable flight.",
+      "Accuracy differences between stationary and moving attempts.",
+      "Release-speed differences between preferred and non-preferred sides.",
+      "Whether the player needs extra steps before releasing.",
+      "Body alignment towards the target.",
+      "Whether rushed repetitions become throws or uncontrolled contacts."
+    ],
+    "commonErrors": [
+      {
+        "error": "The feeder delivers inconsistent footballs.",
+        "correction": "Use the same feeder and a marked feeding position."
+      },
+      {
+        "error": "Release time is prioritised over accuracy.",
+        "correction": "Count a timed repetition only when it meets the accuracy standard."
+      },
+      {
+        "error": "A throw or scoop is recorded as a valid handball.",
+        "correction": "Apply the legal handball standard to every repetition."
+      },
+      {
+        "error": "Preferred and non-preferred results are combined.",
+        "correction": "Record each side separately."
+      },
+      {
+        "error": "The target distance is inappropriate for younger players.",
+        "correction": "Reduce the distance while retaining the same target and scoring process."
+      }
+    ],
+    "progressions": [
+      "Add a closing shadow defender.",
+      "Require the player to identify a coloured target before releasing.",
+      "Add handballs after a ground-ball collection.",
+      "Add a turn or change of direction before the receive.",
+      "Test handballs to moving receivers.",
+      "Add a fatigue block before repeating the final set."
+    ],
+    "regressions": [
+      "Reduce the target distance.",
+      "Increase the target gate.",
+      "Remove movement before possession.",
+      "Use a coach-held target.",
+      "Test five repetitions per side rather than ten.",
+      "Delay release-time measurement until technique is reliable."
+    ],
+    "successIndicators": [
+      "Hit the defined target area with legal handballs.",
+      "Release quickly without losing accuracy.",
+      "Demonstrate a measurable result on both sides.",
+      "Maintain body control while receiving on the move.",
+      "Produce repeatable performance across the test."
+    ],
+    "matchApplication": "The test measures a player’s ability to release the football accurately in congestion, link with a running teammate and use either side of the body. These actions directly influence stoppage exits, overlap running, defensive releases and attacking chains.",
+    "relatedDrills": [
+      "TA-001 – Baseline Player Profile and Testing Orientation",
+      "TA-002 – Kicking Accuracy Baseline Test"
+    ]
+  },
+  {
+    "drillId": "TA-004",
+    "title": "Marking Reliability and Ball-Judgement Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "Marking reliability assessment",
+    "secondarySkills": [
+      "Chest marking",
+      "Overhead marking",
+      "Lead-up marking",
+      "Ball tracking",
+      "Body positioning",
+      "Recovery after a dropped mark"
+    ],
+    "objective": "Measure each player’s ability to judge the football and complete uncontested chest, overhead and lead-up marks from repeatable deliveries.",
+    "ageGroups": {},
+    "skillLevel": "Foundation to Advanced",
+    "players": "Minimum: 3 Ideal: 6–18 Maximum: 30",
+    "groundSize": "A 35 × 25 metre area with three marking lanes.",
+    "equipment": [
+      "Footballs",
+      "Cones",
+      "Bibs",
+      "Recording sheets or tablets",
+      "Whistle",
+      "Measuring tape"
+    ],
+    "time": "20–30 minutes",
+    "physicalLoad": "2 – Low",
+    "mentalLoad": "3 – Moderate",
+    "contact": "0 – No Contact",
+    "coachingDifficulty": "3 – Intermediate",
+    "sessionPlacement": [
+      "Assessment",
+      "Technical Skill Block",
+      "Pre-Season Testing"
+    ],
+    "setup": "Create three lanes for chest marks, overhead marks and lead-up marks.\nPosition the feeder 15–25 metres from the marking player depending on age and ability.\nMark a two-metre receiving zone for the stationary tests.\nMark a ten-metre lead channel for the moving test.\nUse one consistent feeder per station where possible.\nDefine a completed mark as secure control without the football touching the ground.",
+    "howTheDrillWorks": "Players complete two practice repetitions at each station.\nAt Station One, each player attempts ten chest marks from controlled kicks.\nAt Station Two, each player attempts ten overhead marks delivered above eye level.\nAt Station Three, each player completes ten lead-up marks into the marked channel.\nAward one point for every clean mark.\nRecord whether dropped marks result from poor delivery, misjudgement, hand position or loss of control.\nRecord the player’s first action after any dropped mark.\nAdvanced groups may include five marks delivered slightly left and five slightly right of the player’s starting line.\nRotate players through marking, feeding, football return and recording roles.\nCalculate an overall mark-completion percentage and separate percentages for each mark type.",
+    "coachingPoints": [
+      "Standardise the quality and distance of deliveries.",
+      "Exclude clearly untestable kicks and repeat them.",
+      "Record clean control rather than whether the player touched the football.",
+      "Assess ball judgement separately from hand strength.",
+      "Do not provide corrective coaching during the scored set.",
+      "Observe whether the player moves early to the drop zone.",
+      "Record recovery behaviour after dropped marks.",
+      "Modify delivery height and distance for younger players without changing the assessment purpose."
+    ],
+    "coachingCues": [
+      "“Judge the flight.”",
+      "“Move to the drop.”",
+      "“Strong hands.”",
+      "“Complete the mark.”",
+      "“Recover immediately.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Early tracking of the football.",
+      "Foot movement towards the drop zone.",
+      "Hand shape and extension.",
+      "Whether the player marks at the highest practical point.",
+      "Body balance at the moment of contact.",
+      "Ability to maintain control through the landing.",
+      "Confidence under the overhead football.",
+      "Immediate reaction after a dropped mark."
+    ],
+    "commonErrors": [
+      {
+        "error": "Poor deliveries are counted as player errors.",
+        "correction": "Repeat kicks that fall outside the defined testable area."
+      },
+      {
+        "error": "Feeders change distance or trajectory.",
+        "correction": "Use marked positions and a standard delivery instruction."
+      },
+      {
+        "error": "A double-grab is automatically scored as a failure.",
+        "correction": "Score the mark if the player retains legal control."
+      },
+      {
+        "error": "Coaches ignore movement to the drop zone.",
+        "correction": "Record whether the player adjusted early or remained stationary."
+      },
+      {
+        "error": "Younger players receive footballs above a safe height.",
+        "correction": "Lower the trajectory and shorten the delivery distance."
+      }
+    ],
+    "progressions": [
+      "Add marks after a change of direction.",
+      "Add a passive body-pressure opponent.",
+      "Test contested marking separately.",
+      "Add wet-football testing under safe conditions.",
+      "Add position-specific deliveries such as defensive intercepts or forward leads.",
+      "Require an immediate disposal after the mark."
+    ],
+    "regressions": [
+      "Use shorter hand or kick feeds.",
+      "Reduce delivery height.",
+      "Increase the receiving zone.",
+      "Test chest marking before introducing overhead marking.",
+      "Use a lighter junior football where appropriate.",
+      "Allow the player to begin moving before the delivery."
+    ],
+    "successIndicators": [
+      "Move into the correct drop zone.",
+      "Complete a high percentage of testable marks.",
+      "Maintain strong hand position.",
+      "Track the football without turning away.",
+      "Recover quickly after an unsuccessful attempt.",
+      "Produce repeatable results across marking types."
+    ],
+    "matchApplication": "Reliable marking allows a team to retain possession, intercept opposition attacks, provide forward targets and control field position. The test identifies whether errors are caused by ball judgement, movement, hand position, confidence or delivery conditions.",
+    "relatedDrills": [
+      "TA-002 – Kicking Accuracy Baseline Test",
+      "TA-005 – Ground-Ball Clean Collection Test"
+    ]
+  },
+  {
+    "drillId": "TA-005",
+    "title": "Ground-Ball Clean Collection Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-006",
+    "title": "Football Movement and Agility Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "Football-specific movement assessment",
+    "secondarySkills": [
+      "Acceleration",
+      "Change of direction",
+      "Deceleration",
+      "Ball carrying",
+      "Bouncing",
+      "Disposal under movement",
+      "Movement efficiency"
+    ],
+    "objective": "Measure each player’s ability to accelerate, change direction, carry the football and complete a controlled disposal through a repeatable football-specific agility course.",
+    "ageGroups": {},
+    "skillLevel": "Beginner to Elite",
+    "players": "Minimum: 2 Ideal: 6–16 Maximum: 24",
+    "groundSize": "A 30 × 20 metre testing area.",
+    "equipment": [
+      "Footballs",
+      "Cones",
+      "Stopwatch or electronic timing gates",
+      "Target gate",
+      "Recording sheets or tablets",
+      "Measuring tape",
+      "Bibs"
+    ],
+    "time": "20–30 minutes",
+    "physicalLoad": "4 – High",
+    "mentalLoad": "3 – Moderate",
+    "contact": "0 – No Contact",
+    "coachingDifficulty": "3 – Intermediate",
+    "sessionPlacement": [
+      "Assessment",
+      "Warm-Up",
+      "Conditioning Through Football"
+    ],
+    "setup": "Mark a start line and a five-metre acceleration gate.\nPlace change-of-direction cones at 5, 10 and 15 metres.\nCreate one lateral cut, one 180-degree turn and one curved running line.\nPosition a football at the first change-of-direction cone.\nPlace a target gate 15 metres beyond the final turn.\nDefine the finish as the moment the football passes through the target gate or crosses the target line.\nProvide a separate deceleration area beyond the finish.",
+    "howTheDrillWorks": "Players complete a standardised movement and football warm-up.\nEach player walks through the course once.\nOn the start signal, the player accelerates to the first cone.\nThe player collects the football and completes the marked change-of-direction pattern.\nThe player performs one legal bounce in the designated section.\nAt the final cone, the player steadies and kicks through the target gate.\nTime begins on the start signal and stops when the kick crosses the target line.\nAdd a time penalty for missing the target gate or failing to complete the required bounce.\nEach player completes three trials with full recovery.\nRecord the best valid time, average time, disposal accuracy and movement observations.",
+    "coachingPoints": [
+      "Use the same course dimensions for every player.",
+      "Complete a thorough warm-up before maximal trials.",
+      "Separate raw course time from time penalties.",
+      "Do not allow unsafe cutting technique to be rewarded.",
+      "Record both best time and average consistency.",
+      "Ensure the football is positioned identically for every trial.",
+      "Provide full recovery between maximal attempts.",
+      "Modify turn angles and total distance for younger players and masters footballers."
+    ],
+    "coachingCues": [
+      "“Accelerate under control.”",
+      "“Lower before the turn.”",
+      "“Push out of the cut.”",
+      "“Carry, bounce, execute.”",
+      "“Control the final kick.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "First-step acceleration.",
+      "Body height before each change of direction.",
+      "Foot placement and balance through cuts.",
+      "Ability to collect the football without losing speed.",
+      "Ball security while changing direction.",
+      "Quality of the bounce.",
+      "Whether the player regains control before kicking.",
+      "Deceleration after the finish."
+    ],
+    "commonErrors": [
+      {
+        "error": "Players begin before the official start signal.",
+        "correction": "Use the same starting command for every attempt."
+      },
+      {
+        "error": "Time is recorded without accounting for missed skill actions.",
+        "correction": "Apply the published penalty system consistently."
+      },
+      {
+        "error": "Players receive inadequate recovery.",
+        "correction": "Allow two to three minutes between maximal trials."
+      },
+      {
+        "error": "Unsafe cutting is rewarded because it is fast.",
+        "correction": "Mark the trial invalid where control or safety is compromised."
+      },
+      {
+        "error": "Course dimensions change during the test.",
+        "correction": "Secure and remeasure cones before testing."
+      }
+    ],
+    "progressions": [
+      "Add a reactive colour or direction cue.",
+      "Require a non-preferred-foot kick.",
+      "Add a handball option at the finish.",
+      "Add a second football skill during the course.",
+      "Test after a controlled conditioning block.",
+      "Compare ball-carrying time with a no-football agility time."
+    ],
+    "regressions": [
+      "Remove the 180-degree turn.",
+      "Reduce total course distance.",
+      "Remove the required bounce.",
+      "Widen the target gate.",
+      "Use submaximal trials for returning or older players.",
+      "Allow a handball finish instead of a kick."
+    ],
+    "successIndicators": [
+      "Accelerate and decelerate with control.",
+      "Maintain balance through changes of direction.",
+      "Secure the football cleanly while moving.",
+      "Complete the required bounce legally.",
+      "Execute an accurate disposal after high-speed movement.",
+      "Produce consistent times across valid trials."
+    ],
+    "matchApplication": "Australian football requires players to accelerate into space, change direction around pressure, carry the football and execute after movement. This test combines physical movement with football control so that athletic speed is assessed alongside functional match skill.",
+    "relatedDrills": [
+      "TA-004 – Marking Reliability and Ball-Judgement Test",
+      "TA-005 – Ground-Ball Clean Collection Test"
+    ]
+  },
+  {
+    "drillId": "TA-007",
+    "title": "Decision-Making Observation Grid",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-008",
+    "title": "Coach Rating Calibration and Reliability Exercise",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-009",
+    "title": "Player Testing Data Record and Benchmark System",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-010",
+    "title": "Integrated Foundation Testing Battery",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-011",
+    "title": "Short-Kick Decision and Execution Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-012",
+    "title": "Long-Kick Distance and Accuracy Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-013",
+    "title": "Goal-Kicking Routine and Conversion Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "Set-shot goal-kicking assessment",
+    "secondarySkills": [
+      "Pre-kick routine",
+      "Accuracy",
+      "Distance control",
+      "Angle management",
+      "Psychological consistency",
+      "Miss-pattern identification"
+    ],
+    "objective": "Assess each player’s goal-kicking conversion, routine consistency and miss pattern across controlled distances and angles.",
+    "ageGroups": {},
+    "skillLevel": "Beginner to Elite",
+    "players": "Minimum: 2 Ideal: 6–16 Maximum: 24",
+    "groundSize": "One forward-50 area with six marked set-shot positions.",
+    "equipment": [
+      "Footballs",
+      "Goalposts",
+      "Cones",
+      "Measuring tape",
+      "Stopwatch",
+      "Recording sheets or tablets",
+      "Wind indicator"
+    ],
+    "time": "25–40 minutes",
+    "physicalLoad": "2 – Low",
+    "mentalLoad": "4 – High",
+    "contact": "0 – No Contact",
+    "coachingDifficulty": "3 – Intermediate",
+    "sessionPlacement": [
+      "Assessment",
+      "Goal-Kicking Block",
+      "Forward Entry"
+    ],
+    "setup": "Mark six shot locations:\nTwo directly in front.\nTwo from the left side.\nTwo from the right side.\nUse distances appropriate to the age and competition level.\nMark a standard starting point for each shot.\nPosition recorders behind the kicker and near the goals.\nDefine the permitted preparation time.\nRecord wind conditions before testing.\nEstablish a safe football-return system outside the kicking line.",
+    "howTheDrillWorks": "Players complete a progressive goal-kicking warm-up.\nEach player completes two non-scored practice shots.\nThe player attempts two scored shots from each marked position.\nPlayers use their normal set-shot routine.\nThe recorder notes routine duration, starting line, kick type, result and miss direction.\nAward one point for a goal and zero for a behind or out on the full.\nRecord shots falling short separately from directional misses.\nCalculate total conversion and conversion by distance and side.\nRecord whether routine steps remain consistent after misses.\nPlayers rotate through kicking, recording and football-return roles.",
+    "coachingPoints": [
+      "Use the same shot locations for every comparable player.",
+      "Avoid technical coaching during the scored sequence.",
+      "Record the type and direction of each miss.",
+      "Note routine consistency rather than imposing one routine.",
+      "Separate distance limitations from accuracy errors.",
+      "Allow sufficient recovery between longer shots.",
+      "Test in comparable wind conditions where possible.",
+      "Use age-appropriate distances."
+    ],
+    "coachingCues": [
+      "“Use your routine.”",
+      "“Commit to the line.”",
+      "“Same process again.”",
+      "“Record the miss.”",
+      "“Reset after every shot.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Starting alignment.",
+      "Consistency of the approach.",
+      "Ball placement during the routine.",
+      "Balance through contact.",
+      "Follow-through direction.",
+      "Change in routine after a miss.",
+      "Conversion differences by angle and distance.",
+      "Repeated miss patterns."
+    ],
+    "commonErrors": [
+      {
+        "error": "Different players kick from different locations.",
+        "correction": "Measure and mark every shot position."
+      },
+      {
+        "error": "Misses are recorded only as goals or behinds.",
+        "correction": "Record left, right, short and out-on-the-full outcomes."
+      },
+      {
+        "error": "Coaches alter the player’s routine during testing.",
+        "correction": "Save technical intervention until the assessment is complete."
+      },
+      {
+        "error": "Younger players are tested beyond their range.",
+        "correction": "Reduce distance while preserving comparable angles."
+      },
+      {
+        "error": "Wind changes are ignored.",
+        "correction": "Record conditions and avoid direct comparison across significantly different sessions."
+      }
+    ],
+    "progressions": [
+      "Add a time-pressure shot.",
+      "Add a shot after a short lead and mark.",
+      "Include a snap set shot where competition rules and player role make it relevant.",
+      "Add scoreboard scenarios.",
+      "Test after a controlled running effort.",
+      "Compare practice conversion with match conversion."
+    ],
+    "regressions": [
+      "Reduce distances.",
+      "Test from three positions.",
+      "Use one shot per position.",
+      "Remove the preparation-time limit.",
+      "Widen the acceptable target for younger players.",
+      "Complete the test over two sessions."
+    ],
+    "successIndicators": [
+      "Use a repeatable pre-kick routine.",
+      "Maintain alignment and balance.",
+      "Convert at an age- and role-appropriate rate.",
+      "Identify a clear miss pattern.",
+      "Reset their process after an unsuccessful shot.",
+      "Maintain conversion from both sides of the ground."
+    ],
+    "matchApplication": "Set-shot conversion directly affects scoreboard outcomes. The test helps coaches distinguish technical errors, range limitations, angle-specific difficulties and routine breakdowns under repeated scoring demands.",
+    "relatedDrills": [
+      "TA-002 – Kicking Accuracy Baseline Test",
+      "TA-011 – Short-Kick Decision and Execution Test"
+    ]
+  },
+  {
+    "drillId": "TA-014",
+    "title": "Contested Marking Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "Contested marking assessment",
+    "secondarySkills": [
+      "Body positioning",
+      "Ball judgement",
+      "Aerial timing",
+      "Strong hands",
+      "Contest protection",
+      "Ground-level recovery"
+    ],
+    "objective": "Assess each player’s ability to establish position, judge the football and complete or neutralise a controlled one-on-one marking contest.",
+    "ageGroups": {},
+    "skillLevel": "Intermediate to Elite",
+    "players": "Minimum: 4 Ideal: 8–16 Maximum: 24",
+    "groundSize": "A 35 × 25 metre area with two marking lanes.",
+    "equipment": [
+      "Footballs",
+      "Cones",
+      "Bibs",
+      "Recording sheets or tablets",
+      "Whistle",
+      "Protective equipment where required"
+    ],
+    "time": "25–35 minutes",
+    "physicalLoad": "3 – Moderate",
+    "mentalLoad": "4 – High",
+    "contact": "2 – Controlled Contact",
+    "coachingDifficulty": "4 – Advanced",
+    "sessionPlacement": [
+      "Assessment",
+      "Contested Football Block",
+      "Match Preparation"
+    ],
+    "setup": "Create two marking lanes approximately 25 metres long and eight metres wide.\nPlace one attacker and one defender inside each lane.\nPosition a consistent kicker at the delivery cone.\nMark a legal contest zone.\nEstablish clear body-contact and safety rules.\nPair players by size, age and experience.\nPrepare scoring criteria for win, neutral result and loss.",
+    "howTheDrillWorks": "The attacker and defender begin side by side or in a nominated front-and-back position.\nOn the coach’s signal, both players move into the contest zone.\nThe kicker delivers a high, testable football.\nThe attacker attempts to mark while the defender contests legally.\nAward two points for a clean contested mark, one point for bringing the football to ground and retaining or neutralising the contest, and zero points for losing the contest clearly.\nEach player completes five repetitions as attacker and five as defender.\nAlternate starting positions and delivery sides.\nRecord body position, flight judgement, contact legality and contest outcome.\nStop any repetition where the delivery creates unsafe contact.\nRotate pairs and feeders after the set.",
+    "coachingPoints": [
+      "Pair players appropriately.",
+      "Use controlled, legal body contact.",
+      "Deliver footballs that create genuine but safe contests.",
+      "Record positioning and judgement, not only the final mark.",
+      "Separate attacking and defensive results.",
+      "Stop players from holding, pushing in the back or making front-on contact.",
+      "Allow recovery between repetitions.",
+      "Record how the player responds when the football reaches ground level."
+    ],
+    "coachingCues": [
+      "“Find front position.”",
+      "“Track the flight.”",
+      "“Strong through contact.”",
+      "“Attack at the highest point.”",
+      "“Compete again on ground.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Initial body position.",
+      "Early reading of the flight.",
+      "Legal use of the body.",
+      "Timing of the jump.",
+      "Hand position.",
+      "Control through contact.",
+      "Ability to neutralise a lost aerial position.",
+      "Ground-level reaction after the contest."
+    ],
+    "commonErrors": [
+      {
+        "error": "Players are paired with major size or experience differences.",
+        "correction": "Match players according to physical and football capability."
+      },
+      {
+        "error": "Poor deliveries create dangerous collisions.",
+        "correction": "Use trained kickers and repeat untestable deliveries."
+      },
+      {
+        "error": "Only completed marks are assessed.",
+        "correction": "Record positioning, contest neutralisation and recovery."
+      },
+      {
+        "error": "Illegal contact is rewarded.",
+        "correction": "Mark the repetition invalid and reinforce legal technique."
+      },
+      {
+        "error": "Too many repetitions cause technique to deteriorate.",
+        "correction": "Limit sets and provide adequate recovery."
+      }
+    ],
+    "progressions": [
+      "Add a second defender or supporting crumber.",
+      "Deliver from different angles.",
+      "Add a short lead before the contest.",
+      "Include defensive intercept contests.",
+      "Add immediate disposal after a completed mark.",
+      "Use match-position-specific starting points."
+    ],
+    "regressions": [
+      "Begin with passive body pressure.",
+      "Use a shorter delivery.",
+      "Allow the attacker front position.",
+      "Reduce repetitions.",
+      "Replace aerial contests with protected marking.",
+      "Use a pad rather than a live opponent."
+    ],
+    "successIndicators": [
+      "Establish or challenge for effective body position.",
+      "Track the football early.",
+      "Contest legally.",
+      "Complete or neutralise a high proportion of contests.",
+      "Maintain balance through contact.",
+      "React immediately when the football reaches ground level."
+    ],
+    "matchApplication": "Contested marking affects forward targets, defensive intercepts, wing contests and stoppage exits. This assessment identifies whether a player’s contest performance is limited by positioning, judgement, timing, hand strength or recovery.",
+    "relatedDrills": [
+      "TA-004 – Marking Reliability and Ball-Judgement Test",
+      "TA-005 – Ground-Ball Clean Collection Test"
+    ]
+  },
+  {
+    "drillId": "TA-015",
+    "title": "Spoiling Direction and Recovery Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-016",
+    "title": "Tackling Technique and Pressure Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-017",
+    "title": "Ruck Hit-Zone Accuracy Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-018",
+    "title": "Stoppage Role Execution Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-019",
+    "title": "Defensive Transition Response Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-020",
+    "title": "Technical Assessment Review Circuit",
+    "category": "Testing and Assessment",
+    "primarySkill": "Multi-skill technical assessment",
+    "secondarySkills": [
+      "Kicking",
+      "Handballing",
+      "Marking",
+      "Ground-ball collection",
+      "Tackling",
+      "Spoiling",
+      "Ruck craft",
+      "Performance review"
+    ],
+    "objective": "Complete a structured review circuit that confirms technical testing results across the first twenty Testing and Assessment records and identifies individual priorities for the next development phase.",
+    "ageGroups": {},
+    "skillLevel": "Foundation to Elite",
+    "players": "Minimum: 8 Ideal: 16–30 Maximum: Full Squad",
+    "groundSize": "Half an oval divided into six to eight assessment stations.",
+    "equipment": [
+      "Footballs",
+      "Cones",
+      "Target gates",
+      "Goalposts",
+      "Stopwatches",
+      "Bibs",
+      "Tackle bags",
+      "Ruck pad",
+      "Recording sheets or tablets",
+      "Station signs",
+      "First-aid equipment",
+      "Water"
+    ],
+    "time": "80–120 minutes",
+    "physicalLoad": "4 – High",
+    "mentalLoad": "4 – High",
+    "contact": "2 – Controlled Contact",
+    "coachingDifficulty": "5 – Expert",
+    "sessionPlacement": [
+      "Assessment",
+      "Pre-Season Testing",
+      "Mid-Season Review",
+      "Final Main Activity"
+    ],
+    "setup": "Select six to eight stations appropriate to the squad:\nShort-kick decision and execution.\nLong-kick distance and accuracy.\nGoal-kicking conversion.\nContested marking.\nSpoiling direction.\nTackling technique.\nRuck accuracy or stoppage-role execution.\nDefensive transition.\nPrepare standard instructions and scoring sheets at each station.\nAssign trained staff to all contact and tactical stations.\nDivide the squad into balanced groups.\nEstablish rotation and recovery periods.\nPrepare non-contact alternatives for modified players.\nConfirm that previous baseline results are available for comparison.",
+    "howTheDrillWorks": "Players complete a standardised 15-minute warm-up.\nThe testing coordinator explains all station rules and scoring procedures.\nGroups begin at assigned stations.\nEach station operates for eight to twelve minutes.\nPlayers complete the published attempts without technical coaching during scored repetitions.\nStation coaches record raw results and observable behaviours.\nGroups rotate on the central signal.\nContact stations are completed only under direct qualified supervision.\nPlayers receive a recovery break before transition or stoppage testing.\nAll records are returned to the central data point.\nResults are checked against previous baselines.\nEach player is assigned one confirmed strength, one priority technical skill and one next-step training action.",
+    "coachingPoints": [
+      "Select stations relevant to the age and role of the squad.",
+      "Use identical scoring standards across groups.",
+      "Compare results with previous tests rather than relying only on squad rankings.",
+      "Do not combine unrelated measures into one overall player score.",
+      "Record modified tests clearly.",
+      "Prioritise safety at contact and maximal-effort stations.",
+      "Provide enough recovery for reliable performance.",
+      "Link every identified weakness to a practical training response.",
+      "Confirm unusual results before reporting them.",
+      "Provide balanced feedback."
+    ],
+    "coachingCues": [
+      "“Test the same standard.”",
+      "“Record every attempt.”",
+      "“Quality before ranking.”",
+      "“Compare with baseline.”",
+      "“Turn results into action.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Consistency across repeat tests.",
+      "Differences between isolated technique and pressure performance.",
+      "Preferred- and non-preferred-side gaps.",
+      "Role-specific strengths.",
+      "Technical breakdown under speed or contact.",
+      "Player response after errors.",
+      "Modified-testing requirements.",
+      "Station scoring consistency.",
+      "Whether previous development priorities have improved.",
+      "Whether testing results lead to clear coaching actions."
+    ],
+    "commonErrors": [
+      {
+        "error": "Every squad completes identical stations regardless of age or role.",
+        "correction": "Select appropriate stations while preserving standardised scoring."
+      },
+      {
+        "error": "Results are combined into one total ranking.",
+        "correction": "Review each skill and tactical measure separately."
+      },
+      {
+        "error": "Players receive coaching during scored attempts.",
+        "correction": "Complete the assessment before providing feedback."
+      },
+      {
+        "error": "Contact stations operate without adequate supervision.",
+        "correction": "Assign qualified coaches and enforce safety rules."
+      },
+      {
+        "error": "Previous baseline results are unavailable.",
+        "correction": "Confirm records before the review session."
+      },
+      {
+        "error": "Results are collected without follow-up action.",
+        "correction": "Assign a specific development priority and training response."
+      }
+    ],
+    "progressions": [
+      "Add video analysis.",
+      "Add position-specific stations.",
+      "Compare fresh and fatigued technical performance.",
+      "Include match-statistics review.",
+      "Add coach and player self-rating comparisons.",
+      "Conduct the circuit at multiple points across the season.",
+      "Create individual development dashboards.",
+      "Add advanced pressure assessments."
+    ],
+    "regressions": [
+      "Split the circuit across two sessions.",
+      "Use four core stations.",
+      "Remove contact testing.",
+      "Reduce repetitions.",
+      "Use shorter distances.",
+      "Replace tactical games with controlled decision drills.",
+      "Compare players only with their own prior baseline."
+    ],
+    "successIndicators": [
+      "Complete valid assessments across relevant skill areas.",
+      "Demonstrate measurable strengths and development needs.",
+      "Maintain safe technique.",
+      "Understand their individual results.",
+      "Identify the next training priority.",
+      "Coaches consistently:",
+      "Apply standard scoring.",
+      "Record complete raw data.",
+      "Compare results with appropriate baselines.",
+      "Avoid simplistic overall rankings.",
+      "Convert findings into individual and squad training plans."
+    ],
+    "matchApplication": "The review circuit brings together technical, contest and tactical assessments so coaches can understand how each player performs across the major demands of Australian football. It provides a controlled checkpoint before moving into more advanced testing, pressure assessment and role-specific evaluation.",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-021",
+    "title": "Ten-Metre Acceleration and Football Collection Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "Football-specific acceleration assessment",
+    "secondarySkills": [
+      "Starting speed",
+      "First-step power",
+      "Ground-ball collection",
+      "Body control",
+      "Ball security",
+      "Disposal after acceleration"
+    ],
+    "objective": "Measure each player’s ability to accelerate over ten metres, collect a football cleanly at speed and complete an effective disposal without losing movement efficiency.",
+    "ageGroups": {},
+    "skillLevel": "Beginner to Elite",
+    "players": "Minimum: 3 Ideal: 6–16 Maximum: 24",
+    "groundSize": "A 25 × 15 metre testing lane.",
+    "equipment": [
+      "Footballs",
+      "Cones",
+      "Measuring tape",
+      "Stopwatch or electronic timing gates",
+      "Handball target gate",
+      "Recording sheets or tablets",
+      "Whistle"
+    ],
+    "time": "20–30 minutes",
+    "physicalLoad": "4 – High",
+    "mentalLoad": "2 – Low",
+    "contact": "0 – No Contact",
+    "coachingDifficulty": "3 – Intermediate",
+    "sessionPlacement": [
+      "Assessment",
+      "Warm-Up",
+      "Conditioning Through Football"
+    ],
+    "setup": "Mark a starting line and a ten-metre timing line.\nPosition a stationary football at the eight-metre point.\nPlace a two-metre-wide handball target five metres beyond the timing line.\nEstablish a safe deceleration zone beyond the target.\nUse the same football position and target dimensions for every player.\nPrepare separate recording columns for sprint time, collection quality and disposal accuracy.",
+    "howTheDrillWorks": "Players complete a standardised acceleration and ground-ball warm-up.\nEach player receives one walk-through and two practice attempts.\nThe player begins in a balanced two-point stance behind the starting line.\nOn the signal, the player accelerates towards the football.\nThe player collects the football without stopping and continues through the ten-metre timing line.\nAfter crossing the timing line, the player handballs through the target gate.\nTiming begins on the start signal and ends when the player’s torso crosses the ten-metre line.\nRecord the sprint time, whether the collection was clean and whether the handball was accurate.\nEach player completes three valid attempts with two minutes of recovery.\nRecord the fastest valid attempt and the average of all valid attempts.",
+    "coachingPoints": [
+      "Use an identical starting command for every player.",
+      "Require the player to begin completely behind the line.",
+      "Position the football consistently.",
+      "Separate acceleration time from skill-quality scoring.",
+      "Do not count a fumbled collection as a clean attempt.",
+      "Allow enough recovery for maximal acceleration.",
+      "Observe whether players lower their body effectively without overstriding.",
+      "Stop the test if the surface becomes unsafe."
+    ],
+    "coachingCues": [
+      "“Explode from the line.”",
+      "“Lower into collection.”",
+      "“One touch.”",
+      "“Run through the gate.”",
+      "“Control the release.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Starting stance and first movement.",
+      "First three steps.",
+      "Acceleration posture.",
+      "Foot placement approaching the football.",
+      "Body height during collection.",
+      "Whether the football is secured in one action.",
+      "Ability to continue accelerating after collection.",
+      "Handball accuracy after the timed effort."
+    ],
+    "commonErrors": [
+      {
+        "error": "The player slows excessively before collecting.",
+        "correction": "Encourage shorter final steps while maintaining forward momentum."
+      },
+      {
+        "error": "The football changes position between attempts.",
+        "correction": "Mark the exact placement point and reset it after every repetition."
+      },
+      {
+        "error": "Timing continues through the disposal.",
+        "correction": "Stop timing at the ten-metre line and score disposal separately."
+      },
+      {
+        "error": "Players receive insufficient recovery.",
+        "correction": "Provide approximately two minutes between maximal attempts."
+      },
+      {
+        "error": "A fumble is ignored because the sprint time is fast.",
+        "correction": "Mark the collection component unsuccessful and preserve the raw sprint time separately."
+      }
+    ],
+    "progressions": [
+      "Use a moving football.",
+      "Require a non-preferred-side handball.",
+      "Add a reactive start signal.",
+      "Begin from a prone or lateral position.",
+      "Add a passive chaser.",
+      "Compare the result with a ten-metre sprint without a football collection."
+    ],
+    "regressions": [
+      "Reduce the acceleration distance.",
+      "Begin the player closer to the football.",
+      "Remove the disposal requirement.",
+      "Allow submaximal effort.",
+      "Use a larger target gate.",
+      "Reduce the number of attempts."
+    ],
+    "successIndicators": [
+      "React promptly to the start signal.",
+      "Accelerate efficiently.",
+      "Adjust body height without stopping.",
+      "Collect the football cleanly.",
+      "Maintain speed through the timing line.",
+      "Complete an accurate disposal after acceleration."
+    ],
+    "matchApplication": "Players frequently accelerate towards loose footballs before collecting and releasing under pressure. This test identifies whether a player can combine first-step speed with clean possession rather than producing speed only in a football-free sprint.",
+    "relatedDrills": [
+      "TA-005 – Ground-Ball Clean Collection Test",
+      "TA-006 – Football Movement and Agility Test"
+    ]
+  },
+  {
+    "drillId": "TA-022",
+    "title": "Twenty-Metre Sprint and Ball-Carry Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "Sprint speed while carrying the football",
+    "secondarySkills": [
+      "Acceleration",
+      "Maximum running speed",
+      "Ball security",
+      "Legal bouncing",
+      "Running posture",
+      "Deceleration control"
+    ],
+    "objective": "Measure each player’s ability to accelerate and maintain speed over twenty metres while securely carrying and legally bouncing the football.",
+    "ageGroups": {},
+    "skillLevel": "Beginner to Elite",
+    "players": "Minimum: 2 Ideal: 6–16 Maximum: 24",
+    "groundSize": "A straight 35 × 8 metre running corridor.",
+    "equipment": [
+      "Footballs",
+      "Cones",
+      "Measuring tape",
+      "Stopwatch or electronic timing gates",
+      "Recording sheets or tablets",
+      "Whistle"
+    ],
+    "time": "20–30 minutes",
+    "physicalLoad": "4 – High",
+    "mentalLoad": "2 – Low",
+    "contact": "0 – No Contact",
+    "coachingDifficulty": "3 – Intermediate",
+    "sessionPlacement": [
+      "Assessment",
+      "Conditioning Through Football",
+      "Warm-Up"
+    ],
+    "setup": "Mark a start line, ten-metre split and twenty-metre finish line.\nMark a bounce zone between eight and twelve metres.\nProvide a fifteen-metre deceleration area beyond the finish.\nUse timing gates where available.\nPrepare separate result columns for total time, ten-metre split, bounce validity and ball security.\nEnsure the running surface is level and dry.",
+    "howTheDrillWorks": "Players complete a sprint and bouncing warm-up.\nEach player performs one walk-through and two progressive runs.\nThe player begins behind the starting line holding the football.\nOn the signal, the player accelerates through the lane.\nThe player must complete one legal bounce inside the marked bounce zone.\nThe player continues at maximum controlled speed through the twenty-metre finish.\nRecord the ten-metre split and total twenty-metre time.\nMark the trial invalid if the bounce occurs outside the zone or possession is lost.\nEach player completes three valid attempts with full recovery.\nRecord the fastest valid time and the variation between attempts.",
+    "coachingPoints": [
+      "Require players to run through the finish rather than slowing early.",
+      "Use the same football size and condition for all comparable players.",
+      "Do not allow the football to be thrown forward and regathered.",
+      "Separate speed from bounce validity.",
+      "Provide two to three minutes of recovery.",
+      "Record whether the football changes the player’s normal running action.",
+      "Use a generous deceleration area.",
+      "Modify intensity for returning and masters players."
+    ],
+    "coachingCues": [
+      "“Run through the line.”",
+      "“Secure the football.”",
+      "“Bounce in the zone.”",
+      "“Eyes forward.”",
+      "“Decelerate safely.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Acceleration mechanics.",
+      "Running posture.",
+      "Arm action while carrying.",
+      "Football security.",
+      "Bounce placement.",
+      "Regather quality.",
+      "Speed maintenance after the bounce.",
+      "Controlled deceleration beyond the finish."
+    ],
+    "commonErrors": [
+      {
+        "error": "Players slow before bouncing.",
+        "correction": "Practise placing the bounce slightly in front while maintaining stride."
+      },
+      {
+        "error": "The bounce occurs outside the marked zone.",
+        "correction": "Mark the attempt invalid and repeat after recovery."
+      },
+      {
+        "error": "Players slow before the finish line.",
+        "correction": "Place a run-through cone beyond the timing gate."
+      },
+      {
+        "error": "Footballs differ in size or inflation.",
+        "correction": "Use standardised footballs for all trials."
+      },
+      {
+        "error": "Too many maximal runs are completed.",
+        "correction": "Limit the test to three valid attempts."
+      }
+    ],
+    "progressions": [
+      "Add a second bounce.",
+      "Require the football to be carried in the non-preferred hand.",
+      "Add a disposal after the finish.",
+      "Introduce a rolling start.",
+      "Compare ball-carry and no-football sprint times.",
+      "Test after controlled fatigue."
+    ],
+    "regressions": [
+      "Reduce the distance to fifteen metres.",
+      "Widen the bounce zone.",
+      "Remove the bounce.",
+      "Use submaximal speed.",
+      "Allow a shorter approach for younger players.",
+      "Complete two attempts only."
+    ],
+    "successIndicators": [
+      "Accelerate strongly.",
+      "Carry the football securely.",
+      "Complete a legal bounce without major speed loss.",
+      "Regather cleanly.",
+      "Maintain speed through the finish.",
+      "Produce repeatable valid times."
+    ],
+    "matchApplication": "Players often carry the football at high speed while breaking lines, transitioning from defence or attacking open space. The test identifies whether ball carrying and bouncing significantly reduce a player’s running speed or control.",
+    "relatedDrills": [
+      "TA-006 – Football Movement and Agility Test",
+      "TA-021 – Ten-Metre Acceleration and Football Collection Test"
+    ]
+  },
+  {
+    "drillId": "TA-023",
+    "title": "Reactive Change-of-Direction Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-024",
+    "title": "Deceleration and Re-Acceleration Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-025",
+    "title": "Repeat-Sprint Football Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-026",
+    "title": "Intermittent Running and Skill-Endurance Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-027",
+    "title": "Vertical Jump and Aerial Reach Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "Aerial reach assessment",
+    "secondarySkills": [
+      "Vertical jumping",
+      "Running jump",
+      "Leap timing",
+      "Body control",
+      "Marking reach",
+      "Ruck reach",
+      "Landing mechanics"
+    ],
+    "objective": "Measure each player’s standing and running aerial reach while assessing safe take-off, flight control and landing technique.",
+    "ageGroups": {},
+    "skillLevel": "Foundation to Elite",
+    "players": "Minimum: 2 Ideal: 6–15 Maximum: 24",
+    "groundSize": "A 20 × 15 metre testing area.",
+    "equipment": [
+      "Vertical jump measuring device or marked wall",
+      "Measuring tape",
+      "Footballs",
+      "Cones",
+      "Chalk or removable markers",
+      "Recording sheets or tablets",
+      "Landing mat where required"
+    ],
+    "time": "20–30 minutes",
+    "physicalLoad": "4 – High",
+    "mentalLoad": "2 – Low",
+    "contact": "0 – No Contact",
+    "coachingDifficulty": "3 – Intermediate",
+    "sessionPlacement": [
+      "Assessment",
+      "Warm-Up",
+      "Technical Skill Block"
+    ],
+    "setup": "Establish a standing-reach measurement station.\nMark a safe standing vertical-jump area.\nCreate a five-metre running approach.\nPosition a suspended football or reach target where available.\nEnsure the landing surface is level and clear.\nRecord preferred take-off leg.\nPrepare separate records for standing reach, standing jump reach and running jump reach.",
+    "howTheDrillWorks": "Measure each player’s standing reach with feet flat.\nThe player completes two practice jumps.\nThe player performs three standing vertical jumps.\nRecord the highest valid reach.\nThe player then completes three running jumps from a standard five-metre approach.\nRecord the highest running-jump reach.\nCalculate standing-jump height and additional reach gained from the running approach.\nRecord take-off leg, arm used and landing quality.\nRepeat any attempt affected by equipment movement.\nStop testing if landing control deteriorates.",
+    "coachingPoints": [
+      "Measure standing reach accurately.",
+      "Require the same approach distance.",
+      "Record reach rather than relying only on device-generated jump height.",
+      "Observe landing mechanics.",
+      "Allow full recovery.",
+      "Do not permit contact with walls or equipment that alters the result.",
+      "Use a football target for role-specific interpretation.",
+      "Modify maximal jumping volume for younger and masters players."
+    ],
+    "coachingCues": [
+      "“Drive through the ground.”",
+      "“Reach at the top.”",
+      "“Control the landing.”",
+      "“Use the full approach.”",
+      "“Balance before the next.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Countermovement depth.",
+      "Arm swing.",
+      "Take-off timing.",
+      "Preferred take-off leg.",
+      "Body position in flight.",
+      "Maximum reach.",
+      "Landing alignment.",
+      "Difference between standing and running performance."
+    ],
+    "commonErrors": [
+      {
+        "error": "Standing reach is measured inconsistently.",
+        "correction": "Use the same posture and full arm extension for every player."
+      },
+      {
+        "error": "Players use different approach lengths.",
+        "correction": "Mark a fixed running start."
+      },
+      {
+        "error": "Landing quality is ignored.",
+        "correction": "Record balance and joint alignment after each attempt."
+      },
+      {
+        "error": "Too many jumps are completed.",
+        "correction": "Limit testing to three valid attempts per condition."
+      },
+      {
+        "error": "Reach and jump height are confused.",
+        "correction": "Record both raw reach and calculated jump difference."
+      }
+    ],
+    "progressions": [
+      "Add a football mark at maximum reach.",
+      "Test jumps from both take-off legs.",
+      "Add a ruck tap target.",
+      "Compare fresh and fatigued jumping.",
+      "Add a controlled opponent.",
+      "Use video to assess take-off and landing."
+    ],
+    "regressions": [
+      "Test standing reach only.",
+      "Use submaximal jumps.",
+      "Remove the running approach.",
+      "Reduce attempts.",
+      "Use a low suspended target.",
+      "Replace maximal jumping with technique observation."
+    ],
+    "successIndicators": [
+      "Produce repeatable reach measurements.",
+      "Use coordinated take-off mechanics.",
+      "Reach effectively at the highest point.",
+      "Maintain body control in flight.",
+      "Land safely.",
+      "Demonstrate role-relevant aerial capability."
+    ],
+    "matchApplication": "Aerial reach affects marking, spoiling and ruck contests. Measuring reach and movement quality helps distinguish jumping capacity from ball judgement, positioning and contested technique.",
+    "relatedDrills": [
+      "TA-004 – Marking Reliability and Ball-Judgement Test",
+      "TA-014 – Contested Marking Assessment"
+    ]
+  },
+  {
+    "drillId": "TA-028",
+    "title": "Lateral Defensive Movement Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-029",
+    "title": "Movement-to-Disposal Efficiency Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-030",
+    "title": "Integrated Football Movement Profile",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-031",
+    "title": "Repeat High-Intensity Effort Recovery Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-032",
+    "title": "Position-Specific Running Pattern Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-033",
+    "title": "Change-of-Pace and Separation Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-034",
+    "title": "Closing-Speed and Pressure Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "Defensive closing-speed assessment",
+    "secondarySkills": [
+      "Acceleration",
+      "Approach control",
+      "Corralling",
+      "Smother positioning",
+      "Disposal pressure",
+      "Defensive balance",
+      "Recovery"
+    ],
+    "objective": "Assess each player’s ability to close space rapidly, reduce speed under control and apply effective disposal pressure without over-committing.",
+    "ageGroups": {},
+    "skillLevel": "Beginner to Elite",
+    "players": "Minimum: 4 Ideal: 8–16 Maximum: 24",
+    "groundSize": "A 25 × 15 metre defensive pressure lane.",
+    "equipment": [
+      "Footballs",
+      "Cones",
+      "Bibs",
+      "Stopwatch",
+      "Target gate",
+      "Recording sheets or tablets",
+      "Whistle"
+    ],
+    "time": "20–30 minutes",
+    "physicalLoad": "4 – High",
+    "mentalLoad": "4 – High",
+    "contact": "1 – Incidental / Controlled Pressure",
+    "coachingDifficulty": "4 – Advanced",
+    "sessionPlacement": [
+      "Assessment",
+      "Team Defence",
+      "Contested Football Block"
+    ],
+    "setup": "Position the ball carrier at one end of the lane.\nPosition the defender ten metres away.\nPlace a disposal target fifteen metres beyond the ball carrier.\nMark a one-and-a-half-metre control zone around the ball carrier.\nRestrict the defender to pressure, corralling or smothering actions without tackling.\nDefine a legal pressure result.\nPrepare scoring criteria for close speed, control, pressure and recovery.",
+    "howTheDrillWorks": "The ball carrier begins stationary with the football.\nOn the signal, the defender accelerates towards the carrier.\nThe carrier may begin moving or prepare to dispose.\nThe defender must close space and enter the control zone without making illegal contact.\nThe carrier attempts to kick through the target gate.\nAward the defender two points for forcing an inaccurate disposal or legal smother.\nAward one point for closing under control and reducing the carrier’s available space.\nAward zero points for over-running, losing balance or failing to affect the disposal.\nEach defender completes six repetitions from varied starting angles.\nRecord closing time, body control and disposal-pressure outcome.",
+    "coachingPoints": [
+      "Reward control rather than reckless speed.",
+      "Observe the defender’s final three steps.",
+      "Require hands and body position appropriate to the disposal threat.",
+      "Do not allow front-on contact into a kicking player.",
+      "Vary approach angles.",
+      "Use consistent ball carriers.",
+      "Record whether the defender can remain involved after the disposal.",
+      "Provide recovery between maximal approaches."
+    ],
+    "coachingCues": [
+      "“Close fast.”",
+      "“Shorten late.”",
+      "“Stay on your feet.”",
+      "“Pressure the disposal.”",
+      "“Recover after the kick.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Initial acceleration.",
+      "Approach angle.",
+      "Speed reduction.",
+      "Final foot placement.",
+      "Body balance.",
+      "Hand position.",
+      "Effect on the disposal.",
+      "Recovery after the pressure action."
+    ],
+    "commonErrors": [
+      {
+        "error": "Defenders sprint past the ball carrier.",
+        "correction": "Reinforce shorter final steps and balanced control."
+      },
+      {
+        "error": "Excessive contact is used to affect the kick.",
+        "correction": "Stop the repetition and apply non-contact pressure rules."
+      },
+      {
+        "error": "Closing time is the only measure.",
+        "correction": "Score control and disposal effect separately."
+      },
+      {
+        "error": "The carrier disposes before the defender can reasonably close.",
+        "correction": "Standardise the release cue or minimum preparation period."
+      },
+      {
+        "error": "Defenders stop after the kick.",
+        "correction": "Require a recovery movement towards the next contest."
+      }
+    ],
+    "progressions": [
+      "Permit controlled tackling.",
+      "Add a handball or sidestep choice.",
+      "Begin the carrier on the move.",
+      "Add a second defensive effort.",
+      "Reduce the starting distance.",
+      "Use a scoreboard consequence."
+    ],
+    "regressions": [
+      "Increase the defender’s starting distance.",
+      "Keep the carrier stationary.",
+      "Use a predetermined kick.",
+      "Remove the target gate.",
+      "Conduct the test at submaximal speed.",
+      "Use shadow pressure only."
+    ],
+    "successIndicators": [
+      "Close space rapidly.",
+      "Maintain control in the final approach.",
+      "Avoid over-committing.",
+      "Affect disposal quality.",
+      "Remain balanced.",
+      "Recover into the next defensive action."
+    ],
+    "matchApplication": "Effective pressure requires defenders to arrive quickly without running past the contest or conceding an easy evasion. This test identifies whether closing speed transfers into controlled and useful defensive pressure.",
+    "relatedDrills": [
+      "TA-016 – Tackling Technique and Pressure Assessment",
+      "TA-019 – Defensive Transition Response Test"
+    ]
+  },
+  {
+    "drillId": "TA-035",
+    "title": "Contact Balance and Disposal Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-036",
+    "title": "Fatigue-Related Kicking Accuracy Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-037",
+    "title": "Fatigue-Related Decision-Making Test",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-038",
+    "title": "Off-Ball Work-Rate Observation Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-039",
+    "title": "Return-to-Training Football Readiness Screen",
+    "category": "Testing and Assessment",
+    "primarySkill": "Football training readiness assessment",
+    "secondarySkills": [
+      "Movement confidence",
+      "Acceleration",
+      "Deceleration",
+      "Change of direction",
+      "Ball handling",
+      "Kicking",
+      "Communication",
+      "Self-reporting"
+    ],
+    "objective": "Provide a staged football-specific screen to help qualified medical, rehabilitation and coaching staff determine whether a returning player is ready to resume modified or full football training.",
+    "ageGroups": {},
+    "skillLevel": "All Levels",
+    "players": "Minimum: 1 Ideal: 1–4 Maximum: 6",
+    "groundSize": "A 35 × 25 metre rehabilitation and testing area.",
+    "equipment": [
+      "Footballs",
+      "Cones",
+      "Target gates",
+      "Stopwatch",
+      "Player readiness form",
+      "Recording sheets or tablets",
+      "First-aid equipment",
+      "Rehabilitation equipment as directed by medical staff"
+    ],
+    "time": "20–40 minutes",
+    "physicalLoad": "2–4 – Low to High according to approved stage",
+    "mentalLoad": "3 – Moderate",
+    "contact": "0 – No Contact",
+    "coachingDifficulty": "5 – Expert",
+    "sessionPlacement": [
+      "Assessment",
+      "Warm-Up",
+      "Return-to-Training Preparation"
+    ],
+    "setup": "Confirm medical or rehabilitation approval before testing.\nReview the player’s current restrictions.\nPrepare five progressive stages:\nLow-speed movement.\nStraight-line acceleration.\nDeceleration and direction change.\nFootball collection and disposal.\nPosition-specific movement.\nEstablish stop criteria for pain, instability, altered movement or reduced confidence.\nRecord the player’s pre-test symptom and confidence rating.\nEnsure qualified staff supervise the screen.",
+    "howTheDrillWorks": "The player reports current symptoms, confidence and restrictions.\nThe player completes low-speed running and basic football handling.\nIf symptom-free and approved, the player progresses to controlled accelerations.\nThe player completes planned deceleration and change-of-direction movements.\nFootball collections, handballs and short kicks are introduced.\nThe player completes a limited position-specific pattern.\nStaff assess movement quality, symptoms and confidence after each stage.\nTesting stops immediately if defined concerns appear.\nThe player completes a post-test symptom and confidence report.\nMedical and coaching staff determine the next permitted training level.",
+    "coachingPoints": [
+      "This screen does not replace medical clearance.",
+      "Progress only through approved stages.",
+      "Do not pressure a player to continue.",
+      "Compare movement with the player’s normal pattern and previous results.",
+      "Record symptoms before, during and after testing.",
+      "Assess confidence as well as physical completion.",
+      "Avoid contact until separately approved.",
+      "Communicate the outcome clearly to all relevant staff."
+    ],
+    "coachingCues": [
+      "“Move within control.”",
+      "“Report any symptoms.”",
+      "“Quality before speed.”",
+      "“Stop if uncertain.”",
+      "“Progress one stage at a time.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Running symmetry.",
+      "Acceleration confidence.",
+      "Deceleration control.",
+      "Change-of-direction technique.",
+      "Protective or hesitant movement.",
+      "Ball-handling quality.",
+      "Kicking balance.",
+      "Symptoms or loss of confidence."
+    ],
+    "commonErrors": [
+      {
+        "error": "Coaches use the screen without medical approval.",
+        "correction": "Require documented clearance before testing."
+      },
+      {
+        "error": "Players skip directly to maximal movement.",
+        "correction": "Progress through each approved stage."
+      },
+      {
+        "error": "Pain or instability is minimised.",
+        "correction": "Stop the test and refer to qualified staff."
+      },
+      {
+        "error": "Only physical completion is considered.",
+        "correction": "Record movement quality, symptoms and confidence."
+      },
+      {
+        "error": "Passing the screen is treated as match clearance.",
+        "correction": "Use it only to guide the next training stage."
+      }
+    ],
+    "progressions": [
+      "Add higher-speed position-specific patterns.",
+      "Add reactive direction changes.",
+      "Add controlled opponent pressure.",
+      "Add repeat-effort testing.",
+      "Add non-contact team drills.",
+      "Progress to contact testing only after separate approval."
+    ],
+    "regressions": [
+      "Complete low-speed movement only.",
+      "Remove direction changes.",
+      "Use stationary football skills.",
+      "Shorten the session.",
+      "Increase recovery.",
+      "Return to rehabilitation exercises directed by medical staff."
+    ],
+    "successIndicators": [
+      "Complete approved stages without symptoms.",
+      "Move with appropriate control and symmetry.",
+      "Demonstrate confidence.",
+      "Execute basic football skills.",
+      "Communicate honestly about readiness.",
+      "Meet criteria agreed by qualified staff."
+    ],
+    "matchApplication": "A player must tolerate football-specific running, stopping, turning and skill execution before returning to normal training demands. This screen supports staged progression while keeping medical judgement central.",
+    "relatedDrills": [
+      "TA-006 – Football Movement and Agility Test",
+      "TA-024 – Deceleration and Re-Acceleration Test"
+    ]
+  },
+  {
+    "drillId": "TA-040",
+    "title": "Physical and Football Performance Assessment Review",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-041",
+    "title": "Match Involvement and Action Coding Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-042",
+    "title": "Disposal Effectiveness Under Pressure Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-043",
+    "title": "Contested Possession Effectiveness Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-044",
+    "title": "Intercept Reading and Defensive Positioning Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "Intercept-defence assessment",
+    "secondarySkills": [
+      "Play reading",
+      "Starting position",
+      "Ball-flight judgement",
+      "Defensive communication",
+      "Intercept marking",
+      "Spoiling",
+      "Defensive exit"
+    ],
+    "objective": "Assess each defender’s ability to read play, position between the football and goal, intercept or spoil, and initiate a controlled defensive exit.",
+    "ageGroups": {},
+    "skillLevel": "Intermediate to Elite",
+    "players": "Minimum: 8 Ideal: 12–20 Maximum: 26",
+    "groundSize": "A 50 × 40 metre defensive area.",
+    "equipment": [
+      "Footballs",
+      "Cones",
+      "Bibs",
+      "Exit gates",
+      "Recording sheets or tablets",
+      "Whistle",
+      "Video equipment where available"
+    ],
+    "time": "30–45 minutes",
+    "physicalLoad": "3 – Moderate",
+    "mentalLoad": "5 – Elite",
+    "contact": "2 – Controlled Contact",
+    "coachingDifficulty": "5 – Expert",
+    "sessionPlacement": [
+      "Assessment",
+      "Team Defence",
+      "Tactical Block"
+    ],
+    "setup": "Mark an attacking entry zone and a defensive intercept zone.\nPlace two attacking targets inside the defensive area.\nPosition two defenders between the targets and goal.\nPlace two defensive exit gates on the wings.\nAssign a kicker and supporting attacking players outside the zone.\nPrepare assessment categories for starting position, scanning, intercept decision, contest execution and exit.\nUse controlled contact rules.",
+    "howTheDrillWorks": "Attackers circulate the football outside the entry zone.\nDefenders adjust their position according to the football and attacking targets.\nOn the coach’s cue, the attackers deliver into the defensive area.\nDefenders decide whether to intercept mark, spoil, cover the dangerous target or support a teammate.\nIf possession is won, defenders attempt to exit through a wing gate.\nPlay continues for six seconds after the initial contest.\nObservers rate defender positioning before the kick, contest decision and exit action.\nEach defensive pair completes eight to twelve entries.\nAttackers vary the entry angle and target.\nDefenders rotate roles and partners.\nClearly untestable entries are repeated.\nVideo may be used to review starting position and decision timing.",
+    "coachingPoints": [
+      "Observe the defender before the kick is delivered.",
+      "Assess positioning relative to ball, opponent and goal.",
+      "Reward correct decisions even when execution is imperfect.",
+      "Distinguish intercept opportunities from situations requiring a spoil.",
+      "Record communication between defenders.",
+      "Continue assessment into the defensive exit.",
+      "Avoid predictable entry patterns.",
+      "Apply legal contest rules."
+    ],
+    "coachingCues": [
+      "“See ball and opponent.”",
+      "“Protect the dangerous space.”",
+      "“Go when you can.”",
+      "“Spoil when you must.”",
+      "“Exit with control.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Initial position.",
+      "Scanning between football and opponent.",
+      "Movement as the football changes sides.",
+      "Timing of the intercept movement.",
+      "Decision to mark, spoil or hold position.",
+      "Communication.",
+      "Contest outcome.",
+      "First disposal after possession is won."
+    ],
+    "commonErrors": [
+      {
+        "error": "Assessment begins only when the kick is delivered.",
+        "correction": "Record positioning throughout the attacking build-up."
+      },
+      {
+        "error": "Every defender is expected to attack the intercept.",
+        "correction": "Assess role balance and dangerous-space protection."
+      },
+      {
+        "error": "Poor attacking kicks inflate defensive results.",
+        "correction": "Repeat untestable entries."
+      },
+      {
+        "error": "Winning the football ends the repetition.",
+        "correction": "Continue into the defensive exit."
+      },
+      {
+        "error": "Communication is not recorded.",
+        "correction": "Include early calls and teammate organisation in the rating."
+      }
+    ],
+    "progressions": [
+      "Add a third attacker.",
+      "Add live forward pressure after interception.",
+      "Increase entry speed.",
+      "Include ground-level entries.",
+      "Add scoreboard scenarios.",
+      "Use full defensive-50 match simulation."
+    ],
+    "regressions": [
+      "Pre-call the target.",
+      "Use one attacker and one defender.",
+      "Reduce contact.",
+      "Slow the attacking circulation.",
+      "Allow defenders a numerical advantage.",
+      "Stop after the first contest."
+    ],
+    "successIndicators": [
+      "Maintain effective starting position.",
+      "Scan football and opponent.",
+      "Recognise intercept opportunities.",
+      "Choose the correct aerial action.",
+      "Communicate with teammates.",
+      "Win or neutralise entries.",
+      "Initiate a controlled defensive exit."
+    ],
+    "matchApplication": "Intercept defenders must read play before the football is kicked. Positioning, judgement and communication determine whether they can attack the football without exposing dangerous space behind them.",
+    "relatedDrills": [
+      "TA-004 – Marking Reliability and Ball-Judgement Test",
+      "TA-015 – Spoiling Direction and Recovery Test"
+    ]
+  },
+  {
+    "drillId": "TA-045",
+    "title": "Forward Involvement and Scoring Impact Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-046",
+    "title": "Communication and On-Field Leadership Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-047",
+    "title": "Player Self-Rating and Coach-Rating Alignment Review",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-048",
+    "title": "Video-Based Performance Review Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-049",
+    "title": "Benchmark and Percentile Interpretation Exercise",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-050",
+    "title": "Integrated Match Performance Assessment Battery",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-051",
+    "title": "Tactical Role Compliance and Adaptability Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-052",
+    "title": "Score-and-Time Scenario Decision Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-053",
+    "title": "Field-Zone Risk and Reward Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-054",
+    "title": "Kick-In Structure and Defensive Exit Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-055",
+    "title": "Centre-Bounce Connection and Clearance Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "Centre-bounce connection assessment",
+    "secondarySkills": [
+      "Ruck connection",
+      "Midfield positioning",
+      "First possession",
+      "Blocking",
+      "Clearance decision making",
+      "Defensive accountability",
+      "Forward connection",
+      "Post-clearance transition"
+    ],
+    "objective": "Assess the ability of rucks, midfielders and connected players to execute centre-bounce roles and convert the initial contest into an effective clearance or defensive response.",
+    "ageGroups": {},
+    "skillLevel": "Advanced to Elite",
+    "players": "Minimum: 10 Ideal: 14–22 Maximum: 28",
+    "groundSize": "Centre square extending approximately forty metres in each direction.",
+    "equipment": [
+      "Footballs",
+      "Centre-square markings or cones",
+      "Bibs",
+      "Forward and defensive exit gates",
+      "Observation sheets or tablets",
+      "Whistles",
+      "Video equipment where available"
+    ],
+    "time": "35–50 minutes",
+    "physicalLoad": "4 – High",
+    "mentalLoad": "5 – Elite",
+    "contact": "3 – Match-Like Contact",
+    "coachingDifficulty": "5 – Expert",
+    "sessionPlacement": [
+      "Assessment",
+      "Ruck and Stoppage Craft",
+      "Match Preparation"
+    ],
+    "setup": "Create two centre-bounce units with one ruck and nominated midfield roles.\nPosition connected wing, half-forward and half-back players outside the centre square.\nMark attacking and defensive exit gates.\nDefine legal contact and centre-bounce rules.\nPrepare role-specific criteria for ruck, inside midfielder, defensive midfielder, outside release and connected players.\nAssign observers to individual roles.\nUse a consistent ball-up or throw-up process.",
+    "howTheDrillWorks": "Players begin in assigned centre-bounce positions.\nThe coach restarts play from the centre.\nTeams compete to win the initial hit-out and clearance.\nPlay continues for eight to ten seconds after the first possession.\nA successful attacking phase requires the football to pass through the attacking gate under control.\nA defensive success includes winning possession, forcing a neutral stoppage or preventing a clean opposition exit.\nComplete six centre bounces before changing selected roles.\nUse varied ruck-hit plans and starting relationships.\nObservers assess starting position, role execution, communication, contest action and post-clearance movement.\nRuck and midfield results are recorded separately and as a connected unit.\nComplete at least two blocks against different opposition setups.\nVideo may be reviewed to confirm blocking and movement timing.",
+    "coachingPoints": [
+      "Assess the connection between ruck and midfielders.",
+      "Record role execution rather than clearances alone.",
+      "Observe starting positions before the ball is in motion.",
+      "Include blocking, protection and defensive accountability.",
+      "Continue play beyond first possession.",
+      "Assess outside players who support the clearance.",
+      "Apply legal contact rules.",
+      "Avoid evaluating the ruck solely by total hit-outs."
+    ],
+    "coachingCues": [
+      "“Connect before the bounce.”",
+      "“Own your starting role.”",
+      "“Protect first possession.”",
+      "“Clear with purpose.”",
+      "“React after the contest.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Ruck and midfielder communication.",
+      "Starting positions.",
+      "Movement timing.",
+      "Hit-out direction.",
+      "First-possession body position.",
+      "Blocking and protection.",
+      "Clearance option selection.",
+      "Defensive accountability.",
+      "Connection to players outside the square.",
+      "Reaction after a lost clearance."
+    ],
+    "commonErrors": [
+      {
+        "error": "Only the clearance winner is rated positively.",
+        "correction": "Assess blocking, pressure, protection and defensive role execution."
+      },
+      {
+        "error": "Play stops after first possession.",
+        "correction": "Continue through the exit or defensive response."
+      },
+      {
+        "error": "Ruck results are separated from midfield movement.",
+        "correction": "Record both individual and unit connection."
+      },
+      {
+        "error": "Illegal holding is ignored.",
+        "correction": "Stop and repeat the contest under legal-contact rules."
+      },
+      {
+        "error": "Every repetition uses the same hit plan.",
+        "correction": "Vary the intended hit zone and opposition structure."
+      }
+    ],
+    "progressions": [
+      "Add scoreboard scenarios.",
+      "Introduce a late tactical change.",
+      "Add full forward and defensive structures.",
+      "Use different ruck combinations.",
+      "Begin with an unexpected hit-zone call.",
+      "Continue into full-ground match simulation."
+    ],
+    "regressions": [
+      "Use unopposed ruck taps.",
+      "Pre-call the hit zone.",
+      "Reduce contact.",
+      "Use three midfielders without outside connections.",
+      "Stop after the first effective clearance.",
+      "Walk through starting positions."
+    ],
+    "successIndicators": [
+      "Communicate the stoppage plan.",
+      "Begin in effective positions.",
+      "Execute assigned roles.",
+      "Protect or pressure first possession.",
+      "Select appropriate clearance options.",
+      "Connect with players outside the contest.",
+      "Defend effectively after losing the clearance.",
+      "Adapt to opposition structures."
+    ],
+    "matchApplication": "Centre bounces create immediate scoring and defensive consequences. This assessment measures the connection between the ruck, inside midfielders and surrounding structure rather than relying only on raw clearance totals.",
+    "relatedDrills": [
+      "TA-017 – Ruck Hit-Zone Accuracy Test",
+      "TA-018 – Stoppage Role Execution Assessment"
+    ]
+  },
+  {
+    "drillId": "TA-056",
+    "title": "Forward-Entry Quality and Retention Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-057",
+    "title": "Team Defensive Structure and Rotation Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "",
+    "secondarySkills": [],
+    "objective": "",
+    "ageGroups": {},
+    "skillLevel": "",
+    "players": "",
+    "groundSize": "",
+    "equipment": [],
+    "time": "",
+    "physicalLoad": "",
+    "mentalLoad": "",
+    "contact": "",
+    "coachingDifficulty": "",
+    "sessionPlacement": [],
+    "setup": "",
+    "howTheDrillWorks": "",
+    "coachingPoints": [],
+    "coachingCues": [],
+    "whatTheCoachShouldObserve": [],
+    "commonErrors": [],
+    "progressions": [],
+    "regressions": [],
+    "successIndicators": [],
+    "matchApplication": "",
+    "relatedDrills": []
+  },
+  {
+    "drillId": "TA-058",
+    "title": "Full-Phase Transition Chain Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "Multi-phase transition assessment",
+    "secondarySkills": [
+      "Defensive recovery",
+      "Intercept possession",
+      "Ball movement",
+      "Running support",
+      "Forward entry",
+      "Forward pressure",
+      "Structural reset",
+      "Communication"
+    ],
+    "objective": "Assess whether players can connect defence, transition, forward entry and turnover response across a complete football phase.",
+    "ageGroups": {},
+    "skillLevel": "Advanced to Elite",
+    "players": "Minimum: 16 Ideal: 22–36 Maximum: Full Squad",
+    "groundSize": "Full oval or a long three-quarter-ground area.",
+    "equipment": [
+      "Footballs",
+      "Cones",
+      "Bibs",
+      "Goalposts",
+      "Phase markers",
+      "Observation sheets or tablets",
+      "Whistles",
+      "Stopwatches",
+      "Video equipment"
+    ],
+    "time": "45–70 minutes",
+    "physicalLoad": "5 – Very High / Match Intensity",
+    "mentalLoad": "5 – Elite",
+    "contact": "3 – Match-Like Contact",
+    "coachingDifficulty": "5 – Expert",
+    "sessionPlacement": [
+      "Assessment",
+      "Transition Block",
+      "Match Simulation",
+      "Final Main Activity"
+    ],
+    "setup": "Divide players into two balanced teams with full positional structure.\nBegin each repetition from an opposition attack inside 50.\nAssign observers to defensive, midfield and forward lines.\nPrepare phase-assessment categories:\nDefensive contest.\nPossession win.\nFirst exit.\nRunning support.\nMidfield connection.\nForward entry.\nScore creation.\nForward pressure.\nDefensive reset after turnover.\nEstablish match-like contact and safety rules.\nUse video where possible to capture the complete field.",
+    "howTheDrillWorks": "The attacking team begins with possession outside the opposition defensive 50.\nThe defending team attempts to win possession or force a turnover.\nWhen possession changes, the defending team immediately attacks the opposite end.\nPlay continues through defensive exit, midfield transition and forward entry.\nIf the new attacking team scores, the repetition ends.\nIf possession turns over again, play continues until one team scores, exits cleanly or the time limit expires.\nEach repetition lasts a maximum of forty-five seconds.\nTeams reset to the original starting phase.\nComplete eight to twelve full-phase repetitions.\nVary the initial attacking side and method of entry.\nObservers score each phase separately and record where the chain breaks down.\nIndividual and unit results are reviewed after the activity.",
+    "coachingPoints": [
+      "Assess every phase rather than only the final score.",
+      "Observe the first movement after possession changes.",
+      "Record whether players create width, depth and forward support.",
+      "Assess the balance behind the football.",
+      "Continue after secondary turnovers.",
+      "Identify the exact phase where structure or execution fails.",
+      "Use realistic time limits.",
+      "Provide sufficient recovery between high-intensity blocks."
+    ],
+    "coachingCues": [
+      "“React on possession change.”",
+      "“Connect the next line.”",
+      "“Run to support.”",
+      "“Enter with purpose.”",
+      "“Reset if it turns over.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Defensive contest and recovery.",
+      "First disposal after possession is won.",
+      "Running support from behind and ahead.",
+      "Midfield width and connection.",
+      "Forward structure.",
+      "Quality of inside-50 entry.",
+      "Forward-pressure response.",
+      "Defensive balance behind attacking play.",
+      "Communication throughout the phase.",
+      "Work rate after secondary turnovers."
+    ],
+    "commonErrors": [
+      {
+        "error": "Only the final score is used to judge the repetition.",
+        "correction": "Rate each transition phase separately."
+      },
+      {
+        "error": "The activity stops after a secondary turnover.",
+        "correction": "Continue until the phase reaches its defined end."
+      },
+      {
+        "error": "Players sprint forward without defensive balance.",
+        "correction": "Record support ahead and protection behind the football."
+      },
+      {
+        "error": "Observers follow the football and miss line movement.",
+        "correction": "Assign observers to specific lines or roles."
+      },
+      {
+        "error": "Repetitions are too long and become unstructured.",
+        "correction": "Apply a clear phase time limit and reset rule."
+      }
+    ],
+    "progressions": [
+      "Add scoreboard and time scenarios.",
+      "Start from stoppages or kick-ins.",
+      "Remove the fixed time limit.",
+      "Use full competitive match periods.",
+      "Link observations with GPS or running data.",
+      "Add tactical changes between blocks."
+    ],
+    "regressions": [
+      "Use three-quarter-ground space.",
+      "Provide the transitioning team with numerical advantage.",
+      "Remove match-like contact.",
+      "Stop after the first forward entry.",
+      "Pre-call the first exit side.",
+      "Reduce repetition length."
+    ],
+    "successIndicators": [
+      "React immediately to possession changes.",
+      "Secure and use the first disposal effectively.",
+      "Provide connected running support.",
+      "Maintain width and depth.",
+      "Deliver to forward advantage.",
+      "Apply pressure after turnovers.",
+      "Protect the ground behind attacking play.",
+      "Repeat efforts across multiple phases."
+    ],
+    "matchApplication": "Australian football is played through connected phases rather than isolated drills. This assessment identifies where a team’s transition chain succeeds or fails from defensive possession through to scoring opportunity and defensive reset.",
+    "relatedDrills": [
+      "TA-019 – Defensive Transition Response Test",
+      "TA-038 – Off-Ball Work-Rate Observation Assessment",
+      "TA-050 – Integrated Match Performance Assessment Battery"
+    ]
+  },
+  {
+    "drillId": "TA-059",
+    "title": "Individual Development Plan Validation Review",
+    "category": "Testing and Assessment",
+    "primarySkill": "Individual development-plan validation",
+    "secondarySkills": [
+      "Data interpretation",
+      "Goal review",
+      "Player reflection",
+      "Coach feedback",
+      "Training evaluation",
+      "Evidence comparison",
+      "Action planning"
+    ],
+    "objective": "Determine whether each player’s current individual development plan is supported by testing, training and match evidence and update the plan with clear, achievable actions.",
+    "ageGroups": {},
+    "skillLevel": "All Levels",
+    "players": "Minimum: 1 Ideal: Full Squad through individual reviews Maximum: Multiple Squads",
+    "groundSize": "Private meeting area with an optional football area for practical verification.",
+    "equipment": [
+      "Existing individual development plans",
+      "Testing records",
+      "Match-observation reports",
+      "Training attendance and behaviour records",
+      "Video clips where available",
+      "Player self-assessment form",
+      "Coach-rating form",
+      "Computer or tablet",
+      "Updated development-plan template"
+    ],
+    "time": "20–30 minutes per player",
+    "physicalLoad": "1 – Very Low",
+    "mentalLoad": "5 – Elite",
+    "contact": "0 – No Contact",
+    "coachingDifficulty": "5 – Expert",
+    "sessionPlacement": [
+      "Assessment",
+      "Player Review",
+      "Leadership Development"
+    ],
+    "setup": "Collect the player’s current development plan.\nGather relevant technical, physical, tactical and match-assessment evidence.\nReview the original goals, actions and review dates.\nAsk the player to complete a short self-assessment before the meeting.\nIdentify goals that have been achieved, progressed, unchanged or invalidated by new evidence.\nPrepare a private review setting.\nLimit the revised plan to a manageable number of priorities.",
+    "howTheDrillWorks": "The player explains their current development goals.\nThe coach reviews the original actions and expected outcomes.\nThe player presents their view of progress.\nTesting, training, match and video evidence is compared with the original baseline.\nEach current goal is classified as achieved, progressing, unchanged, unsuitable or no longer relevant.\nCoaches and players identify the reason for success or limited progress.\nExisting goals are retained, modified or replaced.\nNo more than two primary development priorities are selected.\nEach priority receives a specific training action, responsible person and review date.\nSuccess measures are defined in observable terms.\nThe player confirms understanding and commitment.\nThe updated plan is stored securely and shared with relevant coaching staff.",
+    "coachingPoints": [
+      "Use multiple evidence sources.",
+      "Ask the player to reflect before giving the coach’s conclusion.",
+      "Distinguish lack of progress from an unsuitable goal or intervention.",
+      "Avoid changing goals because of one poor performance.",
+      "Limit the number of priorities.",
+      "Make actions specific and achievable.",
+      "Include player strengths.",
+      "Set a defined review date."
+    ],
+    "coachingCues": [
+      "“Review the evidence.”",
+      "“What has changed?”",
+      "“Keep the priorities clear.”",
+      "“Choose practical actions.”",
+      "“Set the next review.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Player understanding of previous goals.",
+      "Accuracy of self-reflection.",
+      "Evidence of improvement.",
+      "Areas where testing and match performance disagree.",
+      "Whether training actions were completed.",
+      "Barriers to progress.",
+      "Motivation and confidence.",
+      "Whether revised goals match the player’s role."
+    ],
+    "commonErrors": [
+      {
+        "error": "Goals are changed without reviewing evidence.",
+        "correction": "Compare baseline, current results and observed behaviour first."
+      },
+      {
+        "error": "Players receive a long list of weaknesses.",
+        "correction": "Limit the plan to one or two primary priorities."
+      },
+      {
+        "error": "Lack of progress is blamed entirely on effort.",
+        "correction": "Review the quality, opportunity and suitability of the intervention."
+      },
+      {
+        "error": "Goals are vague.",
+        "correction": "Define observable behaviours, actions and review dates."
+      },
+      {
+        "error": "The player has no voice in the review.",
+        "correction": "Require self-assessment and discussion before finalising the plan."
+      }
+    ],
+    "progressions": [
+      "Add position-coach and strength-and-conditioning input.",
+      "Use edited video examples.",
+      "Create digital progress dashboards.",
+      "Add player-led goal presentations.",
+      "Compare multiple seasonal review points.",
+      "Link plans with selection and role-development pathways."
+    ],
+    "regressions": [
+      "Review one goal only.",
+      "Use a simple one-page form.",
+      "Conduct a shorter verbal review.",
+      "Use three-point progress categories.",
+      "Include parent or guardian support for younger players.",
+      "Compare only with the player’s own baseline."
+    ],
+    "successIndicators": [
+      "Understand their current development plan.",
+      "Reflect honestly on progress.",
+      "Recognise supporting evidence.",
+      "Identify practical next steps.",
+      "Commit to clear actions.",
+      "Know how success will be measured.",
+      "Know when the plan will be reviewed.",
+      "Coaches consistently:",
+      "Use balanced evidence.",
+      "Include strengths and development needs.",
+      "Set realistic priorities.",
+      "Record actions and review dates.",
+      "Communicate the plan to relevant staff."
+    ],
+    "matchApplication": "Testing and assessment should lead to improved football performance rather than remain as stored data. This review confirms that development goals remain relevant, evidence-based and connected to each player’s role.",
+    "relatedDrills": [
+      "TA-001 – Baseline Player Profile and Testing Orientation",
+      "TA-009 – Player Testing Data Record and Benchmark System",
+      "TA-047 – Player Self-Rating and Coach-Rating Alignment Review"
+    ]
+  },
+  {
+    "drillId": "TA-060",
+    "title": "Testing and Assessment Chapter Final Assessment",
+    "category": "Testing and Assessment",
+    "primarySkill": "Complete player and program assessment",
+    "secondarySkills": [
+      "Technical testing",
+      "Physical assessment",
+      "Tactical observation",
+      "Match-performance analysis",
+      "Data reliability",
+      "Player feedback",
+      "Development planning",
+      "Program evaluation"
+    ],
+    "objective": "Complete a final integrated assessment that verifies player performance across technical, physical, tactical and match demands while evaluating the reliability and practical value of the club’s testing system.",
+    "ageGroups": {},
+    "skillLevel": "Foundation to Elite",
+    "players": "Minimum: 12 Ideal: 20–36 Maximum: Full Squad",
+    "groundSize": "Full oval, half-oval testing stations and a private player-review area.",
+    "equipment": [
+      "Footballs",
+      "Cones",
+      "Bibs",
+      "Goalposts",
+      "Target gates",
+      "Stopwatches or timing gates",
+      "Vertical-jump equipment where required",
+      "Contact equipment",
+      "Testing sheets or tablets",
+      "Match-coding forms",
+      "Video equipment",
+      "Player self-assessment forms",
+      "Individual development-plan templates",
+      "Central data-recording system",
+      "First-aid equipment",
+      "Water"
+    ],
+    "time": "Two to three hours across one extended session or two separate sessions",
+    "physicalLoad": "5 – Very High / Match Intensity",
+    "mentalLoad": "5 – Elite",
+    "contact": "3 – Match-Like Contact",
+    "coachingDifficulty": "5 – Expert",
+    "sessionPlacement": [
+      "Assessment",
+      "Match Simulation",
+      "Final Main Activity",
+      "Player Review"
+    ],
+    "setup": "Review the complete Testing and Assessment chapter and select age- and role-appropriate measures.\nEstablish four assessment components:\nTechnical skill verification.\nFootball-specific physical and movement testing.\nTactical and positional assessment.\nIntegrated match-performance simulation.\nAssign trained staff to every testing and observation responsibility.\nCalibrate all coaches before testing.\nPrepare clear scoring, validity and modification rules.\nDivide the squad into balanced testing groups.\nEstablish recovery periods and medical oversight.\nPrepare video coverage and a central data-control point.\nEnsure individual development plans and previous baseline results are available.",
+    "howTheDrillWorks": "Players complete a standardised warm-up.\nEach player completes selected technical assessments covering kicking, handballing, marking and ground-ball work.\nPlayers complete role-appropriate movement assessments covering acceleration, agility, deceleration, repeat effort or aerial capability.\nAll raw results, test versions and modifications are recorded.\nPlayers receive a recovery break.\nThe squad completes a tactical assessment covering role execution, field-position decisions or structured team phases.\nTeams then complete an integrated match simulation.\nObservers code possession quality, contested involvement, off-ball work, communication, transition and positional role execution.\nVideo is used to verify key actions and uncertain ratings.\nPlayers complete a self-assessment after the practical session.\nCoaches check all data before interpreting results.\nResults are compared with previous baselines and appropriate role benchmarks.\nEach player receives a review containing verified strengths and no more than two development priorities.\nIndividual development plans are updated.\nCoaches review the reliability, efficiency and usefulness of every test used.\nTests that do not produce reliable or actionable information are modified or removed from future batteries.",
+    "coachingPoints": [
+      "Use only tests appropriate to the players and purpose.",
+      "Standardise instructions, equipment and conditions.",
+      "Preserve raw data.",
+      "Record invalid and modified attempts clearly.",
+      "Separate decision quality from execution.",
+      "Interpret physical results with football performance.",
+      "Use multiple observations before reaching conclusions.",
+      "Avoid creating one overall player ranking.",
+      "Protect player privacy.",
+      "Convert every meaningful finding into a coaching or development action."
+    ],
+    "coachingCues": [
+      "“Same test, same standard.”",
+      "“Record the evidence.”",
+      "“Assess the complete player.”",
+      "“Compare with context.”",
+      "“Turn results into action.”"
+    ],
+    "whatTheCoachShouldObserve": [
+      "Reliability of technical execution.",
+      "Movement strengths and limitations.",
+      "Skill quality under fatigue or pressure.",
+      "Tactical role understanding.",
+      "Match decision making.",
+      "Contested and off-ball contribution.",
+      "Communication and leadership.",
+      "Transition response.",
+      "Agreement between player and coach ratings.",
+      "Whether testing results match observed football performance.",
+      "Whether the assessment process produces useful training priorities.",
+      "Whether any test creates unnecessary load or limited practical value."
+    ],
+    "commonErrors": [
+      {
+        "error": "Every available test is included regardless of purpose.",
+        "correction": "Select measures linked to age, role and development needs."
+      },
+      {
+        "error": "Players are ranked using one combined score.",
+        "correction": "Report technical, physical, tactical and match categories separately."
+      },
+      {
+        "error": "Modified tests are compared directly with standard results.",
+        "correction": "Identify modifications and use appropriate comparisons."
+      },
+      {
+        "error": "Coaches collect data without changing training.",
+        "correction": "Assign practical actions to every confirmed priority."
+      },
+      {
+        "error": "One match period determines the final assessment.",
+        "correction": "Use testing, training, video and repeated match evidence."
+      },
+      {
+        "error": "Players receive excessive negative feedback.",
+        "correction": "Present verified strengths and no more than two priorities."
+      },
+      {
+        "error": "The testing system itself is never reviewed.",
+        "correction": "Evaluate reliability, efficiency, safety and coaching usefulness."
+      }
+    ],
+    "progressions": [
+      "Link testing with official match statistics and running data.",
+      "Create multi-season player-development dashboards.",
+      "Build role-specific benchmark ranges.",
+      "Add formal assessor accreditation.",
+      "Conduct independent reliability audits.",
+      "Compare development interventions across groups.",
+      "Create pathway, senior and masters testing batteries.",
+      "Use the complete system at pre-season, mid-season and post-season checkpoints."
+    ],
+    "regressions": [
+      "Complete the assessment across multiple sessions.",
+      "Use a four-test foundation battery.",
+      "Remove maximal or contact testing.",
+      "Compare only with the player’s previous baseline.",
+      "Use simplified observation categories.",
+      "Conduct shorter match-simulation periods.",
+      "Provide additional recovery.",
+      "Use age-appropriate player feedback formats."
+    ],
+    "successIndicators": [
+      "Complete valid and safe assessments.",
+      "Demonstrate identifiable technical, physical and tactical strengths.",
+      "Understand their results.",
+      "Recognise one or two priority development areas.",
+      "Contribute to their updated development plan.",
+      "Understand the actions required before the next review.",
+      "Coaches consistently:",
+      "Apply common testing standards.",
+      "Record reliable raw information.",
+      "Interpret results in role and match context.",
+      "Use multiple evidence sources.",
+      "Avoid simplistic rankings.",
+      "Provide balanced player feedback.",
+      "Convert findings into individual and squad training priorities.",
+      "Review and improve the assessment system itself."
+    ],
+    "matchApplication": "The final assessment connects isolated skill tests, football-specific movement, tactical understanding and match behaviour. It ensures the Testing and Assessment chapter produces practical coaching decisions, reliable player feedback and measurable development rather than disconnected testing results.",
+    "relatedDrills": [
+      "TA-001 to TA-010 – Foundation Testing and Assessment Battery",
+      "TA-011 to TA-020 – Technical and Contest Assessment",
+      "TA-021 to TA-040 – Football Movement, Physical and Fatigue Assessment",
+      "TA-041 to TA-050 – Match Performance, Observation and Review Assessment",
+      "TA-051 to TA-059 – Tactical, Team-System and Development-Plan Assessment",
+      "MS-100 – Match Simulation Chapter Final Assessment"
+    ]
+  }
+]
