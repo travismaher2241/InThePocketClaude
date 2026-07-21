@@ -2003,37 +2003,36 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
 
       const maxDiff = parseInt(effectiveCoachLevel || '3', 10);
 
-      let suitableDrills = SYLLABUS_DRILLS.filter(d => {
-        // Age suitability
-        const ageMatch = !d.ageGroups || Object.keys(d.ageGroups).length === 0 || d.ageGroups[ageKey] !== '✗';
-        if (!ageMatch) return false;
+      const parseDiff = (d) => {
+        if (!d || d.coachingDifficulty === undefined || d.coachingDifficulty === null) return 2;
+        if (typeof d.coachingDifficulty === 'number') return d.coachingDifficulty;
+        const match = String(d.coachingDifficulty).match(/(\d)/);
+        return match ? parseInt(match[1], 10) : 2;
+      };
 
-        // Coaching difficulty check: STRICTLY <= maxDiff (No expert Level 5 drills for Level 2 coach!)
-        let diffNum = 3;
-        if (d.coachingDifficulty) {
-          const match = String(d.coachingDifficulty).match(/^(\d)/);
-          if (match) diffNum = parseInt(match[1], 10);
-        }
-        
-        return diffNum <= maxDiff;
+      let suitableDrills = SYLLABUS_DRILLS.filter(d => {
+        const ageMatch = !d.ageGroups || Object.keys(d.ageGroups).length === 0 || d.ageGroups[ageKey] !== '✗';
+        const diffNum = parseDiff(d);
+        return ageMatch && diffNum <= maxDiff;
       });
 
       if (suitableDrills.length === 0) {
-        suitableDrills = SYLLABUS_DRILLS.filter(d => {
-          let diffNum = 3;
-          if (d.coachingDifficulty) {
-            const match = String(d.coachingDifficulty).match(/^(\d)/);
-            if (match) diffNum = parseInt(match[1], 10);
-          }
-          return diffNum <= maxDiff;
-        });
+        suitableDrills = SYLLABUS_DRILLS.filter(d => parseDiff(d) <= maxDiff);
+      }
+
+      if (suitableDrills.length === 0) {
+        suitableDrills = SYLLABUS_DRILLS.filter(d => parseDiff(d) <= maxDiff + 1);
+      }
+
+      if (suitableDrills.length === 0) {
+        suitableDrills = SYLLABUS_DRILLS;
       }
 
       // Filter to drills that match the selected chapter focus areas
       let matchingSyllabusDrills = [];
       if (targetPrefixes.length > 0) {
         matchingSyllabusDrills = suitableDrills.filter(d => 
-          targetPrefixes.some(pref => d.drillId.startsWith(pref))
+          d.drillId && targetPrefixes.some(pref => d.drillId.startsWith(pref))
         );
       }
 
