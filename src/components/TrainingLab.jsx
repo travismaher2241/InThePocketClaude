@@ -1936,7 +1936,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
           }
         }
       } catch (err) {
-        console.error("Gemini API request failed: ", err);
+        console.error("Gemini API request failed, falling back to local generator: ", err);
         if (err.message && (err.message.includes("Upgrade Required") || err.message.includes("Unauthorized"))) {
           setIsGenerating(false);
           setIsUpgradeModalOpen(true);
@@ -1946,16 +1946,18 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
     }
 
     // Procedural Fallback Engine (Runs locally)
-    setTimeout(() => {
-      setIsFallback(true);
-      const config = getCurriculumConfig(ageGroup);
-      
-      // Calculate scaled durations if total session is not 70 mins
-      const preGameMins = Math.max(5, Math.round(duration * (15/70)));
-      const q1Mins = Math.max(5, Math.round(duration * (10/70)));
-      const q2Mins = Math.max(10, Math.round(duration * (20/70)));
-      const q3Mins = Math.max(10, Math.round(duration * (15/70)));
-      const q4Mins = duration - preGameMins - q1Mins - q2Mins - q3Mins;
+    const runLocalFallback = () => {
+      try {
+        setIsFallback(true);
+        setIsGenerating(false);
+        const config = getCurriculumConfig(ageGroup);
+        
+        // Calculate scaled durations if total session is not 70 mins
+        const preGameMins = Math.max(5, Math.round(duration * (15/70)));
+        const q1Mins = Math.max(5, Math.round(duration * (10/70)));
+        const q2Mins = Math.max(10, Math.round(duration * (20/70)));
+        const q3Mins = Math.max(10, Math.round(duration * (15/70)));
+        const q4Mins = duration - preGameMins - q1Mins - q2Mins - q3Mins;
 
       // Groupings math
       let groupingLabel = "Split players into even lines.";
@@ -2285,14 +2287,20 @@ COACH'S LOGISTICS SUMMARY
         q4Card
       ];
 
-      setPlanCards(sanitizePlanCards(generatedFallbackCards, groundName, playerCount));
-      setIsGenerating(false);
-      const userTierClean = (subscriptionTier || 'Free').toLowerCase();
-      if (userTierClean === 'free' || userTierClean === 'default') {
-        setAiGensUsed(prev => prev + 1);
+        setPlanCards(sanitizePlanCards(generatedFallbackCards, groundName, playerCount));
+        const userTierClean = (subscriptionTier || 'Free').toLowerCase();
+        if (userTierClean === 'free' || userTierClean === 'default') {
+          setAiGensUsed(prev => prev + 1);
+        }
+        logSyncTransaction('LOCAL_FALLBACK_PLAN_GEN', { focus: focusAreas.join(", "), duration, playerCount, equipment: currentEquipment });
+      } catch (fallbackErr) {
+        console.error("Local procedural plan generation failed:", fallbackErr);
+      } finally {
+        setIsGenerating(false);
       }
-      logSyncTransaction('LOCAL_FALLBACK_PLAN_GEN', { focus: focusAreas.join(", "), duration, playerCount, equipment: currentEquipment });
-    }, 1500);
+    };
+
+    runLocalFallback();
   };
 
   const handlePlaybookFocus = () => {
