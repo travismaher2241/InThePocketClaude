@@ -194,7 +194,7 @@ export default function SetupWizard({
           {/* TEAM NAME */}
           <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600', color: '#ffffff', fontSize: '0.9rem' }}>
-              Team / Squad Name <span style={{ color: 'var(--color-training)' }}>*</span>
+              Team Name <span style={{ color: 'var(--color-training)' }}>*</span>
             </label>
             <input 
               type="text"

@@ -130,7 +130,15 @@ export default function App() {
           }
 
           const dbSettings = await getSquadSettings(currentUser.uid);
-          setSquadSettings(dbSettings);
+          const localSettingsStr = localStorage.getItem(getAppScopedKey('inthepocket_squad_settings'));
+          const localSettings = localSettingsStr ? JSON.parse(localSettingsStr) : null;
+          
+          const mergedSettings = {
+            squadName: 'My Team',
+            ...dbSettings,
+            ...localSettings
+          };
+          setSquadSettings(mergedSettings);
 
           const profile = await getUserProfile(currentUser.uid);
           // Check scoped localStorage profile fallback
@@ -331,20 +339,23 @@ export default function App() {
   };
 
   const handleSaveSettings = async (newSettings) => {
+    const cleanTeamName = (newSettings.squadName || newSettings.teamName || squadSettings?.squadName || userProfile?.teamName || 'My Team').trim();
+
     // 1. Update squadSettings state
     const nextSquadSettings = {
       ...squadSettings,
-      squadName: newSettings.squadName || squadSettings.squadName,
+      squadName: cleanTeamName,
       ageGroup: newSettings.ageGroup || squadSettings.ageGroup,
       equipment: newSettings.equipment || squadSettings.equipment
     };
     setSquadSettings(nextSquadSettings);
 
-    // 2. Update userProfile state with coach name, coach level, squad name, and age group
+    // 2. Update userProfile state with coach name, coach level, team name, and age group
     const updatedProfile = {
       ...(userProfile || {}),
       name: newSettings.coachName !== undefined ? newSettings.coachName : (userProfile?.name || ''),
-      teamName: newSettings.squadName || userProfile?.teamName || '',
+      teamName: cleanTeamName,
+      squadName: cleanTeamName,
       ageGroup: newSettings.ageGroup || userProfile?.ageGroup || '',
       primaryAgeGroup: newSettings.ageGroup || userProfile?.primaryAgeGroup || '',
       coachLevel: newSettings.coachLevel || userProfile?.coachLevel || '3',
@@ -363,13 +374,13 @@ export default function App() {
       try {
         await updateUserProfile(currentUser.uid, updatedProfile);
         await updateSquadSettings(nextSquadSettings, currentUser.uid);
-        showToast("Profile setup & command center settings updated successfully.");
+        showToast(`Team Name updated to "${cleanTeamName}".`);
       } catch (err) {
         console.warn("Cloud sync failed during settings save:", err);
-        showToast("Settings saved locally.");
+        showToast(`Team Name saved locally as "${cleanTeamName}".`);
       }
     } else {
-      showToast("Settings saved locally.");
+      showToast(`Team Name saved locally as "${cleanTeamName}".`);
     }
   };
 

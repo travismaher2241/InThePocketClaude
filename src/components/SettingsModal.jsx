@@ -214,16 +214,16 @@ export default function SettingsModal({
             </div>
           </div>
 
-          {/* Squad Info Settings */}
+          {/* Team Info Settings */}
           <div style={{ paddingTop: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
-            <h3 style={{ fontSize: '0.90rem', marginBottom: '12px', color: 'var(--color-squad)', textTransform: 'uppercase', fontWeight: '700' }}>Squad Configuration</h3>
+            <h3 style={{ fontSize: '0.90rem', marginBottom: '12px', color: 'var(--color-squad)', textTransform: 'uppercase', fontWeight: '700' }}>Team Configuration</h3>
             <div className="form-group" style={{ marginBottom: '12px' }}>
-              <label>Squad / Team Name</label>
+              <label>Team Name</label>
               <input 
                 type="text" 
                 value={squadName} 
                 onChange={(e) => setSquadName(e.target.value)} 
-                placeholder="e.g. U12 Jets"
+                placeholder="e.g. Richmond Tigers"
                 required
               />
             </div>
