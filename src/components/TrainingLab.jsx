@@ -1990,6 +1990,28 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       else if (agUpper.includes('SENIOR')) ageKey = "Senior Men";
       else if (agUpper.includes('OVER 35') || agUpper.includes('VETERAN') || agUpper.includes('MASTER')) ageKey = "Over 35 Men";
 
+      // Age Group Hierarchy: Allow target age group AND all age levels below it
+      const AGE_HIERARCHY = [
+        "Under 8",
+        "Under 10",
+        "Under 12",
+        "Under 14",
+        "Under 16",
+        "Under 18",
+        "Senior Women",
+        "Senior Men",
+        "Over 35 Men"
+      ];
+
+      let targetAgeIndex = AGE_HIERARCHY.indexOf(ageKey);
+      if (targetAgeIndex === -1) targetAgeIndex = 2; // Default to Under 12
+      const allowedAgeKeys = AGE_HIERARCHY.slice(0, targetAgeIndex + 1);
+
+      const isAgeSuitable = (d) => {
+        if (!d.ageGroups || Object.keys(d.ageGroups).length === 0) return true;
+        return allowedAgeKeys.some(key => d.ageGroups[key] && d.ageGroups[key] !== '✗');
+      };
+
       // Retrieve coach level directly from user profile / user-scoped storage
       let effectiveCoachLevel = '3';
       try {
@@ -2010,10 +2032,9 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
         return match ? parseInt(match[1], 10) : 2;
       };
 
+      // Suitable drills include target age & below, and coach maxDiff & below (e.g. Level 2 coach gets Level 2 + Level 1)
       let suitableDrills = SYLLABUS_DRILLS.filter(d => {
-        const ageMatch = !d.ageGroups || Object.keys(d.ageGroups).length === 0 || d.ageGroups[ageKey] !== '✗';
-        const diffNum = parseDiff(d);
-        return ageMatch && diffNum <= maxDiff;
+        return isAgeSuitable(d) && parseDiff(d) <= maxDiff;
       });
 
       if (suitableDrills.length === 0) {
