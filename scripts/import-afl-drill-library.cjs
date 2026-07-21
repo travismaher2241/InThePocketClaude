@@ -121,68 +121,17 @@ async function runImporter() {
     if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
       return fs.existsSync(process.env.GOOGLE_APPLICATION_CREDENTIALS);
     }
+    const userHome = process.env.USERPROFILE || process.env.HOMEPATH || process.env.HOME;
     const appData = process.env.APPDATA;
-    if (appData) {
-      const defaultPath = path.join(appData, 'gcloud', 'application_default_credentials.json');
-      if (fs.existsSync(defaultPath)) return true;
-    }
-    return false;
-  }
+    const localAppData = process.env.LOCALAPPDATA;
 
-  function getFirebaseCliToken() {
-    try {
-      const configPath = path.join(process.env.USERPROFILE || process.env.HOMEPATH, '.config', 'configstore', 'firebase-tools.json');
-      if (fs.existsSync(configPath)) {
-        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-        if (config.tokens && config.tokens.active && config.tokens.active.refresh_token) {
-          return config.tokens.active.refresh_token;
-        }
-      }
-    } catch (e) {
-      // ignore
-    }
-    return null;
-  }
+    const possibleAdcPaths = [
+      appData ? path.join(appData, 'gcloud', 'application_default_credentials.json') : null,
+      localAppData ? path.join(localAppData, 'gcloud', 'application_default_credentials.json') : null,
+      userHome ? path.join(userHome, '.config', 'gcloud', 'application_default_credentials.json') : null
+    ].filter(Boolean);
 
-  function getAccessTokenFromRefreshToken(refreshToken) {
-    return new Promise((resolve, reject) => {
-      const data = JSON.stringify({
-        client_id: "563584335869-uu3v1rfj22o07rhnbgl87qa1kkvtdg3r.apps.googleusercontent.com",
-        client_secret: "6G92O72R08gZ61jaGZQD3q5c",
-        grant_type: "refresh_token",
-        refresh_token: refreshToken
-      });
-
-      const req = https.request({
-        hostname: 'oauth2.googleapis.com',
-        port: 443,
-        path: '/token',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': data.length
-        }
-      }, (res) => {
-        let body = '';
-        res.on('data', chunk => body += chunk);
-        res.on('end', () => {
-          try {
-            const parsed = JSON.parse(body);
-            if (parsed.access_token) {
-              resolve(parsed.access_token);
-            } else {
-              reject(new Error(parsed.error_description || 'Failed to exchange refresh token'));
-            }
-          } catch (e) {
-            reject(e);
-          }
-        });
-      });
-
-      req.on('error', reject);
-      req.write(data);
-      req.end();
-    });
+    return possibleAdcPaths.some(p => fs.existsSync(p));
   }
 
   // Initialize status flags
@@ -193,36 +142,24 @@ async function runImporter() {
 
   // Verify credentials setup if needed
   if (checkFirestore || execute || resume) {
-    const cliRefreshToken = getFirebaseCliToken();
-    if (!hasLocalCredentials() && !cliRefreshToken) {
+    if (!hasLocalCredentials()) {
       hasCredentials = false;
       firestoreConnectivity = 'NOT_TESTED_NO_CREDENTIALS';
       
       if (execute || resume) {
         console.error('========================================================================');
         console.error('FATAL: Credentials not available or unauthorized for execution.');
-        console.error('Please configure Google Application Default Credentials (ADC) or run');
-        console.error('"firebase login" in your terminal to authenticate.');
-        console.error('Windows PowerShell instructions for service account key:');
+        console.error('Please configure Google Application Default Credentials (ADC):');
+        console.error('Option 1 (PowerShell environment variable for external key file):');
         console.error('  $env:GOOGLE_APPLICATION_CREDENTIALS = "C:\\secure-location\\coachcore-service-account.json"');
+        console.error('Option 2 (Google Cloud local ADC login):');
+        console.error('  gcloud auth application-default login');
         console.error('========================================================================');
         process.exit(1);
       }
     } else {
       try {
-        let credentialObj;
-        if (hasLocalCredentials()) {
-          credentialObj = applicationDefault();
-        } else {
-          console.log('Detected Firebase CLI authenticated session. Exchanging token...');
-          const accessToken = await getAccessTokenFromRefreshToken(cliRefreshToken);
-          credentialObj = {
-            getAccessToken: () => Promise.resolve({
-              access_token: accessToken,
-              expires_in: 3600
-            })
-          };
-        }
+        const credentialObj = applicationDefault();
 
         hasCredentials = true;
         firestoreConnectivity = 'CONNECTED';
@@ -246,8 +183,11 @@ async function runImporter() {
           console.error('========================================================================');
           console.error('FATAL: Credentials not available or unauthorized for execution.');
           console.error(err.message);
-          console.error('Please configure Google Application Default Credentials (ADC) or run');
-          console.error('"firebase login" in your terminal.');
+          console.error('Please configure Google Application Default Credentials (ADC):');
+          console.error('Option 1 (PowerShell environment variable for external key file):');
+          console.error('  $env:GOOGLE_APPLICATION_CREDENTIALS = "C:\\secure-location\\coachcore-service-account.json"');
+          console.error('Option 2 (Google Cloud local ADC login):');
+          console.error('  gcloud auth application-default login');
           console.error('========================================================================');
           process.exit(1);
         }
