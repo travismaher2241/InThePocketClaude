@@ -355,28 +355,28 @@ function DrillSetupVisualizer({ instructions, title, groundName = "home ground" 
 
 const AFL_FOCUS_AREAS_CATEGORIES = {
   'Foundational Fundamentals (Vol 1 & 2)': [
-    'Chapter 1 - Kicking',
-    'Chapter 2 - Handballing',
-    'Chapter 3 - Marking',
-    'Chapter 4 - Ground Balls',
-    'Chapter 8 - Evasion, Agility and Movement'
+    'Kicking',
+    'Handballing',
+    'Marking',
+    'Ground Balls',
+    'Evasion, Agility and Movement'
   ],
   'Contest & Defensive Craft': [
-    'Chapter 5 - Tackling and Pressure',
-    'Chapter 6 - Spoiling and Aerial Defence',
-    'Chapter 7 - Ruck and Stoppage Craft'
+    'Tackling and Pressure',
+    'Spoiling and Aerial Defence',
+    'Ruck and Stoppage Craft'
   ],
   'Tactical & Team Structure': [
-    'Chapter 9 - Decision Making',
-    'Chapter 10 - Team Offence',
-    'Chapter 11 - Team Defence',
-    'Chapter 12 - Transition'
+    'Decision Making',
+    'Team Offence',
+    'Team Defence',
+    'Transition'
   ],
   'Conditioning & Game Application': [
-    'Chapter 13 - Conditioning with Football',
-    'Chapter 14 - Small-Sided Games',
-    'Chapter 15 - Match Simulation',
-    'Chapter 16 - Testing and Assessment'
+    'Conditioning with Football',
+    'Small-Sided Games',
+    'Match Simulation',
+    'Testing and Assessment'
   ]
 };
 
@@ -1322,7 +1322,7 @@ export default function TrainingLab({
     if (draft?.focusAreas && draft.focusAreas.length > 0) {
       return draft.focusAreas;
     }
-    return ['Chapter 1 - Kicking'];
+    return ['Kicking'];
   });
 
   const getGlobalEquipment = () => {
@@ -1352,7 +1352,7 @@ export default function TrainingLab({
   useEffect(() => {
     // Only prefill with the default if there are no focus areas selected
     if (focusAreas.length === 0) {
-      setFocusAreas(['Chapter 1 - Kicking']);
+      setFocusAreas(['Kicking']);
     }
   }, []);
 
@@ -1412,7 +1412,7 @@ export default function TrainingLab({
     setPresentIds([]);
     setDuration(60);
     setCoachLevel('3');
-    setFocusAreas(['Chapter 1 - Kicking']);
+    setFocusAreas(['Kicking']);
     setCustomPlaybookText('');
     setPlanCards([]);
   };
