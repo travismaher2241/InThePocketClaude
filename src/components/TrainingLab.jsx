@@ -380,6 +380,14 @@ const AFL_FOCUS_AREAS_CATEGORIES = {
   ]
 };
 
+const ALL_VALID_FOCUS_AREAS = Object.values(AFL_FOCUS_AREAS_CATEGORIES).flat();
+
+function sanitizeFocusAreas(rawList) {
+  if (!Array.isArray(rawList)) return ['Kicking'];
+  const valid = rawList.filter(item => ALL_VALID_FOCUS_AREAS.includes(item));
+  return valid.length > 0 ? valid : ['Kicking'];
+}
+
 function getPrefixFromFocus(focusName) {
   if (!focusName) return '';
   const f = focusName.toLowerCase();
@@ -1319,10 +1327,7 @@ export default function TrainingLab({
   const [duration, setDuration] = useState(draft?.duration || 60);
   const [coachLevel, setCoachLevel] = useState(draft?.coachLevel || '3');
   const [focusAreas, setFocusAreas] = useState(() => {
-    if (draft?.focusAreas && draft.focusAreas.length > 0) {
-      return draft.focusAreas;
-    }
-    return ['Kicking'];
+    return sanitizeFocusAreas(draft?.focusAreas);
   });
 
   const getGlobalEquipment = () => {
@@ -1350,20 +1355,18 @@ export default function TrainingLab({
   const group2 = totalPlayersCount - group1;
 
   useEffect(() => {
-    // Only prefill with the default if there are no focus areas selected
-    if (focusAreas.length === 0) {
-      setFocusAreas(['Kicking']);
-    }
+    setFocusAreas(prev => sanitizeFocusAreas(prev));
   }, []);
 
   const handleToggleFocus = (f) => {
     setFocusAreas((prev) => {
-      if (prev.includes(f)) {
-        if (prev.length === 1) return prev;
-        return prev.filter(item => item !== f);
+      const sanitized = sanitizeFocusAreas(prev);
+      if (sanitized.includes(f)) {
+        if (sanitized.length === 1) return sanitized;
+        return sanitized.filter(item => item !== f);
       } else {
-        if (prev.length >= 4) return prev;
-        return [...prev, f];
+        if (sanitized.length >= 4) return sanitized;
+        return [...sanitized, f];
       }
     });
   };
