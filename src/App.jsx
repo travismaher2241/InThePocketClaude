@@ -336,39 +336,48 @@ export default function App() {
   };
 
   const handleCompleteSetup = async (setupData) => {
+    // 1. Prepare user profile and squad settings objects
+    const updatedProfile = {
+      ...(userProfile || {}),
+      ...setupData,
+      primaryAgeGroup: setupData.ageGroup,
+      hasCompletedSetup: true
+    };
+
+    const newSettings = {
+      ...(squadSettings || {}),
+      squadName: setupData.teamName || squadSettings?.squadName || 'My Squad',
+      ageGroup: setupData.ageGroup || squadSettings?.ageGroup || 'U14'
+    };
+
+    // 2. Client-side Local Storage persistence (Mandatory)
     try {
-      const updatedProfile = {
-        ...userProfile,
-        ...setupData,
-        hasCompletedSetup: true
-      };
-
-      setUserProfile(updatedProfile);
-
-      // Save to user-scoped localStorage
       if (currentUser) {
         localStorage.setItem(getAppScopedKey('inthepocket_user_profile'), JSON.stringify(updatedProfile));
+        localStorage.setItem(getAppScopedKey('inthepocket_squad_settings'), JSON.stringify(newSettings));
       }
+    } catch (localStorageErr) {
+      console.error("Critical: LocalStorage save failed during setup:", localStorageErr);
+      showToast("Error saving setup locally. Please check browser storage permissions.");
+      return;
+    }
 
-      // Automatically update squad settings with calibrated team name and age group
-      const newSettings = {
-        ...squadSettings,
-        squadName: setupData.teamName || squadSettings.squadName,
-        ageGroup: setupData.ageGroup || squadSettings.ageGroup
-      };
-      setSquadSettings(newSettings);
+    // 3. Update React States to trigger navigation cleanly
+    setSquadSettings(newSettings);
+    setUserProfile(updatedProfile);
 
-      // Save to Firestore if online
-      if (currentUser?.uid) {
+    // 4. Non-blocking Cloud Persistence (Firestore / Sandbox Sync)
+    if (currentUser?.uid) {
+      try {
         await updateUserProfile(currentUser.uid, updatedProfile);
         await updateSquadSettings(newSettings, currentUser.uid);
+      } catch (cloudErr) {
+        console.warn("Cloud sync failed during setup, offline fallback active:", cloudErr);
       }
-
-      showToast(`Setup complete! App calibrated for ${setupData.teamName}`);
-    } catch (err) {
-      console.error("Failed to complete setup:", err);
-      showToast("Error completing setup. Settings saved locally.");
     }
+
+    // 5. Display success toast notification
+    showToast(`Setup complete! App calibrated for ${setupData.teamName}`);
   };
 
   const hasCompletedSetup = userProfile?.hasCompletedSetup === true;

@@ -59,6 +59,7 @@ export default function SetupWizard({
         name: name.trim(),
         teamName: teamName.trim(),
         ageGroup: primaryAgeGroup,
+        primaryAgeGroup: primaryAgeGroup,
         ageGroups: isB2B ? selectedAgeGroups : [ageGroup],
         coachLevel: coachLevel,
         hasCompletedSetup: true,
