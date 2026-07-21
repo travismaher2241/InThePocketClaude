@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ContextualTaggingModal from './ContextualTaggingModal';
+import DrillDetailsModal from './DrillDetailsModal';
+import masterDrillsDatabase from '../../data/generated/afl-drills.json';
 import { saveTrainingSession, getTrainingSessions, deleteSession, hasAccess, generateAIPlanSecure, getUserProfile } from '../firebaseHelpers';
 import { useAuth } from '../context/AuthProvider';
 import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS, ADULT_LOCAL_DRILLS, AFL_PRE_GAME_WARMUPS, SYLLABUS_DRILLS } from '../data/curriculumKnowledge';
@@ -1155,6 +1157,71 @@ export default function TrainingLab({
   const [showEndSessionModal, setShowEndSessionModal] = useState(false);
   const [coachNotes, setCoachNotes] = useState('');
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const [activeInspectDrill, setActiveInspectDrill] = useState(null);
+
+  const resolveFullDrillRecord = (card) => {
+    if (!card) return null;
+    const cardTitle = (card.title || card.name || '').replace(/[#*`[\]]/g, '').trim();
+    const cardTitleLower = cardTitle.toLowerCase();
+    const cardIdMatch = cardTitle.match(/([A-Z]{2}-\d{3})/i);
+    const cardId = cardIdMatch ? cardIdMatch[1].toUpperCase() : (card.drillId || card.id || '');
+
+    let matched = null;
+    if (cardId && Array.isArray(masterDrillsDatabase)) {
+      matched = masterDrillsDatabase.find(d => d.drillId.toUpperCase() === cardId);
+    }
+
+    if (!matched && cardTitleLower && Array.isArray(masterDrillsDatabase)) {
+      matched = masterDrillsDatabase.find(d => {
+        const dbTitle = (d.title || '').toLowerCase();
+        return dbTitle.includes(cardTitleLower) || cardTitleLower.includes(dbTitle);
+      });
+    }
+
+    if (matched) {
+      return {
+        ...matched,
+        duration: card.duration || matched.time,
+        goal: card.goal || matched.objective,
+        instructions: card.instructions || matched.howTheDrillWorks,
+        phase: card.phase || matched.category
+      };
+    }
+
+    // Fallback: structured drill object from card instructions
+    const parsedInst = parseInstructions(card.instructions || '');
+    return {
+      drillId: cardId || 'DRILL',
+      title: cardTitle || 'Drill Segment',
+      category: card.category || card.phase || 'AFL Drill',
+      primarySkill: parsedInst.targetKickingType || card.phase || 'Skill Execution',
+      secondarySkills: ['Decision Making', 'Communication', 'Match Movement'],
+      objective: card.goal || parsedInst.drillNameObjective || 'Develop football skills under match conditions.',
+      ageGroups: { "Under 8": "✓", "Under 10": "✓", "Under 12": "✓", "Under 14": "✓", "Under 16": "✓", "Under 18": "✓", "Senior Women": "✓", "Senior Men": "✓", "Over 35 Men": "✓" },
+      skillLevel: 'Intermediate',
+      players: card.playerLabel || `${card.playerCount || 18} Players`,
+      groundSize: 'Half Oval / Grid',
+      equipment: ['Footballs', 'Cones', 'Bibs'],
+      time: `${card.duration || 15} Mins`,
+      physicalLoad: '3 – Moderate',
+      mentalLoad: '3 – Moderate',
+      contact: '1 – Controlled Contact',
+      coachingDifficulty: '2 – Basic',
+      sessionPlacement: [cardTitle || 'Skill Segment'],
+      setup: parsedInst.setupGridDimensions || card.instructions || 'Set up marked grid area.',
+      howTheDrillWorks: parsedInst.executionRules || card.instructions || 'Execute drill as directed.',
+      coachingPoints: parsedInst.eliteCoachingCues ? [parsedInst.eliteCoachingCues] : ['Scan field before disposal', 'Maintain clean hands', 'Communicate with receivers'],
+      coachingCues: ['Eyes up', 'Clean hands', 'Accelerate away'],
+      whatTheCoachShouldObserve: ['Disposal accuracy', 'Work rate off the ball', 'Communication'],
+      commonErrors: [
+        { error: 'Disposal under pressure without scanning', correction: 'Scan target before receiving or releasing.' }
+      ],
+      progressions: parsedInst.progressionsRegressions ? [parsedInst.progressionsRegressions] : ['Reduce grid space', 'Add active defender'],
+      regressions: ['Increase grid space', 'Remove passive pressure'],
+      successIndicators: ['Players execute clean disposals', 'Communication remains active throughout'],
+      matchApplication: 'Replicates match pressure, spatial awareness, and disposal under realistic conditions.'
+    };
+  };
 
   // Draft Preservation Load
   const [draft] = useState(() => {
@@ -3148,45 +3215,76 @@ COACH'S LOGISTICS SUMMARY
                           </div>
                         )}
 
-                    {/* Video Capture/Upload Trigger */}
+                    {/* Video Capture/Upload & Full Manual Action Row */}
                     <div style={{ 
                       display: 'flex', 
                       gap: '8px', 
                       marginTop: '12px', 
                       borderTop: '1px solid rgba(255, 255, 255, 0.05)', 
                       paddingTop: '12px',
-                      justifyContent: 'flex-end'
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      flexWrap: 'wrap'
                     }}>
-                      <input 
-                        type="file" 
-                        accept="video/*" 
-                        id={`drill-video-${idx}`} 
-                        onChange={(e) => handleDrillVideoUpload(e, (card.title + (card.stationLabel ? ' ' + card.stationLabel : '')).replace(/[#*`[\]]/g, ''))}
-                        style={{ display: 'none' }} 
-                      />
-                      <label 
-                        htmlFor={`drill-video-${idx}`}
+                      <button
+                        onClick={() => setActiveInspectDrill(resolveFullDrillRecord(card))}
                         style={{
+                          backgroundColor: 'rgba(58, 134, 255, 0.12)',
+                          border: '1px solid rgba(58, 134, 255, 0.3)',
+                          color: '#3a86ff',
+                          borderRadius: '6px',
+                          padding: '6px 12px',
+                          fontFamily: 'var(--font-family-locker)',
+                          fontSize: '0.75rem',
+                          fontWeight: '700',
+                          letterSpacing: '0.03em',
+                          textTransform: 'uppercase',
+                          cursor: 'pointer',
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '6px',
-                          fontSize: '0.75rem',
-                          fontWeight: '700',
-                          color: 'var(--color-video)',
-                          textTransform: 'uppercase',
-                          fontFamily: 'var(--font-family-locker)',
-                          cursor: 'pointer',
-                          letterSpacing: '0.02em',
-                          transition: 'opacity 0.2s'
+                          transition: 'all 0.2s'
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.opacity = '0.75'}
-                        onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                       >
                         <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        Record/Upload Video
-                      </label>
+                        View Full Drill Manual
+                      </button>
+
+                      <div>
+                        <input 
+                          type="file" 
+                          accept="video/*" 
+                          id={`drill-video-${idx}`} 
+                          onChange={(e) => handleDrillVideoUpload(e, (card.title + (card.stationLabel ? ' ' + card.stationLabel : '')).replace(/[#*`[\]]/g, ''))}
+                          style={{ display: 'none' }} 
+                        />
+                        <label 
+                          htmlFor={`drill-video-${idx}`}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            fontSize: '0.75rem',
+                            fontWeight: '700',
+                            color: 'var(--color-video)',
+                            textTransform: 'uppercase',
+                            fontFamily: 'var(--font-family-locker)',
+                            cursor: 'pointer',
+                            letterSpacing: '0.02em',
+                            transition: 'opacity 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.75'}
+                          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                        >
+                          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                          </svg>
+                          Record/Upload Video
+                        </label>
+                      </div>
                     </div>
                   </div>
                 ));
@@ -3504,12 +3602,35 @@ COACH'S LOGISTICS SUMMARY
                           <span style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '700' }}>{drill.duration} Mins</span>
                         </div>
                       </div>
-                      {/* Linear Instructions block displaying exact text framework */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', margin: '8px 0' }}>
-                        {renderDrillTextFramework(drill)}
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '600' }}>
-                        Goal: <span style={{ color: '#d1d5db' }}>{drill.goal}</span>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.05)', flexWrap: 'wrap', gap: '8px' }}>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '600' }}>
+                          Goal: <span style={{ color: '#d1d5db' }}>{drill.goal}</span>
+                        </div>
+                        <button
+                          onClick={() => setActiveInspectDrill(resolveFullDrillRecord(drill))}
+                          style={{
+                            backgroundColor: 'rgba(58, 134, 255, 0.12)',
+                            border: '1px solid rgba(58, 134, 255, 0.3)',
+                            color: '#3a86ff',
+                            borderRadius: '6px',
+                            padding: '4px 10px',
+                            fontFamily: 'var(--font-family-locker)',
+                            fontSize: '0.7rem',
+                            fontWeight: '700',
+                            letterSpacing: '0.03em',
+                            textTransform: 'uppercase',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          Full Drill Manual
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -3586,6 +3707,14 @@ COACH'S LOGISTICS SUMMARY
             </div>
           </div>
         </div>
+      )}
+
+      {/* Full Drill Manual Inspection Modal */}
+      {activeInspectDrill && (
+        <DrillDetailsModal 
+          drill={activeInspectDrill} 
+          onClose={() => setActiveInspectDrill(null)} 
+        />
       )}
 
       {/* Animations */}
