@@ -354,26 +354,53 @@ function DrillSetupVisualizer({ instructions, title, groundName = "home ground" 
 }
 
 const AFL_FOCUS_AREAS_CATEGORIES = {
-  'Skills & Conditioning': [
-    'Skills and Ball Handling',
-    'Fitness and Conditioning',
-    'Tackling Technique'
+  'Foundational Fundamentals (Vol 1 & 2)': [
+    'Chapter 1 - Kicking',
+    'Chapter 2 - Handballing',
+    'Chapter 3 - Marking',
+    'Chapter 4 - Ground Balls',
+    'Chapter 8 - Evasion, Agility and Movement'
   ],
-  'Contested & Stoppages': [
-    'Contested Possessions',
-    'Clearances',
-    'Stoppage Structures'
+  'Contest & Defensive Craft': [
+    'Chapter 5 - Tackling and Pressure',
+    'Chapter 6 - Spoiling and Aerial Defence',
+    'Chapter 7 - Ruck and Stoppage Craft'
   ],
-  'Tactical Play & Transition': [
-    'Forward Entries',
-    'Ball Movement and Switch',
-    'Transition and Rebound'
+  'Tactical & Team Structure': [
+    'Chapter 9 - Decision Making',
+    'Chapter 10 - Team Offence',
+    'Chapter 11 - Team Defence',
+    'Chapter 12 - Transition'
   ],
-  'Defense': [
-    'Man-on-Man Defense',
-    'Zone Defense and Press'
+  'Conditioning & Game Application': [
+    'Chapter 13 - Conditioning with Football',
+    'Chapter 14 - Small-Sided Games',
+    'Chapter 15 - Match Simulation',
+    'Chapter 16 - Testing and Assessment'
   ]
 };
+
+function getPrefixFromFocus(focusName) {
+  if (!focusName) return '';
+  const f = focusName.toLowerCase();
+  if (f.includes('kicking') || f.includes('chapter 1')) return 'KK';
+  if (f.includes('handballing') || f.includes('chapter 2')) return 'HB';
+  if (f.includes('marking') || f.includes('chapter 3')) return 'MK';
+  if (f.includes('ground ball') || f.includes('chapter 4')) return 'GB';
+  if (f.includes('tackling') || f.includes('chapter 5')) return 'TK';
+  if (f.includes('spoiling') || f.includes('aerial') || f.includes('chapter 6')) return 'SP';
+  if (f.includes('ruck') || f.includes('stoppage') || f.includes('chapter 7')) return 'RK';
+  if (f.includes('evasion') || f.includes('agility') || f.includes('movement') || f.includes('chapter 8')) return 'EA';
+  if (f.includes('decision') || f.includes('chapter 9')) return 'DM';
+  if (f.includes('offence') || f.includes('chapter 10')) return 'TO';
+  if (f.includes('defence') || f.includes('chapter 11')) return 'TD';
+  if (f.includes('transition') || f.includes('chapter 12')) return 'TR';
+  if (f.includes('conditioning') || f.includes('chapter 13')) return 'CF';
+  if (f.includes('small-sided') || f.includes('ssg') || f.includes('chapter 14')) return 'SG';
+  if (f.includes('match sim') || f.includes('chapter 15')) return 'MS';
+  if (f.includes('testing') || f.includes('assessment') || f.includes('chapter 16')) return 'TA';
+  return '';
+}
 
 function getLocalDrillKey(focusArea) {
   const map = {
@@ -1295,7 +1322,7 @@ export default function TrainingLab({
     if (draft?.focusAreas && draft.focusAreas.length > 0) {
       return draft.focusAreas;
     }
-    return ['Skills and Ball Handling'];
+    return ['Chapter 1 - Kicking'];
   });
 
   const getGlobalEquipment = () => {
@@ -1325,7 +1352,7 @@ export default function TrainingLab({
   useEffect(() => {
     // Only prefill with the default if there are no focus areas selected
     if (focusAreas.length === 0) {
-      setFocusAreas(['Skills and Ball Handling']);
+      setFocusAreas(['Chapter 1 - Kicking']);
     }
   }, []);
 
@@ -1385,7 +1412,7 @@ export default function TrainingLab({
     setPresentIds([]);
     setDuration(60);
     setCoachLevel('3');
-    setFocusAreas(['Skills and Ball Handling']);
+    setFocusAreas(['Chapter 1 - Kicking']);
     setCustomPlaybookText('');
     setPlanCards([]);
   };
@@ -1903,13 +1930,40 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       else if (agUpper.includes('SENIOR')) ageKey = "Senior Men";
       else if (agUpper.includes('OVER 35') || agUpper.includes('VETERAN') || agUpper.includes('MASTER')) ageKey = "Over 35 Men";
 
-      let matchingSyllabusDrills = SYLLABUS_DRILLS.filter(d => {
-        if (!d.ageGroups || Object.keys(d.ageGroups).length === 0) return true;
-        return d.ageGroups[ageKey] !== '✗';
+      // Get selected drill ID prefixes from user's focus area selection
+      const targetPrefixes = focusAreas.map(f => getPrefixFromFocus(f)).filter(Boolean);
+
+      const maxDiff = parseInt(coachLevel || '3', 10);
+
+      let suitableDrills = SYLLABUS_DRILLS.filter(d => {
+        // Age suitability
+        const ageMatch = !d.ageGroups || Object.keys(d.ageGroups).length === 0 || d.ageGroups[ageKey] !== '✗';
+        if (!ageMatch) return false;
+
+        // Coaching difficulty check
+        let diffNum = 3;
+        if (d.coachingDifficulty) {
+          const match = String(d.coachingDifficulty).match(/^(\d)/);
+          if (match) diffNum = parseInt(match[1], 10);
+        }
+        
+        return diffNum <= maxDiff + 1;
       });
 
+      if (suitableDrills.length === 0) {
+        suitableDrills = SYLLABUS_DRILLS;
+      }
+
+      // Filter to drills that match the selected chapter focus areas
+      let matchingSyllabusDrills = [];
+      if (targetPrefixes.length > 0) {
+        matchingSyllabusDrills = suitableDrills.filter(d => 
+          targetPrefixes.some(pref => d.drillId.startsWith(pref))
+        );
+      }
+
       if (matchingSyllabusDrills.length === 0) {
-        matchingSyllabusDrills = SYLLABUS_DRILLS;
+        matchingSyllabusDrills = suitableDrills;
       }
 
       // Shuffle matching drills to ensure fresh variation each time
