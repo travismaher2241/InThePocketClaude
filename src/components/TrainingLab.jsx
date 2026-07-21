@@ -2128,17 +2128,27 @@ PROGRESSIONS & REGRESSIONS: Progression: Add light shoulder bumps in the air. Re
           phase: "Contest"
         };
       } else {
-        const defaultPreGameDrill = {
-          name: "Dynamic Movement Prep & Ball Handling",
-          goal: "Warm up core muscle groups and establish foot-eye coordination.",
-          desc: "Perform dynamic strides, high knees, butt kicks, and continuous partner handballs on the move.",
-          coachingTip: "Ensure posture remains upright and hands are ready at chest height.",
-          cues: "Keep eyes on ball, Move into space, Clean hands",
-          coachingCues: ["Keep eyes on ball", "Move into space", "Clean hands"],
-          phase: "Contest",
-          setup: `Oval footprint, calibrated to ${groundName} constraints.`
-        };
-        const activePreGameDrill = (typeof selectedPreGameDrill !== 'undefined' && selectedPreGameDrill) ? selectedPreGameDrill : defaultPreGameDrill;
+        // Select Warm-Up drill from Chapter 17 AFL_PRE_GAME_WARMUPS
+        let preGamePool = AFL_PRE_GAME_WARMUPS.filter(w => parseDiff(w) <= maxDiff && isAgeSuitable(w));
+        if (preGamePool.length === 0) {
+          preGamePool = AFL_PRE_GAME_WARMUPS.filter(w => parseDiff(w) <= maxDiff);
+        }
+        if (preGamePool.length === 0) {
+          preGamePool = [...AFL_PRE_GAME_WARMUPS];
+        }
+        const activePreGameDrill = (preGamePool && preGamePool.length > 0)
+          ? preGamePool[Math.floor(Math.random() * preGamePool.length)]
+          : {
+              name: "[WU-001] Progressive Jog and Movement Series",
+              title: "Progressive Jog and Movement Series",
+              objective: "Progressively raise body temperature and prepare players for football movement patterns.",
+              desc: "Start with easy movement and gradually introduce shuffles, skips, backpedals and controlled direction changes.",
+              coachingTip: "Build intensity progressively rather than starting fast.",
+              cues: "Build don't blast, Tall hips, Quick feet soft feet",
+              coachingCues: ["Build don't blast", "Tall hips", "Quick feet soft feet"],
+              phase: "Warm-Up",
+              setup: "Mark a compact movement area with 4-8 cones and create clear travel lanes."
+            };
 
         const preGameCues = Array.isArray(activePreGameDrill.coachingCues) && activePreGameDrill.coachingCues.length > 0
           ? activePreGameDrill.coachingCues.join(', ')
