@@ -1177,7 +1177,7 @@ export default function MatchDay({
 
             {squad.length === 0 && (
               <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', padding: '16px 0', fontStyle: 'italic' }}>
-                No players in squad. Go to Squad Hub to add players.
+                No players in squad. Go to Team Hub to add players.
               </div>
             )}
           </div>

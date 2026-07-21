@@ -2888,7 +2888,7 @@ COACH'S LOGISTICS SUMMARY
           >
             {squad.length === 0 ? (
               <div style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '40px 0', fontSize: '0.9rem' }}>
-                No players registered in the Squad Hub.
+                No players registered in the Team Hub.
               </div>
             ) : (
               squad.map((player) => {

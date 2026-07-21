@@ -94,7 +94,7 @@ export default function SubscriptionPage({
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginLeft: '4px' }}>/ forever</span>
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px 0', fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <li>✔️ Master Squad Hub</li>
+              <li>✔️ Master Team Hub</li>
               <li>✔️ Roster Import</li>
               <li>✔️ Basic Match Lineups</li>
               <li>✔️ exactly 2 free AI generations</li>
@@ -169,7 +169,7 @@ export default function SubscriptionPage({
               <li>✔️ Unlimited sessions</li>
               <li>✔️ Late-Arrival Calculations</li>
               <li>✔️ Custom file parsing (RAG)</li>
-              <li>✔️ Master Squad Hub & Import</li>
+              <li>✔️ Master Team Hub & Import</li>
               <li style={{ color: 'var(--text-muted)', textDecoration: 'line-through' }}>❌ Tactics Board Canvas</li>
             </ul>
           </div>
@@ -337,7 +337,7 @@ export default function SubscriptionPage({
             </thead>
             <tbody>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                <td style={{ padding: '14px 12px', fontWeight: '600' }}>Master Squad Hub & Import</td>
+                <td style={{ padding: '14px 12px', fontWeight: '600' }}>Master Team Hub & Import</td>
                 <td style={{ padding: '14px 12px', textAlign: 'center', color: '#2a9d8f' }}>✔️</td>
                 <td style={{ padding: '14px 12px', textAlign: 'center', color: '#2a9d8f' }}>✔️</td>
                 <td style={{ padding: '14px 12px', textAlign: 'center', color: '#2a9d8f' }}>✔️</td>

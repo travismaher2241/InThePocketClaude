@@ -308,7 +308,7 @@ export default function SquadHub({
             margin: 0
           }}
         >
-          Squad Hub
+          Team Hub
         </h2>
         
         {/* Simple text link actions */}
