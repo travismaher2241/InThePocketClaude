@@ -1592,13 +1592,46 @@ export default function TrainingLab({
     }
 
     let preGamePool = [...AFL_PRE_GAME_WARMUPS];
-    if (isAdult) {
-      preGamePool = preGamePool.filter(w => 
-        !w.name.toLowerCase().includes("kick-to-kick") && 
-        !w.name.toLowerCase().includes("unstructured")
-      );
-    } else {
-      preGamePool = preGamePool.filter(w => !w.isAdultOnly);
+    
+    // Retrieve effective coach max difficulty level
+    const effectiveCoachLevel = String(userProfile?.coachLevel || squadSettings?.coachLevel || '2');
+    const maxDiff = parseInt(effectiveCoachLevel || '2', 10);
+    const parseDiff = (d) => {
+      if (!d || d.coachingDifficulty === undefined || d.coachingDifficulty === null) return 2;
+      if (typeof d.coachingDifficulty === 'number') return d.coachingDifficulty;
+      const match = String(d.coachingDifficulty).match(/(\d)/);
+      return match ? parseInt(match[1], 10) : 2;
+    };
+
+    // Age Group Hierarchy helper
+    const AGE_HIERARCHY = ["Under 8", "Under 10", "Under 12", "Under 14", "Under 16", "Under 18", "Senior Women", "Senior Men", "Over 35 Men"];
+    let ageKey = "Under 12";
+    const agUpper = (ageGroupText || '').toUpperCase();
+    if (agUpper.includes('8')) ageKey = "Under 8";
+    else if (agUpper.includes('10')) ageKey = "Under 10";
+    else if (agUpper.includes('12')) ageKey = "Under 12";
+    else if (agUpper.includes('14')) ageKey = "Under 14";
+    else if (agUpper.includes('16')) ageKey = "Under 16";
+    else if (agUpper.includes('18')) ageKey = "Under 18";
+    else if (agUpper.includes('SENIOR') && agUpper.includes('WOMEN')) ageKey = "Senior Women";
+    else if (agUpper.includes('SENIOR')) ageKey = "Senior Men";
+    else if (agUpper.includes('OVER 35') || agUpper.includes('VETERAN') || agUpper.includes('MASTER')) ageKey = "Over 35 Men";
+
+    let targetAgeIndex = AGE_HIERARCHY.indexOf(ageKey);
+    if (targetAgeIndex === -1) targetAgeIndex = 2;
+    const allowedAgeKeys = AGE_HIERARCHY.slice(0, targetAgeIndex + 1);
+    const isAgeSuitable = (d) => {
+      if (!d.ageGroups || Object.keys(d.ageGroups).length === 0) return true;
+      return allowedAgeKeys.some(key => d.ageGroups[key] && d.ageGroups[key] !== '✗');
+    };
+
+    // Filter preGamePool strictly by maxDiff and age suitability
+    preGamePool = preGamePool.filter(w => parseDiff(w) <= maxDiff && isAgeSuitable(w));
+    if (preGamePool.length === 0) {
+      preGamePool = AFL_PRE_GAME_WARMUPS.filter(w => parseDiff(w) <= maxDiff);
+    }
+    if (preGamePool.length === 0) {
+      preGamePool = [...AFL_PRE_GAME_WARMUPS];
     }
 
     if (lastPreGameName) {

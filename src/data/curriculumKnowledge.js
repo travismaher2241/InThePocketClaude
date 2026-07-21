@@ -543,14 +543,7 @@ export const ADULT_LOCAL_DRILLS = {
 };
 
 export const AFL_PRE_GAME_WARMUPS = masterDrillsDatabase
-  .filter(d => 
-    d.drillId.startsWith('EA') || 
-    d.drillId.startsWith('GB') || 
-    (d.category && d.category.toLowerCase().includes('warm-up')) ||
-    (d.category && d.category.toLowerCase().includes('evasion')) ||
-    (d.title && d.title.toLowerCase().includes('warm-up')) ||
-    (d.title && d.title.toLowerCase().includes('activation'))
-  )
+  .filter(d => d.drillId && d.drillId.startsWith('WU-'))
   .map(d => ({
     drillId: d.drillId,
     name: `[${d.drillId}] ${d.title}`,
@@ -566,6 +559,7 @@ export const AFL_PRE_GAME_WARMUPS = masterDrillsDatabase
     desc: d.howTheDrillWorks || d.setup || 'Execute dynamic movement preparation drills in pairs or lines.',
     coachingTip: Array.isArray(d.progressions) ? (d.progressions[0] || 'Focus on landing stability.') : (d.progressions || ''),
     phase: d.category || 'Warm-Up',
+    coachingDifficulty: d.coachingDifficulty,
     ageGroups: d.ageGroups
   }));
 
