@@ -554,23 +554,34 @@ export const AFL_PRE_GAME_WARMUPS = masterDrillsDatabase
   .map(d => ({
     drillId: d.drillId,
     name: `[${d.drillId}] ${d.title}`,
+    title: d.title,
+    objective: d.objective,
+    setup: d.setup,
+    execution: d.howTheDrillWorks,
+    howTheDrillWorks: d.howTheDrillWorks,
+    cues: Array.isArray(d.coachingCues) ? d.coachingCues.join(', ') : (d.coachingCues || ''),
+    coachingCues: d.coachingCues,
+    progressions: d.progressions,
     goal: d.objective || 'Dynamic movement and skill activation.',
-    desc: d.howTheDrillWorks || d.setup || 'Execute dynamic warm-up drills in pairs or lines.',
-    coachingTip: Array.isArray(d.progressions) ? (d.progressions[0] || 'Focus on landing stability and clean hands.') : (d.progressions || 'Focus on landing stability and clean hands.'),
+    desc: d.howTheDrillWorks || d.setup || 'Execute dynamic movement preparation drills in pairs or lines.',
+    coachingTip: Array.isArray(d.progressions) ? (d.progressions[0] || 'Focus on landing stability.') : (d.progressions || ''),
     phase: d.category || 'Warm-Up',
-    cues: Array.isArray(d.coachingCues) ? d.coachingCues.join(', ') : (d.coachingCues || '')
+    ageGroups: d.ageGroups
   }));
 
 export const SYLLABUS_DRILLS = masterDrillsDatabase.map(d => ({
   drillId: d.drillId,
   name: `[${d.drillId}] ${d.title}`,
+  title: d.title,
   category: d.category || 'Skill Development',
   phase: d.category || 'Skill Development',
   objective: d.objective || 'Develop core football skills',
   setup: d.setup || 'Set up marked grid area.',
   execution: d.howTheDrillWorks || d.objective || 'Execute drill as directed.',
+  howTheDrillWorks: d.howTheDrillWorks,
   cues: Array.isArray(d.coachingCues) ? d.coachingCues.join(', ') : (d.coachingCues || ''),
-  progressions: Array.isArray(d.progressions) ? d.progressions.join(' | ') : (d.progressions || ''),
+  coachingCues: d.coachingCues,
+  progressions: d.progressions,
   ageGroups: d.ageGroups || {},
   primarySkill: d.primarySkill || '',
   secondarySkills: d.secondarySkills || [],

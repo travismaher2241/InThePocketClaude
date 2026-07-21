@@ -1888,28 +1888,62 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                              ageGroupText.toUpperCase().startsWith('U12') ? 'U12' :
                              ageGroupText.toUpperCase().startsWith('U10') ? 'U10' : 'U8';
 
-      let matchingSyllabusDrills = SYLLABUS_DRILLS.filter(d => d.category === activeCategory);
-      if (isFemalePathway && activeCategory === 'Seniors') {
-        matchingSyllabusDrills = SYLLABUS_DRILLS.filter(d => d.category === 'Seniors');
+      let ageKey = "Under 12";
+      const agUpper = (ageGroupText || '').toUpperCase();
+      if (agUpper.includes('8')) ageKey = "Under 8";
+      else if (agUpper.includes('10')) ageKey = "Under 10";
+      else if (agUpper.includes('12')) ageKey = "Under 12";
+      else if (agUpper.includes('14')) ageKey = "Under 14";
+      else if (agUpper.includes('16')) ageKey = "Under 16";
+      else if (agUpper.includes('18')) ageKey = "Under 18";
+      else if (agUpper.includes('SENIOR') && agUpper.includes('WOMEN')) ageKey = "Senior Women";
+      else if (agUpper.includes('SENIOR')) ageKey = "Senior Men";
+      else if (agUpper.includes('OVER 35') || agUpper.includes('VETERAN') || agUpper.includes('MASTER')) ageKey = "Over 35 Men";
+
+      let matchingSyllabusDrills = SYLLABUS_DRILLS.filter(d => {
+        if (!d.ageGroups || Object.keys(d.ageGroups).length === 0) return true;
+        return d.ageGroups[ageKey] !== '✗';
+      });
+
+      if (matchingSyllabusDrills.length === 0) {
+        matchingSyllabusDrills = SYLLABUS_DRILLS;
       }
 
-      const drill1 = matchingSyllabusDrills[0] || { name: "Skills Drill", objective: "Execution", setup: "15x15m", execution: "Practice passing.", cues: "Stay balanced", progressions: "Add pressure" };
-      const drill2 = matchingSyllabusDrills[1] || matchingSyllabusDrills[0] || drill1;
-      const drill3 = matchingSyllabusDrills[2] || matchingSyllabusDrills[0] || drill1;
-      const drill4 = matchingSyllabusDrills[3] || matchingSyllabusDrills[0] || drill1;
+      // Shuffle matching drills to ensure fresh variation each time
+      const shuffledDrills = [...matchingSyllabusDrills].sort(() => Math.random() - 0.5);
 
-      const formatDrillCardText = (d, pCount) => {
+      const drill1 = shuffledDrills[0] || SYLLABUS_DRILLS[0];
+      const drill2 = shuffledDrills[1] || shuffledDrills[0] || drill1;
+      const drill3 = shuffledDrills[2] || shuffledDrills[0] || drill1;
+      const drill4 = shuffledDrills[3] || shuffledDrills[0] || drill1;
+
+      const formatDrillCardText = (d) => {
+        if (!d) return '';
+        const drillName = d.name || (d.drillId ? `[${d.drillId}] ${d.title}` : d.title || 'Drill Segment');
+        const objective = d.objective || d.goal || 'Skill practice under match conditions.';
+        const setup = d.setup || (d.groundSize ? `Ground size: ${d.groundSize}` : 'Set up marked grid area.');
+        const execution = d.howTheDrillWorks || d.execution || d.desc || 'Execute drill as directed by the coach.';
+
+        const cues = Array.isArray(d.coachingCues) && d.coachingCues.length > 0 
+          ? d.coachingCues.join(', ') 
+          : (typeof d.cues === 'string' ? d.cues : (Array.isArray(d.cues) ? d.cues.join(', ') : 'Maintain focus, Communicate, Clean execution'));
+
+        const progressions = Array.isArray(d.progressions) && d.progressions.length > 0 
+          ? d.progressions.join(' | ') 
+          : (d.coachingTip || d.progressions || 'Adjust grid size or add defenders to vary pressure.');
+
         const kickingType = getTacticalKickingType(d);
         const kickLine = (kickingType && kickingType !== "None") ? `TARGET KICKING TYPE: ${kickingType}\n\n` : "";
-        return `DRILL NAME & OBJECTIVE: ${d.name} - ${d.objective || 'Skill practice'}
-        
-${kickLine}SETUP & GRID DIMENSIONS: ${d.setup}
 
-EXECUTION & RULES: ${d.execution}
+        return `DRILL NAME & OBJECTIVE: ${drillName} - ${objective}
 
-ELITE COACHING CUES: ${d.cues}
+${kickLine}SETUP & GRID DIMENSIONS: ${setup}
 
-PROGRESSIONS & REGRESSIONS: ${d.progressions}`;
+EXECUTION & RULES: ${execution}
+
+ELITE COACHING CUES: ${cues}
+
+PROGRESSIONS & REGRESSIONS: ${progressions}`;
       };
 
       let preGameCard = {};
@@ -1930,14 +1964,20 @@ PROGRESSIONS & REGRESSIONS: Progression: Add light shoulder bumps in the air. Re
           phase: "Contest"
         };
       } else {
-        const preGameCues = selectedPreGameDrill.cues || "Keep eyes on ball, Move into space, Clean hands";
+        const preGameCues = Array.isArray(selectedPreGameDrill.coachingCues) && selectedPreGameDrill.coachingCues.length > 0
+          ? selectedPreGameDrill.coachingCues.join(', ')
+          : (selectedPreGameDrill.cues || "Keep eyes on ball, Move into space, Clean hands");
+
         const preGameSetup = selectedPreGameDrill.setup || `Oval footprint, calibrated to ${groundName} constraints.`;
-        const preGameExec = selectedPreGameDrill.execution || selectedPreGameDrill.desc || 'Execute dynamic movement preparation drills in pairs or lines.';
+        const preGameExec = selectedPreGameDrill.howTheDrillWorks || selectedPreGameDrill.execution || selectedPreGameDrill.desc || 'Execute dynamic movement preparation drills in pairs or lines.';
+        const preGameProgs = Array.isArray(selectedPreGameDrill.progressions) && selectedPreGameDrill.progressions.length > 0
+          ? selectedPreGameDrill.progressions.join(' | ')
+          : (selectedPreGameDrill.coachingTip || 'Focus on landing stability and clean execution.');
 
         preGameCard = {
           title: `WARM-UP & ACTIVATION: ${selectedPreGameDrill.name.toUpperCase()}`,
           duration: preGameMins,
-          instructions: `DRILL NAME & OBJECTIVE: ${selectedPreGameDrill.name} - ${selectedPreGameDrill.goal}
+          instructions: `DRILL NAME & OBJECTIVE: ${selectedPreGameDrill.name} - ${selectedPreGameDrill.objective || selectedPreGameDrill.goal}
           
 SETUP & GRID DIMENSIONS: ${preGameSetup}
 
@@ -1945,9 +1985,10 @@ EXECUTION & RULES: ${preGameExec}
 
 ELITE COACHING CUES: ${preGameCues}
 
-PROGRESSIONS & REGRESSIONS: CHANGE IT Coaching Tip: ${selectedPreGameDrill.coachingTip}`,
-          goal: selectedPreGameDrill.goal,
-          phase: selectedPreGameDrill.phase
+PROGRESSIONS & REGRESSIONS: ${preGameProgs}`,
+          goal: selectedPreGameDrill.objective || selectedPreGameDrill.goal,
+          phase: selectedPreGameDrill.phase,
+          drillId: selectedPreGameDrill.drillId
         };
       }
 
