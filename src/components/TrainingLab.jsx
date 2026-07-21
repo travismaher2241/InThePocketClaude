@@ -1949,7 +1949,6 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
     const runLocalFallback = () => {
       try {
         setIsFallback(true);
-        setIsGenerating(false);
         const config = getCurriculumConfig(ageGroup);
         
         // Calculate scaled durations if total session is not 70 mins
@@ -3274,6 +3273,48 @@ COACH'S LOGISTICS SUMMARY
                     displayedCards.push(sub);
                   });
                 });
+
+                if (displayedCards.length === 0) {
+                  return (
+                    <div 
+                      style={{
+                        backgroundColor: '#1c1f26',
+                        border: '1px solid rgba(255, 255, 255, 0.05)',
+                        borderRadius: '10px',
+                        padding: '40px 20px',
+                        textAlign: 'center',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '16px'
+                      }}
+                    >
+                      <div style={{ fontSize: '1rem', color: '#9ca3af', fontWeight: '600' }}>
+                        No session plan cards generated yet.
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => runPlanGeneration()}
+                        style={{
+                          padding: '12px 24px',
+                          backgroundColor: 'var(--color-training)',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontFamily: 'var(--font-family-locker)',
+                          fontSize: '1rem',
+                          fontWeight: '700',
+                          letterSpacing: '0.05em',
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 16px rgba(230, 57, 70, 0.4)'
+                        }}
+                      >
+                        ⚡ GENERATE SESSION PLAN NOW
+                      </button>
+                    </div>
+                  );
+                }
+
                 return displayedCards.map((card, idx) => (
                   <div 
                     key={idx}
