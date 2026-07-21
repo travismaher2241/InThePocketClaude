@@ -1362,7 +1362,7 @@ export default function TrainingLab({
         if (prev.length === 1) return prev;
         return prev.filter(item => item !== f);
       } else {
-        if (prev.length >= 3) return prev;
+        if (prev.length >= 4) return prev;
         return [...prev, f];
       }
     });
@@ -2992,9 +2992,14 @@ COACH'S LOGISTICS SUMMARY
 
 
             <div className="form-group">
-              <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>
-                Focus Areas (Select 1 to 3)
-              </label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>
+                  Focus Areas (Select 1 to 4)
+                </label>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '700' }}>
+                  {focusAreas.length} / 4 Selected
+                </span>
+              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '10px' }}>
                 {Object.entries(AFL_FOCUS_AREAS_CATEGORIES).map(([categoryName, areas]) => (
                   <div key={categoryName} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -3010,18 +3015,23 @@ COACH'S LOGISTICS SUMMARY
                             type="button"
                             onClick={() => handleToggleFocus(f)}
                             style={{
-                              padding: '6px 12px',
+                              padding: '8px 14px',
                               borderRadius: '20px',
-                              border: isSelected ? '1px solid var(--color-training)' : '1px solid rgba(255, 255, 255, 0.1)',
-                              backgroundColor: isSelected ? 'rgba(230, 57, 70, 0.2)' : 'rgba(0,0,0,0.3)',
-                              color: isSelected ? '#ffffff' : '#8d939e',
-                              fontSize: '0.8rem',
+                              border: isSelected ? '2px solid var(--color-training)' : '1px solid rgba(255, 255, 255, 0.12)',
+                              backgroundColor: isSelected ? 'var(--color-training)' : 'rgba(0,0,0,0.4)',
+                              color: isSelected ? '#ffffff' : '#9ca3af',
+                              fontSize: '0.85rem',
                               fontWeight: isSelected ? '700' : '500',
                               cursor: 'pointer',
-                              transition: 'all 0.2s ease',
-                              whiteSpace: 'nowrap'
+                              transition: 'all 0.15s ease',
+                              whiteSpace: 'nowrap',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              boxShadow: isSelected ? '0 2px 8px rgba(230, 57, 70, 0.4)' : 'none'
                             }}
                           >
+                            {isSelected && <span style={{ fontWeight: '900', fontSize: '0.9rem' }}>✓</span>}
                             {f}
                           </button>
                         );
