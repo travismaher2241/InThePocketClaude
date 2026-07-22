@@ -18,54 +18,54 @@ const AFL_POSITIONS = {
   }
 };
 
-// Tactical Initial Layout Helper (with clear offsets in tight zones to prevent badge stacking)
+// Tactical Initial Layout Helper (Boundary-Aware Relative Coordinates with Explicit Team Offsets)
 const getDefaultTokens = () => {
   const whiteTeam = [
-    // Backs
-    { id: 'white_fb', x: 100, y: 300, label: 'FB', team: 'white', name: 'Full Back' },
-    { id: 'white_bp1', x: 130, y: 130, label: 'BP', team: 'white', name: 'Back Pocket 1' },
-    { id: 'white_bp2', x: 130, y: 470, label: 'BP', team: 'white', name: 'Back Pocket 2' },
-    { id: 'white_chb', x: 260, y: 300, label: 'CHB', team: 'white', name: 'Centre Half Back' },
-    { id: 'white_hbf1', x: 300, y: 160, label: 'HBF', team: 'white', name: 'Half Back Flank 1' },
-    { id: 'white_hbf2', x: 300, y: 440, label: 'HBF', team: 'white', name: 'Half Back Flank 2' },
+    // Backs (Defending Left Goal X ~ 90)
+    { id: 'white_fb', x: 80, y: 300, label: 'FB', team: 'white', name: 'Full Back' },
+    { id: 'white_bp1', x: 135, y: 160, label: 'BP', team: 'white', name: 'Back Pocket 1' },
+    { id: 'white_bp2', x: 135, y: 440, label: 'BP', team: 'white', name: 'Back Pocket 2' },
+    { id: 'white_chb', x: 265, y: 300, label: 'CHB', team: 'white', name: 'Centre Half Back' },
+    { id: 'white_hbf1', x: 305, y: 155, label: 'HBF', team: 'white', name: 'Half Back Flank 1' },
+    { id: 'white_hbf2', x: 305, y: 445, label: 'HBF', team: 'white', name: 'Half Back Flank 2' },
     // Midfield / Ruck (Center Square Zone Offset)
-    { id: 'white_c', x: 470, y: 300, label: 'C', team: 'white', name: 'Centre' },
-    { id: 'white_wing1', x: 500, y: 70, label: 'WING', team: 'white', name: 'Wing 1' },
-    { id: 'white_wing2', x: 500, y: 530, label: 'WING', team: 'white', name: 'Wing 2' },
+    { id: 'white_c', x: 460, y: 300, label: 'C', team: 'white', name: 'Centre' },
+    { id: 'white_wing1', x: 480, y: 105, label: 'WING', team: 'white', name: 'Wing 1' },
+    { id: 'white_wing2', x: 480, y: 495, label: 'WING', team: 'white', name: 'Wing 2' },
     { id: 'white_ruck', x: 455, y: 240, label: 'RUCK', team: 'white', name: 'Ruck' },
     { id: 'white_rr', x: 455, y: 360, label: 'RR', team: 'white', name: 'Ruck Rover' },
     { id: 'white_rov', x: 430, y: 300, label: 'ROV', team: 'white', name: 'Rover' },
-    // Forwards
+    // Forwards (Attacking Right Goal X ~ 910)
     { id: 'white_chf', x: 700, y: 300, label: 'CHF', team: 'white', name: 'Centre Half Forward' },
-    { id: 'white_hff1', x: 660, y: 160, label: 'HFF', team: 'white', name: 'Half Forward Flank 1' },
-    { id: 'white_hff2', x: 660, y: 440, label: 'HFF', team: 'white', name: 'Half Forward Flank 2' },
-    { id: 'white_ff', x: 860, y: 300, label: 'FF', team: 'white', name: 'Full Forward' },
-    { id: 'white_fp1', x: 830, y: 130, label: 'FP', team: 'white', name: 'Forward Pocket 1' },
-    { id: 'white_fp2', x: 830, y: 470, label: 'FP', team: 'white', name: 'Forward Pocket 2' },
+    { id: 'white_hff1', x: 660, y: 155, label: 'HFF', team: 'white', name: 'Half Forward Flank 1' },
+    { id: 'white_hff2', x: 660, y: 445, label: 'HFF', team: 'white', name: 'Half Forward Flank 2' },
+    { id: 'white_ff', x: 885, y: 300, label: 'FF', team: 'white', name: 'Full Forward' },
+    { id: 'white_fp1', x: 830, y: 160, label: 'FP', team: 'white', name: 'Forward Pocket 1' },
+    { id: 'white_fp2', x: 830, y: 440, label: 'FP', team: 'white', name: 'Forward Pocket 2' },
   ];
 
   const blackTeam = [
-    // Backs
-    { id: 'black_fb', x: 900, y: 300, label: 'FB', team: 'black', name: 'Full Back' },
-    { id: 'black_bp1', x: 870, y: 130, label: 'BP', team: 'black', name: 'Back Pocket 1' },
-    { id: 'black_bp2', x: 870, y: 470, label: 'BP', team: 'black', name: 'Back Pocket 2' },
-    { id: 'black_chb', x: 740, y: 300, label: 'CHB', team: 'black', name: 'Centre Half Back' },
-    { id: 'black_hbf1', x: 700, y: 160, label: 'HBF', team: 'black', name: 'Half Back Flank 1' },
-    { id: 'black_hbf2', x: 700, y: 440, label: 'HBF', team: 'black', name: 'Half Back Flank 2' },
+    // Backs (Defending Right Goal X ~ 910)
+    { id: 'black_fb', x: 920, y: 300, label: 'FB', team: 'black', name: 'Full Back' },
+    { id: 'black_bp1', x: 865, y: 160, label: 'BP', team: 'black', name: 'Back Pocket 1' },
+    { id: 'black_bp2', x: 865, y: 440, label: 'BP', team: 'black', name: 'Back Pocket 2' },
+    { id: 'black_chb', x: 735, y: 300, label: 'CHB', team: 'black', name: 'Centre Half Back' },
+    { id: 'black_hbf1', x: 695, y: 155, label: 'HBF', team: 'black', name: 'Half Back Flank 1' },
+    { id: 'black_hbf2', x: 695, y: 445, label: 'HBF', team: 'black', name: 'Half Back Flank 2' },
     // Midfield / Ruck (Center Square Zone Offset)
-    { id: 'black_c', x: 530, y: 300, label: 'C', team: 'black', name: 'Centre' },
-    { id: 'black_wing1', x: 500, y: 115, label: 'WING', team: 'black', name: 'Wing 1' },
-    { id: 'black_wing2', x: 500, y: 485, label: 'WING', team: 'black', name: 'Wing 2' },
+    { id: 'black_c', x: 540, y: 300, label: 'C', team: 'black', name: 'Centre' },
+    { id: 'black_wing1', x: 520, y: 105, label: 'WING', team: 'black', name: 'Wing 1' },
+    { id: 'black_wing2', x: 520, y: 495, label: 'WING', team: 'black', name: 'Wing 2' },
     { id: 'black_ruck', x: 545, y: 240, label: 'RUCK', team: 'black', name: 'Ruck' },
     { id: 'black_rr', x: 545, y: 360, label: 'RR', team: 'black', name: 'Ruck Rover' },
     { id: 'black_rov', x: 570, y: 300, label: 'ROV', team: 'black', name: 'Rover' },
-    // Forwards
-    { id: 'black_chf', x: 220, y: 300, label: 'CHF', team: 'black', name: 'Centre Half Forward' },
-    { id: 'black_hff1', x: 260, y: 160, label: 'HFF', team: 'black', name: 'Half Forward Flank 1' },
-    { id: 'black_hff2', x: 260, y: 440, label: 'HFF', team: 'black', name: 'Half Forward Flank 2' },
-    { id: 'black_ff', x: 60, y: 300, label: 'FF', team: 'black', name: 'Full Forward' },
-    { id: 'black_fp1', x: 90, y: 130, label: 'FP', team: 'black', name: 'Forward Pocket 1' },
-    { id: 'black_fp2', x: 90, y: 470, label: 'FP', team: 'black', name: 'Forward Pocket 2' },
+    // Forwards (Attacking Left Goal X ~ 90)
+    { id: 'black_chf', x: 300, y: 300, label: 'CHF', team: 'black', name: 'Centre Half Forward' },
+    { id: 'black_hff1', x: 340, y: 155, label: 'HFF', team: 'black', name: 'Half Forward Flank 1' },
+    { id: 'black_hff2', x: 340, y: 445, label: 'HFF', team: 'black', name: 'Half Forward Flank 2' },
+    { id: 'black_ff', x: 115, y: 300, label: 'FF', team: 'black', name: 'Full Forward' },
+    { id: 'black_fp1', x: 170, y: 160, label: 'FP', team: 'black', name: 'Forward Pocket 1' },
+    { id: 'black_fp2', x: 170, y: 440, label: 'FP', team: 'black', name: 'Forward Pocket 2' },
   ];
 
   return [...whiteTeam, ...blackTeam];
@@ -508,16 +508,16 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
     setDraggedTokenId(null);
 
     if (activeToken) {
-      // Off-Field Snapback Thresholds: If outside virtual boundary [15, 985] on X or [15, 585] on Y, remove
-      const isOffField = activeToken.x < 15 || activeToken.x > 985 || activeToken.y < 15 || activeToken.y > 585;
+      // Off-Field Snapback Thresholds: If dragged off the canvas bounds, remove
+      const isOffField = activeToken.x < 20 || activeToken.x > 980 || activeToken.y < 20 || activeToken.y > 580;
       
       if (isOffField) {
-        // Remove token from active whiteboard list (snaps back to tray)
+        // Remove token from active whiteboard list
         setTokens(prev => prev.filter(t => t.id !== draggedTokenId));
       } else {
-        // Keep within safe field bounds
-        const boundedX = Math.max(16, Math.min(984, activeToken.x));
-        const boundedY = Math.max(16, Math.min(584, activeToken.y));
+        // Clamp within safe field bounds inside white oval line
+        const boundedX = Math.max(40, Math.min(960, activeToken.x));
+        const boundedY = Math.max(40, Math.min(560, activeToken.y));
         setTokens(prev => prev.map(t => t.id === draggedTokenId ? { ...t, x: boundedX, y: boundedY } : t));
       }
     }
