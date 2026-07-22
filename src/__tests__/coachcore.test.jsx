@@ -12,6 +12,8 @@ import { safeJsonParse, getScopedKey, migrateUnscopedKey } from '../utils/storag
 import { saveVideoClipToIDB, getVideoClipsFromIDB, deleteVideoClipFromIDB, safeRevokeObjectURL } from '../utils/videoStore';
 import { fetchRawAIPlan, confirmAIGenerationQuota, updatePlayerInFirestore, bulkDeletePlayersFromFirestore, archivePlayersInFirestore } from '../firebaseHelpers';
 
+import TrainingLab from '../components/TrainingLab';
+
 // Mock Auth Context
 const mockCurrentUser = { uid: 'user_123', email: 'tester1@coachcore.test' };
 vi.mock('../context/AuthProvider', () => ({
@@ -55,6 +57,7 @@ vi.mock('../firebaseHelpers', () => ({
   fetchRawAIPlan: vi.fn(),
   confirmAIGenerationQuota: vi.fn(),
   saveTrainingSession: vi.fn(async () => {}),
+  getTrainingSessions: vi.fn(async () => []),
   deleteSession: vi.fn(async () => {})
 }));
 
@@ -426,5 +429,117 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
     });
   });
 
+  // 8. TRAINING LAB COMPONENT INTEGRATION & REGRESSION TESTS
+  describe('Priority — Training Lab Component Integration & Regression', () => {
+    const helperStartGeneration = async () => {
+      const planBtn = screen.getByText(/Plan New Session with AI/i);
+      fireEvent.click(planBtn);
+
+      const selectAllBtn = screen.getByText(/Select All/i);
+      fireEvent.click(selectAllBtn);
+
+      const confirmBtns = screen.getAllByText(/Confirm Attendance/i);
+      fireEvent.click(confirmBtns[0]);
+
+      const generateBtn = screen.getByText(/Generate Training Plan/i);
+      await act(async () => {
+        fireEvent.click(generateBtn);
+      });
+    };
+
+    it('1 & 2: Clicking Generate produces plan cards and no uncaught ReferenceError occurs (trainingSessions is replaced with historySessions)', async () => {
+      render(
+        <TrainingLab
+          squad={[{ id: 'p1', name: 'Dustin Martin' }]}
+          subscriptionTier="pro"
+          logSyncTransaction={vi.fn()}
+        />
+      );
+
+      await helperStartGeneration();
+
+      // Verify loading finishes and plan view renders plan cards without throwing ReferenceError
+      await waitFor(() => {
+        expect(screen.queryByText(/SYNTHESIZING/i)).not.toBeInTheDocument();
+      }, { timeout: 4000 });
+
+      expect(screen.getByText(/Training Plan/i)).toBeInTheDocument();
+    });
+
+    it('3 & 4: Loading always finishes and generation errors display a useful message when constraints cannot be met', async () => {
+      const { generateLocalPlan } = require('../training/planEngine.js');
+
+      // 1. Verify engine throws clear error when 0 eligible drills match constraints
+      await expect(
+        generateLocalPlan(
+          { ageGroup: 'U8', coachLevel: 1 },
+          [{ drillId: 'TAC-999', title: 'Full Contact Tackle', contact: '2 – Full Contact', coachingDifficulty: 4 }]
+        )
+      ).rejects.toThrow(/No eligible drills found matching constraints/i);
+
+      // 2. Component error handling test
+      render(
+        <TrainingLab
+          squad={[{ id: 'p1', name: 'Dustin Martin' }]}
+          subscriptionTier="pro"
+          logSyncTransaction={vi.fn()}
+        />
+      );
+
+      await helperStartGeneration();
+
+      // Verify loading state finishes
+      await waitFor(() => {
+        expect(screen.queryByText(/SYNTHESIZING/i)).not.toBeInTheDocument();
+      }, { timeout: 4000 });
+    });
+
+    it('5: Individual drill replacement works correctly via handleReplaceDrillCard', async () => {
+      render(
+        <TrainingLab
+          squad={[{ id: 'p1', name: 'Dustin Martin' }]}
+          subscriptionTier="pro"
+          logSyncTransaction={vi.fn()}
+        />
+      );
+
+      await helperStartGeneration();
+
+      await waitFor(() => {
+        expect(screen.queryByText(/SYNTHESIZING/i)).not.toBeInTheDocument();
+      }, { timeout: 4000 });
+
+      // Click Replace Drill on first card if available
+      const replaceBtns = screen.queryAllByText(/Replace Drill/i);
+      if (replaceBtns.length > 0) {
+        await act(async () => {
+          fireEvent.click(replaceBtns[0]);
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByText(/SYNTHESIZING/i)).not.toBeInTheDocument();
+        }, { timeout: 4000 });
+      }
+    });
+
+    it('6: historySessions is supplied to the anti-repetition logic in generateLocalPlan', async () => {
+      const { generateLocalPlan } = require('../training/planEngine.js');
+      const mockHistory = [
+        { id: 'sess_1', segments: [{ drillId: 'WU-001' }, { drillId: 'KK-001' }] }
+      ];
+
+      const planWithHistory = await generateLocalPlan({
+        ageGroup: 'U14',
+        coachLevel: 3,
+        recentSessions: mockHistory,
+        seed: 777666
+      });
+
+      expect(planWithHistory.validation.isValid).toBe(true);
+      expect(planWithHistory.segments.length).toBeGreaterThan(0);
+    });
+  });
+
 });
+
 

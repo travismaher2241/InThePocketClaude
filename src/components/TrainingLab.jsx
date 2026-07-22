@@ -1606,34 +1606,36 @@ export default function TrainingLab({
     }
   };
 
+  const [generationError, setGenerationError] = useState(null);
+
   // Perform hybrid local generation & optional AI enhancement
   const runPlanGeneration = async (overrideCount, customSeed = null, variationAvoidIds = []) => {
-    const playerCount = overrideCount !== undefined ? overrideCount : (presentIds.length > 0 ? presentIds.length : 18);
-    const currentEquipment = getGlobalEquipment();
-
     setIsGenerating(true);
+    setGenerationError(null);
     setPlanCards([]);
     setStep('plan');
 
-    const engineInput = {
-      uid: currentUser?.uid || 'guest',
-      ageGroup,
-      coachLevel: parseInt(coachLevel, 10) || 3,
-      playerCount,
-      durationMinutes: duration,
-      focusAreas,
-      equipment: currentEquipment,
-      recentSessions: Array.isArray(trainingSessions) ? trainingSessions : [],
-      variationAvoidIds,
-      seed: customSeed || Date.now()
-    };
-
     try {
+      const playerCount = overrideCount !== undefined ? overrideCount : (presentIds.length > 0 ? presentIds.length : 18);
+      const currentEquipment = getGlobalEquipment();
+
+      const engineInput = {
+        uid: currentUser?.uid || 'guest',
+        ageGroup,
+        coachLevel: parseInt(coachLevel, 10) || 3,
+        playerCount,
+        durationMinutes: duration,
+        focusAreas,
+        equipment: currentEquipment,
+        recentSessions: Array.isArray(historySessions) ? historySessions : [],
+        variationAvoidIds,
+        seed: customSeed || Date.now()
+      };
+
       // 1. Immediate local plan generation using authoritative deterministic engine
       const localPlan = await generateLocalPlan(engineInput);
       setPlanCards(sanitizePlanCards(localPlan.segments || [], squadSettings?.groundName || "home ground", playerCount));
       setIsFallback(false);
-      setIsGenerating(false);
 
       // 2. Non-blocking optional AI enhancement if configured
       const isAIEnabled = import.meta.env.VITE_AI_PLAN_ENHANCEMENT_ENABLED !== 'false';
@@ -1648,6 +1650,8 @@ export default function TrainingLab({
       }
     } catch (err) {
       console.error("Local plan engine error:", err);
+      setGenerationError(err.message || "Failed to generate training plan.");
+    } finally {
       setIsGenerating(false);
     }
   };
@@ -1675,24 +1679,27 @@ export default function TrainingLab({
 
   const handleReplaceDrillCard = async (cardIndex) => {
     if (cardIndex < 0 || cardIndex >= planCards.length) return;
-    const currentDrillIds = planCards.map(c => c.drillId).filter(Boolean);
-    const playerCount = presentIds.length > 0 ? presentIds.length : 18;
-    const currentEquipment = getGlobalEquipment();
-
-    const engineInput = {
-      uid: currentUser?.uid || 'guest',
-      ageGroup,
-      coachLevel: parseInt(coachLevel, 10) || 3,
-      playerCount,
-      durationMinutes: duration,
-      focusAreas,
-      equipment: currentEquipment,
-      recentSessions: Array.isArray(trainingSessions) ? trainingSessions : [],
-      variationAvoidIds: currentDrillIds,
-      seed: Date.now()
-    };
+    setIsGenerating(true);
+    setGenerationError(null);
 
     try {
+      const currentDrillIds = planCards.map(c => c.drillId).filter(Boolean);
+      const playerCount = presentIds.length > 0 ? presentIds.length : 18;
+      const currentEquipment = getGlobalEquipment();
+
+      const engineInput = {
+        uid: currentUser?.uid || 'guest',
+        ageGroup,
+        coachLevel: parseInt(coachLevel, 10) || 3,
+        playerCount,
+        durationMinutes: duration,
+        focusAreas,
+        equipment: currentEquipment,
+        recentSessions: Array.isArray(historySessions) ? historySessions : [],
+        variationAvoidIds: currentDrillIds,
+        seed: Date.now()
+      };
+
       const newPlan = await generateLocalPlan(engineInput);
       if (newPlan.segments && newPlan.segments[cardIndex]) {
         const updated = [...planCards];
@@ -1701,6 +1708,9 @@ export default function TrainingLab({
       }
     } catch (err) {
       console.error("Single drill replacement error:", err);
+      setGenerationError(err.message || "Failed to replace drill.");
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -2595,6 +2605,31 @@ export default function TrainingLab({
                 Cancel Plan
               </span>
             </div>
+
+            {generationError && (
+              <div 
+                className="generation-error-banner"
+                style={{
+                  backgroundColor: 'rgba(230, 57, 70, 0.15)',
+                  border: '1px solid rgba(230, 57, 70, 0.4)',
+                  color: '#ff4d4d',
+                  padding: '14px 16px',
+                  borderRadius: '8px',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  lineHeight: '1.4',
+                  marginTop: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}
+              >
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <span>{generationError}</span>
+              </div>
+            )}
             
             <h2 
               style={{ 

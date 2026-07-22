@@ -69,8 +69,11 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
       return el.eligible;
     });
 
-    // Fallback if pool is empty: relax non-safety requirements slightly
-    const candidatePool = eligibleCandidates.length > 0 ? eligibleCandidates : database;
+    if (eligibleCandidates.length === 0) {
+      throw new Error(`No eligible drills found matching constraints (Age: ${ageGroup}, Coach Level: ${coachLevel}). Please adjust your session settings.`);
+    }
+
+    const candidatePool = eligibleCandidates;
 
     // 2. Score candidate drills and apply repetition penalties
     const scoredPool = candidatePool.map(drill => {
