@@ -89,10 +89,21 @@ Do NOT change drillId, duration, or core safety rules.`;
 
       return {
         ...seg,
-        // Preserve authoritative drillId and duration unconditionally
+        // Preserve authoritative drillId, duration, and group allocation fields unconditionally
         drillId: seg.drillId,
         minutes: seg.minutes,
         duration: seg.duration,
+        blockMinutes: seg.blockMinutes,
+        isConcurrent: seg.isConcurrent,
+        attendingPlayerCount: seg.attendingPlayerCount,
+        group1Size: seg.group1Size,
+        group2Size: seg.group2Size,
+        maximumStationGroupSize: seg.maximumStationGroupSize,
+        assignedGroup: seg.assignedGroup,
+        assignedPlayerCount: seg.assignedPlayerCount,
+        partnerSlot: seg.partnerSlot,
+        swapRequired: seg.swapRequired,
+        swapAfterMinutes: seg.swapAfterMinutes,
         coachingCues: newCues,
         tacticalNotes: aiSeg.tacticalNotes || seg.tacticalNotes || ''
       };

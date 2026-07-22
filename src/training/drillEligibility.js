@@ -217,8 +217,15 @@ export function checkDrillEligibility(drill, context = {}) {
 
   // 6. Player Count Range Check
   const minP = drill.minimumPlayers || parsePlayerBounds(drill.players).min;
-  if (playerCount >= 4 && playerCount < minP) {
-    return { eligible: false, reason: `Requires at least ${minP} players (squad count: ${playerCount})` };
+  const isStationSlot = (context.slotKey && context.slotKey.startsWith('STATION_')) || (context.slotName && String(context.slotName).startsWith('Station'));
+
+  // Station drills check capacity against maximumStationGroupSize; Warmup and Final Game check against complete attending count
+  const effectivePlayerCount = isStationSlot && context.maximumStationGroupSize !== undefined
+    ? context.maximumStationGroupSize
+    : (context.attendingPlayerCount !== undefined ? context.attendingPlayerCount : (context.playerCount || 18));
+
+  if (effectivePlayerCount >= 4 && effectivePlayerCount < minP) {
+    return { eligible: false, reason: `Requires at least ${minP} players (effective group size: ${effectivePlayerCount})` };
   }
 
   return { eligible: true };

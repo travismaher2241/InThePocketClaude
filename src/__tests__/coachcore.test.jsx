@@ -857,6 +857,79 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
 
       global.fetch = origFetch;
     });
+
+    it('21: Dynamic group allocation math verifies 30, 27, 22, 19, 15, 10, 3, 2 player counts', () => {
+      const { calculateGroupAllocations } = require('../training/sessionStructure.js');
+
+      const expected = [
+        { count: 30, g1: 15, g2: 15, max: 15 },
+        { count: 27, g1: 14, g2: 13, max: 14 },
+        { count: 22, g1: 11, g2: 11, max: 11 },
+        { count: 19, g1: 10, g2: 9, max: 10 },
+        { count: 15, g1: 8, g2: 7, max: 8 },
+        { count: 10, g1: 5, g2: 5, max: 5 },
+        { count: 3, g1: 2, g2: 1, max: 2 },
+        { count: 2, g1: 1, g2: 1, max: 1 }
+      ];
+
+      expected.forEach(({ count, g1, g2, max }) => {
+        const alloc = calculateGroupAllocations(count);
+        expect(alloc.group1Size).toBe(g1);
+        expect(alloc.group2Size).toBe(g2);
+        expect(alloc.maximumStationGroupSize).toBe(max);
+        expect(alloc.group1Size + alloc.group2Size).toBe(count);
+        expect(Math.abs(alloc.group1Size - alloc.group2Size)).toBeLessThanOrEqual(1);
+      });
+    });
+
+    it('22: Station segments retain complete dynamic allocation metadata', async () => {
+      const plan = await generateLocalPlan({ ageGroup: 'U14', coachLevel: 3, playerCount: 19, durationMinutes: 60, seed: 123 });
+      const stA = plan.segments[1];
+      const stB = plan.segments[2];
+
+      expect(stA.isConcurrent).toBe(true);
+      expect(stA.attendingPlayerCount).toBe(19);
+      expect(stA.group1Size).toBe(10);
+      expect(stA.group2Size).toBe(9);
+      expect(stA.maximumStationGroupSize).toBe(10);
+      expect(stA.assignedGroup).toBe('Group 1');
+      expect(stA.assignedPlayerCount).toBe(10);
+      expect(stA.partnerSlot).toBe('Station B');
+
+      expect(stB.assignedGroup).toBe('Group 2');
+      expect(stB.assignedPlayerCount).toBe(9);
+      expect(stB.partnerSlot).toBe('Station A');
+    });
+
+    it('23: Station player capacity check uses maximumStationGroupSize while Warmup/Final Game use full attendance', () => {
+      const { checkDrillEligibility } = require('../training/drillEligibility.js');
+
+      const drill12 = { drillId: 'TEST-12', minimumPlayers: 12 };
+
+      const stationContext = { slotKey: 'STATION_A', attendingPlayerCount: 19, maximumStationGroupSize: 10 };
+      const stationRes = checkDrillEligibility(drill12, stationContext);
+      expect(stationRes.eligible).toBe(false);
+      expect(stationRes.reason).toContain('Requires at least 12 players (effective group size: 10)');
+
+      const warmupContext = { slotKey: 'WARM_UP', attendingPlayerCount: 19, maximumStationGroupSize: 10 };
+      const warmupRes = checkDrillEligibility(drill12, warmupContext);
+      expect(warmupRes.eligible).toBe(true);
+    });
+
+    it('24: AI enhancement cannot alter dynamic group allocation or pairing fields', async () => {
+      const { enhancePlanWithAI } = require('../training/aiPlanEnhancer.js');
+      const localPlan = await generateLocalPlan({ ageGroup: 'U14', coachLevel: 3, playerCount: 27, durationMinutes: 60, seed: 456 });
+
+      const enhanced = await enhancePlanWithAI(localPlan, 'test-key');
+      const stA = enhanced.segments[1];
+
+      expect(stA.attendingPlayerCount).toBe(27);
+      expect(stA.group1Size).toBe(14);
+      expect(stA.group2Size).toBe(13);
+      expect(stA.maximumStationGroupSize).toBe(14);
+      expect(stA.assignedGroup).toBe('Group 1');
+      expect(stA.assignedPlayerCount).toBe(14);
+    });
   });
 
   // 11. CONSOLIDATED AFL KNOWLEDGE BASE INTEGRATION SUITE
