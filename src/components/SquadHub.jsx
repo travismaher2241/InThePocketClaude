@@ -409,16 +409,17 @@ export default function SquadHub({
           position: 'sticky',
           top: 0,
           zIndex: 40,
-          backgroundColor: '#0e0e12',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          paddingTop: '8px',
+          backgroundColor: '#0a0b0e',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          paddingTop: '12px',
           paddingBottom: '12px',
+          marginTop: '-8px',
           marginBottom: '4px',
           display: 'flex', 
           flexDirection: 'column', 
           gap: '12px', 
-          borderBottom: '1px solid rgba(255, 255, 255, 0.05)' 
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)' 
         }}
       >
         {/* Search Input Container */}
@@ -500,7 +501,8 @@ export default function SquadHub({
         style={{ 
           display: 'flex', 
           flexDirection: 'column',
-          borderTop: '1px solid rgba(255, 255, 255, 0.05)'
+          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+          paddingBottom: '120px' // Added generous clearance so FAB (+) button never obscures the last player card
         }}
       >
         {filteredAndSortedSquad.length === 0 ? (
