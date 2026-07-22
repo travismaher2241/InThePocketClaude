@@ -48,28 +48,32 @@ export default function DrillDetailsModal({ drill, onClose }) {
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(10, 12, 18, 0.92)',
+        backgroundColor: 'rgba(10, 12, 18, 0.94)',
         backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         zIndex: 9999,
         display: 'flex',
         flexDirection: 'column',
+        overflow: 'hidden',
         animation: 'fadeIn 0.2s ease-out'
       }}
     >
-      {/* STICKY HEADER */}
+      {/* FIXED TOP HEADER */}
       <div 
         style={{
-          padding: '16px 20px',
+          padding: '16px 20px 12px 20px',
           backgroundColor: '#161922',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: '12px'
+          alignItems: 'flex-start',
+          gap: '12px',
+          flexShrink: 0,
+          zIndex: 20
         }}
       >
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
             <span 
               style={{
                 fontFamily: 'var(--font-family-board)',
@@ -77,7 +81,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
                 fontWeight: '800',
                 backgroundColor: 'var(--color-training)',
                 color: '#ffffff',
-                padding: '2px 8px',
+                padding: '3px 8px',
                 borderRadius: '4px',
                 letterSpacing: '0.05em'
               }}
@@ -92,7 +96,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
                   color: '#ffb703',
                   backgroundColor: 'rgba(255, 183, 3, 0.12)',
                   border: '1px solid rgba(255, 183, 3, 0.3)',
-                  padding: '2px 8px',
+                  padding: '3px 8px',
                   borderRadius: '4px',
                   textTransform: 'uppercase'
                 }}
@@ -108,7 +112,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
                   color: '#38bdf8',
                   backgroundColor: 'rgba(56, 189, 248, 0.12)',
                   border: '1px solid rgba(56, 189, 248, 0.3)',
-                  padding: '2px 8px',
+                  padding: '3px 8px',
                   borderRadius: '4px'
                 }}
               >
@@ -119,7 +123,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
           <h2 
             style={{
               fontFamily: 'var(--font-family-locker)',
-              fontSize: '1.4rem',
+              fontSize: '1.35rem',
               fontWeight: '700',
               color: '#ffffff',
               margin: 0,
@@ -146,7 +150,8 @@ export default function DrillDetailsModal({ drill, onClose }) {
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            flexShrink: 0
+            flexShrink: 0,
+            zIndex: 30
           }}
           aria-label="Close Drill Details"
         >
@@ -156,7 +161,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
         </button>
       </div>
 
-      {/* NAVIGATION TABS (Mobile Jump Navigation) */}
+      {/* NAVIGATION TABS (Sticky Below Top Header) */}
       <div 
         style={{
           display: 'flex',
@@ -164,7 +169,9 @@ export default function DrillDetailsModal({ drill, onClose }) {
           borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
           overflowX: 'auto',
           WebkitOverflowScrolling: 'touch',
-          padding: '0 12px'
+          padding: '0 12px',
+          flexShrink: 0,
+          zIndex: 10
         }}
       >
         {[
@@ -202,6 +209,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
         style={{
           flex: 1,
           overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch',
           padding: '20px 16px 40px 16px',
           display: 'flex',
           flexDirection: 'column',

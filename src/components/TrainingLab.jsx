@@ -995,6 +995,30 @@ PROGRESSIONS & REGRESSIONS: CHANGE IT Coaching Tip: ${matchedWarmup.coachingTip}
   return card.instructions || '';
 };
 
+const renderFormattedList = (text) => {
+  if (!text) return null;
+  let items = [];
+  if (text.includes('•')) {
+    items = text.split('•').map(s => s.trim()).filter(Boolean);
+  } else if (text.includes('\n-') || text.includes('\n*') || text.includes('\n•')) {
+    items = text.split(/\n[-*•]\s*/).map(s => s.trim()).filter(Boolean);
+  }
+
+  if (items.length > 1) {
+    return (
+      <ul className="list-disc pl-4 space-y-1" style={{ margin: '4px 0 0 0', paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        {items.map((item, idx) => (
+          <li key={idx} style={{ color: '#d1d5db', lineHeight: '1.4', fontSize: '0.85rem' }}>
+            {item}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  return <span style={{ color: '#d1d5db', lineHeight: '1.4' }}>{text}</span>;
+};
+
 const renderDrillTextFramework = (card) => {
   if (!card) return null;
   let instructions = card.instructions || '';
@@ -1036,7 +1060,7 @@ const renderDrillTextFramework = (card) => {
       {setupText && (
         <div style={{ fontSize: '0.85rem' }}>
           <strong style={{ color: '#8d939e', textTransform: 'uppercase', fontSize: '0.75rem', display: 'block', marginBottom: '2px', letterSpacing: '0.04em' }}>Setup & Grid</strong>
-          <span style={{ color: '#d1d5db', lineHeight: '1.4' }}>{setupText}</span>
+          {renderFormattedList(setupText)}
         </div>
       )}
     </div>
@@ -3018,25 +3042,30 @@ The Switch: Switch stations at the ${s2Half}-minute mark.`;
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="form-group">
-              <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>Age Group</label>
-              <div 
-                style={{ 
-                  backgroundColor: 'rgba(255,255,255,0.03)', 
-                  border: '1px solid var(--border-light)',
-                  color: 'var(--text-primary)',
-                  padding: '10px 14px',
-                  borderRadius: '6px',
-                  fontFamily: 'inherit',
-                  fontSize: '0.9rem',
-                  width: '100%',
-                  opacity: 0.8, 
-                  cursor: 'not-allowed',
-                  boxSizing: 'border-box'
-                }}
-              >
-                {ageGroup}
+              <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>Age Group Target</label>
+              <div>
+                <div 
+                  style={{ 
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    backgroundColor: 'rgba(230, 57, 70, 0.12)', 
+                    border: '1px solid rgba(230, 57, 70, 0.35)',
+                    color: '#ffffff',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontFamily: 'var(--font-family-locker)',
+                    fontSize: '0.95rem',
+                    fontWeight: '700',
+                    letterSpacing: '0.03em',
+                    boxShadow: '0 2px 8px rgba(230, 57, 70, 0.15)'
+                  }}
+                >
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--color-training)', display: 'inline-block' }} />
+                  {ageGroup}
+                </div>
               </div>
-              <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+              <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
                 To customize the age group target, click the In The Pocket logo in the top-left to update squad settings.
               </p>
             </div>
@@ -3649,7 +3678,7 @@ The Switch: Switch stations at the ${s2Half}-minute mark.`;
       )}
 
       {/* Sticky Floating Action Button (Late Arrival Override) */}
-      {(step === 'parameters' || step === 'plan') && (
+      {step === 'parameters' && (
         <button 
           onClick={() => {
             if (!hasAccess(subscriptionTier, 'pro')) {
