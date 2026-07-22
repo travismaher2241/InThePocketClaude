@@ -401,11 +401,17 @@ export default function DrillDetailsModal({ drill, onClose }) {
                   Live Coaching Cues (Call Out During Drill)
                 </h4>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {coachingCues.map((cue, idx) => (
-                    <span key={idx} style={{ backgroundColor: '#3a86ff', color: '#ffffff', fontSize: '0.8rem', fontWeight: '700', padding: '6px 12px', borderRadius: '16px' }}>
-                      "{typeof cue === 'string' ? cue.replace(/^["'\s]+|["'\s]+$/g, '').replace(/\\"/g, '"') : String(cue)}"
-                    </span>
-                  ))}
+                  {coachingCues.map((cue, idx) => {
+                    const cleanCue = (typeof cue === 'string' ? cue : String(cue || ''))
+                      .replace(/^[“"'\u201C\u201D\u2018\u2019\s]+|[“"'\u201C\u201D\u2018\u2019\s]+$/g, '')
+                      .replace(/\\"/g, '"')
+                      .trim();
+                    return (
+                      <span key={idx} style={{ backgroundColor: '#3a86ff', color: '#ffffff', fontSize: '0.8rem', fontWeight: '700', padding: '6px 12px', borderRadius: '16px' }}>
+                        "{cleanCue}"
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             )}
