@@ -280,7 +280,7 @@ export default function SettingsModal({
                 />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '4px' }}>Tackle Mats</label>
+                <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '4px' }}>Tackle Bags</label>
                 <input 
                   type="number" 
                   min="0" 

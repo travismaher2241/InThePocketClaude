@@ -1835,7 +1835,7 @@ ${cardFormatText}
    Available Equipment Inventory:
    - Cones: ${currentEquipment.cones}
    - Footballs: ${currentEquipment.footballs}
-   - Tackle Mats / Bags: ${currentEquipment.tackleMats}
+   - Tackle Bags: ${currentEquipment.tackleMats}
    - Agility Poles: ${currentEquipment.agilityPoles}
    - Bibs: ${currentEquipment.bibs}
 
