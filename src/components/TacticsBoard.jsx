@@ -18,54 +18,54 @@ const AFL_POSITIONS = {
   }
 };
 
-// Tactical Initial Layout Helper
+// Tactical Initial Layout Helper (with clear offsets in tight zones to prevent badge stacking)
 const getDefaultTokens = () => {
   const whiteTeam = [
     // Backs
-    { id: 'white_fb', x: 120, y: 300, label: 'FB', team: 'white', name: 'Full Back' },
-    { id: 'white_bp1', x: 150, y: 120, label: 'BP', team: 'white', name: 'Back Pocket 1' },
-    { id: 'white_bp2', x: 150, y: 480, label: 'BP', team: 'white', name: 'Back Pocket 2' },
-    { id: 'white_chb', x: 280, y: 300, label: 'CHB', team: 'white', name: 'Centre Half Back' },
-    { id: 'white_hbf1', x: 320, y: 150, label: 'HBF', team: 'white', name: 'Half Back Flank 1' },
-    { id: 'white_hbf2', x: 320, y: 450, label: 'HBF', team: 'white', name: 'Half Back Flank 2' },
-    // Midfield / Ruck
-    { id: 'white_c', x: 500, y: 280, label: 'C', team: 'white', name: 'Centre' },
-    { id: 'white_wing1', x: 500, y: 80, label: 'WING', team: 'white', name: 'Wing 1' },
-    { id: 'white_wing2', x: 500, y: 520, label: 'WING', team: 'white', name: 'Wing 2' },
-    { id: 'white_ruck', x: 470, y: 270, label: 'RUCK', team: 'white', name: 'Ruck' },
-    { id: 'white_rr', x: 470, y: 330, label: 'RR', team: 'white', name: 'Ruck Rover' },
-    { id: 'white_rov', x: 490, y: 300, label: 'ROV', team: 'white', name: 'Rover' },
+    { id: 'white_fb', x: 100, y: 300, label: 'FB', team: 'white', name: 'Full Back' },
+    { id: 'white_bp1', x: 130, y: 130, label: 'BP', team: 'white', name: 'Back Pocket 1' },
+    { id: 'white_bp2', x: 130, y: 470, label: 'BP', team: 'white', name: 'Back Pocket 2' },
+    { id: 'white_chb', x: 260, y: 300, label: 'CHB', team: 'white', name: 'Centre Half Back' },
+    { id: 'white_hbf1', x: 300, y: 160, label: 'HBF', team: 'white', name: 'Half Back Flank 1' },
+    { id: 'white_hbf2', x: 300, y: 440, label: 'HBF', team: 'white', name: 'Half Back Flank 2' },
+    // Midfield / Ruck (Center Square Zone Offset)
+    { id: 'white_c', x: 470, y: 300, label: 'C', team: 'white', name: 'Centre' },
+    { id: 'white_wing1', x: 500, y: 70, label: 'WING', team: 'white', name: 'Wing 1' },
+    { id: 'white_wing2', x: 500, y: 530, label: 'WING', team: 'white', name: 'Wing 2' },
+    { id: 'white_ruck', x: 455, y: 240, label: 'RUCK', team: 'white', name: 'Ruck' },
+    { id: 'white_rr', x: 455, y: 360, label: 'RR', team: 'white', name: 'Ruck Rover' },
+    { id: 'white_rov', x: 430, y: 300, label: 'ROV', team: 'white', name: 'Rover' },
     // Forwards
-    { id: 'white_chf', x: 720, y: 300, label: 'CHF', team: 'white', name: 'Centre Half Forward' },
-    { id: 'white_hff1', x: 680, y: 150, label: 'HFF', team: 'white', name: 'Half Forward Flank 1' },
-    { id: 'white_hff2', x: 680, y: 450, label: 'HFF', team: 'white', name: 'Half Forward Flank 2' },
-    { id: 'white_ff', x: 880, y: 300, label: 'FF', team: 'white', name: 'Full Forward' },
-    { id: 'white_fp1', x: 850, y: 120, label: 'FP', team: 'white', name: 'Forward Pocket 1' },
-    { id: 'white_fp2', x: 850, y: 480, label: 'FP', team: 'white', name: 'Forward Pocket 2' },
+    { id: 'white_chf', x: 700, y: 300, label: 'CHF', team: 'white', name: 'Centre Half Forward' },
+    { id: 'white_hff1', x: 660, y: 160, label: 'HFF', team: 'white', name: 'Half Forward Flank 1' },
+    { id: 'white_hff2', x: 660, y: 440, label: 'HFF', team: 'white', name: 'Half Forward Flank 2' },
+    { id: 'white_ff', x: 860, y: 300, label: 'FF', team: 'white', name: 'Full Forward' },
+    { id: 'white_fp1', x: 830, y: 130, label: 'FP', team: 'white', name: 'Forward Pocket 1' },
+    { id: 'white_fp2', x: 830, y: 470, label: 'FP', team: 'white', name: 'Forward Pocket 2' },
   ];
 
   const blackTeam = [
     // Backs
-    { id: 'black_fb', x: 880, y: 305, label: 'FB', team: 'black', name: 'Full Back' },
-    { id: 'black_bp1', x: 850, y: 125, label: 'BP', team: 'black', name: 'Back Pocket 1' },
-    { id: 'black_bp2', x: 850, y: 485, label: 'BP', team: 'black', name: 'Back Pocket 2' },
-    { id: 'black_chb', x: 720, y: 305, label: 'CHB', team: 'black', name: 'Centre Half Back' },
-    { id: 'black_hbf1', x: 680, y: 155, label: 'HBF', team: 'black', name: 'Half Back Flank 1' },
-    { id: 'black_hbf2', x: 680, y: 455, label: 'HBF', team: 'black', name: 'Half Back Flank 2' },
-    // Midfield / Ruck
-    { id: 'black_c', x: 500, y: 320, label: 'C', team: 'black', name: 'Centre' },
-    { id: 'black_wing1', x: 500, y: 120, label: 'WING', team: 'black', name: 'Wing 1' },
-    { id: 'black_wing2', x: 500, y: 480, label: 'WING', team: 'black', name: 'Wing 2' },
-    { id: 'black_ruck', x: 530, y: 270, label: 'RUCK', team: 'black', name: 'Ruck' },
-    { id: 'black_rr', x: 530, y: 330, label: 'RR', team: 'black', name: 'Ruck Rover' },
-    { id: 'black_rov', x: 510, y: 300, label: 'ROV', team: 'black', name: 'Rover' },
+    { id: 'black_fb', x: 900, y: 300, label: 'FB', team: 'black', name: 'Full Back' },
+    { id: 'black_bp1', x: 870, y: 130, label: 'BP', team: 'black', name: 'Back Pocket 1' },
+    { id: 'black_bp2', x: 870, y: 470, label: 'BP', team: 'black', name: 'Back Pocket 2' },
+    { id: 'black_chb', x: 740, y: 300, label: 'CHB', team: 'black', name: 'Centre Half Back' },
+    { id: 'black_hbf1', x: 700, y: 160, label: 'HBF', team: 'black', name: 'Half Back Flank 1' },
+    { id: 'black_hbf2', x: 700, y: 440, label: 'HBF', team: 'black', name: 'Half Back Flank 2' },
+    // Midfield / Ruck (Center Square Zone Offset)
+    { id: 'black_c', x: 530, y: 300, label: 'C', team: 'black', name: 'Centre' },
+    { id: 'black_wing1', x: 500, y: 115, label: 'WING', team: 'black', name: 'Wing 1' },
+    { id: 'black_wing2', x: 500, y: 485, label: 'WING', team: 'black', name: 'Wing 2' },
+    { id: 'black_ruck', x: 545, y: 240, label: 'RUCK', team: 'black', name: 'Ruck' },
+    { id: 'black_rr', x: 545, y: 360, label: 'RR', team: 'black', name: 'Ruck Rover' },
+    { id: 'black_rov', x: 570, y: 300, label: 'ROV', team: 'black', name: 'Rover' },
     // Forwards
-    { id: 'black_chf', x: 280, y: 305, label: 'CHF', team: 'black', name: 'Centre Half Forward' },
-    { id: 'black_hff1', x: 320, y: 155, label: 'HFF', team: 'black', name: 'Half Forward Flank 1' },
-    { id: 'black_hff2', x: 320, y: 455, label: 'HFF', team: 'black', name: 'Half Forward Flank 2' },
-    { id: 'black_ff', x: 120, y: 305, label: 'FF', team: 'black', name: 'Full Forward' },
-    { id: 'black_fp1', x: 150, y: 125, label: 'FP', team: 'black', name: 'Forward Pocket 1' },
-    { id: 'black_fp2', x: 150, y: 485, label: 'FP', team: 'black', name: 'Forward Pocket 2' },
+    { id: 'black_chf', x: 220, y: 300, label: 'CHF', team: 'black', name: 'Centre Half Forward' },
+    { id: 'black_hff1', x: 260, y: 160, label: 'HFF', team: 'black', name: 'Half Forward Flank 1' },
+    { id: 'black_hff2', x: 260, y: 440, label: 'HFF', team: 'black', name: 'Half Forward Flank 2' },
+    { id: 'black_ff', x: 60, y: 300, label: 'FF', team: 'black', name: 'Full Forward' },
+    { id: 'black_fp1', x: 90, y: 130, label: 'FP', team: 'black', name: 'Forward Pocket 1' },
+    { id: 'black_fp2', x: 90, y: 470, label: 'FP', team: 'black', name: 'Forward Pocket 2' },
   ];
 
   return [...whiteTeam, ...blackTeam];
@@ -159,6 +159,48 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
     );
   }
 
+  // Draw high-visibility crisp white tactical field markings
+  const drawFieldMarkings = (ctx) => {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+    ctx.lineWidth = 2.5;
+
+    // Boundary Line
+    ctx.beginPath();
+    ctx.ellipse(500, 300, 465, 275, 0, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // Center Square
+    ctx.beginPath();
+    ctx.rect(400, 200, 200, 200);
+    ctx.stroke();
+
+    // Center Circles
+    ctx.beginPath();
+    ctx.arc(500, 300, 20, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(500, 300, 60, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // 50m Arcs
+    ctx.beginPath();
+    ctx.arc(35, 300, 205, -Math.PI / 2.3, Math.PI / 2.3);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(965, 300, 205, Math.PI - Math.PI / 2.3, Math.PI + Math.PI / 2.3);
+    ctx.stroke();
+
+    // Goal Squares
+    ctx.beginPath();
+    ctx.rect(35, 275, 30, 50);
+    ctx.rect(935, 275, 30, 50);
+    ctx.stroke();
+
+    ctx.restore();
+  };
+
   // Main Draw function using virtual scaling
   const drawCanvas = () => {
     const canvas = canvasRef.current;
@@ -170,11 +212,14 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
     // Scale context so that we draw in virtual 1000x600 coordinates
     ctx.scale(canvas.width / 1000, canvas.height / 600);
 
+    // Draw tactical field markings
+    drawFieldMarkings(ctx);
+
     // Draw permanent drawings (brush and arrows)
     drawings.current.forEach((item) => {
       ctx.beginPath();
-      ctx.lineWidth = item.width || 3;
-      ctx.strokeStyle = item.color || 'rgba(255, 255, 255, 0.7)';
+      ctx.lineWidth = item.width || 4;
+      ctx.strokeStyle = item.color || 'rgba(255, 255, 255, 0.95)';
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
 
@@ -204,8 +249,8 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
         ctx.beginPath();
         ctx.moveTo(p1.x, p1.y);
         ctx.lineTo(p2.x, p2.y);
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = `rgba(230, 57, 70, ${alpha * 0.85})`;
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = `rgba(230, 57, 70, ${alpha * 0.9})`;
         ctx.lineCap = 'round';
         ctx.stroke();
       }
@@ -604,69 +649,45 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
           <h2 className="scoreboard-font" style={{ color: 'var(--color-tactics)', margin: 0 }}>Tactics Board</h2>
         </div>
-        
-        {/* Swipe Description Label Block */}
-        <div style={{ fontSize: '11px', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em', marginBottom: '4px' }}>
-          Tools (swipe to see more):
-        </div>
 
-        {/* High-End Hardware Control Strip at top (monochrome style) */}
+        {/* Compact 2-row grid layout toolbar for simultaneous tool visibility */}
         <div 
           className="tactics-toolbar"
           style={{ 
-            display: 'flex', 
-            flexDirection: 'row',
-            flexWrap: 'nowrap',
-            gap: '8px', 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '6px 8px', 
             backgroundColor: '#1c1f26', 
-            padding: '6px 12px', 
-            borderRadius: '20px', 
+            padding: '8px 10px', 
+            borderRadius: '16px', 
             border: '1px solid rgba(255, 255, 255, 0.08)',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
             alignItems: 'center',
             userSelect: 'none',
-            overflowX: 'auto',
-            overflowY: 'hidden',
             width: '100%',
-            boxSizing: 'border-box',
-            scrollbarWidth: 'none',
-            WebkitOverflowScrolling: 'touch',
-            paddingRight: '24px' // Ensure last element isn't cut off by the visual mask fade
+            boxSizing: 'border-box'
           }}
         >
-          <style>{`
-            .tactics-toolbar::-webkit-scrollbar {
-              display: none;
-            }
-            @media (max-width: 550px) {
-              .tactics-toolbar {
-                mask-image: linear-gradient(to right, #000 82%, transparent 100%);
-                -webkit-mask-image: linear-gradient(to right, #000 82%, transparent 100%);
-              }
-            }
-          `}</style>
-
           {/* Brush */}
           <button 
             onClick={() => setTool('brush')}
             style={{ 
-              padding: '6px 12px', 
+              padding: '6px 8px', 
               fontSize: '0.75rem',
               fontFamily: 'var(--font-family-locker)',
               fontWeight: '700',
               textTransform: 'uppercase',
-              backgroundColor: tool === 'brush' ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              backgroundColor: tool === 'brush' ? 'rgba(255, 255, 255, 0.12)' : 'transparent',
               color: tool === 'brush' ? '#ffffff' : '#8d939e',
               border: 'none',
-              borderRadius: '12px',
+              borderRadius: '10px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '4px',
-              transition: 'color 0.2s, background-color 0.2s',
-              minWidth: '75px',
-              flexShrink: 0
+              transition: 'all 0.2s ease',
+              width: '100%'
             }}
           >
             <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -679,23 +700,22 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
           <button 
             onClick={() => setTool('arrow')}
             style={{ 
-              padding: '6px 12px', 
+              padding: '6px 8px', 
               fontSize: '0.75rem',
               fontFamily: 'var(--font-family-locker)',
               fontWeight: '700',
               textTransform: 'uppercase',
-              backgroundColor: tool === 'arrow' ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              backgroundColor: tool === 'arrow' ? 'rgba(255, 255, 255, 0.12)' : 'transparent',
               color: tool === 'arrow' ? '#ffffff' : '#8d939e',
               border: 'none',
-              borderRadius: '12px',
+              borderRadius: '10px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '4px',
-              transition: 'color 0.2s, background-color 0.2s',
-              minWidth: '75px',
-              flexShrink: 0
+              transition: 'all 0.2s ease',
+              width: '100%'
             }}
           >
             <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -708,23 +728,22 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
           <button 
             onClick={() => setTool('laser')}
             style={{ 
-              padding: '6px 12px', 
+              padding: '6px 8px', 
               fontSize: '0.75rem',
               fontFamily: 'var(--font-family-locker)',
               fontWeight: '700',
               textTransform: 'uppercase',
-              backgroundColor: tool === 'laser' ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              backgroundColor: tool === 'laser' ? 'rgba(255, 255, 255, 0.12)' : 'transparent',
               color: tool === 'laser' ? '#ffffff' : '#8d939e',
               border: 'none',
-              borderRadius: '12px',
+              borderRadius: '10px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '4px',
-              transition: 'color 0.2s, background-color 0.2s',
-              minWidth: '75px',
-              flexShrink: 0
+              transition: 'all 0.2s ease',
+              width: '100%'
             }}
             title="Drill marks fade away in 1.5 seconds automatically!"
           >
@@ -738,7 +757,7 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
           <button 
             onClick={toggleBallToken}
             style={{ 
-              padding: '6px 12px', 
+              padding: '6px 8px', 
               fontSize: '0.75rem',
               fontFamily: 'var(--font-family-locker)',
               fontWeight: '700',
@@ -746,15 +765,14 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
               backgroundColor: tokens.some(t => t.id === 'ball') ? 'rgba(230, 92, 0, 0.2)' : 'transparent',
               color: tokens.some(t => t.id === 'ball') ? '#ff7a00' : '#8d939e',
               border: 'none',
-              borderRadius: '12px',
+              borderRadius: '10px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '4px',
-              transition: 'color 0.2s, background-color 0.2s',
-              minWidth: '70px',
-              flexShrink: 0
+              transition: 'all 0.2s ease',
+              width: '100%'
             }}
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -764,29 +782,26 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
             Ball
           </button>
 
-          <div style={{ width: '1px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.1)', flexShrink: 0 }}></div>
-
           {/* Eraser */}
           <button 
             onClick={() => setTool('eraser')}
             style={{ 
-              padding: '6px 12px', 
+              padding: '6px 8px', 
               fontSize: '0.75rem',
               fontFamily: 'var(--font-family-locker)',
               fontWeight: '700',
               textTransform: 'uppercase',
-              backgroundColor: tool === 'eraser' ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              backgroundColor: tool === 'eraser' ? 'rgba(255, 255, 255, 0.12)' : 'transparent',
               color: tool === 'eraser' ? '#ffffff' : '#8d939e',
               border: 'none',
-              borderRadius: '12px',
+              borderRadius: '10px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '4px',
-              transition: 'color 0.2s, background-color 0.2s',
-              minWidth: '80px',
-              flexShrink: 0
+              transition: 'all 0.2s ease',
+              width: '100%'
             }}
           >
             <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -799,7 +814,7 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
           <button 
             onClick={clearCanvas}
             style={{ 
-              padding: '6px 12px', 
+              padding: '6px 8px', 
               fontSize: '0.75rem',
               fontFamily: 'var(--font-family-locker)',
               fontWeight: '700',
@@ -807,14 +822,15 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
               backgroundColor: 'transparent',
               color: '#e63946',
               border: 'none',
-              borderRadius: '12px',
+              borderRadius: '10px',
               cursor: 'pointer',
-              transition: 'opacity 0.2s',
-              minWidth: '60px',
-              flexShrink: 0
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '4px',
+              transition: 'all 0.2s ease',
+              width: '100%'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
-            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
           >
             Clear
           </button>
@@ -1424,8 +1440,8 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
         </button>
       </div>
       
-      <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '-4px', marginBottom: '0' }}>
-        💡 Right-click (or long-press) on the field to add standard AFL positions. Right-click any token to edit/delete. Drag off-field to remove. Double-click to rename.
+      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '4px', marginBottom: '80px', paddingBottom: '12px' }}>
+        💡 Tap and drag to move players. Long-press a player to edit name/position. Drag off-field to remove.
       </p>
     </div>
   );
