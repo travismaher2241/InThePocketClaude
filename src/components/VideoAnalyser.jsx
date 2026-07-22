@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import aflGroundImg from '../assets/AFL GROUND.png';
 import ContextualTaggingModal from './ContextualTaggingModal';
-import { saveVideoClipToIDB, getAllVideoClipsFromIDB, deleteVideoClipFromIDB, safeRevokeObjectURL } from '../utils/videoStore';
+import { saveVideoClipToIDB, getVideoClipsFromIDB, deleteVideoClipFromIDB, safeRevokeObjectURL } from '../utils/videoStore';
+import { useAuth } from '../context/AuthProvider';
 
 // WebM Duration fixer helper to ensure iOS/Safari compatibility
 function fixWebmDuration(blob, duration, callback) {
@@ -76,32 +77,24 @@ function fixWebmDuration(blob, duration, callback) {
   reader.readAsArrayBuffer(blob);
 }
 
-export default function VideoAnalyser({
-  squad = [],
-  videoClips = [],
-  setVideoClips,
-  selectedReviewClip,
-  setSelectedReviewClip,
-  showToast
-}) {
+export default function VideoAnalyser({ squad, videoClips, setVideoClips, selectedReviewClip, setSelectedReviewClip, showToast }) {
+  const { currentUser } = useAuth();
   const [activeClip, setActiveClip] = useState(null);
-  const [activeCategory, setActiveCategory] = useState('all'); // 'all', 'match', 'training', 'tagged'
+  const [activeTab, setActiveTab] = useState('review'); // 'review' or 'tagging'
+  const [tagFilter, setTagFilter] = useState('ALL');
 
-  // Load clips from IndexedDB on mount
+  // Load clips from IndexedDB on mount & when currentUser changes
   useEffect(() => {
     let isMounted = true;
-    getAllVideoClipsFromIDB().then(idbClips => {
-      if (!isMounted || !idbClips.length) return;
-      setVideoClips(prev => {
-        const existingIds = new Set(prev.map(c => c.id));
-        const newFromIDB = idbClips.filter(c => !existingIds.has(c.id));
-        return [...newFromIDB, ...prev];
-      });
+    const uid = currentUser?.uid || 'guest';
+    getVideoClipsFromIDB(uid).then(idbClips => {
+      if (!isMounted) return;
+      setVideoClips(idbClips || []);
     }).catch(console.error);
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [currentUser]);
 
   const handleDeleteClip = (e, clipId) => {
     e.stopPropagation();
@@ -110,7 +103,7 @@ export default function VideoAnalyser({
       if (targetClip?.videoUrl) {
         safeRevokeObjectURL(targetClip.videoUrl);
       }
-      deleteVideoClipFromIDB(clipId).catch(console.error);
+      deleteVideoClipFromIDB(clipId, currentUser?.uid).catch(console.error);
 
       setVideoClips(prev => prev.filter(c => c.id !== clipId));
       if (activeClip && activeClip.id === clipId) {
@@ -130,6 +123,7 @@ export default function VideoAnalyser({
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
+    const uid = currentUser?.uid || 'guest';
     const newClips = [];
     for (let idx = 0; idx < files.length; idx++) {
       const file = files[idx];
@@ -137,6 +131,7 @@ export default function VideoAnalyser({
       const videoUrl = URL.createObjectURL(file);
       const clip = {
         id: clipId,
+        ownerId: uid,
         videoUrl,
         fileName: file.name,
         date: new Date().toISOString().split('T')[0],
@@ -148,9 +143,10 @@ export default function VideoAnalyser({
       newClips.push(clip);
 
       try {
-        await saveVideoClipToIDB(clip, file);
+        await saveVideoClipToIDB(clip, file, uid);
       } catch (storageErr) {
         console.warn("Storage quota or IDB failure saving video blob:", storageErr);
+        clip.isSessionOnly = true;
         if (showToast) {
           showToast(`Note: ${file.name} saved as session-only due to browser storage limits.`);
         }
@@ -162,17 +158,19 @@ export default function VideoAnalyser({
 
   const handleSaveTaggedClip = (tagData) => {
     if (!taggingClip) return;
+    const uid = currentUser?.uid || 'guest';
 
     const updatedClips = videoClips.map(clip => {
       if (clip.id === taggingClip.id) {
         const updated = {
           ...clip,
+          ownerId: uid,
           date: tagData.date,
           drillName: tagData.drillName,
           playerIds: tagData.playerIds,
           isPending: false
         };
-        saveVideoClipToIDB(updated).catch(console.error);
+        saveVideoClipToIDB(updated, null, uid).catch(console.error);
         return updated;
       }
       return clip;

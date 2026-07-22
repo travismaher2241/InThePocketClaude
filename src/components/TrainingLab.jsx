@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ContextualTaggingModal from './ContextualTaggingModal';
 import DrillDetailsModal from './DrillDetailsModal';
-import { saveTrainingSession, getTrainingSessions, deleteSession, hasAccess, generateAIPlanSecure, getUserProfile } from '../firebaseHelpers';
+import { saveTrainingSession, getTrainingSessions, deleteSession, hasAccess, fetchRawAIPlan, confirmAIGenerationQuota, getUserProfile } from '../firebaseHelpers';
+import { saveVideoClipToIDB } from '../utils/videoStore';
 import { useAuth } from '../context/AuthProvider';
 import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS, ADULT_LOCAL_DRILLS, AFL_PRE_GAME_WARMUPS, SYLLABUS_DRILLS, loadDrillsDatabase } from '../data/curriculumKnowledge';
 import aflGroundImage from '../assets/AFL GROUND.png';
@@ -1349,6 +1350,7 @@ export default function TrainingLab({
     if (file) {
       const videoUrl = URL.createObjectURL(file);
       setPendingClip({
+        file,
         videoUrl,
         fileName: file.name,
         drillName
@@ -1358,16 +1360,25 @@ export default function TrainingLab({
   };
 
   const handleSaveTaggedClip = (tagData) => {
-    if (pendingClip && onSaveVideoClip) {
-      onSaveVideoClip({
-        id: 'v_' + Date.now(),
+    if (pendingClip) {
+      const uid = currentUser?.uid || 'guest';
+      const clipId = 'v_' + Date.now();
+      const clipRecord = {
+        id: clipId,
+        ownerId: uid,
         videoUrl: pendingClip.videoUrl,
         fileName: pendingClip.fileName,
         date: tagData.date,
         drillName: tagData.drillName,
         playerIds: tagData.playerIds,
         drawings: []
-      });
+      };
+
+      saveVideoClipToIDB(clipRecord, pendingClip.file, uid).catch(console.error);
+
+      if (onSaveVideoClip) {
+        onSaveVideoClip(clipRecord);
+      }
       setTaggingModalOpen(false);
       setPendingClip(null);
     }
@@ -1932,7 +1943,7 @@ Ensure you return a JSON array containing exactly 4 objects as defined in the ca
 
 ${customPlaybookText ? `Use the following strategic playbook guidelines to shape the drills and tactics: "${customPlaybookText}"` : ''}`;
 
-        const data = await generateAIPlanSecure(currentUser?.uid, promptText, apiKey);
+        const data = await fetchRawAIPlan(currentUser?.uid, promptText, apiKey);
         const contentText = data.candidates?.[0]?.content?.parts?.[0]?.text;
         
         if (contentText) {
@@ -2010,13 +2021,19 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
                 throw new Error("Rejecting AI plan generation due to parameter schema check failure: data contamination detected.");
               }
 
+              // Accept plan into state ONLY when 100% valid
               setPlanCards(sanitizePlanCards(normalized, groundName, playerCount));
               setIsFallback(false);
               setIsGenerating(false);
-              const userTierClean = (subscriptionTier || 'Free').toLowerCase();
-              if (userTierClean === 'free' || userTierClean === 'default') {
-                setAiGensUsed(prev => prev + 1);
+
+              // Confirm and record quota consumption after acceptance
+              try {
+                const newCount = await confirmAIGenerationQuota(currentUser?.uid);
+                setAiGensUsed(newCount);
+              } catch (quotaErr) {
+                console.warn("Quota confirmation transaction failed:", quotaErr);
               }
+
               logSyncTransaction('GEMINI_API_PLAN_GEN', { focus: focusAreas.join(", "), duration, playerCount, equipment: currentEquipment });
               return;
             }

@@ -288,7 +288,7 @@ export async function updateUserProfile(uid, fields) {
  * @param {string} apiKey 
  * @returns {Promise<object>}
  */
-export async function generateAIPlanSecure(uid, promptText, apiKey) {
+export async function fetchRawAIPlan(uid, promptText, apiKey) {
   if (!uid) throw new Error("Authenticated user required.");
   
   // 1. Fetch user profile from Firestore to verify their subscription
@@ -346,9 +346,22 @@ export async function generateAIPlanSecure(uid, promptText, apiKey) {
     throw new Error("Invalid output received from AI model.");
   }
 
-  // 3. Atomically increment generation count using a transaction ONLY after valid AI plan is returned
+  return data;
+}
+
+/**
+ * Confirms and records an AI generation quota usage after the plan has been fully parsed and accepted.
+ * @param {string} uid 
+ * @returns {Promise<number>} Updated generation count
+ */
+export async function confirmAIGenerationQuota(uid) {
+  if (!uid) throw new Error("Authenticated user required.");
+  const profile = await getUserProfile(uid);
+  const userTier = (profile?.subscriptionTier || 'free').toLowerCase();
+
   if (userTier === 'free') {
     const userRef = doc(db, "users", uid);
+    let updatedGens = 2;
     await runTransaction(db, async (transaction) => {
       const userDoc = await transaction.get(userRef);
       if (!userDoc.exists()) {
@@ -358,9 +371,14 @@ export async function generateAIPlanSecure(uid, promptText, apiKey) {
       if (currentGens >= 2) {
         throw new Error("Upgrade Required: Free tier is limited to exactly 2 AI generations.");
       }
-      transaction.update(userRef, { aiGensCount: currentGens + 1 });
+      updatedGens = currentGens + 1;
+      transaction.update(userRef, { aiGensCount: updatedGens });
     });
+    return updatedGens;
   }
+  return profile?.aiGensCount || 0;
+}
 
-  return data;
+export async function generateAIPlanSecure(uid, promptText, apiKey) {
+  return await fetchRawAIPlan(uid, promptText, apiKey);
 }

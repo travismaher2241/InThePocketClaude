@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ContextualTaggingModal from './ContextualTaggingModal';
 import { hasAccess } from '../firebaseHelpers';
 import { useAuth } from '../context/AuthProvider';
 import { safeJsonParse, getScopedKey, migrateUnscopedKey } from '../utils/storageUtils';
+import { saveVideoClipToIDB } from '../utils/videoStore';
 
 // Formal AFL Positional Layout Definitions (18 on-field positions)
 const FIELD_POSITIONS = [
@@ -95,6 +96,7 @@ export default function MatchDay({
     if (file) {
       const videoUrl = URL.createObjectURL(file);
       setPendingClip({
+        file,
         videoUrl,
         fileName: file.name,
         drillName: `Match Segment - Q${period}`
@@ -104,16 +106,25 @@ export default function MatchDay({
   };
 
   const handleSaveTaggedClip = (tagData) => {
-    if (pendingClip && onSaveVideoClip) {
-      onSaveVideoClip({
-        id: 'v_' + Date.now(),
+    if (pendingClip) {
+      const uid = currentUser?.uid || 'guest';
+      const clipId = 'v_' + Date.now();
+      const clipRecord = {
+        id: clipId,
+        ownerId: uid,
         videoUrl: pendingClip.videoUrl,
         fileName: pendingClip.fileName,
         date: tagData.date,
         drillName: tagData.drillName,
         playerIds: tagData.playerIds,
         drawings: []
-      });
+      };
+
+      saveVideoClipToIDB(clipRecord, pendingClip.file, uid).catch(console.error);
+
+      if (onSaveVideoClip) {
+        onSaveVideoClip(clipRecord);
+      }
       setTaggingModalOpen(false);
       setPendingClip(null);
     }
@@ -197,6 +208,48 @@ export default function MatchDay({
   }, [activeSelectSlotId]);
 
   // Handler for direct assignment & swapping inside inline selector
+  const pendingUpdatesRef = useRef({});
+  const debounceTimerRef = useRef(null);
+  const [exportedMatchTime, setExportedMatchTime] = useState(false);
+
+  const queuePlayerUpdate = (playerId, updateFields) => {
+    if (!playerId) return;
+    pendingUpdatesRef.current[playerId] = {
+      ...(pendingUpdatesRef.current[playerId] || {}),
+      ...updateFields
+    };
+
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      flushPendingUpdates();
+    }, 2000);
+  };
+
+  const flushPendingUpdates = () => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+
+    const updates = pendingUpdatesRef.current;
+    pendingUpdatesRef.current = {};
+
+    Object.entries(updates).forEach(([id, fields]) => {
+      if (typeof onEditPlayer === 'function') {
+        onEditPlayer(id, fields);
+      }
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      flushPendingUpdates();
+    };
+  }, []);
+
   const handleAssignPlayerToSlot = (playerId, slotId) => {
     if (!slotId) return;
     
@@ -207,12 +260,12 @@ export default function MatchDay({
     
     // Swap/displacement: if slot occupied, return previous player to bench
     if (currentAssignedId && currentAssignedId !== playerId) {
-      onEditPlayer && onEditPlayer(currentAssignedId, { position: 'Bench' });
+      queuePlayerUpdate(currentAssignedId, { position: 'Bench' });
     }
 
     if (playerId) {
       // Assign new player to slot
-      onEditPlayer && onEditPlayer(playerId, { position: pos.code });
+      queuePlayerUpdate(playerId, { position: pos.code });
       
       setFieldAssignments(prev => {
         const next = { ...prev };
@@ -227,7 +280,7 @@ export default function MatchDay({
     } else {
       // Remove player
       if (currentAssignedId) {
-        onEditPlayer && onEditPlayer(currentAssignedId, { position: 'Bench' });
+        queuePlayerUpdate(currentAssignedId, { position: 'Bench' });
       }
       setFieldAssignments(prev => {
         const next = { ...prev };
@@ -443,7 +496,7 @@ export default function MatchDay({
   };
 
   const handleExportRotationStats = () => {
-    if (!onEditPlayer) return;
+    if (!onEditPlayer || exportedMatchTime) return;
     squad.forEach(p => {
       const togSeconds = playerTOG[p.id] || 0;
       const togMinutes = Math.round(togSeconds / 60);
@@ -453,14 +506,17 @@ export default function MatchDay({
       const currentStats = p.stats || { totalTime: 0, stints: 0 };
       const updatedStats = {
         ...currentStats,
-        totalTime: currentStats.totalTime + togMinutes,
+        totalTime: (currentStats.totalTime || 0) + togMinutes,
         togMinutes: (currentStats.togMinutes || 0) + togMinutes,
         benchMinutes: (currentStats.benchMinutes || 0) + benchMinutes,
-        stints: currentStats.stints + (togMinutes > 0 ? 1 : 0)
+        stints: (currentStats.stints || 0) + (togMinutes > 0 ? 1 : 0)
       };
 
-      onEditPlayer(p.id, { stats: updatedStats });
+      queuePlayerUpdate(p.id, { stats: updatedStats });
     });
+
+    flushPendingUpdates();
+    setExportedMatchTime(true);
 
     if (navigator.vibrate) {
       navigator.vibrate([100, 50, 100]);

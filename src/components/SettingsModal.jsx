@@ -411,15 +411,26 @@ export default function SettingsModal({
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                       <label>Offline Sync Transaction Log ({syncQueue.length})</label>
-                      {syncQueue.length > 0 && (
-                        <button 
-                          className="btn" 
-                          onClick={clearSyncQueue} 
-                          style={{ padding: '2px 8px', fontSize: '0.7rem', border: '1px solid rgba(230, 57, 70, 0.3)', color: '#e63946' }}
-                        >
-                          Clear Queue
-                        </button>
-                      )}
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        {syncQueue.length > 0 && typeof onReRunSetup === 'function' && (
+                          <button 
+                            className="btn" 
+                            onClick={clearSyncQueue} 
+                            style={{ padding: '2px 8px', fontSize: '0.7rem', border: '1px solid rgba(230, 57, 70, 0.3)', color: '#e63946' }}
+                          >
+                            Clear Queue
+                          </button>
+                        )}
+                        {syncQueue.length > 0 && (
+                          <button 
+                            className="btn" 
+                            onClick={() => { if (typeof onReRunSetup === 'function') onReRunSetup(); }} 
+                            style={{ padding: '2px 8px', fontSize: '0.7rem', border: '1px solid var(--color-squad)', color: 'var(--color-squad)' }}
+                          >
+                            Retry Sync
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <div 
                       style={{ 
@@ -427,27 +438,44 @@ export default function SettingsModal({
                         border: '1px solid var(--border-light)', 
                         borderRadius: '6px', 
                         padding: '12px', 
-                        height: '140px', 
+                        height: '160px', 
                         overflowY: 'auto',
                         fontSize: '0.75rem',
                         fontFamily: 'monospace'
                       }}
                     >
                       {syncQueue.length === 0 ? (
-                        <div style={{ color: 'var(--text-muted)', textAlign: 'center', paddingTop: '48px' }}>
+                        <div style={{ color: 'var(--text-muted)', textAlign: 'center', paddingTop: '58px' }}>
                           No pending transactions. All changes are synced.
                         </div>
                       ) : (
-                        syncQueue.map((item, idx) => (
-                          <div key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '4px', marginBottom: '4px' }}>
-                            <span style={{ color: 'var(--color-match)' }}>[{new Date(item.timestamp).toLocaleTimeString()}]</span>{' '}
-                            <span style={{ color: 'var(--color-squad)' }}>{item.type}</span> - {JSON.stringify(item.payload)}
-                          </div>
-                        ))
+                        syncQueue.map((item, idx) => {
+                          const statusColor = item.status === 'failed' ? '#e63946' : item.status === 'syncing' ? '#f1c40f' : '#3a86ff';
+                          return (
+                            <div key={item.id || idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '6px', marginBottom: '6px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ color: 'var(--color-match)', fontWeight: 'bold' }}>
+                                  {item.type}
+                                </span>
+                                <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '4px', backgroundColor: statusColor, color: '#000000', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                                  {item.status || 'pending'} (attempts: {item.attempts || 0})
+                                </span>
+                              </div>
+                              <div style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', marginTop: '2px', wordBreak: 'break-all' }}>
+                                Payload: {JSON.stringify(item.payload)}
+                              </div>
+                              {item.lastError && (
+                                <div style={{ color: '#e63946', fontSize: '0.7rem', marginTop: '2px', fontStyle: 'italic' }}>
+                                  Error: {item.lastError}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })
                       )}
                     </div>
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
-                      Simulates SQLite/Room local disk caching. Toggling the connection state to "Offline" queues data, then flushes it when "Online".
+                      Stores uncommitted writes locally. Items are removed ONLY when cloud write succeeds.
                     </p>
                   </div>
 

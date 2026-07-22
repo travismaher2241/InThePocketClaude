@@ -9,9 +9,6 @@ export default function SubscriptionPage({
 }) {
   const [checkoutTier, setCheckoutTier] = useState(null); // 'Pro' | 'Ultra' | 'B2B'
   const [userName, setUserName] = useState('');
-  const [cardNumber, setCardNumber] = useState('4111 2222 3333 4444');
-  const [cardExpiry, setCardExpiry] = useState('12/28');
-  const [cardCVC, setCardCVC] = useState('123');
   
   const [successUpgrade, setSuccessUpgrade] = useState(null); // { tier, name }
 

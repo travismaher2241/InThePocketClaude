@@ -35,18 +35,33 @@ export function getScopedKey(baseKey, uidOrIdentifier) {
 }
 
 /**
- * Safely migrates an existing unscoped localStorage key to a user-scoped key if the scoped key does not yet exist.
+ * One-time migration strategy:
+ * Copies legacy unscoped keys to the first authenticated user's scoped key once,
+ * then removes the legacy unscoped key so subsequent new tester accounts do NOT inherit legacy data.
  * @param {string} baseKey 
  * @param {string} [uidOrIdentifier] 
  */
 export function migrateUnscopedKey(baseKey, uidOrIdentifier) {
-  if (!uidOrIdentifier) return;
+  if (!uidOrIdentifier || uidOrIdentifier === 'guest') return;
+  
+  const migrationMarker = `inthepocket_migrated_v2_${baseKey}`;
+  if (localStorage.getItem(migrationMarker)) {
+    return; // Migration for this key has already taken place
+  }
+
   const scopedKey = getScopedKey(baseKey, uidOrIdentifier);
   const existingScoped = localStorage.getItem(scopedKey);
-  if (!existingScoped) {
-    const unscopedVal = localStorage.getItem(baseKey);
-    if (unscopedVal !== null && unscopedVal !== undefined) {
-      localStorage.setItem(scopedKey, unscopedVal);
-    }
+  const unscopedVal = localStorage.getItem(baseKey);
+
+  if (!existingScoped && unscopedVal !== null && unscopedVal !== undefined) {
+    localStorage.setItem(scopedKey, unscopedVal);
   }
+
+  // Remove the legacy unscoped key so it cannot be copied to other users
+  if (unscopedVal !== null && unscopedVal !== undefined) {
+    localStorage.removeItem(baseKey);
+  }
+
+  // Set permanent migration marker
+  localStorage.setItem(migrationMarker, 'true');
 }

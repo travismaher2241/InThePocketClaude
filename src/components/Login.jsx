@@ -130,26 +130,28 @@ export default function Login() {
           >
             Coach Login
           </button>
-          <button
-            type="button"
-            onClick={() => { setIsTesterMode(true); setError(''); setMessage(''); }}
-            style={{
-              flex: 1,
-              backgroundColor: 'transparent',
-              border: 'none',
-              borderBottom: isTesterMode ? '2px solid var(--color-squad)' : '2px solid transparent',
-              color: isTesterMode ? '#ffffff' : '#8d939e',
-              padding: '10px',
-              fontSize: '0.75rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em'
-            }}
-          >
-            Tester Access
-          </button>
+          {import.meta.env.VITE_ENABLE_TESTER_MODE !== 'false' && (
+            <button
+              type="button"
+              onClick={() => { setIsTesterMode(true); setError(''); setMessage(''); }}
+              style={{
+                flex: 1,
+                backgroundColor: 'transparent',
+                border: 'none',
+                borderBottom: isTesterMode ? '2px solid var(--color-squad)' : '2px solid transparent',
+                color: isTesterMode ? '#ffffff' : '#8d939e',
+                padding: '10px',
+                fontSize: '0.75rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}
+            >
+              Tester Access
+            </button>
+          )}
         </div>
 
         {error && (
