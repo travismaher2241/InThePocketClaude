@@ -1050,8 +1050,21 @@ const renderDrillTextFramework = (card) => {
     setupText = "Set up marked grid area with cones.";
   }
 
+  const isConcurrent = card.isConcurrent === true || (card.slotName && card.slotName.startsWith('Station'));
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.875rem', fontFamily: 'var(--font-family-body)', color: '#d1d5db', lineHeight: '1.5', marginTop: '4px' }}>
+      {isConcurrent && (
+        <div style={{ backgroundColor: 'rgba(58, 134, 255, 0.08)', padding: '8px 12px', borderRadius: '6px', borderLeft: '3px solid #3a86ff', fontSize: '0.82rem' }}>
+          <strong style={{ color: '#3a86ff', textTransform: 'uppercase', fontSize: '0.72rem', display: 'block', marginBottom: '2px', letterSpacing: '0.04em' }}>
+            Concurrent Station Rotation ({card.blockMinutes || 15} Min Block Total)
+          </strong>
+          <span style={{ color: '#e0e7ff', fontWeight: '500' }}>
+            {card.groupAllocation || `Group 1 at ${card.slotName || 'Station'}; Group 2 at ${card.partnerSlot || 'Partner Station'}`}. Swap stations at {card.perStationMinutes || card.minutes || 7.5} min mark.
+          </span>
+        </div>
+      )}
+
       {objectiveText && (
         <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', padding: '10px 12px', borderRadius: '6px', borderLeft: '3px solid #ffb703' }}>
           <strong style={{ color: '#ffb703', fontSize: '0.75rem', textTransform: 'uppercase', display: 'block', marginBottom: '2px', letterSpacing: '0.04em' }}>Objective</strong>

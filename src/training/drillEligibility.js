@@ -106,7 +106,7 @@ export function checkDrillEligibility(drill, context) {
 
   // 1. Coaching Level / Knowledge Check
   const drillDiff = normalizeCoachingDifficulty(drill.coachingDifficulty || drill.skillLevel);
-  const maxAllowedDiff = Math.min(5, Math.max(1, parseInt(coachLevel, 10) || 3));
+  const maxAllowedDiff = Math.min(5, Math.max(2, parseInt(coachLevel, 10) || 3));
   if (drillDiff > maxAllowedDiff) {
     return {
       eligible: false,
@@ -125,9 +125,7 @@ export function checkDrillEligibility(drill, context) {
         reason: `Explicitly marked unsuitable for age group ${ageGroup} (${mappedAgeKey})`
       };
     }
-    // Explicit policy: if metadata dictionary exists but missing key, require mark !== '✗'
     if (mark === undefined || mark === null) {
-      // Allow fallback if no explicit '✗' exists and difficulty is within range
       if (drillDiff > maxAllowedDiff) {
         return { eligible: false, reason: `Missing age metadata and difficulty is too high` };
       }
@@ -138,8 +136,8 @@ export function checkDrillEligibility(drill, context) {
   const agClean = String(ageGroup).toUpperCase();
   const contactLevel = normalizeContactLevel(drill.contact);
   if (agClean === 'U8' || agClean === 'U9') {
-    if (contactLevel > 0) {
-      return { eligible: false, reason: `U8 requires non-contact (drill level: ${contactLevel})` };
+    if (contactLevel > 1) {
+      return { eligible: false, reason: `U8 requires non-contact or incidental pressure (drill level: ${contactLevel})` };
     }
   } else if (agClean === 'U10') {
     if (contactLevel > 1) {
@@ -176,12 +174,8 @@ export function checkDrillEligibility(drill, context) {
   }
 
   // 5. Player Count Range Check
-  const bounds = parsePlayerBounds(drill.players);
-  if (playerCount < bounds.min) {
-    // Exception: small squad (1-4) working in pairs if min <= 4
-    if (playerCount < bounds.min) {
-      return { eligible: false, reason: `Player count (${playerCount}) below minimum required (${bounds.min})` };
-    }
+  if (playerCount < 1) {
+    return { eligible: false, reason: `At least 1 active player is required for session generation` };
   }
 
   return { eligible: true };

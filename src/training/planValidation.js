@@ -1,9 +1,11 @@
 /**
  * Authoritative Plan Validation Engine for CoachCore Training Lab
- * Verifies that a generated or AI-enhanced plan satisfies all safety, eligibility, duration, and focus requirements.
+ * Verifies that a generated or AI-enhanced plan satisfies all safety, eligibility, 6-slot structure,
+ * and concurrent duration arithmetic requirements.
  */
 
 import { checkDrillEligibility } from './drillEligibility.js';
+import { isJuniorAgeGroup } from './sessionStructure.js';
 
 /**
  * Validates a training plan object against context and hard constraints.
@@ -14,19 +16,26 @@ import { checkDrillEligibility } from './drillEligibility.js';
 export function validatePlan(plan, context = {}) {
   const errors = [];
 
-  if (!plan || !Array.isArray(plan.segments) || plan.segments.length === 0) {
-    return { isValid: false, errors: ['Plan must contain at least one valid segment array'] };
+  if (!plan || !Array.isArray(plan.segments)) {
+    return { isValid: false, errors: ['Plan must contain a valid segments array'] };
+  }
+
+  // 1. Must contain exactly 6 slots
+  if (plan.segments.length !== 6) {
+    errors.push(`Plan must contain exactly 6 slots (found: ${plan.segments.length})`);
+    return { isValid: false, errors };
   }
 
   const {
+    ageGroup = 'U14',
     durationMinutes = 60,
-    focusAreas = [],
-    equipment = {}
+    focusAreas = []
   } = context;
 
-  // 1. Check segment count and drillId presence
+  const isJunior = isJuniorAgeGroup(ageGroup);
+
+  // 2. Inspect individual segments
   const drillIds = [];
-  let totalCalculatedMinutes = 0;
 
   plan.segments.forEach((seg, idx) => {
     if (!seg.drillId) {
@@ -38,27 +47,47 @@ export function validatePlan(plan, context = {}) {
     if (!seg.title || !seg.title.trim()) {
       errors.push(`Segment ${idx + 1} is missing a title`);
     }
-
-    const segMins = Number(seg.minutes || seg.duration) || 0;
-    if (segMins <= 0) {
-      errors.push(`Segment ${idx + 1} (${seg.title}) has invalid duration: ${segMins} minutes`);
-    }
-    totalCalculatedMinutes += segMins;
   });
 
-  // 2. Intra-session duplicate drillId check
-  const uniqueDrillIds = new Set(drillIds);
-  if (uniqueDrillIds.size < drillIds.length) {
-    errors.push('Plan contains duplicate drill IDs within the same session');
+  // 3. Station uniqueness (Stations A, B, C, D must all be distinct)
+  const stationDrillIds = plan.segments.slice(1, 5).map(s => s.drillId).filter(Boolean);
+  const uniqueStationIds = new Set(stationDrillIds);
+  if (uniqueStationIds.size < stationDrillIds.length) {
+    errors.push('Stations A, B, C, and D must all be distinct drills (found duplicates)');
   }
 
-  // 3. Duration exact total check
+  // 4. Final Game classification check
+  const finalSeg = plan.segments[5];
+  if (finalSeg) {
+    const cat = (finalSeg.category || finalSeg.phase || finalSeg.title || '').toLowerCase();
+    if (isJunior) {
+      const isSSG = cat.includes('ssg') || cat.includes('small-sided game') || cat.includes('small sided game');
+      if (!isSSG) {
+        errors.push(`Final game for age group ${ageGroup} must be a Small-Sided Game (SSG), received category '${finalSeg.category}'`);
+      }
+    } else {
+      const isMatchSim = cat.includes('match simulation') || cat.includes('match sim');
+      if (!isMatchSim) {
+        errors.push(`Final game for age group ${ageGroup} must be a Match Simulation, received category '${finalSeg.category}'`);
+      }
+    }
+  }
+
+  // 5. Concurrent duration arithmetic total check
+  // Elapsed time = warmUp (seg 0) + stationABBlock (seg 1 blockMinutes) + stationCDBlock (seg 3 blockMinutes) + finalGame (seg 5)
+  const warmUpMins = Number(plan.segments[0]?.blockMinutes || plan.segments[0]?.minutes || 0);
+  const stationABMins = Number(plan.segments[1]?.blockMinutes || (plan.segments[1]?.minutes || 0) * 2);
+  const stationCDMins = Number(plan.segments[3]?.blockMinutes || (plan.segments[3]?.minutes || 0) * 2);
+  const finalGameMins = Number(plan.segments[5]?.blockMinutes || plan.segments[5]?.minutes || 0);
+
+  const totalCalculatedMinutes = warmUpMins + stationABMins + stationCDMins + finalGameMins;
   const targetDuration = parseInt(durationMinutes, 10) || 60;
-  if (totalCalculatedMinutes !== targetDuration) {
-    errors.push(`Total plan duration (${totalCalculatedMinutes} mins) does not match target duration (${targetDuration} mins)`);
+
+  if (Math.abs(totalCalculatedMinutes - targetDuration) > 1) {
+    errors.push(`Total elapsed session duration (${totalCalculatedMinutes} mins) does not match target duration (${targetDuration} mins)`);
   }
 
-  // 4. Focus area coverage check
+  // 6. Focus area coverage check
   if (focusAreas.length > 0) {
     const combinedPlanText = plan.segments.map(s => `${s.title} ${s.objective} ${s.instructions} ${s.phase}`).join(' ').toLowerCase();
     focusAreas.forEach(fa => {

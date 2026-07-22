@@ -548,6 +548,8 @@ let drillsLoadedPromise = null;
 export async function loadDrillsDatabase(url = '/data/generated/afl-drills.json', forceReload = false) {
   if (forceReload) {
     drillsLoadedPromise = null;
+    AFL_PRE_GAME_WARMUPS.length = 0;
+    SYLLABUS_DRILLS.length = 0;
   }
   if (drillsLoadedPromise) {
     return drillsLoadedPromise;
@@ -596,12 +598,16 @@ export async function loadDrillsDatabase(url = '/data/generated/afl-drills.json'
           if (!masterDb) throw fetchErr;
         }
       } else if (typeof process !== 'undefined' && process.versions && process.versions.node) {
-        const req = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require;
-        const fs = req('fs');
-        const path = req('path');
-        const localPath = path.resolve(process.cwd(), 'public/data/generated/afl-drills.json');
-        const raw = JSON.parse(fs.readFileSync(localPath, 'utf8'));
-        masterDb = Array.isArray(raw) ? raw : (raw.drills || raw.default);
+        try {
+          const fs = await import('fs');
+          const path = await import('path');
+          const localPath = path.resolve(process.cwd(), 'public/data/generated/afl-drills.json');
+          if (fs.existsSync(localPath)) {
+            const raw = JSON.parse(fs.readFileSync(localPath, 'utf8'));
+            masterDb = Array.isArray(raw) ? raw : (raw.drills || raw.default);
+          }
+        } catch (fsErr) {
+        }
       }
 
       if (!Array.isArray(masterDb) || masterDb.length === 0) {

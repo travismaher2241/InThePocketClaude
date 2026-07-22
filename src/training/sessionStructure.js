@@ -1,69 +1,144 @@
 /**
  * Session Structure & Duration Arithmetic Module for CoachCore Training Lab
- * Calculates exact slot durations, group allocations, and formats plan segments preserving authoritative drillId.
+ * Calculates exact slot durations, concurrent rotation blocks, group allocations,
+ * and formats 6-slot plan segments preserving authoritative drillId.
  */
 
-// Calculates exact segment durations in minutes for a total session duration
+export function isJuniorAgeGroup(ageGroup) {
+  if (!ageGroup) return false;
+  const ag = String(ageGroup).toUpperCase().trim();
+  return ag === 'U8' || ag === 'U9' || ag === 'U10' || ag === 'U11' || ag === 'U12' ||
+         ag.includes('UNDER 8') || ag.includes('UNDER 9') || ag.includes('UNDER 10') || ag.includes('UNDER 11') || ag.includes('UNDER 12');
+}
+
+// Calculates exact segment and block durations for a 6-slot session
 export function calculateSlotDurations(totalMinutes) {
   const duration = Math.max(20, Math.min(120, parseInt(totalMinutes, 10) || 60));
 
-  const warmUpMins = Math.max(5, Math.round(duration * 0.20));
-  const skillMins = Math.max(10, Math.round(duration * 0.30));
-  const decisionMins = Math.max(10, Math.round(duration * 0.30));
-  // Remainder ensures exact total match
-  const matchPlayMins = duration - warmUpMins - skillMins - decisionMins;
+  const warmUpMins = Math.max(5, Math.round(duration * 0.15));
+  const finalGameMins = Math.max(10, Math.round(duration * 0.35));
+  const stationBlockTotalMins = duration - warmUpMins - finalGameMins;
 
-  return [warmUpMins, skillMins, decisionMins, matchPlayMins];
+  const stationABBlockMins = Math.floor(stationBlockTotalMins / 2);
+  const stationCDBlockMins = stationBlockTotalMins - stationABBlockMins;
+
+  return {
+    warmUpMins,
+    stationABBlockMins,
+    stationABPerStationMins: stationABBlockMins / 2,
+    stationCDBlockMins,
+    stationCDPerStationMins: stationCDBlockMins / 2,
+    finalGameMins,
+    totalElapsedMins: warmUpMins + stationABBlockMins + stationCDBlockMins + finalGameMins
+  };
 }
 
-// Defines named session slots
-export function getSessionSlots(totalMinutes) {
+// Defines the authoritative 6-slot session structure
+export function getSessionSlots(totalMinutes, ageGroup = 'U14') {
+  const isJunior = isJuniorAgeGroup(ageGroup);
   const durations = calculateSlotDurations(totalMinutes);
 
+  const finalGameName = isJunior ? 'Small-Sided Game (SSG)' : 'Match Simulation';
+  const finalGameCategory = isJunior ? 'Small-Sided Game' : 'Match Simulation';
+
   return [
-    { slotIndex: 0, slotName: 'Warm-up & Activation', phase: 'Warm-Up', minutes: durations[0] },
-    { slotIndex: 1, slotName: 'Skill Development (Station A)', phase: 'Skill Acquisition', minutes: durations[1] },
-    { slotIndex: 2, slotName: 'Decision & Tactics (Station B)', phase: 'Tactical Decision', minutes: durations[2] },
-    { slotIndex: 3, slotName: 'Match Play / SSG', phase: 'Match Play', minutes: durations[3] }
+    {
+      slotIndex: 0,
+      slotKey: 'WARM_UP',
+      slotName: 'Warm Up',
+      phase: 'Warm-Up',
+      minutes: durations.warmUpMins,
+      blockMinutes: durations.warmUpMins,
+      isConcurrent: false
+    },
+    {
+      slotIndex: 1,
+      slotKey: 'STATION_A',
+      slotName: 'Station A',
+      phase: 'Skill Execution',
+      minutes: durations.stationABPerStationMins,
+      blockMinutes: durations.stationABBlockMins,
+      isConcurrent: true,
+      partnerSlot: 'Station B',
+      blockName: 'Stations A & B Block'
+    },
+    {
+      slotIndex: 2,
+      slotKey: 'STATION_B',
+      slotName: 'Station B',
+      phase: 'Movement & Decision',
+      minutes: durations.stationABPerStationMins,
+      blockMinutes: durations.stationABBlockMins,
+      isConcurrent: true,
+      partnerSlot: 'Station A',
+      blockName: 'Stations A & B Block'
+    },
+    {
+      slotIndex: 3,
+      slotKey: 'STATION_C',
+      slotName: 'Station C',
+      phase: 'Opposed Application',
+      minutes: durations.stationCDPerStationMins,
+      blockMinutes: durations.stationCDBlockMins,
+      isConcurrent: true,
+      partnerSlot: 'Station D',
+      blockName: 'Stations C & D Block'
+    },
+    {
+      slotIndex: 4,
+      slotKey: 'STATION_D',
+      slotName: 'Station D',
+      phase: 'Pressure & Game Context',
+      minutes: durations.stationCDPerStationMins,
+      blockMinutes: durations.stationCDBlockMins,
+      isConcurrent: true,
+      partnerSlot: 'Station C',
+      blockName: 'Stations C & D Block'
+    },
+    {
+      slotIndex: 5,
+      slotKey: 'FINAL_GAME',
+      slotName: finalGameName,
+      phase: finalGameName,
+      category: finalGameCategory,
+      minutes: durations.finalGameMins,
+      blockMinutes: durations.finalGameMins,
+      isConcurrent: false
+    }
   ];
 }
 
 // Calculates group allocations based on squad size
 export function calculateGroupAllocations(playerCount) {
   const count = Math.max(1, parseInt(playerCount, 10) || 18);
-  if (count <= 15) {
-    return {
-      isSplit: false,
-      group1: count,
-      group2: 0,
-      description: `Full squad (${count} players) executing drill together.`
-    };
-  }
   const group1 = Math.ceil(count / 2);
   const group2 = Math.floor(count / 2);
   return {
-    isSplit: true,
+    isSplit: count > 1,
     group1,
     group2,
-    description: `Parallel Stations: Group 1 (${group1} players) at Station A, Group 2 (${group2} players) at Station B.`
+    description: count > 1 
+      ? `Concurrent Stations: Group 1 (${group1} players) & Group 2 (${group2} players). Swap halfway.`
+      : `Full squad (${count} player) executing drill.`
   };
 }
 
 /**
- * Builds a structured plan segment preserving authoritative drillId.
+ * Builds a structured 6-slot plan segment preserving authoritative drillId.
  * @param {object} drill 
  * @param {object} slot 
  * @param {object} context 
  * @returns {object} Structured segment
  */
-export function buildSegmentFromDrill(drill, slot, context) {
+export function buildSegmentFromDrill(drill, slot, context = {}) {
   const { playerCount = 18 } = context;
   const groups = calculateGroupAllocations(playerCount);
 
   const drillId = drill.drillId || `DRILL-${slot.slotIndex + 1}`;
   const rawTitle = drill.title || drill.name || `Segment ${slot.slotIndex + 1}`;
   const phase = drill.category || slot.phase || 'Skill Development';
-  const minutes = slot.minutes || 15;
+  const minutes = slot.minutes || 7.5;
+  const blockMinutes = slot.blockMinutes || minutes;
 
   const objective = drill.objective || 'Develop core skill execution under match-appropriate conditions.';
   const setup = drill.setup || 'Set up marked grid area with cones and footballs.';
@@ -73,9 +148,18 @@ export function buildSegmentFromDrill(drill, slot, context) {
     : (drill.cues ? String(drill.cues).split(',').map(s => s.trim()) : ['Eyes up before disposal', 'Clean hands', 'Accelerate away']);
 
   const cuesText = cues.map(c => `• ${c}`).join('\n');
-  const progressionsText = Array.isArray(drill.progressions) ? drill.progressions.join(' | ') : 'Increase speed of execution | Add pressure defender';
+  const progressionsText = Array.isArray(drill.progressions) ? drill.progressions.join(' | ') : (drill.progressions || 'Increase speed of execution | Add pressure defender');
+
+  let rotationText = '';
+  if (slot.isConcurrent) {
+    rotationText = `ROTATION & GROUP SPLIT: ${slot.slotName} (Partner: ${slot.partnerSlot}). Concurrent Block Duration: ${blockMinutes} mins total (${minutes} mins per station). Group 1 (${groups.group1} players) starts at ${slot.slotName}; Group 2 (${groups.group2} players) starts at ${slot.partnerSlot}. Swap stations at the ${minutes} min mark. Both groups complete both stations.`;
+  } else {
+    rotationText = `ROTATION & GROUP SPLIT: Full Squad (${playerCount} players) executing ${slot.slotName} together for ${blockMinutes} mins.`;
+  }
 
   const instructions = `DRILL NAME & OBJECTIVE: [${drillId}] ${rawTitle} - ${objective}
+
+${rotationText}
 
 SETUP & GRID DIMENSIONS: ${setup}
 
@@ -86,15 +170,22 @@ ${cuesText}
 
 PROGRESSIONS & REGRESSIONS: ${progressionsText}`;
 
-  const slotTitle = slot.slotName ? `${slot.slotName.toUpperCase()}: ${rawTitle.toUpperCase()}` : rawTitle.toUpperCase();
+  const slotTitle = `${slot.slotName.toUpperCase()}: ${rawTitle.toUpperCase()}`;
 
   return {
     segmentId: `seg_${slot.slotIndex + 1}_${drillId}`,
     drillId,
+    slotKey: slot.slotKey,
+    slotName: slot.slotName,
     title: slotTitle,
     phase,
     minutes,
     duration: minutes,
+    blockMinutes,
+    perStationMinutes: minutes,
+    isConcurrent: slot.isConcurrent || false,
+    partnerSlot: slot.partnerSlot || null,
+    blockName: slot.blockName || null,
     objective,
     goal: objective,
     setup,
@@ -104,7 +195,11 @@ PROGRESSIONS & REGRESSIONS: ${progressionsText}`;
     progressions: Array.isArray(drill.progressions) ? drill.progressions : [progressionsText],
     regressions: Array.isArray(drill.regressions) ? drill.regressions : [],
     groupAllocation: groups.description,
+    group1Count: groups.group1,
+    group2Count: groups.group2,
+    swapMinutes: minutes,
     equipment: Array.isArray(drill.equipment) ? drill.equipment : ['Footballs', 'Cones'],
+    category: drill.category || phase,
     source: 'authoritative_database'
   };
 }

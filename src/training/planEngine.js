@@ -1,23 +1,22 @@
 /**
  * Main Deterministic Local Planning Engine for CoachCore Training Lab
- * Generates valid, safe, and varied training plans locally using the audited AFL drill database.
+ * Generates valid, safe, 6-slot training plans locally using the audited AFL drill database.
  */
 
 import { checkDrillEligibility } from './drillEligibility.js';
 import { scoreCandidateDrill } from './drillScoring.js';
 import { createPRNG, getRepetitionMultiplier, selectWeightedRandom } from './planRandomization.js';
-import { getSessionSlots, buildSegmentFromDrill } from './sessionStructure.js';
+import { getSessionSlots, buildSegmentFromDrill, isJuniorAgeGroup } from './sessionStructure.js';
 import { validatePlan } from './planValidation.js';
 import { getCurriculumConfig, loadDrillsDatabase, SYLLABUS_DRILLS } from '../data/curriculumKnowledge.js';
 
 /**
- * Main entry point to generate a complete training plan locally.
+ * Main entry point to generate a 6-slot training plan locally.
  * @param {object} engineInput 
  * @param {object[]} [drillsDb] 
  * @returns {Promise<object>} Generated plan object
  */
 export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
-  // Ensure drill database is available
   let database = drillsDb || SYLLABUS_DRILLS;
   if (!database || database.length === 0) {
     const loaded = await loadDrillsDatabase();
@@ -38,8 +37,9 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
   } = engineInput;
 
   const prng = createPRNG(seed);
-  const slots = getSessionSlots(durationMinutes);
+  const slots = getSessionSlots(durationMinutes, ageGroup);
   const curriculumTheme = getCurriculumConfig(ageGroup);
+  const isJunior = isJuniorAgeGroup(ageGroup);
 
   const context = {
     ageGroup,
@@ -51,7 +51,6 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
     curriculumTheme
   };
 
-  // Extract recent session drill IDs for decay penalties
   const recentSessionDrillIds = (recentSessions || []).map(sess => {
     if (Array.isArray(sess.segments)) {
       return sess.segments.map(s => s.drillId).filter(Boolean);
@@ -63,20 +62,49 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
   const currentPlanDrillIds = [];
 
   for (const slot of slots) {
-    // 1. Filter hard-eligible candidate drills
-    const eligibleCandidates = database.filter(drill => {
+    const slotCandidates = database.filter(drill => {
+      if (!drill || !drill.drillId) return false;
+      const cat = (drill.category || drill.phase || '').toLowerCase();
+      const idUpper = String(drill.drillId).toUpperCase();
+
+      // 1. Slot-type specific classification check
+      if (slot.slotKey === 'WARM_UP') {
+        const isWu = idUpper.startsWith('WU-') || idUpper.startsWith('WU') ||
+                     cat.includes('warm-up') || cat.includes('warmup') || cat.includes('warm up') || 
+                     cat.includes('activation') || cat.includes('movement preparation');
+        if (!isWu) return false;
+      } else if (slot.slotKey === 'FINAL_GAME') {
+        if (isJunior) {
+          const isSSG = idUpper.startsWith('SSG-') || idUpper.startsWith('SG-') || idUpper.startsWith('CH14-') ||
+                        cat.includes('ssg') || cat.includes('small-sided game') || cat.includes('small sided game') || cat.includes('small-sided games');
+          if (!isSSG) return false;
+        } else {
+          const isMatchSim = idUpper.startsWith('MS-') || idUpper.startsWith('CH15-') ||
+                             cat.includes('match simulation') || cat.includes('match sim');
+          if (!isMatchSim) return false;
+        }
+      } else {
+        // Station A, B, C, D must be standard training stations (not Warm-Up, not SSG, not Match Sim)
+        const isWu = idUpper.startsWith('WU-') || idUpper.startsWith('WU') || cat.includes('warm-up') || cat.includes('warmup') || cat.includes('warm up');
+        const isFinal = idUpper.startsWith('SSG-') || idUpper.startsWith('SG-') || idUpper.startsWith('MS-') || idUpper.startsWith('CH14-') || idUpper.startsWith('CH15-') ||
+                        cat.includes('ssg') || cat.includes('small-sided game') || cat.includes('small sided game') || cat.includes('match simulation') || cat.includes('match sim');
+        if (isWu || isFinal) return false;
+
+        // Station drills must be unique within the plan
+        if (currentPlanDrillIds.includes(drill.drillId)) return false;
+      }
+
+      // 2. Hard eligibility check
       const el = checkDrillEligibility(drill, context);
       return el.eligible;
     });
 
-    if (eligibleCandidates.length === 0) {
-      throw new Error(`No eligible drills found matching constraints (Age: ${ageGroup}, Coach Level: ${coachLevel}). Please adjust your session settings.`);
+    if (slotCandidates.length === 0) {
+      throw new Error(`No eligible drill found for slot '${slot.slotName}' matching constraints (Age: ${ageGroup}, Coach Level: ${coachLevel}). Please adjust your session settings.`);
     }
 
-    const candidatePool = eligibleCandidates;
-
-    // 2. Score candidate drills and apply repetition penalties
-    const scoredPool = candidatePool.map(drill => {
+    // Score and apply repetition penalties
+    const scoredPool = slotCandidates.map(drill => {
       const rawScore = scoreCandidateDrill(drill, slot, context);
       const repMultiplier = getRepetitionMultiplier(drill.drillId, {
         recentSessionDrillIds,
@@ -89,10 +117,9 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
       };
     });
 
-    // 3. Select drill using weighted randomness
     let selectedDrill = selectWeightedRandom(scoredPool, prng);
-    if (!selectedDrill && candidatePool.length > 0) {
-      selectedDrill = candidatePool[0];
+    if (!selectedDrill && slotCandidates.length > 0) {
+      selectedDrill = slotCandidates[0];
     }
 
     if (selectedDrill) {
@@ -104,7 +131,7 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
     }
   }
 
-  // Calculate equipment summary
+  // Equipment summary
   const equipmentSummary = {
     footballs: Math.max(4, Math.ceil(playerCount / 2)),
     cones: 20,
@@ -130,7 +157,6 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
     validation: { isValid: true, errors: [] }
   };
 
-  // Run authoritative plan validation
   const validationResult = validatePlan(plan, context);
   plan.validation = validationResult;
 
