@@ -1852,20 +1852,19 @@ Create a training plan for ${duration} minutes, specifically for ${playerCount} 
 Every drill segment MUST directly teach the selected Focus Areas: ${focusAreas.join(", ")}. 
 The complexity, grid sizes (in meters), setup descriptions, and terminology MUST be strictly tailored for the selected Age Group: "${ageGroup}".
 
-The plan must include exactly five segments representing the curriculum structure:
+The plan must include exactly four segments representing the curriculum structure:
 1. WARM-UP & ACTIVATION: Select a warm-up or activation activity. Use the following selected activity (or a creative variation of it) as the foundation for the Segment 1 instructions, goal, and phase:
    - Activity Name: "${selectedPreGameDrill.name}"
    - Goal: ${selectedPreGameDrill.goal}
    - Description: ${selectedPreGameDrill.desc}
    - CHANGE IT Tip: ${selectedPreGameDrill.coachingTip}
-   (duration should be approx 20% of session time, e.g. 15 mins for a 70-minute session).
-2. SKILL ACQUISITION: Fun warm-up with emphasis on fundamental movements (approx 15% of session time, e.g. 10 mins).
-3. ${q2PromptDesc}
-4. ${q3PromptDesc}
-5. MATCH PLAY / SSG: Match play with specific rule constraints to emphasize targeted skills (approx 15% of session time, e.g. 10 mins).
+   (duration should be approx 20% of session time, e.g. 12 mins for a 60-minute session).
+2. STATION A & STATION B (CONCURRENT): Divide squad into Group 1 (${group1} players) at Station A and Group 2 (${group2} players) at Station B running concurrently, with a switch at the half-way mark (approx 30% of session time).
+3. STATION C & STATION D (CONCURRENT): Divide squad into Group 1 (${group1} players) at Station C and Group 2 (${group2} players) at Station D running concurrently, with a switch at the half-way mark (approx 30% of session time).
+4. MATCH PLAY: ${isYoungerAgeGroup ? "SMALL-SIDED GAME (SSG): Small-Sided Game tailored for U12 and below" : "MATCH SIMULATION: Match Simulation tailored for U14 and above"} (approx 20% of session time).
 
-Ensure the sum of the durations of these 5 segments equals exactly ${duration} minutes.
-Ensure you return a JSON array containing exactly 5 objects as defined in the card format instructions.
+Ensure the sum of the durations of these 4 segments equals exactly ${duration} minutes.
+Ensure you return a JSON array containing exactly 4 objects as defined in the card format instructions.
 
 ${customPlaybookText ? `Use the following strategic playbook guidelines to shape the drills and tactics: "${customPlaybookText}"` : ''}`;
 
@@ -1880,7 +1879,7 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
           
           try {
             const parsed = JSON.parse(cleanText);
-            if (Array.isArray(parsed) && parsed.length === 5) {
+            if (Array.isArray(parsed) && (parsed.length === 4 || parsed.length === 5)) {
               const normalized = parsed.map((item, index) => {
                 const instructions = item.instructions || item.setup || item.directions || `Execute training drills for segment ${index + 1}.`;
                 const goal = item.goal || item.focus || item.target || `Master core skills for segment ${index + 1}.`;
@@ -1978,11 +1977,10 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
         const config = getCurriculumConfig(ageGroup);
         
         // Calculate scaled durations if total session is not 70 mins
-        const preGameMins = Math.max(5, Math.round(duration * (15/70)));
-        const q1Mins = Math.max(5, Math.round(duration * (10/70)));
-        const q2Mins = Math.max(10, Math.round(duration * (20/70)));
-        const q3Mins = Math.max(10, Math.round(duration * (15/70)));
-        const q4Mins = duration - preGameMins - q1Mins - q2Mins - q3Mins;
+        const warmUpMins = Math.max(5, Math.round(duration * 0.20));
+        const stations1Mins = Math.max(10, Math.round(duration * 0.30));
+        const stations2Mins = Math.max(10, Math.round(duration * 0.30));
+        const finalMins = Math.max(5, duration - warmUpMins - stations1Mins - stations2Mins);
 
       // Groupings math
       let groupingLabel = "Split players into even lines.";
@@ -2128,7 +2126,7 @@ PROGRESSIONS & REGRESSIONS: ${progressions}`;
       if (isFemalePathway) {
         preGameCard = {
           title: "WARM-UP & ACTIVATION: PREP-TO-PLAY PRO",
-          duration: preGameMins,
+          duration: warmUpMins,
           instructions: `DRILL NAME & OBJECTIVE: Prep-to-Play PRO Activation - Neuromuscular ACL protection and landing biomechanics
           
 SETUP & GRID DIMENSIONS: 15m x 20m grid. Fits within ${groundName} wing boundaries.
@@ -2175,9 +2173,9 @@ PROGRESSIONS & REGRESSIONS: Progression: Add light shoulder bumps in the air. Re
           : (activePreGameDrill.coachingTip || 'Focus on landing stability and clean execution.');
 
         preGameCard = {
-          title: `WARM-UP & ACTIVATION: ${(activePreGameDrill.name || 'Warm-Up').toUpperCase()}`,
-          duration: preGameMins,
-          instructions: `DRILL NAME & OBJECTIVE: ${activePreGameDrill.name} - ${activePreGameDrill.objective || activePreGameDrill.goal}
+          title: `WARM-UP & ACTIVATION: ${(activePreGameDrill.name || activePreGameDrill.title || 'Warm-Up').toUpperCase()}`,
+          duration: warmUpMins,
+          instructions: `DRILL NAME & OBJECTIVE: ${activePreGameDrill.name || activePreGameDrill.title} - ${activePreGameDrill.objective || activePreGameDrill.goal}
           
 SETUP & GRID DIMENSIONS: ${preGameSetup}
 
@@ -2187,180 +2185,115 @@ ELITE COACHING CUES: ${preGameCues}
 
 PROGRESSIONS & REGRESSIONS: ${preGameProgs}`,
           goal: activePreGameDrill.objective || activePreGameDrill.goal,
-          phase: activePreGameDrill.phase || "Contest",
+          phase: activePreGameDrill.phase || "Warm-Up",
           drillId: activePreGameDrill.drillId
         };
       }
 
-      const q1Card = {
-        title: `SKILL ACQUISITION: ${drill1.name.toUpperCase()}`,
-        duration: q1Mins,
-        instructions: formatDrillCardText(drill1, playerCount),
-        goal: `Activate movement patterns and build early confidence: ${drill1.objective}`,
-        phase: drill1.phase
+      // Station Math & Groupings
+      const totalP = Math.max(2, playerCount || 18);
+      const group1 = Math.ceil(totalP / 2);
+      const group2 = Math.floor(totalP / 2);
+
+      const s1Half = Math.round(stations1Mins / 2);
+      const s1Instructions = `STRUCTURE: CONCURRENT ROTATION STATIONS
+
+Station A:
+${formatDrillCardText(drill1, group1)}
+
+Station B:
+${formatDrillCardText(drill2, group2)}
+
+The Switch: Switch stations at the ${s1Half}-minute mark.`;
+
+      const stations1Card = {
+        title: `STATION A & STATION B (CONCURRENT)`,
+        duration: stations1Mins,
+        instructions: s1Instructions,
+        goal: `Station A (${drill1.title || drill1.name}) & Station B (${drill2.title || drill2.name}): Concurrent skill acquisition and decision-making rotations.`,
+        phase: drill1.phase || "Skill Development",
+        drillId: drill1.drillId
       };
 
-      const isStations = playerCount > 15;
-      let q2Instructions = "";
-      let q3Instructions = "";
-      let q4Instructions = "";
+      const s2Half = Math.round(stations2Mins / 2);
+      const s2Instructions = `STRUCTURE: CONCURRENT ROTATION STATIONS
 
-      if (isStations) {
-        const q2Half = Math.round(q2Mins / 2);
-        q2Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)
+Station C:
+${formatDrillCardText(drill3, group1)}
 
-Station A:
-${formatDrillCardText(drill2, group1)}
+Station D:
+${formatDrillCardText(drill4, group2)}
 
-Station B:
-${formatDrillCardText(drill3, group2)}
+The Switch: Switch stations at the ${s2Half}-minute mark.`;
 
-The Switch: Switch stations at the ${q2Half}-minute mark.`;
+      const stations2Card = {
+        title: `STATION C & STATION D (CONCURRENT)`,
+        duration: stations2Mins,
+        instructions: s2Instructions,
+        goal: `Station C (${drill3.title || drill3.name}) & Station D (${drill4.title || drill4.name}): Concurrent tactical application and team pressure rotations.`,
+        phase: drill3.phase || "Team Tactical",
+        drillId: drill3.drillId
+      };
 
-        const q3Half = Math.round(q3Mins / 2);
-        q3Instructions = `STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)
+      // Segment 4: SSG for U12 and below vs Match Sim for U14 and above
+      const isYoungerAgeGroup = 
+        activeCategory === 'U8' || 
+        activeCategory === 'U10' || 
+        activeCategory === 'U12' || 
+        (typeof ageGroup === 'string' && (
+          ageGroup.toLowerCase().includes('u8') || 
+          ageGroup.toLowerCase().includes('u10') || 
+          ageGroup.toLowerCase().includes('u12') || 
+          ageGroup.toLowerCase().includes('under 8') || 
+          ageGroup.toLowerCase().includes('under 10') || 
+          ageGroup.toLowerCase().includes('under 12')
+        ));
 
-Station A:
-${formatDrillCardText(drill4, group1)}
+      let finalPool = suitableDrills.filter(d => 
+        isYoungerAgeGroup 
+          ? (d.drillId?.startsWith('SG-') || (d.category && d.category.toLowerCase().includes('small-sided')))
+          : (d.drillId?.startsWith('MS-') || (d.category && d.category.toLowerCase().includes('match simulation')))
+      );
 
-Station B:
-${formatDrillCardText(drill1, group2)}
-
-The Switch: Switch stations at the ${q3Half}-minute mark.`;
-
-        const conesCount = 32;
-        const ballsCount = Math.max(12, playerCount);
-        
-        let matchDescription = "";
-        let coachingTip = "";
-        
-        if (activeCategory === 'U8') {
-          matchDescription = "Play play-based modified match rules on a small footprint to maximize ground ball touches. Focus on evasion and zero contact.";
-          coachingTip = "Use tags instead of tackles. Shrink field to 25m x 15m to increase target frequency.";
-        } else if (activeCategory === 'U12') {
-          matchDescription = "Play 12-a-side match play on half-ground with a baseline 1:2 work-to-rest ratio. Focus on corridor transition and safe wrap tackling.";
-          coachingTip = "Restrict players to 1 bounce. Stop play on dangerous slings.";
-        } else if (activeCategory === 'U14') {
-          matchDescription = "Play 14-a-side match play. Apply OODA loops under fatigue. Focus on stoppage exit handballs and transition play.";
-          coachingTip = "Limit possession to 2 seconds to force OODA decision-making.";
-        } else if (activeCategory === 'U16') {
-          matchDescription = `Play match rules restricted to ${groundName} wings. Focus on establishing the 18-player Web Defense and forward-half press.`;
-          coachingTip = "Reward 3 points for switches that move through the fat side.";
-        } else if (activeCategory === 'U18') {
-          matchDescription = "High-intensity professional match play. Focus on tactical periodization and repeated sprint ability (RSA) running intervals.";
-          coachingTip = "Mandate direct corridor entry kicks before a shot on goal is permitted.";
-        } else if (activeCategory === 'Seniors') {
-          matchDescription = `18v18 full-ground match simulation with extreme spatial restriction (${groundName} length ~${groundLengthText}, width ~${groundWidthText}). Focus on structural 6-6-6 setups and rebound transition speeds.`;
-          coachingTip = "Enforce a 3-second disposal limit to simulate high-pressure match tempos.";
-        } else {
-          matchDescription = "经济型低冲击对抗比赛。重点是通过20米短传和智能跑位来维持球权，完全避免跳跃争抢或远距离踢球。";
-          coachingTip = "禁止长距离踢球以保护关节；球员传球后必须原位置停止缓冲。";
-        }
-
-        q4Instructions = `DRILL NAME & OBJECTIVE: Match Play / SSG - Match Simulation & Spacing
-        
-SETUP & GRID DIMENSIONS: Full ground (${groundName}: ${groundLengthText} x ${groundWidthText}) or half ground
- 
-EXECUTION & RULES: ${matchDescription}
- 
-ELITE COACHING CUES: "Lower the eyes", "Anticipate the switch", "Keep structural shape under fatigue"
- 
-PROGRESSIONS & REGRESSIONS: CHANGE IT Tip: ${coachingTip}
- 
-CONSOLIDATED EQUIPMENT STAGING LIST (Parallel Stations Active)
-- Cones: ${conesCount}x field cones (for multiple grids/lanes)
-- Bibs: Distinct colors assigned to each sub-group to avoid mid-session swaps (${group1}x Yellow bibs for Group 1, ${group2}x Orange bibs for Group 2)
-- Balls: ${ballsCount}x footballs minimum (ensuring high touch-rates across both stations)`;
-      } else {
-        q2Instructions = `${formatDrillCardText(drill2, playerCount)}
-        
-- CHANGE IT Coaching Tip: Restrict ball-carriers to a 2-second limit to simulate closing pressure and force quick releases.`;
-
-        q3Instructions = `${formatDrillCardText(drill4, playerCount)}
-        
-- CHANGE IT Coaching Tip: Adjust numbers (e.g. 5v4) to create outnumber scenarios.`;
-
-        let matchDescription = "";
-        let coachingTip = "";
-        
-        if (activeCategory === 'U8') {
-          matchDescription = "Play play-based modified match rules on a small footprint to maximize ground ball touches. Focus on evasion and zero contact.";
-          coachingTip = "Use tags instead of tackles. Shrink field to 25m x 15m to increase target frequency.";
-        } else if (activeCategory === 'U12') {
-          matchDescription = "Play 12-a-side match play on half-ground with a baseline 1:2 work-to-rest ratio. Focus on corridor transition and safe wrap tackling.";
-          coachingTip = "Restrict players to 1 bounce. Stop play on dangerous slings.";
-        } else if (activeCategory === 'U14') {
-          matchDescription = "Play 14-a-side match play. Apply OODA loops under fatigue. Focus on stoppage exit handballs and transition play.";
-          coachingTip = "Limit possession to 2 seconds to force OODA decision-making.";
-        } else if (activeCategory === 'U16') {
-          matchDescription = `Play match rules restricted to ${groundName} wings. Focus on establishing the 18-player Web Defense and forward-half press.`;
-          coachingTip = "Reward 3 points for switches that move through the fat side.";
-        } else if (activeCategory === 'U18') {
-          matchDescription = "High-intensity professional match play. Focus on tactical periodization and repeated sprint ability (RSA) running intervals.";
-          coachingTip = "Mandate direct corridor entry kicks before a shot on goal is permitted.";
-        } else if (activeCategory === 'Seniors') {
-          matchDescription = `18v18 full-ground match simulation with extreme spatial restriction (${groundName} length ~${groundLengthText}, width ~${groundWidthText}). Focus on structural 6-6-6 setups and rebound transition speeds.`;
-          coachingTip = "Enforce a 3-second disposal limit to simulate high-pressure match tempos.";
-        } else {
-          matchDescription = "经济型低冲击对抗比赛。重点是通过20米短传和智能跑位来维持球权，完全避免跳跃争抢或远距离踢球。";
-          coachingTip = "禁止长距离踢球以保护关节；球员传球后必须原位置停止缓冲。";
-        }
-
-        q4Instructions = `DRILL NAME & OBJECTIVE: Match Play / SSG - Match Simulation & Spacing
-        
-SETUP & GRID DIMENSIONS: Full ground (${groundName}: ${groundLengthText} x ${groundWidthText}) or half ground
- 
-EXECUTION & RULES: ${matchDescription}
- 
-ELITE COACHING CUES: "Lower the eyes", "Anticipate the switch", "Keep structural shape under fatigue"
- 
-PROGRESSIONS & REGRESSIONS: CHANGE IT Tip: ${coachingTip}
- 
-COACH'S LOGISTICS SUMMARY
-- Cones: 16x field cones (for grids and lanes)
-- Bibs: 2 sets of different colors (e.g., 8x red, 8x blue)
-- Balls: 1 ball per pair (8-10 footballs minimum)`;
+      if (finalPool.length === 0) {
+        finalPool = levelPermittedDrills.filter(d => 
+          isYoungerAgeGroup ? d.drillId?.startsWith('SG-') : d.drillId?.startsWith('MS-')
+        );
       }
 
-      const q2Card = {
-        title: `DECISION ROTATIONS`,
-        duration: q2Mins,
-        instructions: q2Instructions,
-        goal: `Execute technical skill actions under decision-making constraints: ${drill2.name}`,
-        phase: drill2.phase
-      };
- 
-      const q3Card = {
-        title: `TEAM TACTICAL`,
-        duration: q3Mins,
-        instructions: q3Instructions,
-        goal: `Practice tactical transitions and team-based corridor resets: ${drill4.name}`,
-        phase: drill4.phase
-      };
- 
-      const q4Card = {
-        title: `MATCH PLAY / SSG`,
-        duration: q4Mins,
-        instructions: q4Instructions,
-        goal: `Test execution and adaptability under matchday pressure.`,
-        phase: "Attack"
+      if (finalPool.length === 0) {
+        finalPool = suitableDrills;
+      }
+
+      const finalDrill = finalPool[Math.floor(Math.random() * finalPool.length)] || drill1;
+
+      const finalCard = {
+        title: isYoungerAgeGroup 
+          ? `SMALL-SIDED GAME (SSG): ${(finalDrill.title || finalDrill.name).toUpperCase()}` 
+          : `MATCH SIMULATION: ${(finalDrill.title || finalDrill.name).toUpperCase()}`,
+        duration: finalMins,
+        instructions: formatDrillCardText(finalDrill, playerCount),
+        goal: isYoungerAgeGroup
+          ? `Small-Sided Game: Test skill execution and spatial awareness in modified match scenarios: ${finalDrill.objective || finalDrill.goal}`
+          : `Match Simulation: Apply structural setups and OODA decision-making under match conditions: ${finalDrill.objective || finalDrill.goal}`,
+        phase: isYoungerAgeGroup ? "Small-Sided Games" : "Match Simulation",
+        drillId: finalDrill.drillId
       };
 
       const generatedFallbackCards = [
         preGameCard,
-        q1Card,
-        q2Card,
-        q3Card,
-        q4Card
+        stations1Card,
+        stations2Card,
+        finalCard
       ];
 
-        setPlanCards(sanitizePlanCards(generatedFallbackCards, groundName, playerCount));
-        const userTierClean = (subscriptionTier || 'Free').toLowerCase();
-        if (userTierClean === 'free' || userTierClean === 'default') {
-          setAiGensUsed(prev => prev + 1);
-        }
-        logSyncTransaction('LOCAL_FALLBACK_PLAN_GEN', { focus: focusAreas.join(", "), duration, playerCount, equipment: currentEquipment });
-      } catch (fallbackErr) {
+      setPlanCards(sanitizePlanCards(generatedFallbackCards, groundName, playerCount));
+      const userTierClean = (subscriptionTier || 'Free').toLowerCase();
+      if (userTierClean === 'free' || userTierClean === 'default') {
+        setAiGensUsed(prev => prev + 1);
+      }
+      logSyncTransaction('LOCAL_FALLBACK_PLAN_GEN', { focus: focusAreas.join(", "), duration, playerCount, equipment: currentEquipment });
+    } catch (fallbackErr) {
         console.error("Local procedural plan generation failed:", fallbackErr);
       } finally {
         setIsGenerating(false);
