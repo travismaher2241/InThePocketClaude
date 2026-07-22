@@ -1066,7 +1066,7 @@ export default function MatchDay({
             alignItems: 'center',
             gap: '4px'
           }}>
-            {showSelector ? 'Collapse' : 'Manage Squad'}
+            {showSelector ? 'Collapse' : 'Manage Team'}
             <svg 
               width="12" 
               height="12" 
