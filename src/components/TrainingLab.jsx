@@ -1837,7 +1837,7 @@ ${cardFormatText}
    - Footballs: ${currentEquipment.footballs}
    - Tackle Mats / Bags: ${currentEquipment.tackleMats}
    - Agility Poles: ${currentEquipment.agilityPoles}
-   - Bibs / Pinnies: ${currentEquipment.bibs}
+   - Bibs: ${currentEquipment.bibs}
 
 CRITICAL DEDUPLICATION RULE: You are generating a complete session plan. You must not repeat any drill, activity, or scenario. Every single station and segment must contain a uniquely named drill. Cross-check your output before finalizing; if a drill title appears twice, you MUST replace the duplicate with a new, distinct drill from the database. All segments and concurrent stations (Station A and Station B) must be completely unique.
 
