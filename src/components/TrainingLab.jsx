@@ -1606,8 +1606,15 @@ export default function TrainingLab({
     if (targetAgeIndex === -1) targetAgeIndex = 2;
     const allowedAgeKeys = AGE_HIERARCHY.slice(0, targetAgeIndex + 1);
     const isAgeSuitable = (d) => {
-      if (!d.ageGroups || Object.keys(d.ageGroups).length === 0) return true;
-      return allowedAgeKeys.some(key => d.ageGroups[key] && d.ageGroups[key] !== '✗');
+      if (!d.ageGroups || Object.keys(d.ageGroups).length === 0) return false;
+      const suit = d.ageGroups[ageKey];
+      if (suit) {
+        return suit !== '✗' && suit !== 'X' && suit !== 'x';
+      }
+      return allowedAgeKeys.some(key => {
+        const val = d.ageGroups[key];
+        return val && val !== '✗' && val !== 'X' && val !== 'x';
+      });
     };
 
     // Filter preGamePool strictly by maxDiff and age suitability
@@ -2027,8 +2034,15 @@ ${customPlaybookText ? `Use the following strategic playbook guidelines to shape
       const allowedAgeKeys = AGE_HIERARCHY.slice(0, targetAgeIndex + 1);
 
       const isAgeSuitable = (d) => {
-        if (!d.ageGroups || Object.keys(d.ageGroups).length === 0) return true;
-        return allowedAgeKeys.some(key => d.ageGroups[key] && d.ageGroups[key] !== '✗');
+        if (!d.ageGroups || Object.keys(d.ageGroups).length === 0) return false;
+        const suit = d.ageGroups[ageKey];
+        if (suit) {
+          return suit !== '✗' && suit !== 'X' && suit !== 'x';
+        }
+        return allowedAgeKeys.some(key => {
+          const val = d.ageGroups[key];
+          return val && val !== '✗' && val !== 'X' && val !== 'x';
+        });
       };
 
       // Retrieve coach level directly from userProfile prop, squadSettings, or user-scoped storage
