@@ -35,18 +35,24 @@ export default function SquadHub({
   const [newJersey, setNewJersey] = useState('');
   const [newPosition, setNewPosition] = useState('Midfield');
   const [newMedical, setNewMedical] = useState('');
+  const [newNameError, setNewNameError] = useState('');
+  const [newJerseyError, setNewJerseyError] = useState('');
 
   // Edit Player Form State (inside Detail Modal)
   const [editName, setEditName] = useState('');
   const [editJersey, setEditJersey] = useState('');
   const [editPosition, setEditPosition] = useState('Midfield');
   const [editMedical, setEditMedical] = useState('');
+  const [editNameError, setEditNameError] = useState('');
+  const [editJerseyError, setEditJerseyError] = useState('');
 
   // Close handler for player detail modal
   const handleCloseDetail = () => {
     setIsDetailOpen(false);
     setDetailPlayer(null);
     setIsDetailEditing(false);
+    setEditNameError('');
+    setEditJerseyError('');
   };
 
   // Lock scrolling on document body when details modal is active
@@ -98,12 +104,32 @@ export default function SquadHub({
     return result;
   }, [squad, searchQuery, sortBy, sortDirection]);
 
+  const validateAddForm = () => {
+    let valid = true;
+    if (!newName.trim()) {
+      setNewNameError('Full name is required');
+      valid = false;
+    } else {
+      setNewNameError('');
+    }
+
+    const jNum = parseInt(newJersey, 10);
+    if (!newJersey || isNaN(jNum) || jNum < 1 || jNum > 99) {
+      setNewJerseyError('Jersey # must be 1-99');
+      valid = false;
+    } else {
+      setNewJerseyError('');
+    }
+
+    return valid;
+  };
+
   const handleAddSubmit = (e) => {
     e.preventDefault();
-    if (!newName.trim() || !newJersey) return;
+    if (!validateAddForm()) return;
     onAddPlayer({
       name: newName.trim(),
-      jersey: parseInt(newJersey),
+      jersey: parseInt(newJersey, 10),
       position: newPosition,
       medical: newMedical.trim() || 'None',
       attendance: [],
@@ -113,6 +139,8 @@ export default function SquadHub({
     setNewJersey('');
     setNewPosition('Midfield');
     setNewMedical('');
+    setNewNameError('');
+    setNewJerseyError('');
     setIsAddOpen(false);
   };
 
@@ -122,16 +150,38 @@ export default function SquadHub({
     setEditJersey(player.jersey);
     setEditPosition(player.position || 'Midfield');
     setEditMedical(player.medical || 'None');
+    setEditNameError('');
+    setEditJerseyError('');
+  };
+
+  const validateEditForm = () => {
+    let valid = true;
+    if (!editName.trim()) {
+      setEditNameError('Full name is required');
+      valid = false;
+    } else {
+      setEditNameError('');
+    }
+
+    const jNum = parseInt(editJersey, 10);
+    if (!editJersey || isNaN(jNum) || jNum < 1 || jNum > 99) {
+      setEditJerseyError('Jersey # must be 1-99');
+      valid = false;
+    } else {
+      setEditJerseyError('');
+    }
+
+    return valid;
   };
 
   const handleEditSubmit = (e) => {
     e.preventDefault();
-    if (!editName.trim() || !editJersey || !detailPlayer) return;
+    if (!validateEditForm() || !detailPlayer) return;
     
     // Update locally
     onEditPlayer(detailPlayer.id, {
       name: editName.trim(),
-      jersey: parseInt(editJersey),
+      jersey: parseInt(editJersey, 10),
       position: editPosition,
       medical: editMedical.trim() || 'None'
     });
@@ -140,11 +190,13 @@ export default function SquadHub({
     setDetailPlayer(prev => ({
       ...prev,
       name: editName.trim(),
-      jersey: parseInt(editJersey),
+      jersey: parseInt(editJersey, 10),
       position: editPosition,
       medical: editMedical.trim() || 'None'
     }));
 
+    setEditNameError('');
+    setEditJerseyError('');
     setIsDetailEditing(false);
   };
 
@@ -284,13 +336,13 @@ export default function SquadHub({
     <div style={{ 
       display: 'flex', 
       flexDirection: 'column', 
-      gap: '32px', 
+      gap: '24px', 
       height: '100%', 
       width: '100%',
       maxWidth: '520px', 
       margin: '0 auto',
       animation: 'fadeIn 0.25s ease-out',
-      paddingBottom: isManageMode ? '80px' : '90px' // spacing for bottom bar (increased to clear FAB on mobile)
+      paddingBottom: isManageMode ? '100px' : '140px' // increased bottom padding so FAB never obscures bottom player rows
     }}>
       
       {/* Header section with actions */}
@@ -351,8 +403,24 @@ export default function SquadHub({
         </div>
       </div>
 
-      {/* Search & Sort Controls */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '8px' }}>
+      {/* Sticky Search & Sort Controls Header */}
+      <div 
+        style={{ 
+          position: 'sticky',
+          top: 0,
+          zIndex: 40,
+          backgroundColor: '#0e0e12',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          paddingTop: '8px',
+          paddingBottom: '12px',
+          marginBottom: '4px',
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '12px', 
+          borderBottom: '1px solid rgba(255, 255, 255, 0.05)' 
+        }}
+      >
         {/* Search Input Container */}
         <div style={{ position: 'relative', width: '100%' }}>
           <input
@@ -447,7 +515,7 @@ export default function SquadHub({
             const attendanceRate = player.attendance && player.attendance.length > 0
               ? Math.round((player.attendance.filter(a => a.present).length / player.attendance.length) * 100)
               : 100;
-            const isInjured = player.medical && player.medical !== 'None' && player.medical !== '';
+            const isInjured = player.medical && player.medical !== 'None' && player.medical.trim() !== '';
 
             return (
               <div 
@@ -484,7 +552,7 @@ export default function SquadHub({
                     />
                   )}
 
-                  {/* Industrial number box */}
+                  {/* Industrial number box (Single-Digit formatted e.g. #8) */}
                   <div 
                     className="scoreboard-font" 
                     style={{ 
@@ -499,38 +567,44 @@ export default function SquadHub({
                       fontWeight: '700'
                     }}
                   >
-                    #{player.jersey < 10 ? `0${player.jersey}` : player.jersey}
+                    #{parseInt(player.jersey, 10) || player.jersey}
                   </div>
 
-                  {/* Name & Positional Info */}
-                  <div>
-                    <div style={{ fontWeight: '700', fontSize: '1.1rem', color: '#ffffff' }}>
+                  {/* Name & High-Visibility Medical Warning Badge */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span style={{ fontWeight: '700', fontSize: '1.05rem', color: '#ffffff' }}>
                       {player.name}
-                    </div>
-                    <div style={{ fontSize: '0.8rem', color: '#8d939e', marginTop: '2px', fontWeight: '500', opacity: 0.9 }}>
-                      {player.position}
-                    </div>
+                    </span>
+                    {isInjured && (
+                      <span 
+                        style={{ 
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          backgroundColor: 'rgba(230, 57, 70, 0.15)',
+                          border: '1px solid rgba(230, 57, 70, 0.4)',
+                          color: '#e63946',
+                          borderRadius: '4px',
+                          padding: '1px 6px',
+                          fontSize: '0.65rem',
+                          fontWeight: '700',
+                          gap: '3px'
+                        }}
+                        title={`Medical Alert: ${player.medical}`}
+                      >
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"/>
+                        </svg>
+                        MED
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '500', opacity: 0.7 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {/* Right-padding buffer added to Att label to prevent collision with right chevron arrow */}
+                  <span style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '500', opacity: 0.7, paddingRight: '8px' }}>
                     Att: {attendanceRate}%
                   </span>
-
-                  {/* Medical Alert Dot */}
-                  {isInjured && (
-                    <span 
-                      style={{ 
-                        width: '6px', 
-                        height: '6px', 
-                        borderRadius: '50%', 
-                        backgroundColor: '#e63946', 
-                        display: 'inline-block' 
-                      }} 
-                      title={`Medical Alert: ${player.medical}`} 
-                    />
-                  )}
 
                   <svg 
                     width="14" 
@@ -539,7 +613,7 @@ export default function SquadHub({
                     stroke="currentColor" 
                     strokeWidth="2.5" 
                     viewBox="0 0 24 24"
-                    style={{ color: '#8d939e' }}
+                    style={{ color: '#8d939e', flexShrink: 0 }}
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
                   </svg>
@@ -626,20 +700,20 @@ export default function SquadHub({
       {isDetailOpen && detailPlayer && createPortal(
         <div 
           className="player-info-backdrop" 
-          style={{ zIndex: 9999 }} 
+          style={{ zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }} 
           onClick={handleCloseDetail}
         >
           <div 
             className="player-info-modal" 
-            style={{ maxWidth: '440px' }} 
+            style={{ maxWidth: '440px', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px', backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.1)' }} 
             onClick={(e) => e.stopPropagation()}
           >
             
             {/* Modal Header */}
-            <div className="modal-header">
+            <div className="modal-header" style={{ flexShrink: 0, padding: '16px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span className="scoreboard-font" style={{ color: 'var(--color-squad)', fontSize: '1.1rem', fontWeight: '700' }}>
-                  #{detailPlayer.jersey < 10 ? `0${detailPlayer.jersey}` : detailPlayer.jersey}
+                  #{parseInt(detailPlayer.jersey, 10) || detailPlayer.jersey}
                 </span>
                 <h3 className="scoreboard-font" style={{ color: '#ffffff', margin: 0, fontSize: '1.1rem' }}>
                   {detailPlayer.name}
@@ -655,8 +729,8 @@ export default function SquadHub({
               </button>
             </div>
 
-            {/* Modal Body */}
-            <div className="modal-body" style={{ padding: '20px' }}>
+            {/* Modal Body - Scrollable Container for Virtual Keyboard Handling */}
+            <div className="modal-body" style={{ flex: '1 1 auto', overflowY: 'auto', padding: '20px', WebkitOverflowScrolling: 'touch' }}>
               {!isDetailEditing ? (
                 /* Detail View */
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -667,7 +741,7 @@ export default function SquadHub({
                     </div>
                     <div>
                       <div style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Medical Notes</div>
-                      <div style={{ fontSize: '0.9rem', color: (detailPlayer.medical && detailPlayer.medical !== 'None' && detailPlayer.medical !== '') ? '#e63946' : '#ffffff', fontWeight: '600', marginTop: '2px' }}>
+                      <div style={{ fontSize: '0.9rem', color: (detailPlayer.medical && detailPlayer.medical !== 'None' && detailPlayer.medical.trim() !== '') ? '#e63946' : '#ffffff', fontWeight: '600', marginTop: '2px' }}>
                         {detailPlayer.medical || 'None'}
                       </div>
                     </div>
@@ -752,21 +826,46 @@ export default function SquadHub({
                   )}
                 </div>
               ) : (
-                /* Inner Edit Form */
-                <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                /* Inner Edit Form with Custom Inline Validation */
+                <form noValidate onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div className="form-group">
-                      <label style={{ fontSize: '0.75rem', fontWeight: '600' }}>Full Name</label>
-                      <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} required />
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Full Name</label>
+                      <input 
+                        type="text" 
+                        value={editName} 
+                        onChange={(e) => {
+                          setEditName(e.target.value);
+                          if (e.target.value.trim()) setEditNameError('');
+                        }} 
+                      />
+                      {editNameError && (
+                        <span style={{ fontSize: '0.7rem', color: '#e63946', marginTop: '4px', display: 'block', fontWeight: '600' }}>
+                          {editNameError}
+                        </span>
+                      )}
                     </div>
                     <div className="form-group">
-                      <label style={{ fontSize: '0.75rem', fontWeight: '600' }}>Jersey #</label>
-                      <input type="number" min="1" max="99" value={editJersey} onChange={(e) => setEditJersey(e.target.value)} required />
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Jersey #</label>
+                      <input 
+                        type="number" 
+                        value={editJersey} 
+                        onChange={(e) => {
+                          setEditJersey(e.target.value);
+                          const val = parseInt(e.target.value, 10);
+                          if (!isNaN(val) && val >= 1 && val <= 99) setEditJerseyError('');
+                        }} 
+                      />
+                      {editJerseyError && (
+                        <span style={{ fontSize: '0.7rem', color: '#e63946', marginTop: '4px', display: 'block', fontWeight: '600' }}>
+                          {editJerseyError}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div className="form-group">
-                      <label style={{ fontSize: '0.75rem', fontWeight: '600' }}>Primary Position</label>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Primary Position</label>
                       <select value={editPosition} onChange={(e) => setEditPosition(e.target.value)}>
                         <option value="Forward">Forward</option>
                         <option value="Midfield">Midfield</option>
@@ -775,12 +874,12 @@ export default function SquadHub({
                       </select>
                     </div>
                     <div className="form-group">
-                      <label style={{ fontSize: '0.75rem', fontWeight: '600' }}>Medical Profile</label>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Medical Profile</label>
                       <input type="text" value={editMedical} onChange={(e) => setEditMedical(e.target.value)} placeholder="Asthma, allergy..." />
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '10px' }}>
-                    <button type="button" className="btn" onClick={() => setIsDetailEditing(false)}>Cancel</button>
+                    <button type="button" className="btn" onClick={() => { setIsDetailEditing(false); setEditNameError(''); setEditJerseyError(''); }}>Cancel</button>
                     <button type="submit" className="btn btn-squad">Save Profile</button>
                   </div>
                 </form>
@@ -870,7 +969,7 @@ export default function SquadHub({
                         {excelPlayers.map((p, i) => (
                           <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                             <td style={{ padding: '6px 4px', fontWeight: '500' }}>{p.name}</td>
-                            <td style={{ padding: '6px 4px', fontWeight: '700', color: 'var(--color-squad)', textAlign: 'right' }}>#{p.jersey}</td>
+                            <td style={{ padding: '6px 4px', fontWeight: '700', color: 'var(--color-squad)', textAlign: 'right' }}>#{parseInt(p.jersey, 10) || p.jersey}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -897,30 +996,57 @@ export default function SquadHub({
         </div>
       )}
 
-      {/* Add Player Modal overlay */}
+      {/* Add Player Modal overlay with Custom Inline Validation & Virtual Keyboard Handling */}
       {isAddOpen && (
-        <div className="overlay-backdrop">
-          <div className="modal-content" style={{ maxWidth: '400px' }}>
-            <div className="modal-header">
-              <h3 className="scoreboard-font" style={{ color: 'var(--color-squad)' }}>Add Roster Member</h3>
-              <button className="icon-btn" onClick={() => setIsAddOpen(false)}>
+        <div className="overlay-backdrop" style={{ zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+          <div className="modal-content" style={{ maxWidth: '420px', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px', backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+            <div className="modal-header" style={{ flexShrink: 0, padding: '16px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 className="scoreboard-font" style={{ color: 'var(--color-squad)', margin: 0, fontSize: '1.1rem' }}>Add Roster Member</h3>
+              <button className="icon-btn" onClick={() => { setIsAddOpen(false); setNewNameError(''); setNewJerseyError(''); }}>
                 <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
               </button>
             </div>
-            <form onSubmit={handleAddSubmit}>
-              <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <form noValidate onSubmit={handleAddSubmit} style={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', overflow: 'hidden' }}>
+              <div className="modal-body" style={{ flex: '1 1 auto', overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px', WebkitOverflowScrolling: 'touch' }}>
                 <div className="form-group">
-                  <label>Full Name</label>
-                  <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g., Dustin Martin" required />
+                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Full Name</label>
+                  <input 
+                    type="text" 
+                    value={newName} 
+                    onChange={(e) => {
+                      setNewName(e.target.value);
+                      if (e.target.value.trim()) setNewNameError('');
+                    }} 
+                    placeholder="e.g., Dustin Martin" 
+                  />
+                  {newNameError && (
+                    <span style={{ fontSize: '0.7rem', color: '#e63946', marginTop: '4px', display: 'block', fontWeight: '600' }}>
+                      {newNameError}
+                    </span>
+                  )}
                 </div>
                 <div className="form-group">
-                  <label>Jersey Number</label>
-                  <input type="number" min="1" max="99" value={newJersey} onChange={(e) => setNewJersey(e.target.value)} placeholder="e.g., 4" required />
+                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Jersey Number</label>
+                  <input 
+                    type="number" 
+                    value={newJersey} 
+                    onChange={(e) => {
+                      setNewJersey(e.target.value);
+                      const val = parseInt(e.target.value, 10);
+                      if (!isNaN(val) && val >= 1 && val <= 99) setNewJerseyError('');
+                    }} 
+                    placeholder="e.g., 4" 
+                  />
+                  {newJerseyError && (
+                    <span style={{ fontSize: '0.7rem', color: '#e63946', marginTop: '4px', display: 'block', fontWeight: '600' }}>
+                      {newJerseyError}
+                    </span>
+                  )}
                 </div>
                 <div className="form-group">
-                  <label>Position</label>
+                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Position</label>
                   <select value={newPosition} onChange={(e) => setNewPosition(e.target.value)}>
                     <option value="Forward">Forward</option>
                     <option value="Midfield">Midfield</option>
@@ -929,12 +1055,12 @@ export default function SquadHub({
                   </select>
                 </div>
                 <div className="form-group">
-                  <label>Medical Profile / Notes</label>
+                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Medical Profile / Notes</label>
                   <input type="text" value={newMedical} onChange={(e) => setNewMedical(e.target.value)} placeholder="Asthma, shoulder tape, allergy..." />
                 </div>
               </div>
-              <div className="modal-footer">
-                <button type="button" className="btn" onClick={() => setIsAddOpen(false)}>Cancel</button>
+              <div className="modal-footer" style={{ flexShrink: 0, padding: '14px 20px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                <button type="button" className="btn" onClick={() => { setIsAddOpen(false); setNewNameError(''); setNewJerseyError(''); }}>Cancel</button>
                 <button type="submit" className="btn btn-squad">Add Member</button>
               </div>
             </form>
