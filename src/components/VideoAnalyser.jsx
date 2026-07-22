@@ -84,6 +84,7 @@ export default function VideoAnalyser({
   showToast
 }) {
   const [activeClip, setActiveClip] = useState(null);
+  const [activeCategory, setActiveCategory] = useState('all'); // 'all', 'match', 'training', 'tagged'
 
   const handleDeleteClip = (e, clipId) => {
     e.stopPropagation();
@@ -1071,25 +1072,26 @@ export default function VideoAnalyser({
         /* INGESTION & INBOX & REVIEW LISTING */
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
-          {/* 1. Ingestion / Import Action Bar */}
+          {/* 1. Sleek Compact Upload Bar */}
           <div style={{
             backgroundColor: '#12141c',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '12px',
-            padding: '24px 20px',
+            padding: '14px 18px',
             display: 'flex',
-            flexDirection: 'column',
-            gap: '12px',
             alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center'
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '12px'
           }}>
-            <h3 className="scoreboard-font" style={{ color: '#ffffff', margin: 0, fontSize: '1.25rem', letterSpacing: '0.05em' }}>
-              VIDEO INGESTION CHANNEL
-            </h3>
-            <p style={{ fontSize: '0.8rem', color: '#8d939e', maxWidth: '380px', margin: '0 auto', lineHeight: '1.4' }}>
-              Bulk upload match recordings, training sessions, or scrimmage clips to evaluate squad structure.
-            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <h3 className="scoreboard-font" style={{ color: '#ffffff', margin: 0, fontSize: '1.1rem', letterSpacing: '0.03em' }}>
+                Upload Match Vision
+              </h3>
+              <p style={{ fontSize: '0.78rem', color: '#8d939e', margin: 0, lineHeight: '1.3' }}>
+                Upload match recordings, training sessions, or scrimmage clips for analysis.
+              </p>
+            </div>
             
             <input 
               type="file" 
@@ -1102,29 +1104,29 @@ export default function VideoAnalyser({
             <label 
               htmlFor="bulk-video-import"
               style={{
-                backgroundColor: '#e63946', // Sherrin Orange/Red
+                backgroundColor: '#e63946',
                 color: '#ffffff',
                 fontFamily: 'var(--font-family-locker)',
-                fontSize: '1.1rem',
+                fontSize: '0.85rem',
                 fontWeight: '700',
                 textTransform: 'uppercase',
-                padding: '12px 28px',
-                borderRadius: '6px',
+                padding: '8px 16px',
+                borderRadius: '8px',
                 cursor: 'pointer',
                 letterSpacing: '0.03em',
                 transition: 'opacity 0.2s',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
-                marginTop: '6px'
+                gap: '6px',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
               onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/>
               </svg>
-              Import Match Vision
+              + Import Match Vision
             </label>
           </div>
 
@@ -1141,27 +1143,33 @@ export default function VideoAnalyser({
             }
           `}</style>
 
-          {/* 2. Ingestion Inbox (Pending Tagging) */}
+          {/* 2. Recent Imports (Newly Imported Vision) */}
           {(() => {
             const pendingClips = videoClips.filter(c => c.isPending || c.playerIds.length === 0);
             return (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <span style={{ fontSize: '0.75rem', color: '#e63946', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#e63946', display: 'inline-block' }} />
-                  NEWLY IMPORTED VISION: ({pendingClips.length})
+                  Recent Imports ({pendingClips.length})
                 </span>
 
                 {pendingClips.length === 0 ? (
                   <div style={{ 
-                    border: '1px dashed rgba(255,255,255,0.05)', 
-                    borderRadius: '8px', 
-                    padding: '24px', 
+                    backgroundColor: '#1c1f26',
+                    border: '1px solid rgba(255, 255, 255, 0.06)', 
+                    borderRadius: '12px', 
+                    padding: '20px 16px', 
                     textAlign: 'center', 
-                    color: 'var(--text-muted)',
-                    fontSize: '0.8rem',
-                    backgroundColor: 'rgba(255, 255, 255, 0.01)'
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px'
                   }}>
-                    No pending clips. All imported vision is ready in the library.
+                    <svg width="22" height="22" fill="none" stroke="#8d939e" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    <span style={{ color: '#ffffff', fontSize: '0.85rem', fontWeight: '600' }}>No Recent Imports</span>
+                    <span style={{ color: '#8d939e', fontSize: '0.75rem' }}>All imported match vision clips are saved and ready in your Video Library below.</span>
                   </div>
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }} className="video-directory-grid">
@@ -1232,25 +1240,76 @@ export default function VideoAnalyser({
             );
           })()}
 
-          {/* 3. Analysis Video Library (Tagged) */}
+          {/* 3. Video Library (With Filter Chips & Clean Empty State) */}
           {(() => {
-            const taggedClips = videoClips.filter(c => !c.isPending);
+            let taggedClips = videoClips.filter(c => !c.isPending);
+            if (activeCategory === 'match') {
+              taggedClips = taggedClips.filter(c => c.category === 'match' || /match|game|q[1-4]/i.test(c.drillName));
+            } else if (activeCategory === 'training') {
+              taggedClips = taggedClips.filter(c => c.category === 'training' || /train|drill|practice/i.test(c.drillName));
+            } else if (activeCategory === 'tagged') {
+              taggedClips = taggedClips.filter(c => c.playerIds && c.playerIds.length > 0);
+            }
+
             return (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
-                <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
-                  Analysis Library ({taggedClips.length})
-                </span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
+                {/* Header & Filter Chips */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
+                    Video Library ({taggedClips.length})
+                  </span>
+
+                  {/* Filter Chips Bar */}
+                  <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
+                    {[
+                      { id: 'all', label: 'All Clips' },
+                      { id: 'match', label: 'Match Day' },
+                      { id: 'training', label: 'Training' },
+                      { id: 'tagged', label: 'Tagged Players' }
+                    ].map(chip => (
+                      <button
+                        key={chip.id}
+                        onClick={() => setActiveCategory(chip.id)}
+                        style={{
+                          padding: '5px 12px',
+                          fontSize: '0.75rem',
+                          fontFamily: 'var(--font-family-locker)',
+                          fontWeight: '700',
+                          borderRadius: '20px',
+                          border: '1px solid',
+                          borderColor: activeCategory === chip.id ? 'var(--color-video)' : 'rgba(255, 255, 255, 0.08)',
+                          backgroundColor: activeCategory === chip.id ? 'rgba(255, 122, 0, 0.15)' : 'rgba(255, 255, 255, 0.02)',
+                          color: activeCategory === chip.id ? 'var(--color-video)' : '#8d939e',
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
                 {taggedClips.length === 0 ? (
                   <div style={{ 
-                    border: '1px dashed rgba(255,255,255,0.05)', 
-                    borderRadius: '8px', 
-                    padding: '30px', 
+                    backgroundColor: '#1c1f26',
+                    border: '1px solid rgba(255, 255, 255, 0.06)', 
+                    borderRadius: '12px', 
+                    padding: '24px 16px', 
                     textAlign: 'center', 
-                    color: 'var(--text-muted)',
-                    fontSize: '0.85rem'
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px'
                   }}>
-                    No clips active in your library. Import new match vision above to start your review.
+                    <svg width="26" height="26" fill="none" stroke="var(--color-video)" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    <span style={{ color: '#ffffff', fontSize: '0.88rem', fontWeight: '700' }}>No Clips in Video Library</span>
+                    <span style={{ color: '#8d939e', fontSize: '0.78rem', maxWidth: '340px', lineHeight: '1.4' }}>
+                      Tap 'Upload Match Vision' above to add match clips or training footage.
+                    </span>
                   </div>
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }} className="video-directory-grid">

@@ -230,7 +230,8 @@ export default function MatchDay({
     }
     return squad.map(p => p.id);
   });
-  const [showSelector, setShowSelector] = useState(gameTime === 0);
+  const [showSelector, setShowSelector] = useState(false);
+  const [matchDayTab, setMatchDayTab] = useState('lineup'); // 'lineup', 'rotations', 'stats'
 
   // Sync activeMatchDayIds state to LocalStorage
   useEffect(() => {
@@ -664,7 +665,7 @@ export default function MatchDay({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%', paddingBottom: '40px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%', paddingBottom: '120px' }}>
           {/* Sleek Hardware-style Header Bar */}
       <div style={{
         backgroundColor: '#12141c',
@@ -773,48 +774,76 @@ export default function MatchDay({
             </div>
           </div>
 
-          {/* View Switcher Tabs */}
+          {/* Segmented Control Bar (3 View Tabs) */}
           <div style={{
             display: 'flex',
             backgroundColor: 'rgba(255, 255, 255, 0.03)',
             border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '8px',
+            borderRadius: '10px',
             padding: '4px',
-            gap: '4px'
+            gap: '4px',
+            width: '100%',
+            boxSizing: 'border-box'
           }}>
             <button
-              onClick={() => setActiveView('field')}
+              onClick={() => setMatchDayTab('lineup')}
               style={{
-                backgroundColor: activeView === 'field' ? 'var(--color-match)' : 'transparent',
-                color: activeView === 'field' ? '#000000' : '#ffffff',
+                flex: 1,
+                backgroundColor: matchDayTab === 'lineup' ? 'var(--color-match)' : 'transparent',
+                color: matchDayTab === 'lineup' ? '#000000' : '#ffffff',
                 border: 'none',
-                borderRadius: '6px',
-                padding: '6px 12px',
-                fontSize: '0.8rem',
+                borderRadius: '8px',
+                padding: '8px 6px',
+                fontSize: '0.78rem',
                 fontWeight: '700',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
-                fontFamily: 'var(--font-family-locker)'
+                fontFamily: 'var(--font-family-locker)',
+                textAlign: 'center',
+                whiteSpace: 'nowrap'
               }}
             >
-              📋 Field Board
+              📋 Lineup & Bench
             </button>
             <button
-              onClick={() => setActiveView('list')}
+              onClick={() => setMatchDayTab('rotations')}
               style={{
-                backgroundColor: activeView === 'list' ? 'var(--color-match)' : 'transparent',
-                color: activeView === 'list' ? '#000000' : '#ffffff',
+                flex: 1,
+                backgroundColor: matchDayTab === 'rotations' ? 'var(--color-match)' : 'transparent',
+                color: matchDayTab === 'rotations' ? '#000000' : '#ffffff',
                 border: 'none',
-                borderRadius: '6px',
-                padding: '6px 12px',
-                fontSize: '0.8rem',
+                borderRadius: '8px',
+                padding: '8px 6px',
+                fontSize: '0.78rem',
                 fontWeight: '700',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
-                fontFamily: 'var(--font-family-locker)'
+                fontFamily: 'var(--font-family-locker)',
+                textAlign: 'center',
+                whiteSpace: 'nowrap'
               }}
             >
-              📊 Roster List
+              🔄 Rotations
+            </button>
+            <button
+              onClick={() => setMatchDayTab('stats')}
+              style={{
+                flex: 1,
+                backgroundColor: matchDayTab === 'stats' ? 'var(--color-match)' : 'transparent',
+                color: matchDayTab === 'stats' ? '#000000' : '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 6px',
+                fontSize: '0.78rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                fontFamily: 'var(--font-family-locker)',
+                textAlign: 'center',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              📊 Stats & Notes
             </button>
           </div>
 
@@ -1184,409 +1213,489 @@ export default function MatchDay({
         )}
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-        gap: '24px',
-        alignItems: 'start'
-      }}>
-        {/* LEFT COLUMN: FIELD OR ROSTER LIST VIEW */}
+      {/* TAB 1: LINEUP & BENCH */}
+      {matchDayTab === 'lineup' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {activeView === 'field' ? (
-            <>
-              {/* FORMAL AFL POSITIONAL GRID (Deep Matte Green Whiteboard Vibe) */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    On Field ({onFieldPlayerIds.length} / 18 Players)
-                  </div>
-                  {selectedBenchId && (
-                    <span style={{ fontSize: '0.75rem', color: 'var(--color-match)', fontWeight: '600' }}>
-                      👉 Select target slot to swap position
-                    </span>
-                  )}
-                </div>
-
-                <div style={{ 
-                  backgroundColor: '#1a3c34', // Deep matte stadium green field
-                  border: '1px solid rgba(255, 255, 255, 0.08)', 
-                  borderRadius: '12px', 
-                  padding: '24px 12px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '24px',
-                  boxShadow: 'inset 0 0 30px rgba(0,0,0,0.5)'
+          {/* MATCH DAY SQUAD CONFIGURATION SELECTOR */}
+          <div style={{
+            backgroundColor: 'var(--bg-surface)',
+            border: '1px solid var(--border-light)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }} onClick={() => setShowSelector(!showSelector)}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Match Day Squad Configuration
+                </span>
+                <span style={{
+                  backgroundColor: 'rgba(58, 134, 255, 0.15)',
+                  color: 'var(--color-squad)',
+                  fontSize: '0.75rem',
+                  fontWeight: '700',
+                  padding: '2px 8px',
+                  borderRadius: '20px',
+                  fontFamily: 'var(--font-family-locker)'
                 }}>
-                  
-                  {/* Positional grid rows (Forwards to Backs) */}
-                  {[
-                    { line: 'Forwards', posIds: ['pos_fp_l', 'pos_ff', 'pos_fp_r'] },
-                    { line: 'Half Forwards', posIds: ['pos_hff_l', 'pos_chf', 'pos_hff_r'] },
-                    { line: 'Midfield (Mids)', posIds: ['pos_w_l', 'pos_c', 'pos_w_r'] },
-                    { line: 'Ruck Group', posIds: ['pos_r', 'pos_rr', 'pos_ro'] },
-                    { line: 'Half Backs', posIds: ['pos_hbf_l', 'pos_chb', 'pos_hbf_r'] },
-                    { line: 'Backs', posIds: ['pos_bp_l', 'pos_fb', 'pos_bp_r'] }
-                  ].map((row) => (
-                    <div key={row.line} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      {/* Row Header Label */}
+                  {activeMatchDayIds.length} / {squad.length} Active
+                </span>
+              </div>
+              <button style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-secondary)',
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+                fontWeight: '600',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}>
+                {showSelector ? 'Collapse' : 'Manage Squad'}
+                <svg 
+                  width="12" 
+                  height="12" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  viewBox="0 0 24 24"
+                  style={{ transform: showSelector ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+
+            {showSelector && (
+              <div style={{ 
+                borderTop: '1px solid rgba(255, 255, 255, 0.05)', 
+                paddingTop: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    Select who is active for today's match. Unselected players will be excluded from the field and bench.
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button 
+                      onClick={handleSelectAllMatchDay}
+                      style={{
+                        backgroundColor: 'transparent',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        color: '#ffffff',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        padding: '4px 10px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      Select All
+                    </button>
+                    <button 
+                      onClick={handleClearAllMatchDay}
+                      style={{
+                        backgroundColor: 'transparent',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        color: '#ffffff',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        padding: '4px 10px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+                
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
+                  gap: '8px',
+                  maxHeight: '180px',
+                  overflowY: 'auto',
+                  paddingRight: '4px'
+                }}>
+                  {squad.map(player => {
+                    const isActive = activeMatchDayIds.includes(player.id);
+                    const isOnField = onFieldPlayerIds.includes(player.id);
+                    return (
                       <div 
-                        className="scoreboard-font" 
-                        style={{ 
-                          fontSize: '0.65rem', 
-                          color: 'rgba(255,255,255,0.25)', 
-                          letterSpacing: '1px', 
-                          borderBottom: '1px dashed rgba(255,255,255,0.05)', 
-                          paddingBottom: '2px',
-                          textAlign: 'center'
+                        key={player.id}
+                        onClick={() => togglePlayerActive(player.id)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '8px 12px',
+                          borderRadius: '8px',
+                          backgroundColor: isActive ? 'rgba(58, 134, 255, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                          border: isActive ? '1px solid rgba(58, 134, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0.05)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          userSelect: 'none'
                         }}
                       >
-                        {row.line.toUpperCase()}
-                      </div>
-
-                      {/* Grid slots (3 columns per row) */}
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-                        {row.posIds.map((posId) => {
-                          const pos = FIELD_POSITIONS.find(p => p.id === posId);
-                          const assignedPlayerId = fieldAssignments[posId];
-                          const player = squad.find(p => p.id === assignedPlayerId);
-                          
-                          // Calculate active stint times
-                          const activeStintSec = playerOnGroundStint[assignedPlayerId] || 0;
-                          const activeStintMin = Math.floor(activeStintSec / 60);
-                          const togSec = playerTOG[assignedPlayerId] || 0;
-                          
-                          let warningClass = '';
-                          if (assignedPlayerId) {
-                            if (activeStintMin >= maxStintMinutes) {
-                              warningClass = 'flash-danger';
-                            } else if (activeStintMin >= maxStintMinutes - 2) {
-                              warningClass = 'flash-warning';
-                            }
-                          }
-
-                          const isSelected = selectedBenchId === assignedPlayerId && assignedPlayerId !== undefined;
-
-                          return (
-                            <button 
-                              key={posId}
-                              type="button"
-                              onDragOver={handleDragOver}
-                              onDrop={(e) => handleDrop(e, posId)}
-                              onClick={() => setActiveSelectSlotId(posId)}
-                              className={warningClass}
-                              style={{ 
-                                backgroundColor: isSelected ? 'rgba(255,183,3,0.15)' : 'rgba(0, 0, 0, 0.4)', 
-                                border: selectedBenchId ? '1.5px dashed rgba(255, 183, 3, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)', 
-                                borderRadius: '6px', 
-                                padding: '10px 6px',
-                                textAlign: 'center',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'space-between',
-                                minHeight: '68px',
-                                userSelect: 'none',
-                                width: '100%',
-                                outline: 'none',
-                                color: 'inherit',
-                                lineHeight: 'normal'
-                              }}
-                            >
-                              {/* Position Code */}
-                              <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.5)', fontWeight: '800', letterSpacing: '0.02em' }}>
-                                {pos.code}
-                              </div>
-                              
-                              {player ? (
-                                <>
-                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', margin: '2px 0', width: '100%', minWidth: 0 }}>
-                                    <span className="scoreboard-font" style={{ fontSize: '0.95rem', color: 'var(--color-match)', fontWeight: '800', flexShrink: 0 }}>
-                                      #{player.jersey}
-                                    </span>
-                                    <span style={{ 
-                                      fontSize: getFontSizeForName(player.name.split(' ')[0]), 
-                                      fontWeight: '700', 
-                                      color: '#ffffff', 
-                                      overflow: 'hidden', 
-                                      textOverflow: 'ellipsis', 
-                                      whiteSpace: 'nowrap', 
-                                      flex: 1,
-                                      minWidth: 0,
-                                      textAlign: 'center'
-                                    }} title={player.name.split(' ')[0]}>
-                                      {player.name.split(' ')[0]}
-                                    </span>
-                                  </div>
-                                  {/* Active Stint & TOG timer */}
-                                  <div className="scoreboard-font" style={{ 
-                                    fontSize: '0.55rem', 
-                                    color: warningClass ? '#e63946' : 'rgba(255,255,255,0.3)',
-                                    opacity: warningClass ? 1 : 0.65,
-                                    fontWeight: '600'
-                                  }}>
-                                    {activeStintMin}m (TOG: {Math.round(togSec / 60)}m)
-                                  </div>
-                                </>
-                              ) : (
-                                <div style={{ fontSize: '0.7rem', color: 'rgba(255, 255, 255, 0.15)', margin: 'auto' }}>
-                                  VACANT
-                                </div>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-
-                </div>
-              </div>
-
-              {/* BENCH MANAGER */}
-              <div 
-                onDragOver={handleDragOver}
-                onDrop={handleDropToBench}
-                onClick={handleBenchAreaTap}
-                style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: '12px',
-                  backgroundColor: 'var(--bg-surface)',
-                  border: '1px solid var(--border-light)',
-                  borderRadius: '12px',
-                  padding: '16px 20px',
-                  transition: 'all 0.2s',
-                  borderColor: selectedBenchId ? 'var(--color-match)' : 'var(--border-light)',
-                  cursor: selectedBenchId ? 'pointer' : 'default'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Interchange ({benchPlayerIds.length} Players)
-                  </div>
-                  {selectedBenchId && (
-                    <span style={{ fontSize: '0.75rem', color: 'var(--color-match)', fontWeight: '600' }}>
-                      👉 Tap Interchange area to move selected player to bench
-                    </span>
-                  )}
-                </div>
-
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', 
-                  gap: '12px',
-                  minHeight: '80px',
-                  alignItems: 'center'
-                }}>
-                  {benchPlayerIds.length === 0 ? (
-                    <div style={{ gridColumn: '1 / -1', color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', padding: '20px 0', fontStyle: 'italic' }}>
-                      No players currently on the interchange bench. Drag players here from the field or toggle them active.
-                    </div>
-                  ) : (
-                    benchPlayerIds.map((pid) => {
-                      const player = squad.find(p => p.id === pid);
-                      if (!player) return null;
-                      
-                      const isSelected = selectedBenchId === pid;
-                      const benchStintSec = playerBenchStint[pid] || 0;
-                      const togSec = playerTOG[pid] || 0;
-                      const isAmberAlert = benchStintSec >= 300 || (togSec < 180 && gameTime > 120);
-
-                      return (
-                        <div 
-                          key={pid}
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, pid)}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleBenchTap(pid);
-                          }}
-                          style={{ 
-                            backgroundColor: isSelected ? 'rgba(255, 183, 3, 0.25)' : isAmberAlert ? 'rgba(255, 183, 3, 0.12)' : 'var(--bg-floor)', 
-                            border: isSelected ? '2px solid var(--color-match)' : isAmberAlert ? '1.5px solid #ffb703' : '1px solid var(--border-light)', 
-                            borderRadius: '8px', 
-                            padding: '12px 10px',
-                            cursor: 'grab',
-                            textAlign: 'center',
-                            position: 'relative',
-                            transition: 'all 0.2s',
-                            userSelect: 'none'
-                          }}
-                          title="Drag onto field or tap to select for swap"
-                          onMouseEnter={(e) => {
-                            if (!isSelected && !isAmberAlert) {
-                              e.currentTarget.style.borderColor = 'var(--text-secondary)';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!isSelected && !isAmberAlert) {
-                              e.currentTarget.style.borderColor = 'var(--border-light)';
-                            }
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', margin: '2px 0', width: '100%', minWidth: 0 }}>
-                            <span className="scoreboard-font" style={{ fontSize: '0.95rem', color: isAmberAlert ? '#ffb703' : 'var(--color-match)', fontWeight: '800', flexShrink: 0 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                          <span style={{ fontSize: '0.85rem', fontWeight: '700', color: isActive ? '#ffffff' : 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {player.name}
+                          </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span className="scoreboard-font" style={{ fontSize: '0.7rem', color: isActive ? 'var(--color-match)' : 'var(--text-muted)' }}>
                               #{player.jersey}
                             </span>
-                            <span style={{ 
-                              fontSize: getFontSizeForName(player.name.split(' ')[0]), 
-                              fontWeight: '700', 
-                              color: '#ffffff', 
-                              overflow: 'hidden', 
-                              textOverflow: 'ellipsis', 
-                              whiteSpace: 'nowrap', 
-                              flex: 1,
-                              minWidth: 0,
-                              textAlign: 'center'
-                            }} title={player.name.split(' ')[0]}>
-                              {player.name.split(' ')[0]}
-                            </span>
-                            {isAmberAlert && <span style={{ color: '#ffb703', fontSize: '0.8rem', flexShrink: 0 }}>⚠️</span>}
-                          </div>
-                          <div className="scoreboard-font" style={{ 
-                            fontSize: '0.6rem', 
-                            color: isAmberAlert ? '#ffb703' : 'var(--text-secondary)', 
-                            opacity: isAmberAlert ? 1 : 0.65,
-                            fontWeight: '600', 
-                            lineHeight: '1.35',
-                            marginTop: '2px'
-                          }}>
-                            B: {Math.floor(benchStintSec / 60)}m &bull; TOG: {Math.round(togSec / 60)}m
+                            {isActive && (
+                              <span style={{ 
+                                fontSize: '0.65rem', 
+                                color: isOnField ? '#2a9d8f' : 'var(--color-match)',
+                                fontWeight: '600',
+                                textTransform: 'uppercase'
+                              }}>
+                                {isOnField ? 'Field' : 'Bench'}
+                              </span>
+                            )}
                           </div>
                         </div>
-                      );
-                    })
-                  )}
+                        
+                        <div style={{
+                          width: '18px',
+                          height: '18px',
+                          borderRadius: '50%',
+                          border: '1.5px solid',
+                          borderColor: isActive ? 'var(--color-squad)' : 'rgba(255,255,255,0.15)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: isActive ? 'var(--color-squad)' : 'transparent',
+                          color: '#ffffff',
+                          fontSize: '0.7rem',
+                          fontWeight: 'bold',
+                          transition: 'all 0.2s'
+                        }}>
+                          {isActive ? '✓' : ''}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
+
+                {squad.length === 0 && (
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', padding: '16px 0', fontStyle: 'italic' }}>
+                    No players in squad. Go to Team Hub to add players.
+                  </div>
+                )}
               </div>
-            </>
-          ) : (
-            /* ROSTER ROTATION LIST VIEW */
-            <div style={{
+            )}
+          </div>
+
+          {/* FORMAL AFL POSITIONAL GRID */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                On Field ({onFieldPlayerIds.length} / 18 Players)
+              </div>
+              {selectedBenchId && (
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-match)', fontWeight: '600' }}>
+                  👉 Select target slot to swap position
+                </span>
+              )}
+            </div>
+
+            <div style={{ 
+              backgroundColor: '#1a3c34',
+              border: '1px solid rgba(255, 255, 255, 0.08)', 
+              borderRadius: '12px', 
+              padding: '24px 12px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+              boxShadow: 'inset 0 0 30px rgba(0,0,0,0.5)'
+            }}>
+              
+              {/* Positional grid rows (Forwards to Backs) */}
+              {[
+                { line: 'Forwards', posIds: ['pos_fp_l', 'pos_ff', 'pos_fp_r'] },
+                { line: 'Half Forwards', posIds: ['pos_hff_l', 'pos_chf', 'pos_hff_r'] },
+                { line: 'Midfield (Mids)', posIds: ['pos_w_l', 'pos_c', 'pos_w_r'] },
+                { line: 'Ruck Group', posIds: ['pos_r', 'pos_rr', 'pos_ro'] },
+                { line: 'Half Backs', posIds: ['pos_hbf_l', 'pos_chb', 'pos_hbf_r'] },
+                { line: 'Backs', posIds: ['pos_bp_l', 'pos_fb', 'pos_bp_r'] }
+              ].map((row) => (
+                <div key={row.line} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div 
+                    className="scoreboard-font" 
+                    style={{ 
+                      fontSize: '0.65rem', 
+                      color: 'rgba(255,255,255,0.25)', 
+                      letterSpacing: '1px', 
+                      borderBottom: '1px dashed rgba(255,255,255,0.05)', 
+                      paddingBottom: '2px',
+                      textAlign: 'center'
+                    }}
+                  >
+                    {row.line.toUpperCase()}
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                    {row.posIds.map((posId) => {
+                      const pos = FIELD_POSITIONS.find(p => p.id === posId);
+                      const assignedPlayerId = fieldAssignments[posId];
+                      const player = squad.find(p => p.id === assignedPlayerId);
+                      
+                      const activeStintSec = playerOnGroundStint[assignedPlayerId] || 0;
+                      const activeStintMin = Math.floor(activeStintSec / 60);
+                      const togSec = playerTOG[assignedPlayerId] || 0;
+                      
+                      let warningClass = '';
+                      if (assignedPlayerId) {
+                        if (activeStintMin >= maxStintMinutes) {
+                          warningClass = 'flash-danger';
+                        } else if (activeStintMin >= maxStintMinutes - 2) {
+                          warningClass = 'flash-warning';
+                        }
+                      }
+
+                      const isSelected = selectedBenchId === assignedPlayerId && assignedPlayerId !== undefined;
+
+                      return (
+                        <button 
+                          key={posId}
+                          type="button"
+                          onDragOver={handleDragOver}
+                          onDrop={(e) => handleDrop(e, posId)}
+                          onClick={() => handleSlotTap(posId)}
+                          className={warningClass}
+                          style={{ 
+                            backgroundColor: isSelected ? 'rgba(255,183,3,0.15)' : 'rgba(0, 0, 0, 0.4)', 
+                            border: selectedBenchId ? '1.5px dashed rgba(255, 183, 3, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)', 
+                            borderRadius: '6px', 
+                            padding: '10px 6px',
+                            textAlign: 'center',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            minHeight: '68px',
+                            userSelect: 'none',
+                            width: '100%',
+                            outline: 'none',
+                            color: 'inherit',
+                            lineHeight: 'normal'
+                          }}
+                        >
+                          <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.5)', fontWeight: '800', letterSpacing: '0.02em' }}>
+                            {pos.code}
+                          </div>
+                          
+                          {player ? (
+                            <>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', margin: '2px 0', width: '100%', minWidth: 0 }}>
+                                <span className="scoreboard-font" style={{ fontSize: '0.95rem', color: 'var(--color-match)', fontWeight: '800', flexShrink: 0 }}>
+                                  #{player.jersey}
+                                </span>
+                                <span style={{ 
+                                  fontSize: getFontSizeForName(player.name.split(' ')[0]), 
+                                  fontWeight: '700', 
+                                  color: '#ffffff', 
+                                  overflow: 'hidden', 
+                                  textOverflow: 'ellipsis', 
+                                  whiteSpace: 'nowrap', 
+                                  flex: 1,
+                                  minWidth: 0,
+                                  textAlign: 'center'
+                                }} title={player.name.split(' ')[0]}>
+                                  {player.name.split(' ')[0]}
+                                </span>
+                              </div>
+                              <div className="scoreboard-font" style={{ 
+                                fontSize: '0.62rem', 
+                                color: warningClass ? '#e63946' : 'rgba(255,255,255,0.7)',
+                                opacity: warningClass ? 1 : 0.85,
+                                fontWeight: '700'
+                              }}>
+                                TOG: {Math.round(togSec / 60)}m
+                              </div>
+                            </>
+                          ) : (
+                            <div style={{ fontSize: '0.7rem', color: 'rgba(255, 255, 255, 0.15)', margin: 'auto' }}>
+                              VACANT
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+
+            </div>
+          </div>
+
+          {/* INTERCHANGE BENCH MANAGER */}
+          <div 
+            onDragOver={handleDragOver}
+            onDrop={handleDropToBench}
+            onClick={handleBenchAreaTap}
+            style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '12px',
               backgroundColor: 'var(--bg-surface)',
               border: '1px solid var(--border-light)',
               borderRadius: '12px',
               padding: '16px 20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '16px',
-              animation: 'fadeIn 0.2s ease-out'
+              transition: 'all 0.2s',
+              borderColor: selectedBenchId ? 'var(--color-match)' : 'var(--border-light)',
+              cursor: selectedBenchId ? 'pointer' : 'default'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Interchange ({benchPlayerIds.length} Players)
+              </div>
+              {selectedBenchId && (
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-match)', fontWeight: '600' }}>
+                  👉 Tap Interchange area to move selected player to bench
+                </span>
+              )}
+            </div>
+
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', 
+              gap: '12px',
+              minHeight: '80px',
+              alignItems: 'center'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Roster Rotation list
-                </span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                  Total Game Time: {formatClock(gameTime)}
-                </span>
-              </div>
+              {benchPlayerIds.length === 0 ? (
+                <div style={{ gridColumn: '1 / -1', color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', padding: '20px 0', fontStyle: 'italic' }}>
+                  No players currently on the interchange bench. Drag players here from the field or toggle them active.
+                </div>
+              ) : (
+                benchPlayerIds.map((pid) => {
+                  const player = squad.find(p => p.id === pid);
+                  if (!player) return null;
+                  
+                  const isSelected = selectedBenchId === pid;
+                  const benchStintSec = playerBenchStint[pid] || 0;
+                  const togSec = playerTOG[pid] || 0;
+                  const isAmberAlert = benchStintSec >= 300 || (togSec < 180 && gameTime > 120);
 
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '420px' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                      <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Player</th>
-                      <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Status</th>
-                      <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Stint</th>
-                      <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>TOG / Bench</th>
-                      <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>TOG %</th>
-                      <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Fair Play</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activeMatchDayIds.map(pid => {
-                      const player = squad.find(p => p.id === pid);
-                      if (!player) return null;
+                  return (
+                    <div 
+                      key={pid}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, pid)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleBenchTap(pid);
+                      }}
+                      style={{ 
+                        backgroundColor: isSelected ? 'rgba(255, 183, 3, 0.25)' : isAmberAlert ? 'rgba(255, 183, 3, 0.12)' : 'var(--bg-floor)', 
+                        border: isSelected ? '2px solid var(--color-match)' : isAmberAlert ? '1.5px solid #ffb703' : '1px solid var(--border-light)', 
+                        borderRadius: '8px', 
+                        padding: '12px 10px',
+                        cursor: 'grab',
+                        textAlign: 'center',
+                        position: 'relative',
+                        transition: 'all 0.2s',
+                        userSelect: 'none'
+                      }}
+                      title="Drag onto field or tap to select for swap"
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', margin: '2px 0', width: '100%', minWidth: 0 }}>
+                        <span className="scoreboard-font" style={{ fontSize: '0.95rem', color: isAmberAlert ? '#ffb703' : 'var(--color-match)', fontWeight: '800', flexShrink: 0 }}>
+                          #{player.jersey}
+                        </span>
+                        <span style={{ 
+                          fontSize: getFontSizeForName(player.name.split(' ')[0]), 
+                          fontWeight: '700', 
+                          color: '#ffffff', 
+                          overflow: 'hidden', 
+                          textOverflow: 'ellipsis', 
+                          whiteSpace: 'nowrap', 
+                          flex: 1,
+                          minWidth: 0,
+                          textAlign: 'center'
+                        }} title={player.name.split(' ')[0]}>
+                          {player.name.split(' ')[0]}
+                        </span>
+                        {isAmberAlert && <span style={{ color: '#ffb703', fontSize: '0.8rem', flexShrink: 0 }}>⚠️</span>}
+                      </div>
+                      <div className="scoreboard-font" style={{ 
+                        fontSize: '0.62rem', 
+                        color: isAmberAlert ? '#ffb703' : 'rgba(255,255,255,0.7)', 
+                        opacity: isAmberAlert ? 1 : 0.85,
+                        fontWeight: '700', 
+                        lineHeight: '1.35',
+                        marginTop: '2px'
+                      }}>
+                        TOG: {Math.round(togSec / 60)}m
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
-                      const isOnField = onFieldPlayerIds.includes(pid);
-                      const currentSlotId = Object.keys(fieldAssignments).find(key => fieldAssignments[key] === pid);
-                      const pos = FIELD_POSITIONS.find(p => p.id === currentSlotId);
-
-                      const stintSec = isOnField ? (playerOnGroundStint[pid] || 0) : (playerBenchStint[pid] || 0);
-                      const stintMins = Math.floor(stintSec / 60);
-
-                      const togSec = playerTOG[pid] || 0;
-                      const togMins = Math.round(togSec / 60);
-
-                      const benchSec = playerBenchTime[pid] || 0;
-                      const benchMins = Math.round(benchSec / 60);
-
-                      const togPct = gameTime > 0 ? Math.round((togSec / gameTime) * 100) : 0;
-
-                      // Equalization / Fair play warning logic
-                      let fairPlayLabel = "Balanced";
-                      let fairPlayColor = "#2a9d8f";
-                      if (isOnField && stintMins >= maxStintMinutes) {
-                        fairPlayLabel = "Stint limit";
-                        fairPlayColor = "#e63946";
-                      } else if (!isOnField && benchMins >= 10 && gameTime > 300) {
-                        fairPlayLabel = "Benched too long";
-                        fairPlayColor = "#ffb703";
-                      } else if (gameTime > 600) {
-                        const targetTogPct = (18 / activeMatchDayIds.length) * 100;
-                        if (togPct < targetTogPct - 15) {
-                          fairPlayLabel = "Low Play Time";
-                          fairPlayColor = "#ffb703";
-                        }
-                      }
-
-                      return (
-                        <tr key={pid} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)', height: '40px' }}>
-                          <td style={{ padding: '6px 4px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <span className="scoreboard-font" style={{ color: 'var(--color-match)', fontSize: '0.8rem', fontWeight: '800' }}>#{player.jersey}</span>
-                              <span style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '600' }}>{player.name}</span>
-                            </div>
-                          </td>
-                          <td style={{ padding: '6px 4px' }}>
-                            <span style={{ 
-                              fontSize: '0.7rem', 
-                              fontWeight: '700', 
-                              textTransform: 'uppercase', 
-                              backgroundColor: isOnField ? 'rgba(42, 157, 143, 0.15)' : 'rgba(255, 183, 3, 0.12)',
-                              color: isOnField ? '#2a9d8f' : '#ffb703',
-                              padding: '2px 6px',
-                              borderRadius: '4px'
-                            }}>
-                              {isOnField ? (pos?.code || 'Field') : 'Bench'}
-                            </span>
-                          </td>
-                          <td style={{ padding: '6px 4px', fontSize: '0.8rem', color: '#d1d5db', fontFamily: 'var(--font-family-locker)' }}>
-                            {Math.floor(stintSec / 60)}m {stintSec % 60}s
-                          </td>
-                          <td style={{ padding: '6px 4px', fontSize: '0.8rem', color: '#d1d5db', fontFamily: 'var(--font-family-locker)' }}>
-                            {togMins}m / {benchMins}m
-                          </td>
-                          <td style={{ padding: '6px 4px', fontSize: '0.8rem', color: '#ffffff', fontWeight: '700', fontFamily: 'var(--font-family-locker)' }}>
-                            {togPct}%
-                          </td>
-                          <td style={{ padding: '6px 4px' }}>
-                            <span style={{ 
-                              fontSize: '0.7rem', 
-                              fontWeight: '700', 
-                              color: fairPlayColor,
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '4px'
-                            }}>
-                              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: fairPlayColor }}></span>
-                              {fairPlayLabel}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+      {/* TAB 2: ROTATIONS */}
+      {matchDayTab === 'rotations' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Tap-to-Swap Helper Banner */}
+          {selectedBenchId ? (
+            <div style={{
+              backgroundColor: 'rgba(255, 183, 3, 0.15)',
+              border: '1px solid #ffb703',
+              borderRadius: '8px',
+              padding: '10px 14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px'
+            }}>
+              <span style={{ fontSize: '0.8rem', color: '#ffb703', fontWeight: '700' }}>
+                👉 INCOMING: #{squad.find(p => p.id === selectedBenchId)?.jersey} {squad.find(p => p.id === selectedBenchId)?.name}. Tap target field slot or player to execute instant swap!
+              </span>
+              <button 
+                onClick={() => setSelectedBenchId(null)}
+                style={{ backgroundColor: 'transparent', border: 'none', color: '#ffffff', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <div style={{
+              backgroundColor: 'rgba(58, 134, 255, 0.08)',
+              border: '1px solid rgba(58, 134, 255, 0.2)',
+              borderRadius: '8px',
+              padding: '10px 14px',
+              fontSize: '0.78rem',
+              color: '#d1d5db',
+              fontWeight: '500'
+            }}>
+              💡 <strong>Tap-to-Swap Interface:</strong> Tap a bench player (INCOMING), then tap a field player (OUTGOING) to execute or queue an instant substitution.
             </div>
           )}
-        </div>
 
-        {/* RIGHT COLUMN: PLAN MODE, STATS LOGGER, NOTES, DELEGATION */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          
           {/* PLANNED ROTATION QUEUE ("PLAN MODE") */}
           <div style={{
             backgroundColor: 'var(--bg-surface)',
@@ -1659,8 +1768,8 @@ export default function MatchDay({
                   color: '#000000',
                   border: 'none',
                   borderRadius: '6px',
-                  padding: '6px 12px',
-                  fontSize: '0.75rem',
+                  padding: '8px 12px',
+                  fontSize: '0.8rem',
                   fontWeight: '700',
                   cursor: 'pointer',
                   transition: 'opacity 0.2s',
@@ -1676,7 +1785,7 @@ export default function MatchDay({
               <span style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Upcoming Rotations:</span>
               {plannedRotations.length === 0 ? (
                 <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontStyle: 'italic', padding: '6px 0' }}>
-                  No rotations planned. Select players above to queue.
+                  No rotations planned. Tap bench and field players to queue.
                 </div>
               ) : (
                 plannedRotations.map(rot => {
@@ -1729,7 +1838,130 @@ export default function MatchDay({
             </div>
           </div>
 
-          {/* MATCH STATISTICS LOGGER */}
+          {/* FULL ROSTER ROTATION LIST TABLE */}
+          <div style={{
+            backgroundColor: 'var(--bg-surface)',
+            border: '1px solid var(--border-light)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Roster Rotation List
+              </span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                Total Game Time: {formatClock(gameTime)}
+              </span>
+            </div>
+
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '420px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                    <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Player</th>
+                    <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Status</th>
+                    <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Stint</th>
+                    <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>TOG / Bench</th>
+                    <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>TOG %</th>
+                    <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Fair Play</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activeMatchDayIds.map(pid => {
+                    const player = squad.find(p => p.id === pid);
+                    if (!player) return null;
+
+                    const isOnField = onFieldPlayerIds.includes(pid);
+                    const currentSlotId = Object.keys(fieldAssignments).find(key => fieldAssignments[key] === pid);
+                    const pos = FIELD_POSITIONS.find(p => p.id === currentSlotId);
+
+                    const stintSec = isOnField ? (playerOnGroundStint[pid] || 0) : (playerBenchStint[pid] || 0);
+                    const stintMins = Math.floor(stintSec / 60);
+
+                    const togSec = playerTOG[pid] || 0;
+                    const togMins = Math.round(togSec / 60);
+
+                    const benchSec = playerBenchTime[pid] || 0;
+                    const benchMins = Math.round(benchSec / 60);
+
+                    const togPct = gameTime > 0 ? Math.round((togSec / gameTime) * 100) : 0;
+
+                    let fairPlayLabel = "Balanced";
+                    let fairPlayColor = "#2a9d8f";
+                    if (isOnField && stintMins >= maxStintMinutes) {
+                      fairPlayLabel = "Stint limit";
+                      fairPlayColor = "#e63946";
+                    } else if (!isOnField && benchMins >= 10 && gameTime > 300) {
+                      fairPlayLabel = "Benched too long";
+                      fairPlayColor = "#ffb703";
+                    } else if (gameTime > 600) {
+                      const targetTogPct = (18 / activeMatchDayIds.length) * 100;
+                      if (togPct < targetTogPct - 15) {
+                        fairPlayLabel = "Low Play Time";
+                        fairPlayColor = "#ffb703";
+                      }
+                    }
+
+                    return (
+                      <tr key={pid} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)', height: '40px' }}>
+                        <td style={{ padding: '6px 4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span className="scoreboard-font" style={{ color: 'var(--color-match)', fontSize: '0.8rem', fontWeight: '800' }}>#{player.jersey}</span>
+                            <span style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '600' }}>{player.name}</span>
+                          </div>
+                        </td>
+                        <td style={{ padding: '6px 4px' }}>
+                          <span style={{ 
+                            fontSize: '0.7rem', 
+                            fontWeight: '700', 
+                            textTransform: 'uppercase', 
+                            backgroundColor: isOnField ? 'rgba(42, 157, 143, 0.15)' : 'rgba(255, 183, 3, 0.12)',
+                            color: isOnField ? '#2a9d8f' : '#ffb703',
+                            padding: '2px 6px',
+                            borderRadius: '4px'
+                          }}>
+                            {isOnField ? (pos?.code || 'Field') : 'Bench'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '6px 4px', fontSize: '0.8rem', color: '#d1d5db', fontFamily: 'var(--font-family-locker)' }}>
+                          {Math.floor(stintSec / 60)}m {stintSec % 60}s
+                        </td>
+                        <td style={{ padding: '6px 4px', fontSize: '0.8rem', color: '#d1d5db', fontFamily: 'var(--font-family-locker)' }}>
+                          {togMins}m / {benchMins}m
+                        </td>
+                        <td style={{ padding: '6px 4px', fontSize: '0.8rem', color: '#ffffff', fontWeight: '700', fontFamily: 'var(--font-family-locker)' }}>
+                          {togPct}%
+                        </td>
+                        <td style={{ padding: '6px 4px' }}>
+                          <span style={{ 
+                            fontSize: '0.7rem', 
+                            fontWeight: '700', 
+                            color: fairPlayColor,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}>
+                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: fairPlayColor }}></span>
+                            {fairPlayLabel}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: STATS & NOTES */}
+      {matchDayTab === 'stats' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* LIVE STATS LOGGER */}
           <div style={{
             backgroundColor: 'var(--bg-surface)',
             border: '1px solid var(--border-light)',
@@ -1880,7 +2112,7 @@ export default function MatchDay({
               placeholder="Jot down feedback, tactical adjustments, or injury updates..."
               style={{
                 width: '100%',
-                height: '70px',
+                height: '80px',
                 backgroundColor: '#0a0b0e',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: '6px',
@@ -1922,9 +2154,8 @@ export default function MatchDay({
               </li>
             </ul>
           </div>
-
         </div>
-      </div>
+      )}
 
       {/* Contextual Tagging Modal */}
       <ContextualTaggingModal 
