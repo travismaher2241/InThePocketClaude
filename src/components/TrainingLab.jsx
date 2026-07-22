@@ -544,45 +544,65 @@ function getLocalDrillSetup(drillName, groupSize) {
 
 function parseStationCards(card, group1, group2) {
   const text = card.instructions || '';
-  const isSplit = text.includes('STRUCTURE: ROTATION-BASED STATIONS');
+  const isSplit = text.includes('STRUCTURE: ROTATION-BASED STATIONS') || text.includes('STRUCTURE: CONCURRENT ROTATION STATIONS');
   
   if (!isSplit) {
     return [card];
   }
   
-  let stationAContent = '';
-  let stationBContent = '';
-  let switchContent = '';
+  let station1Label = 'STATION A';
+  let station2Label = 'STATION B';
   
-  // Extract Station A, Station B, and The Switch content
-  const matchA = text.match(/(?:Station|STATION)\s+A:\s*([\s\S]*?)(?=(?:Station|STATION)\s+B:|(?:The|THE)\s+(?:Switch|SWITCH):|$)/i);
-  const matchB = text.match(/(?:Station|STATION)\s+B:\s*([\s\S]*?)(?=(?:The|THE)\s+(?:Switch|SWITCH):|$)/i);
+  let matchA = text.match(/(?:Station|STATION)\s+A:\s*([\s\S]*?)(?=(?:Station|STATION)\s+B:|(?:The|THE)\s+(?:Switch|SWITCH):|$)/i);
+  let matchB = text.match(/(?:Station|STATION)\s+B:\s*([\s\S]*?)(?=(?:The|THE)\s+(?:Switch|SWITCH):|$)/i);
+  
+  if (!matchA || !matchB) {
+    matchA = text.match(/(?:Station|STATION)\s+C:\s*([\s\S]*?)(?=(?:Station|STATION)\s+D:|(?:The|THE)\s+(?:Switch|SWITCH):|$)/i);
+    matchB = text.match(/(?:Station|STATION)\s+D:\s*([\s\S]*?)(?=(?:The|THE)\s+(?:Switch|SWITCH):|$)/i);
+    if (matchA && matchB) {
+      station1Label = 'STATION C';
+      station2Label = 'STATION D';
+    }
+  }
+
   const matchSwitch = text.match(/(?:The|THE)\s+(?:Switch|SWITCH):\s*([\s\S]*?$)/i);
   
-  if (matchA) stationAContent = matchA[1].trim();
-  if (matchB) stationBContent = matchB[1].trim();
-  if (matchSwitch) switchContent = matchSwitch[1].trim();
+  let stationAContent = matchA ? matchA[1].trim() : '';
+  let stationBContent = matchB ? matchB[1].trim() : '';
+  let switchContent = matchSwitch ? matchSwitch[1].trim() : '';
   
   if (!stationAContent || !stationBContent) {
     return [card];
   }
+
+  const extractName = (cText, defaultLabel) => {
+    const tm = cText.match(/DRILL\s+NAME\s*&\s*OBJECTIVE:\s*([^-\n\r]+)/i);
+    if (tm) return `${defaultLabel}: ${tm[1].replace(/[#*`[\]]/g, '').trim()}`;
+    return defaultLabel;
+  };
+
+  const halfMins = Math.max(5, Math.round((card.duration || 20) / 2));
   
   const cardA = {
     ...card,
+    title: extractName(stationAContent, station1Label),
+    duration: halfMins,
     isSubCard: true,
-    stationLabel: 'STATION A',
-    playerLabel: `${group1} PLAYERS`,
+    stationLabel: station1Label,
+    playerLabel: `GROUP 1 (${group1} PLAYERS)`,
     instructions: stationAContent,
-    switchLabel: switchContent
+    switchLabel: null
   };
   
   const cardB = {
     ...card,
+    title: extractName(stationBContent, station2Label),
+    duration: halfMins,
     isSubCard: true,
-    stationLabel: 'STATION B',
-    playerLabel: `${group2} PLAYERS`,
+    stationLabel: station2Label,
+    playerLabel: `GROUP 2 (${group2} PLAYERS)`,
     instructions: stationBContent,
-    switchLabel: switchContent
+    switchLabel: switchContent || `Switch stations at the ${halfMins}-minute mark.`
   };
   
   return [cardA, cardB];
@@ -1160,6 +1180,18 @@ const sanitizePlanCards = (cards, groundName = "home ground", playerCount = 0, a
       goal: scrub(card.goal)
     };
   });
+
+  const totalP = Math.max(2, playerCount || 18);
+  const group1 = Math.ceil(totalP / 2);
+  const group2 = Math.floor(totalP / 2);
+
+  const finalExpandedCards = [];
+  processedCards.forEach(c => {
+    const subCards = parseStationCards(c, group1, group2);
+    finalExpandedCards.push(...subCards);
+  });
+
+  return finalExpandedCards;
 };
 
 export default function TrainingLab({
