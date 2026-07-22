@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import ContextualTaggingModal from './ContextualTaggingModal';
 import DrillDetailsModal from './DrillDetailsModal';
-import masterDrillsDatabase from '../../data/generated/afl-drills.json';
 import { saveTrainingSession, getTrainingSessions, deleteSession, hasAccess, generateAIPlanSecure, getUserProfile } from '../firebaseHelpers';
 import { useAuth } from '../context/AuthProvider';
-import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS, ADULT_LOCAL_DRILLS, AFL_PRE_GAME_WARMUPS, SYLLABUS_DRILLS } from '../data/curriculumKnowledge';
+import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS, ADULT_LOCAL_DRILLS, AFL_PRE_GAME_WARMUPS, SYLLABUS_DRILLS, loadDrillsDatabase } from '../data/curriculumKnowledge';
 import aflGroundImage from '../assets/AFL GROUND.png';
 
 function DrillSetupVisualizer({ instructions, title, groundName = "home ground" }) {
@@ -1249,13 +1248,13 @@ export default function TrainingLab({
     const cardId = cardIdMatch ? cardIdMatch[1].toUpperCase() : (card.drillId || card.id || '');
 
     let matched = null;
-    if (cardId && Array.isArray(masterDrillsDatabase)) {
-      matched = masterDrillsDatabase.find(d => d.drillId.toUpperCase() === cardId);
+    if (cardId && Array.isArray(SYLLABUS_DRILLS)) {
+      matched = SYLLABUS_DRILLS.find(d => d.drillId && d.drillId.toUpperCase() === cardId);
     }
 
-    if (!matched && cardTitleLower && Array.isArray(masterDrillsDatabase)) {
-      matched = masterDrillsDatabase.find(d => {
-        const dbTitle = (d.title || '').toLowerCase();
+    if (!matched && cardTitleLower && Array.isArray(SYLLABUS_DRILLS)) {
+      matched = SYLLABUS_DRILLS.find(d => {
+        const dbTitle = (d.title || d.name || '').toLowerCase();
         return dbTitle.includes(cardTitleLower) || cardTitleLower.includes(dbTitle);
       });
     }
@@ -1322,11 +1321,20 @@ export default function TrainingLab({
     return `${baseKey}_${userIdentifier.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
   };
 
+  useEffect(() => {
+    loadDrillsDatabase().catch(console.error);
+  }, []);
+
   // Draft Preservation Load
   const [draft, setDraft] = useState(() => {
-    const key = currentUser?.uid || currentUser?.email ? `inthepocket_training_draft_${(currentUser?.uid || currentUser?.email).toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'inthepocket_training_draft_guest';
+    const userIdentifier = currentUser?.uid || currentUser?.email || 'guest';
+    const key = `inthepocket_training_draft_${userIdentifier.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
     const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : null;
+    try {
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
   });
 
   const [step, setStep] = useState(draft?.step || 'wizard');

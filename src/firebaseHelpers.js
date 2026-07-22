@@ -11,7 +11,8 @@ import {
   getDocs, 
   getDoc,
   updateDoc,
-  setDoc
+  setDoc,
+  runTransaction
 } from "firebase/firestore";
 
 const db = getFirestore(app);
@@ -302,8 +303,6 @@ export async function generateAIPlanSecure(uid, promptText, apiKey) {
     if (currentCount >= 2) {
       throw new Error("Upgrade Required: Free tier is limited to exactly 2 AI generations.");
     }
-    // Increment count on Firestore
-    await updateUserProfile(uid, { aiGensCount: currentCount + 1 });
   } else {
     if (!hasAccess(profile.subscriptionTier, "pro")) {
       throw new Error("Unauthorized: Active Pro, Ultra, or B2B subscription required to generate AI plans.");
@@ -341,5 +340,27 @@ export async function generateAIPlanSecure(uid, promptText, apiKey) {
     throw new Error(`Gemini API returned status ${response.status}`);
   }
   
-  return await response.json();
+  const data = await response.json();
+  const contentText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!contentText) {
+    throw new Error("Invalid output received from AI model.");
+  }
+
+  // 3. Atomically increment generation count using a transaction ONLY after valid AI plan is returned
+  if (userTier === 'free') {
+    const userRef = doc(db, "users", uid);
+    await runTransaction(db, async (transaction) => {
+      const userDoc = await transaction.get(userRef);
+      if (!userDoc.exists()) {
+        throw new Error("User profile document not found.");
+      }
+      const currentGens = userDoc.data().aiGensCount || 0;
+      if (currentGens >= 2) {
+        throw new Error("Upgrade Required: Free tier is limited to exactly 2 AI generations.");
+      }
+      transaction.update(userRef, { aiGensCount: currentGens + 1 });
+    });
+  }
+
+  return data;
 }

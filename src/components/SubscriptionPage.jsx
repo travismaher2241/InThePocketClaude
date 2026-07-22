@@ -58,9 +58,23 @@ export default function SubscriptionPage({
       
       {/* Header */}
       <div style={{ textAlign: 'center', margin: '10px 0' }}>
+        <div style={{ 
+          display: 'inline-block',
+          backgroundColor: 'rgba(255, 183, 3, 0.12)', 
+          border: '1px solid rgba(255, 183, 3, 0.4)', 
+          borderRadius: '20px', 
+          padding: '4px 16px',
+          color: '#ffc300',
+          fontSize: '0.75rem',
+          fontWeight: '800',
+          letterSpacing: '0.06em',
+          marginBottom: '10px'
+        }}>
+          ⚠️ TESTING / SIMULATION — NO REAL PAYMENT
+        </div>
         <h2 className="scoreboard-font" style={{ color: 'var(--color-video)', margin: 0, fontSize: '1.8rem', letterSpacing: '0.05em' }}>ACCOUNT & SUBSCRIPTION COMMAND</h2>
         <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '6px', maxWidth: '600px', margin: '6px auto' }}>
-          Gated account monetization tier management. Select a level to synchronize permissions and features via the RevenueCat payload simulator.
+          Simulated subscription tiers and feature gating for friends-and-family testing. Select a tier to test gated capabilities.
         </p>
       </div>
 
@@ -495,8 +509,8 @@ export default function SubscriptionPage({
         <div className="overlay-backdrop" style={{ zIndex: 1000 }}>
           <div className="modal-content" style={{ maxWidth: '460px' }}>
             <div className="modal-header">
-              <h3 className="scoreboard-font" style={{ color: 'var(--text-primary)', margin: 0 }}>
-                SECURE CHECKOUT - {checkoutTier.toUpperCase()}
+              <h3 className="scoreboard-font" style={{ fontSize: '1.2rem', color: '#ffffff', margin: 0 }}>
+                SIMULATION CHECKOUT — {checkoutTier} TIER
               </h3>
               <button className="icon-btn" onClick={() => setCheckoutTier(null)} aria-label="Close">
                 <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -504,64 +518,36 @@ export default function SubscriptionPage({
                 </svg>
               </button>
             </div>
-            <form onSubmit={handleProcessCheckout} className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '20px' }}>
+            <form onSubmit={handleProcessCheckout} className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px' }}>
               
+              <div style={{ 
+                backgroundColor: 'rgba(255, 183, 3, 0.12)', 
+                border: '1px solid rgba(255, 183, 3, 0.4)', 
+                borderRadius: '8px', 
+                padding: '12px',
+                color: '#ffc300',
+                fontSize: '0.82rem',
+                textAlign: 'center',
+                fontWeight: '700',
+                letterSpacing: '0.04em'
+              }}>
+                ⚠️ TESTING / SIMULATION — NO REAL PAYMENT REQUIRED
+              </div>
+
+              <p style={{ fontSize: '0.88rem', color: '#cbd5e1', lineHeight: '1.5', margin: 0 }}>
+                This build uses simulated payment flows for friends-and-family testing. Activating this simulated tier will grant full access to tier-restricted features without charging any real payment card.
+              </p>
+
               <div className="form-group">
-                <label>Cardholder Name</label>
+                <label>Tester Name / Coach Name</label>
                 <input 
                   type="text" 
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
-                  placeholder="e.g. Travis Maher" 
+                  placeholder="e.g. Coach Travis" 
                   required 
                   autoFocus
                 />
-              </div>
-
-              <div className="form-group">
-                <label>Card Number</label>
-                <input 
-                  type="text" 
-                  value={cardNumber} 
-                  onChange={(e) => setCardNumber(e.target.value)}
-                  placeholder="4111 2222 3333 4444" 
-                  required 
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '12px' }}>
-                <div className="form-group">
-                  <label>Expiry Date</label>
-                  <input 
-                    type="text" 
-                    value={cardExpiry} 
-                    onChange={(e) => setCardExpiry(e.target.value)}
-                    placeholder="MM/YY" 
-                    required 
-                  />
-                </div>
-                <div className="form-group">
-                  <label>CVC</label>
-                  <input 
-                    type="text" 
-                    value={cardCVC} 
-                    onChange={(e) => setCardCVC(e.target.value)}
-                    placeholder="123" 
-                    required 
-                  />
-                </div>
-              </div>
-
-              <div style={{ 
-                backgroundColor: 'rgba(255,255,255,0.02)', 
-                border: '1px solid rgba(255,255,255,0.05)', 
-                borderRadius: '6px', 
-                padding: '12px',
-                fontSize: '0.75rem',
-                color: 'var(--text-secondary)',
-                lineHeight: '1.4'
-              }}>
-                🔒 Google Play Store billing gateway managed via RevenueCat cross-platform SDK callbacks.
               </div>
 
               <button 
@@ -569,16 +555,16 @@ export default function SubscriptionPage({
                 className="btn btn-primary"
                 style={{
                   width: '100%',
-                  padding: '12px',
+                  padding: '14px',
                   fontWeight: '700',
                   textTransform: 'uppercase',
-                  marginTop: '6px',
-                  backgroundColor: checkoutTier === 'B2B' ? '#ffb703' : '#e63946',
-                  borderColor: checkoutTier === 'B2B' ? '#ffb703' : '#e63946',
-                  color: checkoutTier === 'B2B' ? '#12141c' : '#ffffff'
+                  marginTop: '8px',
+                  backgroundColor: checkoutTier === 'B2B' || checkoutTier === 'ULTRA CLUB' ? '#ffb703' : '#e63946',
+                  borderColor: checkoutTier === 'B2B' || checkoutTier === 'ULTRA CLUB' ? '#ffb703' : '#e63946',
+                  color: checkoutTier === 'B2B' || checkoutTier === 'ULTRA CLUB' ? '#12141c' : '#ffffff'
                 }}
               >
-                Pay & Activate {checkoutTier} Plan
+                Activate Simulated {checkoutTier} Tier
               </button>
             </form>
           </div>

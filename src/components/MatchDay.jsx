@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ContextualTaggingModal from './ContextualTaggingModal';
 import { hasAccess } from '../firebaseHelpers';
 import { useAuth } from '../context/AuthProvider';
+import { safeJsonParse, getScopedKey, migrateUnscopedKey } from '../utils/storageUtils';
 
 // Formal AFL Positional Layout Definitions (18 on-field positions)
 const FIELD_POSITIONS = [
@@ -55,21 +56,35 @@ export default function MatchDay({
   onSaveVideoClip,
   onEditPlayer
 }) {
+  const { currentUser } = useAuth();
+  const getMatchDayScopedKey = (baseKey) => {
+    const identifier = currentUser?.uid || currentUser?.email || 'guest';
+    return getScopedKey(baseKey, identifier);
+  };
+
+  // Migrate legacy unscoped keys once if available
+  useEffect(() => {
+    if (currentUser?.uid) {
+      migrateUnscopedKey('inthepocket_field_assignments', currentUser.uid);
+      migrateUnscopedKey('inthepocket_matchday_homescore', currentUser.uid);
+      migrateUnscopedKey('inthepocket_matchday_awayscore', currentUser.uid);
+      migrateUnscopedKey('inthepocket_matchday_playerstats', currentUser.uid);
+      migrateUnscopedKey('inthepocket_matchday_notes', currentUser.uid);
+      migrateUnscopedKey('inthepocket_active_matchday_ids', currentUser.uid);
+    }
+  }, [currentUser]);
+
   // Map positions to player IDs. Default: first 22 players to active slots, rest on bench
   const [fieldAssignments, setFieldAssignments] = useState(() => {
-    const saved = localStorage.getItem('inthepocket_field_assignments');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {}
-    }
-    return {};
+    const key = getMatchDayScopedKey('inthepocket_field_assignments');
+    const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_field_assignments');
+    return safeJsonParse(saved, {}, (val) => typeof val === 'object');
   });
 
   // Sync fieldAssignments state to LocalStorage
   useEffect(() => {
-    localStorage.setItem('inthepocket_field_assignments', JSON.stringify(fieldAssignments));
-  }, [fieldAssignments]);
+    localStorage.setItem(getMatchDayScopedKey('inthepocket_field_assignments'), JSON.stringify(fieldAssignments));
+  }, [fieldAssignments, currentUser]);
 
   // Video upload states
   const [taggingModalOpen, setTaggingModalOpen] = useState(false);
@@ -118,13 +133,15 @@ export default function MatchDay({
   const [isStatsExported, setIsStatsExported] = useState(false);
 
   const [homeScore, setHomeScore] = useState(() => {
-    const saved = localStorage.getItem('inthepocket_matchday_homescore');
-    return saved ? JSON.parse(saved) : { goals: 0, behinds: 0 };
+    const key = getMatchDayScopedKey('inthepocket_matchday_homescore');
+    const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_matchday_homescore');
+    return safeJsonParse(saved, { goals: 0, behinds: 0 });
   });
 
   const [awayScore, setAwayScore] = useState(() => {
-    const saved = localStorage.getItem('inthepocket_matchday_awayscore');
-    return saved ? JSON.parse(saved) : { goals: 0, behinds: 0 };
+    const key = getMatchDayScopedKey('inthepocket_matchday_awayscore');
+    const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_matchday_awayscore');
+    return safeJsonParse(saved, { goals: 0, behinds: 0 });
   });
 
   const [activeScoreTeam, setActiveScoreTeam] = useState('home');
@@ -132,32 +149,34 @@ export default function MatchDay({
   const [plannedRotations, setPlannedRotations] = useState([]);
   
   const [playerStats, setPlayerStats] = useState(() => {
-    const saved = localStorage.getItem('inthepocket_matchday_playerstats');
-    return saved ? JSON.parse(saved) : {};
+    const key = getMatchDayScopedKey('inthepocket_matchday_playerstats');
+    const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_matchday_playerstats');
+    return safeJsonParse(saved, {}, (val) => typeof val === 'object');
   });
 
   const [selectedPlayerForStats, setSelectedPlayerForStats] = useState(null);
   
   const [matchNotes, setMatchNotes] = useState(() => {
-    return localStorage.getItem('inthepocket_matchday_notes') || '';
+    const key = getMatchDayScopedKey('inthepocket_matchday_notes');
+    return localStorage.getItem(key) || localStorage.getItem('inthepocket_matchday_notes') || '';
   });
 
   // Sync scores and stats to localStorage
   useEffect(() => {
-    localStorage.setItem('inthepocket_matchday_homescore', JSON.stringify(homeScore));
-  }, [homeScore]);
+    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_homescore'), JSON.stringify(homeScore));
+  }, [homeScore, currentUser]);
 
   useEffect(() => {
-    localStorage.setItem('inthepocket_matchday_awayscore', JSON.stringify(awayScore));
-  }, [awayScore]);
+    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_awayscore'), JSON.stringify(awayScore));
+  }, [awayScore, currentUser]);
 
   useEffect(() => {
-    localStorage.setItem('inthepocket_matchday_playerstats', JSON.stringify(playerStats));
-  }, [playerStats]);
+    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_playerstats'), JSON.stringify(playerStats));
+  }, [playerStats, currentUser]);
 
   useEffect(() => {
-    localStorage.setItem('inthepocket_matchday_notes', matchNotes);
-  }, [matchNotes]);
+    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_notes'), matchNotes);
+  }, [matchNotes, currentUser]);
 
   // Mobile Tap-To-Swap state helper
   const [selectedBenchId, setSelectedBenchId] = useState(null);
@@ -222,12 +241,10 @@ export default function MatchDay({
 
   // Match Day Squad Selector states
   const [activeMatchDayIds, setActiveMatchDayIds] = useState(() => {
-    const saved = localStorage.getItem('inthepocket_active_matchday_ids');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {}
-    }
+    const key = getMatchDayScopedKey('inthepocket_active_matchday_ids');
+    const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_active_matchday_ids');
+    const parsed = safeJsonParse(saved, null, Array.isArray);
+    if (parsed) return parsed;
     return squad.map(p => p.id);
   });
   const [showSelector, setShowSelector] = useState(false);
@@ -235,8 +252,8 @@ export default function MatchDay({
 
   // Sync activeMatchDayIds state to LocalStorage
   useEffect(() => {
-    localStorage.setItem('inthepocket_active_matchday_ids', JSON.stringify(activeMatchDayIds));
-  }, [activeMatchDayIds]);
+    localStorage.setItem(getMatchDayScopedKey('inthepocket_active_matchday_ids'), JSON.stringify(activeMatchDayIds));
+  }, [activeMatchDayIds, currentUser]);
 
   // Keep activeMatchDayIds in sync with squad prop changes
   useEffect(() => {

@@ -1,5 +1,3 @@
-import masterDrillsDatabase from '../../data/generated/afl-drills.json';
-
 /**
  * AFL Junior & Youth Coaching Curriculum Base Knowledge
  * Compiled from Reference PDFs:
@@ -542,53 +540,75 @@ export const ADULT_LOCAL_DRILLS = {
   ]
 };
 
-export const AFL_PRE_GAME_WARMUPS = masterDrillsDatabase
-  .filter(d => d.drillId && d.drillId.startsWith('WU-'))
-  .map(d => ({
-    drillId: d.drillId,
-    name: `[${d.drillId}] ${d.title}`,
-    title: d.title,
-    objective: d.objective,
-    setup: d.setup,
-    execution: d.howTheDrillWorks,
-    howTheDrillWorks: d.howTheDrillWorks,
-    cues: Array.isArray(d.coachingCues) ? d.coachingCues.join(', ') : (d.coachingCues || ''),
-    coachingCues: d.coachingCues,
-    progressions: d.progressions,
-    goal: d.objective || 'Dynamic movement and skill activation.',
-    desc: d.howTheDrillWorks || d.setup || 'Execute dynamic movement preparation drills in pairs or lines.',
-    coachingTip: Array.isArray(d.progressions) ? (d.progressions[0] || 'Focus on landing stability.') : (d.progressions || ''),
-    phase: d.category || 'Warm-Up',
-    coachingDifficulty: d.coachingDifficulty,
-    ageGroups: d.ageGroups
-  }));
+export const AFL_PRE_GAME_WARMUPS = [];
+export const SYLLABUS_DRILLS = [];
 
-export const SYLLABUS_DRILLS = masterDrillsDatabase.map(d => ({
-  drillId: d.drillId,
-  name: `[${d.drillId}] ${d.title}`,
-  title: d.title,
-  category: d.category || 'Skill Development',
-  phase: d.category || 'Skill Development',
-  objective: d.objective || 'Develop core football skills',
-  setup: d.setup || 'Set up marked grid area.',
-  execution: d.howTheDrillWorks || d.objective || 'Execute drill as directed.',
-  howTheDrillWorks: d.howTheDrillWorks,
-  cues: Array.isArray(d.coachingCues) ? d.coachingCues.join(', ') : (d.coachingCues || ''),
-  coachingCues: d.coachingCues,
-  progressions: d.progressions,
-  ageGroups: d.ageGroups || {},
-  primarySkill: d.primarySkill || '',
-  secondarySkills: d.secondarySkills || [],
-  equipment: d.equipment || [],
-  players: d.players || {},
-  time: d.time || 15,
-  physicalLoad: d.physicalLoad || '',
-  mentalLoad: d.mentalLoad || '',
-  contact: d.contact || '',
-  coachingDifficulty: d.coachingDifficulty || '',
-  commonErrors: d.commonErrors || [],
-  regressions: d.regressions || [],
-  successIndicators: d.successIndicators || [],
-  matchApplication: d.matchApplication || ''
-}));
+let drillsLoadedPromise = null;
+
+export function loadDrillsDatabase() {
+  if (!drillsLoadedPromise) {
+    drillsLoadedPromise = import('../../data/generated/afl-drills.json').then(mod => {
+      const masterDb = mod.default || mod;
+
+      if (AFL_PRE_GAME_WARMUPS.length === 0) {
+        const warmups = masterDb
+          .filter(d => d.drillId && d.drillId.startsWith('WU-'))
+          .map(d => ({
+            drillId: d.drillId,
+            name: `[${d.drillId}] ${d.title}`,
+            title: d.title,
+            objective: d.objective,
+            setup: d.setup,
+            execution: d.howTheDrillWorks,
+            howTheDrillWorks: d.howTheDrillWorks,
+            cues: Array.isArray(d.coachingCues) ? d.coachingCues.join(', ') : (d.coachingCues || ''),
+            coachingCues: d.coachingCues,
+            progressions: d.progressions,
+            goal: d.objective || 'Dynamic movement and skill activation.',
+            desc: d.howTheDrillWorks || d.setup || 'Execute dynamic movement preparation drills in pairs or lines.',
+            coachingTip: Array.isArray(d.progressions) ? (d.progressions[0] || 'Focus on landing stability.') : (d.progressions || ''),
+            phase: d.category || 'Warm-Up',
+            coachingDifficulty: d.coachingDifficulty,
+            ageGroups: d.ageGroups
+          }));
+        AFL_PRE_GAME_WARMUPS.push(...warmups);
+      }
+
+      if (SYLLABUS_DRILLS.length === 0) {
+        const syllabus = masterDb.map(d => ({
+          drillId: d.drillId,
+          name: `[${d.drillId}] ${d.title}`,
+          title: d.title,
+          category: d.category || 'Skill Development',
+          phase: d.category || 'Skill Development',
+          objective: d.objective || 'Develop core football skills',
+          setup: d.setup || 'Set up marked grid area.',
+          execution: d.howTheDrillWorks || d.objective || 'Execute drill as directed.',
+          howTheDrillWorks: d.howTheDrillWorks,
+          cues: Array.isArray(d.coachingCues) ? d.coachingCues.join(', ') : (d.coachingCues || ''),
+          coachingCues: d.coachingCues,
+          progressions: d.progressions,
+          ageGroups: d.ageGroups || {},
+          primarySkill: d.primarySkill || '',
+          secondarySkills: d.secondarySkills || [],
+          equipment: d.equipment || [],
+          players: d.players || {},
+          time: d.time || 15,
+          physicalLoad: d.physicalLoad || '',
+          mentalLoad: d.mentalLoad || '',
+          contact: d.contact || '',
+          coachingDifficulty: d.coachingDifficulty || '',
+          commonErrors: d.commonErrors || [],
+          regressions: d.regressions || [],
+          successIndicators: d.successIndicators || [],
+          matchApplication: d.matchApplication || ''
+        }));
+        SYLLABUS_DRILLS.push(...syllabus);
+      }
+
+      return { AFL_PRE_GAME_WARMUPS, SYLLABUS_DRILLS };
+    });
+  }
+  return drillsLoadedPromise;
+}
 

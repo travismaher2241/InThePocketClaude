@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import SquadHub from './components/SquadHub';
-import TrainingLab from './components/TrainingLab';
-import TacticsBoard from './components/TacticsBoard';
-import MatchDay from './components/MatchDay';
-import VideoAnalyser from './components/VideoAnalyser';
 import SettingsModal from './components/SettingsModal';
-import SubscriptionPage from './components/SubscriptionPage';
 import SetupWizard from './components/SetupWizard';
+
+const TrainingLab = lazy(() => import('./components/TrainingLab'));
+const TacticsBoard = lazy(() => import('./components/TacticsBoard'));
+const MatchDay = lazy(() => import('./components/MatchDay'));
+const VideoAnalyser = lazy(() => import('./components/VideoAnalyser'));
+const SubscriptionPage = lazy(() => import('./components/SubscriptionPage'));
 import { useAuth } from './context/AuthProvider';
 import { addPlayer, getPlayers, getSquadSettings, updateSquadSettings, getUserProfile, updateUserProfile, updatePlayerInFirestore } from './firebaseHelpers';
 import { safeJsonParse, getScopedKey, migrateUnscopedKey } from './utils/storageUtils';
@@ -559,69 +560,78 @@ export default function App() {
       )}
 
       {/* Main rendering pane with hardware-accelerated transitions */}
-      <main className="tab-content-container tab-fade-in" key={activeTab}>
-        {activeTab === 0 && (
-          <SquadHub 
-            squad={squad} 
-            onAddPlayer={handleAddPlayer} 
-            onEditPlayer={handleEditPlayer} 
-            onImportCSV={handleImportCSV} 
-            onRemovePlayer={handleRemovePlayer} 
-            videoClips={videoClips}
-            onSelectClipForReview={handleReviewClip}
-          />
-        )}
-        {activeTab === 1 && (
-          <TrainingLab 
-            squad={squad} 
-            subscriptionTier={subscriptionTier} 
-            apiKey={apiKey} 
-            triggerPaywall={triggerPaywall} 
-            logSyncTransaction={logSyncTransaction} 
-            onSaveVideoClip={(clip) => setVideoClips(prev => [clip, ...prev])}
-            squadSettings={squadSettings}
-            userProfile={userProfile}
-            setActiveTab={setActiveTab}
-          />
-        )}
-        {activeTab === 2 && (
-          <TacticsBoard 
-            squad={squad}
-            subscriptionTier={subscriptionTier} 
-            triggerPaywall={triggerPaywall} 
-          />
-        )}
-        {activeTab === 3 && (
-          <MatchDay 
-            squad={squad} 
-            subscriptionTier={subscriptionTier} 
-            maxStintMinutes={maxStintMinutes} 
-            triggerPaywall={triggerPaywall} 
-            logSyncTransaction={logSyncTransaction} 
-            onSaveVideoClip={(clip) => setVideoClips(prev => [clip, ...prev])}
-            onEditPlayer={handleEditPlayer}
-          />
-        )}
-        {activeTab === 4 && (
-          <VideoAnalyser 
-            squad={squad}
-            videoClips={videoClips}
-            setVideoClips={setVideoClips}
-            selectedReviewClip={selectedReviewClip}
-            setSelectedReviewClip={setSelectedReviewClip}
-            showToast={showToast}
-          />
-        )}
-        {activeTab === 5 && (
-          <SubscriptionPage 
-            currentUser={currentUser}
-            subscriptionTier={subscriptionTier}
-            onUpgrade={handleUpdateSubscriptionTier}
-            showToast={showToast}
-            setActiveTab={setActiveTab}
-          />
-        )}
-      </main>
+      <Suspense fallback={
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px', color: 'var(--text-secondary)' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div className="spinner" style={{ margin: '0 auto 12px auto' }} />
+            <p>Loading module...</p>
+          </div>
+        </div>
+      }>
+        <main className="tab-content-container tab-fade-in" key={activeTab}>
+          {activeTab === 0 && (
+            <SquadHub 
+              squad={squad} 
+              onAddPlayer={handleAddPlayer} 
+              onEditPlayer={handleEditPlayer} 
+              onImportCSV={handleImportCSV} 
+              onRemovePlayer={handleRemovePlayer} 
+              videoClips={videoClips}
+              onSelectClipForReview={handleReviewClip}
+            />
+          )}
+          {activeTab === 1 && (
+            <TrainingLab 
+              squad={squad} 
+              subscriptionTier={subscriptionTier} 
+              apiKey={apiKey} 
+              triggerPaywall={triggerPaywall} 
+              logSyncTransaction={logSyncTransaction} 
+              onSaveVideoClip={(clip) => setVideoClips(prev => [clip, ...prev])}
+              squadSettings={squadSettings}
+              userProfile={userProfile}
+              setActiveTab={setActiveTab}
+            />
+          )}
+          {activeTab === 2 && (
+            <TacticsBoard 
+              squad={squad}
+              subscriptionTier={subscriptionTier} 
+              triggerPaywall={triggerPaywall} 
+            />
+          )}
+          {activeTab === 3 && (
+            <MatchDay 
+              squad={squad} 
+              subscriptionTier={subscriptionTier} 
+              maxStintMinutes={maxStintMinutes} 
+              triggerPaywall={triggerPaywall} 
+              logSyncTransaction={logSyncTransaction} 
+              onSaveVideoClip={(clip) => setVideoClips(prev => [clip, ...prev])}
+              onEditPlayer={handleEditPlayer}
+            />
+          )}
+          {activeTab === 4 && (
+            <VideoAnalyser 
+              squad={squad}
+              videoClips={videoClips}
+              setVideoClips={setVideoClips}
+              selectedReviewClip={selectedReviewClip}
+              setSelectedReviewClip={setSelectedReviewClip}
+              showToast={showToast}
+            />
+          )}
+          {activeTab === 5 && (
+            <SubscriptionPage 
+              currentUser={currentUser}
+              subscriptionTier={subscriptionTier}
+              onUpgrade={handleUpdateSubscriptionTier}
+              showToast={showToast}
+              setActiveTab={setActiveTab}
+            />
+          )}
+        </main>
+      </Suspense>
 
       <SettingsModal 
         isOpen={isSettingsOpen} 

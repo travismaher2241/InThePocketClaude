@@ -8,5 +8,11 @@ export default defineConfig({
     watch: {
       ignored: ['**/*.pdf', '**/*.xlsx', '**/*.csv', '**/*.docx', '**/node_modules/**']
     }
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/testSetup.js'
   }
 })
+

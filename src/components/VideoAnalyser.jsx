@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import aflGroundImg from '../assets/AFL GROUND.png';
 import ContextualTaggingModal from './ContextualTaggingModal';
+import { saveVideoClipToIDB, getAllVideoClipsFromIDB, deleteVideoClipFromIDB, safeRevokeObjectURL } from '../utils/videoStore';
 
 // WebM Duration fixer helper to ensure iOS/Safari compatibility
 function fixWebmDuration(blob, duration, callback) {
@@ -86,9 +87,31 @@ export default function VideoAnalyser({
   const [activeClip, setActiveClip] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all'); // 'all', 'match', 'training', 'tagged'
 
+  // Load clips from IndexedDB on mount
+  useEffect(() => {
+    let isMounted = true;
+    getAllVideoClipsFromIDB().then(idbClips => {
+      if (!isMounted || !idbClips.length) return;
+      setVideoClips(prev => {
+        const existingIds = new Set(prev.map(c => c.id));
+        const newFromIDB = idbClips.filter(c => !existingIds.has(c.id));
+        return [...newFromIDB, ...prev];
+      });
+    }).catch(console.error);
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const handleDeleteClip = (e, clipId) => {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to permanently delete this video clip?")) {
+      const targetClip = videoClips.find(c => c.id === clipId);
+      if (targetClip?.videoUrl) {
+        safeRevokeObjectURL(targetClip.videoUrl);
+      }
+      deleteVideoClipFromIDB(clipId).catch(console.error);
+
       setVideoClips(prev => prev.filter(c => c.id !== clipId));
       if (activeClip && activeClip.id === clipId) {
         setActiveClip(null);
@@ -103,20 +126,36 @@ export default function VideoAnalyser({
   const [taggingModalOpen, setTaggingModalOpen] = useState(false);
   const [taggingClip, setTaggingClip] = useState(null);
 
-  const handleImportVideos = (e) => {
+  const handleImportVideos = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
-    const newClips = files.map((file, idx) => ({
-      id: 'v_' + Date.now() + '_' + idx,
-      videoUrl: URL.createObjectURL(file),
-      fileName: file.name,
-      date: new Date().toISOString().split('T')[0],
-      drillName: file.name.substring(0, file.name.lastIndexOf('.')) || file.name,
-      playerIds: [], // optional player-tag configuration array
-      isPending: false, // bypass pending state immediately
-      drawings: []
-    }));
+    const newClips = [];
+    for (let idx = 0; idx < files.length; idx++) {
+      const file = files[idx];
+      const clipId = 'v_' + Date.now() + '_' + idx;
+      const videoUrl = URL.createObjectURL(file);
+      const clip = {
+        id: clipId,
+        videoUrl,
+        fileName: file.name,
+        date: new Date().toISOString().split('T')[0],
+        drillName: file.name.substring(0, file.name.lastIndexOf('.')) || file.name,
+        playerIds: [],
+        isPending: false,
+        drawings: []
+      };
+      newClips.push(clip);
+
+      try {
+        await saveVideoClipToIDB(clip, file);
+      } catch (storageErr) {
+        console.warn("Storage quota or IDB failure saving video blob:", storageErr);
+        if (showToast) {
+          showToast(`Note: ${file.name} saved as session-only due to browser storage limits.`);
+        }
+      }
+    }
 
     setVideoClips(prev => [...newClips, ...prev]);
   };
@@ -124,17 +163,20 @@ export default function VideoAnalyser({
   const handleSaveTaggedClip = (tagData) => {
     if (!taggingClip) return;
 
-    const updatedClips = videoClips.map(clip => 
-      clip.id === taggingClip.id 
-        ? {
-            ...clip,
-            date: tagData.date,
-            drillName: tagData.drillName,
-            playerIds: tagData.playerIds,
-            isPending: false
-          }
-        : clip
-    );
+    const updatedClips = videoClips.map(clip => {
+      if (clip.id === taggingClip.id) {
+        const updated = {
+          ...clip,
+          date: tagData.date,
+          drillName: tagData.drillName,
+          playerIds: tagData.playerIds,
+          isPending: false
+        };
+        saveVideoClipToIDB(updated).catch(console.error);
+        return updated;
+      }
+      return clip;
+    });
 
     setVideoClips(updatedClips);
     setTaggingModalOpen(false);
