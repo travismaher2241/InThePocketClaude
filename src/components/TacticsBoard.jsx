@@ -159,48 +159,6 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
     );
   }
 
-  // Draw high-visibility crisp white tactical field markings
-  const drawFieldMarkings = (ctx) => {
-    ctx.save();
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
-    ctx.lineWidth = 2.5;
-
-    // Boundary Line
-    ctx.beginPath();
-    ctx.ellipse(500, 300, 465, 275, 0, 0, 2 * Math.PI);
-    ctx.stroke();
-
-    // Center Square
-    ctx.beginPath();
-    ctx.rect(400, 200, 200, 200);
-    ctx.stroke();
-
-    // Center Circles
-    ctx.beginPath();
-    ctx.arc(500, 300, 20, 0, 2 * Math.PI);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(500, 300, 60, 0, 2 * Math.PI);
-    ctx.stroke();
-
-    // 50m Arcs
-    ctx.beginPath();
-    ctx.arc(35, 300, 205, -Math.PI / 2.3, Math.PI / 2.3);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(965, 300, 205, Math.PI - Math.PI / 2.3, Math.PI + Math.PI / 2.3);
-    ctx.stroke();
-
-    // Goal Squares
-    ctx.beginPath();
-    ctx.rect(35, 275, 30, 50);
-    ctx.rect(935, 275, 30, 50);
-    ctx.stroke();
-
-    ctx.restore();
-  };
-
   // Main Draw function using virtual scaling
   const drawCanvas = () => {
     const canvas = canvasRef.current;
@@ -211,9 +169,6 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
     ctx.save();
     // Scale context so that we draw in virtual 1000x600 coordinates
     ctx.scale(canvas.width / 1000, canvas.height / 600);
-
-    // Draw tactical field markings
-    drawFieldMarkings(ctx);
 
     // Draw permanent drawings (brush and arrows)
     drawings.current.forEach((item) => {
@@ -871,7 +826,7 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
             width: '100%',
             height: '100%',
             pointerEvents: 'none',
-            objectFit: 'fill'
+            objectFit: 'contain'
           }}
         />
 
