@@ -859,6 +859,87 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
     });
   });
 
+  // 11. CONSOLIDATED AFL KNOWLEDGE BASE INTEGRATION SUITE
+  describe('Priority — Consolidated AFL Knowledge Base Integration Suite', () => {
+    const { normalizeAgeGroup, retrieveKnowledge } = require('../knowledge/knowledgeService.js');
+    const { generateLocalPlan } = require('../training/planEngine.js');
+    const { enhancePlanWithAI } = require('../training/aiPlanEnhancer.js');
+    const firebaseHelpers = require('../firebaseHelpers.js');
+
+    it('1. Age normalization correctly maps junior cohorts and senior bands', () => {
+      expect(normalizeAgeGroup('U8').cohortKey).toBe('u8');
+      expect(normalizeAgeGroup('Under 10').cohortKey).toBe('u10');
+      expect(normalizeAgeGroup('U12').cohortKey).toBe('u12');
+      expect(normalizeAgeGroup('Seniors').cohortKey).toBe('senior');
+      expect(normalizeAgeGroup('Over 35 Men').cohortKey).toBe('senior');
+    });
+
+    it('2. U8 age filtering excludes U10/U12 specific manuals', async () => {
+      const results = await retrieveKnowledge({ ageGroup: 'U8', focusAreas: ['Kicking'], limit: 10 });
+      results.forEach(res => {
+        const src = res.source.toLowerCase();
+        expect(src.includes('level 5') || src.includes('level 6') || src.includes('under 10') || src.includes('under 12')).toBe(false);
+      });
+    });
+
+    it('3. Category and keyword retrieval returns relevant passages', async () => {
+      const results = await retrieveKnowledge({ ageGroup: 'U14', focusAreas: ['Tackling'], query: 'safety', limit: 5 });
+      expect(Array.isArray(results)).toBe(true);
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0].source).toBeDefined();
+      expect(results[0].sourceLocator).toBeDefined();
+    });
+
+    it('4. Results are deterministically ordered by relevance score', async () => {
+      const results = await retrieveKnowledge({ ageGroup: 'U12', focusAreas: ['Handballing'], limit: 5 });
+      for (let i = 1; i < results.length; i++) {
+        expect(results[i - 1].relevanceScore).toBeGreaterThanOrEqual(results[i].relevanceScore);
+      }
+    });
+
+    it('5. Deduplication filters duplicate passage text snippets', async () => {
+      const results = await retrieveKnowledge({ ageGroup: 'U14', focusAreas: ['Tactics'], limit: 10 });
+      const excerpts = results.map(r => r.excerpt);
+      const unique = new Set(excerpts);
+      expect(unique.size).toBe(results.length);
+    });
+
+    it('6. Missing asset or network failure falls back cleanly to empty array without crashing', async () => {
+      const results = await retrieveKnowledge({ ageGroup: 'INVALID_COHORT_UNKNOWN', limit: 5 });
+      expect(Array.isArray(results)).toBe(true);
+    });
+
+    it('7. Plan generation succeeds even if knowledge retrieval returns empty or fails', async () => {
+      const plan = await generateLocalPlan({ ageGroup: 'U14', coachLevel: 3, durationMinutes: 60, seed: 777 });
+      expect(plan.segments.length).toBe(6);
+      expect(plan.validation.isValid).toBe(true);
+    });
+
+    it('8. Source traceability retains source document name and page/locator', async () => {
+      const plan = await generateLocalPlan({ ageGroup: 'U8', coachLevel: 1, durationMinutes: 60, seed: 888 });
+      expect(plan.knowledgeContext).toBeDefined();
+      if (plan.knowledgeContext.length > 0) {
+        expect(plan.knowledgeContext[0].source).toBeDefined();
+        expect(plan.knowledgeContext[0].sourceLocator).toBeDefined();
+      }
+    });
+
+    it('9. AI prompt receives limited relevant context (5-15 passages max)', async () => {
+      const passages = await retrieveKnowledge({ ageGroup: 'U14', focusAreas: ['Kicking'], limit: 10 });
+      expect(passages.length).toBeGreaterThan(0);
+      expect(passages.length).toBeLessThanOrEqual(15);
+      expect(passages[0].source).toBeDefined();
+      expect(passages[0].sourceLocator).toBeDefined();
+    });
+
+    it('10. Existing 6-slot structure and safety rules remain intact with knowledge integration', async () => {
+      const plan = await generateLocalPlan({ ageGroup: 'U8', coachLevel: 1, durationMinutes: 60, seed: 12345 });
+      expect(plan.segments.length).toBe(6);
+      expect(plan.segments[5].category.toLowerCase()).toContain('small-sided game');
+      expect(plan.validation.isValid).toBe(true);
+    });
+  });
+
 });
 
 

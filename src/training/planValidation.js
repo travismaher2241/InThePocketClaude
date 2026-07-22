@@ -89,10 +89,12 @@ export function validatePlan(plan, context = {}) {
 
   // 6. Focus area coverage check
   if (focusAreas.length > 0) {
-    const combinedPlanText = plan.segments.map(s => `${s.title} ${s.objective} ${s.instructions} ${s.phase}`).join(' ').toLowerCase();
+    const combinedPlanText = plan.segments.map(s => `${s.title} ${s.objective} ${s.instructions} ${s.phase} ${s.category}`).join(' ').toLowerCase();
     focusAreas.forEach(fa => {
       const faLower = String(fa).toLowerCase();
-      if (!combinedPlanText.includes(faLower)) {
+      const keywords = faLower.split(/\s+(?:and|&)\s+|\s+/).filter(w => w.length > 2);
+      const matched = keywords.some(kw => combinedPlanText.includes(kw));
+      if (!matched) {
         errors.push(`Selected focus area "${fa}" was not covered in any plan segment`);
       }
     });

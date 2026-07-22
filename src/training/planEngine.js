@@ -6,9 +6,10 @@
 import { checkDrillEligibility } from './drillEligibility.js';
 import { scoreCandidateDrill } from './drillScoring.js';
 import { createPRNG, getRepetitionMultiplier, selectWeightedRandom } from './planRandomization.js';
-import { getSessionSlots, buildSegmentFromDrill, isJuniorAgeGroup } from './sessionStructure.js';
+import { getSessionSlots, calculateSlotDurations, calculateGroupAllocations, buildSegmentFromDrill, isJuniorAgeGroup } from './sessionStructure.js';
 import { validatePlan } from './planValidation.js';
 import { getCurriculumConfig, loadDrillsDatabase, SYLLABUS_DRILLS } from '../data/curriculumKnowledge.js';
+import { retrieveKnowledge } from '../knowledge/knowledgeService.js';
 
 /**
  * Main entry point to generate a 6-slot training plan locally.
@@ -20,26 +21,38 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
   let database = drillsDb || SYLLABUS_DRILLS;
   if (!database || database.length === 0) {
     const loaded = await loadDrillsDatabase();
-    database = loaded.SYLLABUS_DRILLS || [];
+    database = loaded.SYLLABUS_DRILLS || loaded.masterDb || [];
   }
 
-  const {
-    uid = 'guest',
-    ageGroup = 'U14',
-    coachLevel = 3,
-    playerCount = 18,
-    durationMinutes = 60,
-    focusAreas = ['Kicking'],
-    equipment = { footballs: 10, cones: 20, bibs: 15, agilityPoles: 6, tackleMats: 4 },
-    recentSessions = [],
-    variationAvoidIds = [],
-    seed = Date.now()
-  } = engineInput;
+  const uid = engineInput.uid || 'guest';
+  const ageGroup = engineInput.ageGroup || 'U14';
+  const coachLevel = parseInt(engineInput.coachLevel, 10) || 3;
+  const playerCount = engineInput.playerCount !== undefined ? engineInput.playerCount : 18;
+  const durationMinutes = engineInput.durationMinutes || 60;
+  const focusAreas = Array.isArray(engineInput.focusAreas) && engineInput.focusAreas.length > 0 
+    ? engineInput.focusAreas 
+    : ['Skills and Ball Handling'];
+  const equipment = engineInput.equipment || { footballs: 10, cones: 20, bibs: 15, agilityPoles: 6, tackleMats: 4 };
+  const recentSessions = Array.isArray(engineInput.recentSessions) ? engineInput.recentSessions : [];
+  const variationAvoidIds = Array.isArray(engineInput.variationAvoidIds) ? engineInput.variationAvoidIds : [];
+  const seed = engineInput.seed || Date.now();
 
   const prng = createPRNG(seed);
   const slots = getSessionSlots(durationMinutes, ageGroup);
-  const curriculumTheme = getCurriculumConfig(ageGroup);
-  const isJunior = isJuniorAgeGroup(ageGroup);
+  const durations = calculateSlotDurations(durationMinutes);
+  const groupAllocations = calculateGroupAllocations(playerCount);
+
+  const isJunior = ['u8', 'u10', 'u12', 'under 8', 'under 10', 'under 12']
+    .some(ag => ageGroup.toLowerCase().includes(ag));
+
+  const recentSessionDrillIds = [];
+  recentSessions.forEach(sess => {
+    if (sess && Array.isArray(sess.segments)) {
+      sess.segments.forEach(seg => {
+        if (seg && seg.drillId) recentSessionDrillIds.push(seg.drillId);
+      });
+    }
+  });
 
   const context = {
     ageGroup,
@@ -48,15 +61,12 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
     durationMinutes,
     focusAreas,
     equipment,
-    curriculumTheme
+    recentSessionDrillIds,
+    variationAvoidIds,
+    seed,
+    durations,
+    groupAllocations
   };
-
-  const recentSessionDrillIds = (recentSessions || []).map(sess => {
-    if (Array.isArray(sess.segments)) {
-      return sess.segments.map(s => s.drillId).filter(Boolean);
-    }
-    return [];
-  });
 
   const selectedSegments = [];
   const currentPlanDrillIds = [];
@@ -156,6 +166,44 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
     equipmentSummary,
     validation: { isValid: true, errors: [] }
   };
+
+  // Asynchronously retrieve coaching knowledge passages for traceability
+  try {
+    const knowledgeReferences = await retrieveKnowledge({
+      ageGroup,
+      focusAreas,
+      limit: 6
+    });
+
+    if (Array.isArray(knowledgeReferences) && knowledgeReferences.length > 0) {
+      plan.knowledgeContext = knowledgeReferences;
+      plan.knowledgeReferences = knowledgeReferences;
+
+      plan.segments.forEach((seg, idx) => {
+        const matchingRef = knowledgeReferences.find(ref => {
+          const refCats = ref.categories || [];
+          const segCat = (seg.category || seg.phase || '').toLowerCase();
+          if (segCat.includes('warm') && refCats.includes('movement_fitness')) return true;
+          if (segCat.includes('ssg') && refCats.includes('game_sense')) return true;
+          if (segCat.includes('match') && refCats.includes('tactics')) return true;
+          return false;
+        }) || knowledgeReferences[idx % knowledgeReferences.length];
+
+        if (matchingRef) {
+          seg.knowledgeRef = {
+            id: matchingRef.id,
+            source: matchingRef.source,
+            sourceType: matchingRef.sourceType,
+            page: matchingRef.page,
+            sourceLocator: matchingRef.sourceLocator,
+            excerpt: matchingRef.excerpt
+          };
+        }
+      });
+    }
+  } catch (kErr) {
+    console.warn('[PlanEngine] Knowledge retrieval skipped:', kErr);
+  }
 
   const validationResult = validatePlan(plan, context);
   plan.validation = validationResult;

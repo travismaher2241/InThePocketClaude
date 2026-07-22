@@ -1,0 +1,87 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-07-22T22:31:57.629Z",
+  "totalRecords": 6371,
+  "totalDocuments": 33,
+  "shards": {
+    "u8": {
+      "file": "u8.json",
+      "count": 987
+    },
+    "u10": {
+      "file": "u10.json",
+      "count": 980
+    },
+    "u12": {
+      "file": "u12.json",
+      "count": 982
+    },
+    "senior": {
+      "file": "senior.json",
+      "count": 6118
+    },
+    "safety_tackling": {
+      "file": "safety_tackling.json",
+      "count": 4346
+    },
+    "skills_tactics": {
+      "file": "skills_tactics.json",
+      "count": 6058
+    },
+    "coaching_planning": {
+      "file": "coaching_planning.json",
+      "count": 6321
+    }
+  },
+  "categories": [
+    "tackling_contact",
+    "safety",
+    "game_sense",
+    "tactics",
+    "coaching_practice",
+    "session_planning",
+    "inclusion_wellbeing",
+    "movement_fitness",
+    "marking",
+    "assessment_progression",
+    "kicking",
+    "ball_handling",
+    "handball",
+    "general"
+  ],
+  "documents": [
+    "AFL Coaching Tackle Curriculum.pdf",
+    "AFL_Full_Drill_Database.pdf",
+    "Elite Australian Football Coaching Syllabus_ A Comprehensive Training Manual from Auskick to Masters.pdf",
+    "Junior AFL Small-Sided Games_ Game Sense & Skill Development.pdf",
+    "Junior Coaching Curriculum - Guidebook.pdf",
+    "Junior Coaching Curriculum - Level 4 (7-8 Years) Guidebook.pdf",
+    "Junior Coaching Curriculum - Level 5 (9-10 Years) Guidebook.pdf",
+    "Junior Coaching Curriculum - Level 6 (11-12 Years) Guidebook.pdf",
+    "The Encyclopedia of Australian Rules Football Training- A Comprehensive Guide to Player Development and Tactical Mastery.pdf",
+    "Youth_Coaching_Curriculum_March24.pdf",
+    "Under 10's.pdf",
+    "Under 12's.pdf",
+    "Under 8's.pdf",
+    "AFL_Coaching_Reference_Library_Master_Document_v16.0.docx",
+    "Australian Football Coaching Reference Library (AFCRL) Vol 1 (1).docx",
+    "Australian Football Coaching Reference Library (AFCRL) Vol 2.docx",
+    "Chapter 1 - Kicking.docx",
+    "Chapter 10 - Team Offence.docx",
+    "Chapter 11 - Team Defence.docx",
+    "Chapter 12 - Transition.docx",
+    "Chapter 13 - Conditioning with Football.docx",
+    "Chapter 14 - Small-Sided Games.docx",
+    "Chapter 15 - Match Simulation.docx",
+    "Chapter 16 - Testing and Assessment.docx",
+    "Chapter 17 - Warm-Ups.docx",
+    "Chapter 2 - Handballing.docx",
+    "Chapter 3 - Marking.docx",
+    "Chapter 4 - Ground Balls.docx",
+    "Chapter 5 - Tackling and Pressure.docx",
+    "Chapter 6 - Spoiling and Aerial Defence.docx",
+    "Chapter 7 - Ruck and Stoppage Craft.docx",
+    "Chapter 8 - Evasion, Agility and Movement.docx",
+    "Chapter 9 - Decision Making.docx"
+  ]
+}

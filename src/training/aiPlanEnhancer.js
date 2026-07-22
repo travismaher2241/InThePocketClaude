@@ -4,6 +4,7 @@
  */
 
 import { fetchRawAIPlan, confirmAIGenerationQuota } from '../firebaseHelpers.js';
+import { retrieveKnowledge } from '../knowledge/knowledgeService.js';
 
 /**
  * Enhances a valid local plan using Gemini AI without changing drill identities or durations.
@@ -17,7 +18,23 @@ export async function enhancePlanWithAI(localPlan, apiKey) {
   }
 
   const { parameters = {} } = localPlan;
-  const { uid, ageGroup, coachLevel, focusAreas } = parameters;
+  const { uid, ageGroup = 'U14', coachLevel = 3, focusAreas = [] } = parameters;
+
+  // Retrieve 5-15 highly relevant coaching passages for AI context
+  let knowledgePassages = [];
+  try {
+    knowledgePassages = await retrieveKnowledge({
+      ageGroup,
+      focusAreas,
+      limit: 10
+    });
+  } catch (kErr) {
+    console.warn('[AIEnhancer] Knowledge retrieval skipped:', kErr);
+  }
+
+  const referenceText = knowledgePassages.length > 0
+    ? knowledgePassages.map(p => `[Source: ${p.source}, ${p.sourceLocator}]\n"${p.excerpt || p.text.substring(0, 200)}..."`).join('\n\n')
+    : 'Standard AFL Development Framework';
 
   // Build compact structured prompt sending ONLY selected drills and context
   const drillSummaries = localPlan.segments.map((seg, idx) => ({
@@ -28,16 +45,20 @@ export async function enhancePlanWithAI(localPlan, apiKey) {
     objective: seg.objective
   }));
 
-  const promptText = `Refine coaching cues and tactical explanations for this pre-selected AFL training plan.
-Target Age: ${ageGroup || 'U14'}
-Coach Level: ${coachLevel || 3}
-Focus: ${(focusAreas || []).join(', ')}
+  const promptText = `Refine coaching cues and tactical explanations for this pre-selected AFL training plan using official AFL curriculum guidelines.
 
-Selected Drills:
+Target Age: ${ageGroup}
+Coach Level: ${coachLevel}
+Focus Areas: ${(focusAreas || []).join(', ')}
+
+AUTHORITATIVE AFL CURRICULUM GUIDELINES (5-15 Compact References):
+${referenceText}
+
+SELECTED DRILLS (IMMUTABLE):
 ${JSON.stringify(drillSummaries, null, 2)}
 
 Instructions:
-Return a JSON array containing refined coaching cues and execution steps for each of the 4 segments in the exact order.
+Return a JSON array containing refined coaching cues and tactical notes for each of the 6 segments in exact order.
 Do NOT change drillId, duration, or core safety rules.`;
 
   try {
