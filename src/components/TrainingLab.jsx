@@ -3,6 +3,8 @@ import ContextualTaggingModal from './ContextualTaggingModal';
 import DrillDetailsModal from './DrillDetailsModal';
 import { saveTrainingSession, getTrainingSessions, deleteSession, hasAccess, fetchRawAIPlan, confirmAIGenerationQuota, getUserProfile } from '../firebaseHelpers';
 import { saveVideoClipToIDB } from '../utils/videoStore';
+import { generateLocalPlan } from '../training/planEngine';
+import { enhancePlanWithAI } from '../training/aiPlanEnhancer';
 import { useAuth } from '../context/AuthProvider';
 import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS, ADULT_LOCAL_DRILLS, AFL_PRE_GAME_WARMUPS, SYLLABUS_DRILLS, loadDrillsDatabase } from '../data/curriculumKnowledge';
 import aflGroundImage from '../assets/AFL GROUND.png';
@@ -1604,113 +1606,53 @@ export default function TrainingLab({
     }
   };
 
-  // Perform Gemini API generation or procedural fallback
-  // Perform Gemini API generation or procedural fallback
-  const runPlanGeneration = async (overrideCount) => {
-    const playerCount = overrideCount !== undefined ? overrideCount : presentIds.length;
-    const group1 = Math.floor(playerCount / 2);
-    const group2 = playerCount - group1;
+  // Perform hybrid local generation & optional AI enhancement
+  const runPlanGeneration = async (overrideCount, customSeed = null, variationAvoidIds = []) => {
+    const playerCount = overrideCount !== undefined ? overrideCount : (presentIds.length > 0 ? presentIds.length : 18);
     const currentEquipment = getGlobalEquipment();
-    
-    // Determine if age group is adult
-    const isAdult = ageGroup === 'Seniors' || ageGroup === 'Reserves' || ageGroup === 'Over 35s' || ageGroup === 'Veterans (Over 35s)' || (typeof ageGroup === 'string' && (ageGroup.toLowerCase().includes('senior') || ageGroup.toLowerCase().includes('reserve') || ageGroup.toLowerCase().includes('over 35') || ageGroup.toLowerCase().includes('veteran') || ageGroup.toLowerCase().includes('open age')));
 
-    // Determine if squad is in Female Pathway
-    const squadNameText = squadSettings?.squadName || '';
-    const ageGroupText = ageGroup || '';
-    const isFemalePathway = 
-      squadNameText.toLowerCase().includes('girl') || 
-      squadNameText.toLowerCase().includes('women') || 
-      squadNameText.toLowerCase().includes('female') || 
-      squadNameText.toLowerCase().includes('woms') || 
-      squadNameText.endsWith('G') ||
-      squadNameText.includes(' U12G') ||
-      squadNameText.includes(' U14G') ||
-      squadNameText.includes(' U16G') ||
-      squadNameText.includes(' U18G') ||
-      ageGroupText.toLowerCase().includes('women') || 
-      ageGroupText.toLowerCase().includes('girl') ||
-      ageGroupText.toLowerCase().includes('u12g') ||
-      ageGroupText.toLowerCase().includes('u14g') ||
-      ageGroupText.toLowerCase().includes('u16g') ||
-      ageGroupText.toLowerCase().includes('u18g');
+    setIsGenerating(true);
+    setPlanCards([]);
+    setStep('plan');
 
-    // Dynamic ground variables based on settings or fallback defaults
-    const groundName = squadSettings?.groundName || "home ground";
-    const groundLengthText = squadSettings?.groundLength ? `${squadSettings.groundLength}m` : "160m";
-    const groundWidthText = squadSettings?.groundWidth ? `${squadSettings.groundWidth}m` : "130m";
-
-    // Get a randomized Pre-Game drill avoiding repetition
-    let lastPreGameName = "";
-    if (historySessions && historySessions.length > 0) {
-      const sortedHistory = [...historySessions].sort((a, b) => new Date(b.date) - new Date(a.date));
-      const lastSession = sortedHistory[0];
-      const lastPreGameDrill = lastSession?.drills?.[0];
-      if (lastPreGameDrill) {
-        lastPreGameName = lastPreGameDrill.title || lastPreGameDrill.name || '';
-      }
-    }
-
-    let preGamePool = [...AFL_PRE_GAME_WARMUPS];
-    
-    // Retrieve effective coach max difficulty level
-    const effectiveCoachLevel = String(userProfile?.coachLevel || squadSettings?.coachLevel || '2');
-    const maxDiff = parseInt(effectiveCoachLevel || '2', 10);
-    const parseDiff = (d) => {
-      if (!d || d.coachingDifficulty === undefined || d.coachingDifficulty === null) return 2;
-      if (typeof d.coachingDifficulty === 'number') return d.coachingDifficulty;
-      const match = String(d.coachingDifficulty).match(/(\d)/);
-      return match ? parseInt(match[1], 10) : 2;
+    const engineInput = {
+      uid: currentUser?.uid || 'guest',
+      ageGroup,
+      coachLevel: parseInt(coachLevel, 10) || 3,
+      playerCount,
+      durationMinutes: duration,
+      focusAreas,
+      equipment: currentEquipment,
+      recentSessions: Array.isArray(trainingSessions) ? trainingSessions : [],
+      variationAvoidIds,
+      seed: customSeed || Date.now()
     };
 
-    // Age Group Hierarchy helper
-    const AGE_HIERARCHY = ["Under 8", "Under 10", "Under 12", "Under 14", "Under 16", "Under 18", "Senior Women", "Senior Men", "Over 35 Men"];
-    let ageKey = "Under 12";
-    const agUpper = (ageGroupText || '').toUpperCase();
-    if (agUpper.includes('8')) ageKey = "Under 8";
-    else if (agUpper.includes('10')) ageKey = "Under 10";
-    else if (agUpper.includes('12')) ageKey = "Under 12";
-    else if (agUpper.includes('14')) ageKey = "Under 14";
-    else if (agUpper.includes('16')) ageKey = "Under 16";
-    else if (agUpper.includes('18')) ageKey = "Under 18";
-    else if (agUpper.includes('SENIOR') && agUpper.includes('WOMEN')) ageKey = "Senior Women";
-    else if (agUpper.includes('SENIOR')) ageKey = "Senior Men";
-    else if (agUpper.includes('OVER 35') || agUpper.includes('VETERAN') || agUpper.includes('MASTER')) ageKey = "Over 35 Men";
+    try {
+      // 1. Immediate local plan generation using authoritative deterministic engine
+      const localPlan = await generateLocalPlan(engineInput);
+      setPlanCards(sanitizePlanCards(localPlan.segments || [], squadSettings?.groundName || "home ground", playerCount));
+      setIsFallback(false);
+      setIsGenerating(false);
 
-    let targetAgeIndex = AGE_HIERARCHY.indexOf(ageKey);
-    if (targetAgeIndex === -1) targetAgeIndex = 2;
-    const allowedAgeKeys = AGE_HIERARCHY.slice(0, targetAgeIndex + 1);
-    const isAgeSuitable = (d) => {
-      if (!d.ageGroups || Object.keys(d.ageGroups).length === 0) return false;
-      const suit = d.ageGroups[ageKey];
-      if (suit) {
-        return suit !== '✗' && suit !== 'X' && suit !== 'x';
+      // 2. Non-blocking optional AI enhancement if configured
+      const isAIEnabled = import.meta.env.VITE_AI_PLAN_ENHANCEMENT_ENABLED !== 'false';
+      if (isAIEnabled && apiKey && hasAccess(subscriptionTier, 'pro')) {
+        enhancePlanWithAI(localPlan, apiKey).then(enhancedPlan => {
+          if (enhancedPlan && enhancedPlan.aiEnhanced) {
+            setPlanCards(sanitizePlanCards(enhancedPlan.segments || [], squadSettings?.groundName || "home ground", playerCount));
+          }
+        }).catch(err => {
+          console.warn("Optional AI enhancement skipped:", err);
+        });
       }
-      return allowedAgeKeys.some(key => {
-        const val = d.ageGroups[key];
-        return val && val !== '✗' && val !== 'X' && val !== 'x';
-      });
-    };
-
-    // Filter preGamePool strictly by maxDiff and age suitability
-    preGamePool = preGamePool.filter(w => parseDiff(w) <= maxDiff && isAgeSuitable(w));
-    if (preGamePool.length === 0) {
-      preGamePool = AFL_PRE_GAME_WARMUPS.filter(w => parseDiff(w) <= maxDiff);
+    } catch (err) {
+      console.error("Local plan engine error:", err);
+      setIsGenerating(false);
     }
-    if (preGamePool.length === 0) {
-      preGamePool = [...AFL_PRE_GAME_WARMUPS];
-    }
+  };
 
-    if (lastPreGameName) {
-      const cleanLast = lastPreGameName.toLowerCase();
-      const filtered = preGamePool.filter(w => !cleanLast.includes(w.name.toLowerCase()) && !w.name.toLowerCase().includes(cleanLast));
-      if (filtered.length > 0) {
-        preGamePool = filtered;
-      }
-    }
-    const selectedPreGameDrill = preGamePool[Math.floor(Math.random() * preGamePool.length)];
-
-    // Check access using our Gatekeeper pattern
+  const handleGeneratePlan = () => {
     const userTierClean = (subscriptionTier || 'Free').toLowerCase();
     if (userTierClean === 'free' || userTierClean === 'default') {
       if (aiGensUsed >= 2) {
@@ -1723,666 +1665,46 @@ export default function TrainingLab({
         return;
       }
     }
-
-    setIsGenerating(true);
-    setPlanCards([]);
-    setStep('plan');
-
-    const isRealApiCall = false; // Freeze dynamic API generation to enforce strict baseline lookup
-
-    if (isRealApiCall) {
-      try {
-        const config = getCurriculumConfig(ageGroup);
-        const weeklyThemesText = config.themes.map(t => `- Week ${t.week} Theme: "${t.theme}" (Goal: ${t.goal})`).join('\n');
-        
-        // Find prescribed drills and small-sided games that are relevant
-        let filteredDrills = PRESCRIBED_DRILLS;
-        let filteredSSGs = SMALL_SIDED_GAMES;
-
-        if (isAdult) {
-          filteredDrills = filteredDrills.filter(d => 
-            !d.level?.includes("Level 4") && 
-            !d.level?.includes("Level 5") && 
-            !d.level?.includes("U8") && 
-            !d.level?.includes("U10") && 
-            !d.name.toLowerCase().includes("kick and mark") && 
-            !d.name.toLowerCase().includes("fundamentals")
-          );
-          filteredSSGs = filteredSSGs.filter(g => 
-            !g.ageFocus?.includes("U10") && 
-            !g.ageFocus?.includes("Level 5") && 
-            !g.name.toLowerCase().includes("kick and mark")
-          );
-        } else {
-          filteredDrills = filteredDrills.filter(d => !d.isAdultOnly);
-          filteredSSGs = filteredSSGs.filter(g => !g.isAdultOnly);
-        }
-
-        const relevantDrills = filteredDrills.filter(d => 
-          d && d.name && d.goal && focusAreas.some(f => d.name.toLowerCase().includes(f.toLowerCase()) || d.goal.toLowerCase().includes(f.toLowerCase()))
-        );
-        const relevantSSGs = filteredSSGs.filter(g => 
-          g && g.name && g.goal && focusAreas.some(f => g.name.toLowerCase().includes(f.toLowerCase()) || g.goal.toLowerCase().includes(f.toLowerCase()))
-        );
-
-        let injectedDrillsText = "";
-        if (relevantDrills.length > 0) {
-          injectedDrillsText += `\nPrescribed Club Drills (Use these as reference/candidates for skill rotations/tasks if applicable):\n` +
-            relevantDrills.map(d => `- Drill: "${d.name || ''}"\n  Goal: ${d.goal || ''}\n  Setup: ${d.setup || ''}\n  Execution: ${d.execution || ''}\n  CHANGE IT Tip: ${d.changeIt || ''}`).join('\n');
-        }
-        
-        let injectedSSGsText = "";
-        if (relevantSSGs.length > 0) {
-          injectedSSGsText += `\nCurriculum Small-Sided Games (Use these as candidates for the MATCH PLAY / SSG segment if applicable):\n` +
-            relevantSSGs.map(g => `- Game: "${g.name || ''}"\n  Goal: ${g.goal || ''}\n  Setup: ${g.setup || ''}\n  Execution: ${g.execution || ''}\n  CHANGE IT Tip: ${g.changeIt || ''}`).join('\n');
-        }
-
-        const isStations = playerCount > 15;
-        let stationPromptRules = "";
-        let q2PromptDesc = `DECISION ROTATIONS: Two rotations consisting of high-repetition skills and a decision-making task (approx 30% of session time, e.g. 20 mins).`;
-        let q3PromptDesc = `TEAM TACTICAL: Practice applying skills to game situations when working as a team (approx 20% of session time, e.g. 15 mins).`;
-
-        if (isStations) {
-          stationPromptRules = `
-7. DYNAMIC STATION SPLIT RULES (Squad size is ${playerCount} which is > 15):
-   You MUST automatically divide the session into a 'Parallel Station' format for Q2 (Skill Rotations) and Q3 (Team Tasks).
-   - Sub-Group Math: Since the total squad size is ${playerCount}, you must divide them into two sub-groups: Group 1 = ${group1} players, Group 2 = ${group2} players.
-   - Use these sub-group numbers when selecting and formatting the specific drills for Station A and Station B, ensuring each drill setup and numbers work for ${group1} or ${group2} players respectively, NOT the total ${playerCount} players.
-   - Output Formatting for Q2 (Skill Rotations) and Q3 (Team Tasks) instructions MUST strictly follow this structure:
-     STRUCTURE: ROTATION-BASED STATIONS (Squad size > 15)
-     Station A: [Drill Name], Goal: [Goal], Setup: [Setup based on Group 1 size of ${group1} players].
-     Station B: [Drill Name], Goal: [Goal], Setup: [Setup based on Group 2 size of ${group2} players].
-     The Switch: Include a specific instruction on when to blow the whistle and rotate the groups (e.g. 'Switch stations at the 10-minute mark' if the segment duration is 20 minutes).
-   - Equipment Logistics: In the 5th segment (MATCH PLAY / SSG) instructions, at the very bottom, you MUST output a consolidated equipment staging list that accounts for both stations running at the same time (e.g. doubling the cone and football count) and assigning distinct bib colors to Group 1 (${group1} players) and Group 2 (${group2} players) to avoid mid-session swaps.
-`;
-          q2PromptDesc = `DECISION ROTATIONS: Divide the session into parallel stations for Group 1 (${group1} players) and Group 2 (${group2} players) running concurrently (approx 30% of session time, e.g. 20 mins).`;
-          q3PromptDesc = `TEAM TACTICAL: Divide the session into parallel stations for Group 1 (${group1} players) and Group 2 (${group2} players) running concurrently (approx 20% of session time, e.g. 15 mins).`;
-        } else {
-          stationPromptRules = `
-7. STANDARD SINGLE-GROUP RULES (Squad size is ${playerCount} which is <= 15):
-   Run the standard single-group session plan. No station split is needed. Do not format the instructions into parallel stations.
-`;
-        }
-
-        let lastPreGameNegativePrompt = "";
-        if (lastPreGameName) {
-          lastPreGameNegativePrompt = `\nCRITICAL Repetition Constraint: The Warm-Up & Activation drill in the user's previous training session was: "${lastPreGameName.replace(/[#*`[\]]/g, '')}". You MUST NOT choose or generate this exact drill again for Segment 1. Ensure you choose a different type of activity to provide variation.`;
-        }
-
-        const activeCategory = ageGroupText.toUpperCase().includes('VETERAN') || ageGroupText.toUpperCase().includes('OVER 35') || ageGroupText.toUpperCase().includes('MASTER') ? 'Veterans' :
-                               ageGroupText.toUpperCase() === 'SENIORS' || ageGroupText.toUpperCase() === 'RESERVES' ? 'Seniors' :
-                               ageGroupText.toUpperCase().startsWith('U18') ? 'U18' :
-                               ageGroupText.toUpperCase().startsWith('U16') ? 'U16' :
-                               ageGroupText.toUpperCase().startsWith('U14') ? 'U14' :
-                               ageGroupText.toUpperCase().startsWith('U12') ? 'U12' :
-                               ageGroupText.toUpperCase().startsWith('U10') ? 'U10' : 'U8';
-
-        let matchingSyllabusDrills = SYLLABUS_DRILLS.filter(d => d.category === activeCategory);
-        if (isFemalePathway && activeCategory === 'Seniors') {
-          matchingSyllabusDrills = SYLLABUS_DRILLS.filter(d => d.category === 'Seniors');
-        }
-
-        const syllabusDrillsText = `
-MANDATORY SYLLABUS DRILLS POOL (Select from this pool to populate the session slots, matching focus areas where possible):
-` + matchingSyllabusDrills.map(d => `- Drill: "${d.name}"
-  Objective: ${d.objective}
-  Setup: ${d.setup}
-  Execution: ${d.execution}
-  Coaching Cues: ${d.cues}
-  Progressions: ${d.progressions}`).join('\n\n');
-
-        let femalePathwayText = "";
-        if (isFemalePathway) {
-          femalePathwayText = `
-CRITICAL FEMALE PATHWAY INJURY MITIGATION RULES (Prep-to-Play PRO Cornerstone Framework):
-- You MUST automatically inject specific safety instructions and injury prevention biomechanics into the text:
-  1. WARM-UP BLOCKS: Focus on neuromuscular control, landing stability mechanics (specifically single-leg landing stances to protect the ACL), and dynamic hip mobility.
-  2. CONTACT BLOCKS: Integrate advanced safe wrap/body-lock tackle tracking (pinning elbows, cheek-to-cheek head placement, roll and drop with control) and "Strength over Stretch" core/gluteal armor activation protocols. Strictly prohibit rotational sling tackles.
-  3. DECELERATION: Inject short, choppy deceleration stepping drills to prevent lower-limb hyper-extension risks under high load.
-`;
-        }
-
-        const groundConstraintsText = `
-CRITICAL GROUND-SPECIFIC SPATIAL DIMENSIONS (${groundName}):
-- All full-ground drills, zones, and lateral movements must be calibrated strictly to the team's home ground / oval footprint with length ~${groundLengthText} and width ~${groundWidthText}.
-- When referencing field width or lateral ball movement (e.g., Corridor Squeeze, Boundary Switch pivots, or Fat Side switches), ensure the numerical dimensions fit seamlessly within these constraints (lateral switches must be <= ${groundWidthText}).
-`;
-
-        const ratiosText = `
-STRICT AGE-SPECIFIC RATIO AND METHODOLOGY RULES:
-- Selected Age Group: "${ageGroup}" (Targeting Level: ${config.level})
-- Development Stage: ${config.stage}
-- Learning Focus: ${config.learningFocus}
-- Contact & Tackle Rules: ${config.tackleRules}
-- Technical Skill Ratio: ${config.ratios.technical}%, Tactical Awareness: ${config.ratios.tactical}%, Physical Conditioning: ${config.ratios.physical}%.
-- Methodology Constraints: ${config.ratioDetails}
-`;
-
-        const cardFormatText = `
-OUTPUT CARD FORMAT INSTRUCTIONS:
-- You must return a JSON array containing exactly 5 objects representing the five training segments.
-- Each object must have exactly these keys: "title", "duration", "instructions", "goal", "phase".
-- CRITICAL FORMAT FOR THE "instructions" KEY: The content of the "instructions" string MUST be formatted using the following exact uppercase labels with blank line separators:
-  DRILL NAME & OBJECTIVE: [Name] - [Objective]
-  
-  TARGET KICKING TYPE: [Explicitly classify the exact technical delivery metric required, using one of these: "Low, penetrating stab pass directly to a leading target's chest", "High, looping kick out into open space (giving the ball air) for a runner to break underneath", "Low drop punt to the heavy advantage side of a contested marking option", "High, defensive boundary launch (spoiling wide into the pocket)"]
-  
-  SETUP & GRID DIMENSIONS: [Setup details, including an explicit FIELD SETUP DIAGRAM mapping the exact shape of the drill with metric distances and cone layouts, specifying the native dimensions and player counts, without any flat total player calibration text or home ground constraints brackets]
-  
-  EXECUTION & RULES: [Step-by-step instructions]
-  
-  ELITE COACHING CUES: [Cues]
-  
-  PROGRESSIONS & REGRESSIONS: [Progressions]
-`;
-
-        const promptText = `You are an elite Australian Rules Football (AFL) coach. You MUST generate 100% unique drills for every request. 
-Do not repeat standard baseline drills. Every plan must strictly adhere to these coaching standards:
-
-1. Game-Sense Philosophy: Every activity must follow the "Game-Sense Approach" where skills are taught in tactical contexts (Penetration, Possession, Support, Delay, etc.). No static "skill reps" or queues.
-2. Age-Group & Curriculum Alignment (Curriculum Mapping):
-   Every segment must respect the contact/tackle rules and be appropriately complex for this stage of player development.
-3. Three Phases of the Game: Every drill must explicitly target one or more of the three phases: ATTACK, DEFENCE, or CONTEST. Titles and goals must use AFL Principles of Play terms (e.g. Penetration, Depth, Balance, Outnumber).
-4. CHANGE IT Framework: The "instructions" field for every drill must conclude with a specific "CHANGE IT Coaching Tip" showing how to modify the drill (Area, Numbers, Rules, Equipment, Time) to adjust difficulty.
-5. High Touch Objective: Prioritize high-touch (60+ touches per player), high-energy drills. If a drill has long lines, do not use it.
-6. NO LOCAL VENUES OR CLUB NAMES: You MUST NOT mention any specific local town, venue, or club names such as "Western Park", "Warragul", "Dusties", or "Dusty". Use generic terms like "home ground", "local club", or "opposition".
-7. STRICT CONTEXTUAL COHERENCE & BIOMECHANICAL CUE ALIGNMENT: The ELITE COACHING CUES must map directly and realistically to the physical actions in the EXECUTION & RULES field.
-   - For Ground Ball / Gathering Gathers: Cues must strictly focus on lowering the center of gravity and hand positioning (e.g., "Bend the knees to get low, don't just bend your back", "Step over the footy to protect it with your body", "Scrape your knuckles along the grass to get under the ball").
-   - For Linear Speed Top-Ups / Straight Sprint Blocks: Save posture and knee metrics strictly for high-speed tracking drills without ground ball handling requirements (e.g., "Maintain a high chest and upright posture during top-end speed phase", "Drive knees aggressively on transition acceleration"). Running form cues are completely banned from intersecting with ground-ball gathering drills.
-   - If a drill is a dynamic warm-up or mobilization block without footballs, you MUST completely ban generic ball-handling placeholder cues like "Keep eyes on ball", "Move into space", or "Clean hands". Instead, you MUST use relevant physiological cues such as: "Drive the knees to hip height", "Maintain an upright posture", "Stay light on your toes and control the deceleration".
-8. CLEAR SPATIAL SETUP TERMINOLOGY: You MUST NOT use nonsensical, hybrid dimension phrases like "10m x 10m lane grids". Force the setup to use distinct, real-world setup types based on the drill category:
-   - For linear, running, tracking, or conditioning drills, use channels or lanes (e.g., "Set up parallel 20-meter running lanes separated by 5 meters").
-   - For contested, skill rotations, or small-sided games, use square grids (e.g., "Set up a 10m x 10m square grid using 4 cones").
-9. CLOSED-LOOP EXECUTION RULES BLUEPRINT: Every text string generated in the EXECUTION & RULES field must represent a fully completed, logically closed movement tracking loop. You must explicitly define all operational variables inline:
-   - Start Boundary: Define exactly where the players line up, how many work per lane, and what triggers the movement (e.g., "Players line up in groups of 4 behind the starting cone. On the whistle...").
-   - Interaction Mechanics: Define exactly what occurs when a player reaches an item or asset (e.g., "...sprint 5 meters, drop the hips to gather the first stationary ground ball...").
-   - Disposal Targets: Define exactly who receives the football or where it is placed (e.g., "...execute a clean handball to the stationary partner standing at the 10m mark," or "...handball back to the next player waiting in the starting line...").
-   - Return Point Boundary: Define exactly where the player runs to complete their turn (e.g., "...and high-five the next runner to tag them in before moving to the back of the line.").
-10. MANDATORY TACTICAL KICKING CLASSIFICATION & COORDINATE SETUP MAPPING:
-    - You MUST include a "TARGET KICKING TYPE:" subheading block immediately below the "DRILL NAME & OBJECTIVE:" block and classify the exact technical delivery metric required, using one of these: "Low, penetrating stab pass directly to a leading target's chest", "High, looping kick out into open space (giving the ball air) for a runner to break underneath", "Low drop punt to the heavy advantage side of a contested marking option", "High, defensive boundary launch (spoiling wide into the pocket)".
-    - Inside the "SETUP & GRID DIMENSIONS:" block, you MUST render an explicit "FIELD SETUP DIAGRAM:" using a high-visibility text-based coordinate grid layout block mapping the exact shape of the drill (e.g., Straight Lane, 45-Degree Zig-Zag, Diamond Grid, Funnel Zone, Cross-Oval Switch Matrix Area), clearly defining the metric distances (in meters) between every single cone/marker (Cone A, Cone B, Cone C), and indicating where player lines queue.
-11. Curriculum Weekly Schedules (Align the session with these curriculum themes and goals):
-${weeklyThemesText}
-${stationPromptRules}
-${injectedDrillsText}${injectedSSGsText}
-${lastPreGameNegativePrompt}
-
-${ratiosText}
-${femalePathwayText}
-${groundConstraintsText}
-${syllabusDrillsText}
-${cardFormatText}
-
-7. Physical Resource & Equipment Constraints (You MUST design all drills to fit strictly within the coach's available equipment. If a count is 0, do not use that type of equipment in any of the drills. Design setups that use no more than the available quantities):
-   Available Equipment Inventory:
-   - Cones: ${currentEquipment.cones}
-   - Footballs: ${currentEquipment.footballs}
-   - Tackle Bags: ${currentEquipment.tackleMats}
-   - Agility Poles: ${currentEquipment.agilityPoles}
-   - Bibs: ${currentEquipment.bibs}
-
-CRITICAL DEDUPLICATION RULE: You are generating a complete session plan. You must not repeat any drill, activity, or scenario. Every single station and segment must contain a uniquely named drill. Cross-check your output before finalizing; if a drill title appears twice, you MUST replace the duplicate with a new, distinct drill from the database. All segments and concurrent stations (Station A and Station B) must be completely unique.
-
-Create a training plan for ${duration} minutes, specifically for ${playerCount} players. The players belong to the "${ageGroup}" age group level. 
-Every drill segment MUST directly teach the selected Focus Areas: ${focusAreas.join(", ")}. 
-The complexity, grid sizes (in meters), setup descriptions, and terminology MUST be strictly tailored for the selected Age Group: "${ageGroup}".
-
-The plan must include exactly four segments representing the curriculum structure:
-1. WARM-UP & ACTIVATION: Select a warm-up or activation activity. Use the following selected activity (or a creative variation of it) as the foundation for the Segment 1 instructions, goal, and phase:
-   - Activity Name: "${selectedPreGameDrill.name}"
-   - Goal: ${selectedPreGameDrill.goal}
-   - Description: ${selectedPreGameDrill.desc}
-   - CHANGE IT Tip: ${selectedPreGameDrill.coachingTip}
-   (duration should be approx 20% of session time, e.g. 12 mins for a 60-minute session).
-2. STATION A & STATION B (CONCURRENT): Divide squad into Group 1 (${group1} players) at Station A and Group 2 (${group2} players) at Station B running concurrently, with a switch at the half-way mark (approx 30% of session time).
-3. STATION C & STATION D (CONCURRENT): Divide squad into Group 1 (${group1} players) at Station C and Group 2 (${group2} players) at Station D running concurrently, with a switch at the half-way mark (approx 30% of session time).
-4. MATCH PLAY: ${isYoungerAgeGroup ? "SMALL-SIDED GAME (SSG): Small-Sided Game tailored for U12 and below" : "MATCH SIMULATION: Match Simulation tailored for U14 and above"} (approx 20% of session time).
-
-Ensure the sum of the durations of these 4 segments equals exactly ${duration} minutes.
-Ensure you return a JSON array containing exactly 4 objects as defined in the card format instructions.
-
-${customPlaybookText ? `Use the following strategic playbook guidelines to shape the drills and tactics: "${customPlaybookText}"` : ''}`;
-
-        const data = await fetchRawAIPlan(currentUser?.uid, promptText, apiKey);
-        const contentText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        
-        if (contentText) {
-          let cleanText = contentText.trim();
-          if (cleanText.startsWith('```')) {
-            cleanText = cleanText.replace(/^```json\s*/, '').replace(/```\s*$/, '');
-          }
-          
-          try {
-            const parsed = JSON.parse(cleanText);
-            if (Array.isArray(parsed) && (parsed.length === 4 || parsed.length === 5)) {
-              const normalized = parsed.map((item, index) => {
-                const instructions = item.instructions || item.setup || item.directions || `Execute training drills for segment ${index + 1}.`;
-                const goal = item.goal || item.focus || item.target || `Master core skills for segment ${index + 1}.`;
-                const title = item.title || `DRILL SEGMENT ${index + 1}`;
-                const durationVal = Number(item.duration) || 15;
-                const phase = item.phase || "Contest";
-                return {
-                  title,
-                  duration: durationVal,
-                  instructions,
-                  goal,
-                  phase
-                };
-              });
-
-              // Perform parameter schema validation checks for context alignment
-              let hasDataContamination = false;
-              for (const card of normalized) {
-                if (!validateDrillClosedLoopAndCues(card)) {
-                  console.warn("Rejecting AI plan due to closed-loop or biological cues mismatch", card);
-                  hasDataContamination = true;
-                  break;
-                }
-                const instLower = (card.instructions || '').toLowerCase();
-                const titleLower = (card.title || '').toLowerCase();
-                const goalLower = (card.goal || '').toLowerCase();
-
-                const isPhysicalActivation = 
-                  titleLower.includes('stretching') || 
-                  titleLower.includes('mobilization') || 
-                  titleLower.includes('stretches') ||
-                  (titleLower.includes('activation') && !instLower.includes('ball') && !instLower.includes('footy') && !titleLower.includes('catching'));
-
-                if (isPhysicalActivation) {
-                  // Extract the ELITE COACHING CUES section
-                  const cuesMatch = instLower.match(/elite\s+coaching\s+cues:\s*([\s\S]*?)(?=\n\n[a-z]|$)/i);
-                  const cuesText = cuesMatch ? cuesMatch[1] : '';
-
-                  const hasBallHandlingCues = 
-                    cuesText.includes('ball') || 
-                    cuesText.includes('hand') || 
-                    cuesText.includes('kick') || 
-                    cuesText.includes('mark') || 
-                    cuesText.includes('disposal') || 
-                    cuesText.includes('pass') ||
-                    cuesText.includes('clean hands');
-
-                  if (hasBallHandlingCues) {
-                    console.warn("Rejecting AI plan due to parameter contamination: physical activation card contains ball-handling cues", card);
-                    hasDataContamination = true;
-                    break;
-                  }
-
-                  // Check for hybrid spatial setup terminology
-                  if (instLower.includes('lane grid') || instLower.includes('lane-grid')) {
-                    console.warn("Rejecting AI plan due to parameter contamination: contains hybrid setup dimensions 'lane grid'", card);
-                    hasDataContamination = true;
-                    break;
-                  }
-                }
-              }
-
-              if (hasDataContamination) {
-                throw new Error("Rejecting AI plan generation due to parameter schema check failure: data contamination detected.");
-              }
-
-              // Accept plan into state ONLY when 100% valid
-              setPlanCards(sanitizePlanCards(normalized, groundName, playerCount));
-              setIsFallback(false);
-              setIsGenerating(false);
-
-              // Confirm and record quota consumption after acceptance
-              try {
-                const newCount = await confirmAIGenerationQuota(currentUser?.uid);
-                setAiGensUsed(newCount);
-              } catch (quotaErr) {
-                console.warn("Quota confirmation transaction failed:", quotaErr);
-              }
-
-              logSyncTransaction('GEMINI_API_PLAN_GEN', { focus: focusAreas.join(", "), duration, playerCount, equipment: currentEquipment });
-              return;
-            }
-          } catch (jsonErr) {
-            console.error("JSON parse failed, falling back to local generator", jsonErr);
-          }
-        }
-      } catch (err) {
-        console.error("Gemini API request failed, falling back to local generator: ", err);
-        if (err.message && (err.message.includes("Upgrade Required") || err.message.includes("Unauthorized"))) {
-          setIsGenerating(false);
-          setIsUpgradeModalOpen(true);
-          return;
-        }
-      }
-    }
-
-    // Procedural Fallback Engine (Runs locally)
-    const runLocalFallback = () => {
-      try {
-        setIsFallback(true);
-        const config = getCurriculumConfig(ageGroup);
-        
-        // Calculate scaled durations if total session is not 70 mins
-        const warmUpMins = Math.max(5, Math.round(duration * 0.20));
-        const stations1Mins = Math.max(10, Math.round(duration * 0.30));
-        const stations2Mins = Math.max(10, Math.round(duration * 0.30));
-        const finalMins = Math.max(5, duration - warmUpMins - stations1Mins - stations2Mins);
-
-      // Groupings math
-      let groupingLabel = "Split players into even lines.";
-      if (playerCount > 0) {
-        if (playerCount % 3 === 0) {
-          groupingLabel = `Arrange the ${playerCount} players into 3 groups of ${playerCount / 3}.`;
-        } else if (playerCount % 2 === 0) {
-          groupingLabel = `Arrange the ${playerCount} players into 2 groups of ${playerCount / 2}.`;
-        } else {
-          groupingLabel = `Set up 2 lines of ${(playerCount - 1) / 2} players and 1 active floater.`;
-        }
-      }
-
-      const activeCategory = ageGroupText.toUpperCase().includes('VETERAN') || ageGroupText.toUpperCase().includes('OVER 35') || ageGroupText.toUpperCase().includes('MASTER') ? 'Veterans' :
-                             ageGroupText.toUpperCase() === 'SENIORS' || ageGroupText.toUpperCase() === 'RESERVES' ? 'Seniors' :
-                             ageGroupText.toUpperCase().startsWith('U18') ? 'U18' :
-                             ageGroupText.toUpperCase().startsWith('U16') ? 'U16' :
-                             ageGroupText.toUpperCase().startsWith('U14') ? 'U14' :
-                             ageGroupText.toUpperCase().startsWith('U12') ? 'U12' :
-                             ageGroupText.toUpperCase().startsWith('U10') ? 'U10' : 'U8';
-
-      let ageKey = "Under 12";
-      const agUpper = (ageGroupText || '').toUpperCase();
-      if (agUpper.includes('8')) ageKey = "Under 8";
-      else if (agUpper.includes('10')) ageKey = "Under 10";
-      else if (agUpper.includes('12')) ageKey = "Under 12";
-      else if (agUpper.includes('14')) ageKey = "Under 14";
-      else if (agUpper.includes('16')) ageKey = "Under 16";
-      else if (agUpper.includes('18')) ageKey = "Under 18";
-      else if (agUpper.includes('SENIOR') && agUpper.includes('WOMEN')) ageKey = "Senior Women";
-      else if (agUpper.includes('SENIOR')) ageKey = "Senior Men";
-      else if (agUpper.includes('OVER 35') || agUpper.includes('VETERAN') || agUpper.includes('MASTER')) ageKey = "Over 35 Men";
-
-      // Age Group Hierarchy: Allow target age group AND all age levels below it
-      const AGE_HIERARCHY = [
-        "Under 8",
-        "Under 10",
-        "Under 12",
-        "Under 14",
-        "Under 16",
-        "Under 18",
-        "Senior Women",
-        "Senior Men",
-        "Over 35 Men"
-      ];
-
-      let targetAgeIndex = AGE_HIERARCHY.indexOf(ageKey);
-      if (targetAgeIndex === -1) targetAgeIndex = 2; // Default to Under 12
-      const allowedAgeKeys = AGE_HIERARCHY.slice(0, targetAgeIndex + 1);
-
-      const isAgeSuitable = (d) => {
-        if (!d.ageGroups || Object.keys(d.ageGroups).length === 0) return false;
-        const suit = d.ageGroups[ageKey];
-        if (suit) {
-          return suit !== '✗' && suit !== 'X' && suit !== 'x';
-        }
-        return allowedAgeKeys.some(key => {
-          const val = d.ageGroups[key];
-          return val && val !== '✗' && val !== 'X' && val !== 'x';
-        });
-      };
-
-      // Retrieve coach level directly from userProfile prop, squadSettings, or user-scoped storage
-      let effectiveCoachLevel = String(userProfile?.coachLevel || squadSettings?.coachLevel || '2');
-      try {
-        const profileStr = localStorage.getItem(getScopedKey('inthepocket_user_profile')) || localStorage.getItem('inthepocket_user_profile');
-        if (profileStr) {
-          const parsedProf = JSON.parse(profileStr);
-          if (parsedProf?.coachLevel) effectiveCoachLevel = String(parsedProf.coachLevel);
-        }
-      } catch (e) {}
-
-      const maxDiff = parseInt(effectiveCoachLevel || '2', 10);
-
-      const parseDiff = (d) => {
-        if (!d || d.coachingDifficulty === undefined || d.coachingDifficulty === null) return 2;
-        if (typeof d.coachingDifficulty === 'number') return d.coachingDifficulty;
-        const match = String(d.coachingDifficulty).match(/(\d)/);
-        return match ? parseInt(match[1], 10) : 2;
-      };
-
-      // STRICT HARD CAP FILTER: Drills must NOT exceed coach's max difficulty level (e.g. maxDiff = 2 allows Level 1 & 2 ONLY)
-      const levelPermittedDrills = SYLLABUS_DRILLS.filter(d => parseDiff(d) <= maxDiff);
-
-      // Filter levelPermittedDrills by age suitability (target age & below)
-      let suitableDrills = levelPermittedDrills.filter(d => isAgeSuitable(d));
-
-      if (suitableDrills.length === 0) {
-        suitableDrills = levelPermittedDrills;
-      }
-
-      // Filter suitableDrills by focus areas (STRICTLY within levelPermittedDrills!)
-      let matchingSyllabusDrills = [];
-      if (Array.isArray(focusAreas) && focusAreas.length > 0) {
-        matchingSyllabusDrills = suitableDrills.filter(d => {
-          const searchHaystack = ((d.name || '') + ' ' + (d.objective || '') + ' ' + (d.category || '') + ' ' + (d.desc || '') + ' ' + (d.primarySkill || '')).toLowerCase();
-          return focusAreas.some(fa => searchHaystack.includes(fa.toLowerCase()));
-        });
-      }
-
-      if (matchingSyllabusDrills.length < 4) {
-        matchingSyllabusDrills = suitableDrills;
-      }
-
-      // Shuffle matching drills to ensure fresh variation each time
-      const shuffledDrills = [...matchingSyllabusDrills].sort(() => Math.random() - 0.5);
-
-      const drill1 = shuffledDrills[0] || SYLLABUS_DRILLS[0];
-      const drill2 = shuffledDrills[1] || shuffledDrills[0] || drill1;
-      const drill3 = shuffledDrills[2] || shuffledDrills[0] || drill1;
-      const drill4 = shuffledDrills[3] || shuffledDrills[0] || drill1;
-
-      const formatDrillCardText = (d) => {
-        if (!d) return '';
-        const drillName = d.name || (d.drillId ? `[${d.drillId}] ${d.title}` : d.title || 'Drill Segment');
-        const objective = d.objective || d.goal || 'Skill practice under match conditions.';
-        const setup = d.setup || (d.groundSize ? `Ground size: ${d.groundSize}` : 'Set up marked grid area.');
-        const execution = d.howTheDrillWorks || d.execution || d.desc || 'Execute drill as directed by the coach.';
-
-        const cues = Array.isArray(d.coachingCues) && d.coachingCues.length > 0 
-          ? d.coachingCues.join(', ') 
-          : (typeof d.cues === 'string' ? d.cues : (Array.isArray(d.cues) ? d.cues.join(', ') : 'Maintain focus, Communicate, Clean execution'));
-
-        const progressions = Array.isArray(d.progressions) && d.progressions.length > 0 
-          ? d.progressions.join(' | ') 
-          : (d.coachingTip || d.progressions || 'Adjust grid size or add defenders to vary pressure.');
-
-        const kickingType = getTacticalKickingType(d);
-        const kickLine = (kickingType && kickingType !== "None") ? `TARGET KICKING TYPE: ${kickingType}\n\n` : "";
-
-        return `DRILL NAME & OBJECTIVE: ${drillName} - ${objective}
-
-${kickLine}SETUP & GRID DIMENSIONS: ${setup}
-
-EXECUTION & RULES: ${execution}
-
-ELITE COACHING CUES: ${cues}
-
-PROGRESSIONS & REGRESSIONS: ${progressions}`;
-      };
-
-      let preGameCard = {};
-      if (isFemalePathway) {
-        preGameCard = {
-          title: "WARM-UP & ACTIVATION: PREP-TO-PLAY PRO",
-          duration: warmUpMins,
-          instructions: `DRILL NAME & OBJECTIVE: Prep-to-Play PRO Activation - Neuromuscular ACL protection and landing biomechanics
-          
-SETUP & GRID DIMENSIONS: 15m x 20m grid. Fits within ${groundName} wing boundaries.
-
-EXECUTION & RULES: Players jog side-by-side. On whistle, perform vertical leap and land softly on one leg. Focus on knee-over-toe alignment and dynamic hip mobility exercises.
-
-ELITE COACHING CUES: "Bend hips and knees on landing", "Soft landing", "Keep alignment, prevent knee collapse"
-
-PROGRESSIONS & REGRESSIONS: Progression: Add light shoulder bumps in the air. Regression: Double leg landing focus.`,
-          goal: "Neuromuscular activation and landing mechanics to prevent ACL injuries.",
-          phase: "Contest"
-        };
-      } else {
-        // Select Warm-Up drill from Chapter 17 AFL_PRE_GAME_WARMUPS
-        let preGamePool = AFL_PRE_GAME_WARMUPS.filter(w => parseDiff(w) <= maxDiff && isAgeSuitable(w));
-        if (preGamePool.length === 0) {
-          preGamePool = AFL_PRE_GAME_WARMUPS.filter(w => parseDiff(w) <= maxDiff);
-        }
-        if (preGamePool.length === 0) {
-          preGamePool = [...AFL_PRE_GAME_WARMUPS];
-        }
-        const activePreGameDrill = (preGamePool && preGamePool.length > 0)
-          ? preGamePool[Math.floor(Math.random() * preGamePool.length)]
-          : {
-              name: "[WU-001] Progressive Jog and Movement Series",
-              title: "Progressive Jog and Movement Series",
-              objective: "Progressively raise body temperature and prepare players for football movement patterns.",
-              desc: "Start with easy movement and gradually introduce shuffles, skips, backpedals and controlled direction changes.",
-              coachingTip: "Build intensity progressively rather than starting fast.",
-              cues: "Build don't blast, Tall hips, Quick feet soft feet",
-              coachingCues: ["Build don't blast", "Tall hips", "Quick feet soft feet"],
-              phase: "Warm-Up",
-              setup: "Mark a compact movement area with 4-8 cones and create clear travel lanes."
-            };
-
-        const preGameCues = Array.isArray(activePreGameDrill.coachingCues) && activePreGameDrill.coachingCues.length > 0
-          ? activePreGameDrill.coachingCues.join(', ')
-          : (activePreGameDrill.cues || "Keep eyes on ball, Move into space, Clean hands");
-
-        const preGameSetup = activePreGameDrill.setup || `Oval footprint, calibrated to ${groundName} constraints.`;
-        const preGameExec = activePreGameDrill.howTheDrillWorks || activePreGameDrill.execution || activePreGameDrill.desc || 'Execute dynamic movement preparation drills in pairs or lines.';
-        const preGameProgs = Array.isArray(activePreGameDrill.progressions) && activePreGameDrill.progressions.length > 0
-          ? activePreGameDrill.progressions.join(' | ')
-          : (activePreGameDrill.coachingTip || 'Focus on landing stability and clean execution.');
-
-        preGameCard = {
-          title: `WARM-UP & ACTIVATION: ${(activePreGameDrill.name || activePreGameDrill.title || 'Warm-Up').toUpperCase()}`,
-          duration: warmUpMins,
-          instructions: `DRILL NAME & OBJECTIVE: ${activePreGameDrill.name || activePreGameDrill.title} - ${activePreGameDrill.objective || activePreGameDrill.goal}
-          
-SETUP & GRID DIMENSIONS: ${preGameSetup}
-
-EXECUTION & RULES: ${preGameExec}
-
-ELITE COACHING CUES: ${preGameCues}
-
-PROGRESSIONS & REGRESSIONS: ${preGameProgs}`,
-          goal: activePreGameDrill.objective || activePreGameDrill.goal,
-          phase: activePreGameDrill.phase || "Warm-Up",
-          drillId: activePreGameDrill.drillId
-        };
-      }
-
-      // Station Math & Groupings
-      const totalP = Math.max(2, playerCount || 18);
-      const group1 = Math.ceil(totalP / 2);
-      const group2 = Math.floor(totalP / 2);
-
-      const s1Half = Math.round(stations1Mins / 2);
-      const s1Instructions = `STRUCTURE: CONCURRENT ROTATION STATIONS
-
-Station A:
-${formatDrillCardText(drill1, group1)}
-
-Station B:
-${formatDrillCardText(drill2, group2)}
-
-The Switch: Switch stations at the ${s1Half}-minute mark.`;
-
-      const stations1Card = {
-        title: `STATION A & STATION B (CONCURRENT)`,
-        duration: stations1Mins,
-        instructions: s1Instructions,
-        goal: `Station A (${drill1.title || drill1.name}) & Station B (${drill2.title || drill2.name}): Concurrent skill acquisition and decision-making rotations.`,
-        phase: drill1.phase || "Skill Development",
-        drillId: drill1.drillId
-      };
-
-      const s2Half = Math.round(stations2Mins / 2);
-      const s2Instructions = `STRUCTURE: CONCURRENT ROTATION STATIONS
-
-Station C:
-${formatDrillCardText(drill3, group1)}
-
-Station D:
-${formatDrillCardText(drill4, group2)}
-
-The Switch: Switch stations at the ${s2Half}-minute mark.`;
-
-      const stations2Card = {
-        title: `STATION C & STATION D (CONCURRENT)`,
-        duration: stations2Mins,
-        instructions: s2Instructions,
-        goal: `Station C (${drill3.title || drill3.name}) & Station D (${drill4.title || drill4.name}): Concurrent tactical application and team pressure rotations.`,
-        phase: drill3.phase || "Team Tactical",
-        drillId: drill3.drillId
-      };
-
-      // Segment 4: SSG for U12 and below vs Match Sim for U14 and above
-      const isYoungerAgeGroup = 
-        activeCategory === 'U8' || 
-        activeCategory === 'U10' || 
-        activeCategory === 'U12' || 
-        (typeof ageGroup === 'string' && (
-          ageGroup.toLowerCase().includes('u8') || 
-          ageGroup.toLowerCase().includes('u10') || 
-          ageGroup.toLowerCase().includes('u12') || 
-          ageGroup.toLowerCase().includes('under 8') || 
-          ageGroup.toLowerCase().includes('under 10') || 
-          ageGroup.toLowerCase().includes('under 12')
-        ));
-
-      let finalPool = suitableDrills.filter(d => 
-        isYoungerAgeGroup 
-          ? (d.drillId?.startsWith('SG-') || (d.category && d.category.toLowerCase().includes('small-sided')))
-          : (d.drillId?.startsWith('MS-') || (d.category && d.category.toLowerCase().includes('match simulation')))
-      );
-
-      if (finalPool.length === 0) {
-        finalPool = levelPermittedDrills.filter(d => 
-          isYoungerAgeGroup ? d.drillId?.startsWith('SG-') : d.drillId?.startsWith('MS-')
-        );
-      }
-
-      if (finalPool.length === 0) {
-        finalPool = suitableDrills;
-      }
-
-      const finalDrill = finalPool[Math.floor(Math.random() * finalPool.length)] || drill1;
-
-      const finalCard = {
-        title: isYoungerAgeGroup 
-          ? `SMALL-SIDED GAME (SSG): ${(finalDrill.title || finalDrill.name).toUpperCase()}` 
-          : `MATCH SIMULATION: ${(finalDrill.title || finalDrill.name).toUpperCase()}`,
-        duration: finalMins,
-        instructions: formatDrillCardText(finalDrill, playerCount),
-        goal: isYoungerAgeGroup
-          ? `Small-Sided Game: Test skill execution and spatial awareness in modified match scenarios: ${finalDrill.objective || finalDrill.goal}`
-          : `Match Simulation: Apply structural setups and OODA decision-making under match conditions: ${finalDrill.objective || finalDrill.goal}`,
-        phase: isYoungerAgeGroup ? "Small-Sided Games" : "Match Simulation",
-        drillId: finalDrill.drillId
-      };
-
-      const generatedFallbackCards = [
-        preGameCard,
-        stations1Card,
-        stations2Card,
-        finalCard
-      ];
-
-      setPlanCards(sanitizePlanCards(generatedFallbackCards, groundName, playerCount));
-      const userTierClean = (subscriptionTier || 'Free').toLowerCase();
-      if (userTierClean === 'free' || userTierClean === 'default') {
-        setAiGensUsed(prev => prev + 1);
-      }
-      logSyncTransaction('LOCAL_FALLBACK_PLAN_GEN', { focus: focusAreas.join(", "), duration, playerCount, equipment: currentEquipment });
-    } catch (fallbackErr) {
-        console.error("Local procedural plan generation failed:", fallbackErr);
-      } finally {
-        setIsGenerating(false);
-      }
+    runPlanGeneration();
+  };
+
+  const handleGenerateVariation = () => {
+    const currentDrillIds = planCards.map(c => c.drillId).filter(Boolean);
+    runPlanGeneration(undefined, Date.now(), currentDrillIds);
+  };
+
+  const handleReplaceDrillCard = async (cardIndex) => {
+    if (cardIndex < 0 || cardIndex >= planCards.length) return;
+    const currentDrillIds = planCards.map(c => c.drillId).filter(Boolean);
+    const playerCount = presentIds.length > 0 ? presentIds.length : 18;
+    const currentEquipment = getGlobalEquipment();
+
+    const engineInput = {
+      uid: currentUser?.uid || 'guest',
+      ageGroup,
+      coachLevel: parseInt(coachLevel, 10) || 3,
+      playerCount,
+      durationMinutes: duration,
+      focusAreas,
+      equipment: currentEquipment,
+      recentSessions: Array.isArray(trainingSessions) ? trainingSessions : [],
+      variationAvoidIds: currentDrillIds,
+      seed: Date.now()
     };
 
-    runLocalFallback();
+    try {
+      const newPlan = await generateLocalPlan(engineInput);
+      if (newPlan.segments && newPlan.segments[cardIndex]) {
+        const updated = [...planCards];
+        updated[cardIndex] = newPlan.segments[cardIndex];
+        setPlanCards(sanitizePlanCards(updated, squadSettings?.groundName || "home ground", playerCount));
+      }
+    } catch (err) {
+      console.error("Single drill replacement error:", err);
+    }
   };
+
+
 
   const handlePlaybookFocus = () => {
     if (!hasAccess(subscriptionTier, 'pro')) {
@@ -3530,32 +2852,59 @@ The Switch: Switch stations at the ${s2Half}-minute mark.`;
                       alignItems: 'center',
                       flexWrap: 'wrap'
                     }}>
-                      <button
-                        onClick={() => setActiveInspectDrill(resolveFullDrillRecord(card))}
-                        style={{
-                          backgroundColor: 'rgba(58, 134, 255, 0.12)',
-                          border: '1px solid rgba(58, 134, 255, 0.3)',
-                          color: '#3a86ff',
-                          borderRadius: '6px',
-                          padding: '6px 12px',
-                          fontFamily: 'var(--font-family-locker)',
-                          fontSize: '0.75rem',
-                          fontWeight: '700',
-                          letterSpacing: '0.03em',
-                          textTransform: 'uppercase',
-                          cursor: 'pointer',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          transition: 'all 0.2s'
-                        }}
-                      >
-                        <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        View Full Drill Manual
-                      </button>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        <button
+                          onClick={() => setActiveInspectDrill(resolveFullDrillRecord(card))}
+                          style={{
+                            backgroundColor: 'rgba(58, 134, 255, 0.12)',
+                            border: '1px solid rgba(58, 134, 255, 0.3)',
+                            color: '#3a86ff',
+                            borderRadius: '6px',
+                            padding: '6px 12px',
+                            fontFamily: 'var(--font-family-locker)',
+                            fontSize: '0.75rem',
+                            fontWeight: '700',
+                            letterSpacing: '0.03em',
+                            textTransform: 'uppercase',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          View Manual
+                        </button>
+                        <button
+                          onClick={() => handleReplaceDrillCard(idx)}
+                          style={{
+                            backgroundColor: 'rgba(255, 190, 11, 0.12)',
+                            border: '1px solid rgba(255, 190, 11, 0.3)',
+                            color: '#ffbe0b',
+                            borderRadius: '6px',
+                            padding: '6px 12px',
+                            fontFamily: 'var(--font-family-locker)',
+                            fontSize: '0.75rem',
+                            fontWeight: '700',
+                            letterSpacing: '0.03em',
+                            textTransform: 'uppercase',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                          Replace Drill
+                        </button>
+                      </div>
 
                       <div>
                         <input 
@@ -3641,13 +2990,13 @@ The Switch: Switch stations at the ${s2Half}-minute mark.`;
               </button>
 
               <button
-                onClick={() => runPlanGeneration()}
+                onClick={() => handleGenerateVariation()}
                 disabled={isGenerating}
                 style={{
                   flex: 1,
                   backgroundColor: 'transparent',
-                  color: '#ffffff',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: '#ffbe0b',
+                  border: '1px solid rgba(255, 190, 11, 0.3)',
                   borderRadius: '6px',
                   padding: '12px 8px',
                   fontFamily: 'var(--font-family-locker)',

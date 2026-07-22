@@ -289,4 +289,142 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
     });
   });
 
+  // 7. HYBRID TRAINING LAB DETERMINISTIC ENGINE TESTS
+  describe('Hybrid Training Lab Deterministic Engine & Safety Rules', () => {
+    // Import engine modules dynamically or via direct imports
+    const { checkDrillEligibility, normalizeCoachingDifficulty, mapAgeGroupToDrillKey } = require('../training/drillEligibility.js');
+    const { createPRNG, getRepetitionMultiplier, selectWeightedRandom } = require('../training/planRandomization.js');
+    const { calculateSlotDurations, getSessionSlots, calculateGroupAllocations } = require('../training/sessionStructure.js');
+    const { validatePlan } = require('../training/planValidation.js');
+    const { generateLocalPlan } = require('../training/planEngine.js');
+
+    it('Hard Eligibility: U8 never receives contact drills', () => {
+      const drillWithContact = {
+        drillId: 'TAC-001',
+        title: 'Full Wrap Tackling',
+        contact: '2 – Full Contact',
+        coachingDifficulty: 1,
+        players: 'Minimum: 2'
+      };
+
+      const result = checkDrillEligibility(drillWithContact, { ageGroup: 'U8', coachLevel: 3, playerCount: 16 });
+      expect(result.eligible).toBe(false);
+      expect(result.reason).toContain('U8 requires non-contact');
+    });
+
+    it('Hard Eligibility: Coach Level 1 receives Level 1 drills only', () => {
+      const advancedDrill = {
+        drillId: 'ADV-001',
+        title: 'Corridor Matrix Switch',
+        coachingDifficulty: '4 – Advanced',
+        contact: '0 – No Contact',
+        players: 'Minimum: 2'
+      };
+
+      const result = checkDrillEligibility(advancedDrill, { ageGroup: 'U14', coachLevel: 1, playerCount: 16 });
+      expect(result.eligible).toBe(false);
+      expect(result.reason).toContain('Coaching difficulty (4) exceeds max allowed level');
+    });
+
+    it('Hard Eligibility: Equipment restrictions exclude drills exceeding available inventory', () => {
+      const highEquipDrill = {
+        drillId: 'EQ-001',
+        title: 'Pole Slalom Sprints',
+        coachingDifficulty: 1,
+        contact: '0 – No Contact',
+        equipment: ['20 agility poles', '10 footballs'],
+        players: 'Minimum: 2'
+      };
+
+      const result = checkDrillEligibility(highEquipDrill, {
+        ageGroup: 'U14',
+        coachLevel: 3,
+        equipment: { footballs: 10, cones: 20, bibs: 10, agilityPoles: 2, tackleMats: 2 }
+      });
+      expect(result.eligible).toBe(false);
+      expect(result.reason).toContain('Requires 20 poles');
+    });
+
+    it('Seeded PRNG: Same seed and parameters produce 100% identical plans', async () => {
+      const input = {
+        ageGroup: 'U14',
+        coachLevel: 3,
+        playerCount: 18,
+        durationMinutes: 60,
+        focusAreas: ['Kicking'],
+        seed: 999888
+      };
+
+      const plan1 = await generateLocalPlan(input);
+      const plan2 = await generateLocalPlan(input);
+
+      expect(plan1.segments.map(s => s.drillId)).toEqual(plan2.segments.map(s => s.drillId));
+      expect(plan1.validation.isValid).toBe(true);
+      expect(plan2.validation.isValid).toBe(true);
+    });
+
+    it('Variations: Generate Another Variation uses new seed and avoids current plan drills', async () => {
+      const initialInput = {
+        ageGroup: 'U14',
+        coachLevel: 3,
+        playerCount: 18,
+        durationMinutes: 60,
+        focusAreas: ['Kicking'],
+        seed: 11111
+      };
+
+      const plan1 = await generateLocalPlan(initialInput);
+      const plan1DrillIds = plan1.segments.map(s => s.drillId);
+
+      const variationInput = {
+        ...initialInput,
+        seed: 22222,
+        variationAvoidIds: plan1DrillIds
+      };
+
+      const plan2 = await generateLocalPlan(variationInput);
+      const plan2DrillIds = plan2.segments.map(s => s.drillId);
+
+      // Verify plan 2 is valid and different
+      expect(plan2.validation.isValid).toBe(true);
+      expect(plan2DrillIds).not.toEqual(plan1DrillIds);
+    });
+
+    it('Session Durations: 30, 45, 60, 75, and 90-minute plans calculate exact total segment durations', () => {
+      [30, 45, 60, 75, 90].forEach(totalMins => {
+        const durations = calculateSlotDurations(totalMins);
+        const sum = durations.reduce((a, b) => a + b, 0);
+        expect(sum).toBe(totalMins);
+      });
+    });
+
+    it('Plan Validation: Authoritative validator rejects plans with duplicate drills or duration mismatch', () => {
+      const invalidPlan = {
+        segments: [
+          { drillId: 'KK-001', title: 'Drill 1', duration: 15 },
+          { drillId: 'KK-001', title: 'Drill 1 Duplicate', duration: 15 }, // Duplicate!
+          { drillId: 'HB-002', title: 'Drill 3', duration: 15 },
+          { drillId: 'SSG-001', title: 'Drill 4', duration: 10 } // Sum = 55 mins != 60 mins
+        ]
+      };
+
+      const res = validatePlan(invalidPlan, { durationMinutes: 60 });
+      expect(res.isValid).toBe(false);
+      expect(res.errors.some(e => e.includes('duplicate drill IDs'))).toBe(true);
+      expect(res.errors.some(e => e.includes('does not match target duration'))).toBe(true);
+    });
+
+    it('Quota Safety: Local plan generation does NOT call or consume Gemini API quota', async () => {
+      fetchRawAIPlan.mockClear();
+      confirmAIGenerationQuota.mockClear();
+
+      const plan = await generateLocalPlan({ ageGroup: 'U12', coachLevel: 2, seed: 444 });
+
+      expect(plan.source).toBe('local');
+      expect(fetchRawAIPlan).not.toHaveBeenCalled();
+      expect(confirmAIGenerationQuota).not.toHaveBeenCalled();
+    });
+  });
+
 });
+

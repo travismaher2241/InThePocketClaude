@@ -547,7 +547,7 @@ let drillsLoadedPromise = null;
 
 export function loadDrillsDatabase() {
   if (!drillsLoadedPromise) {
-    drillsLoadedPromise = import('../../data/generated/afl-drills.json').then(mod => {
+    drillsLoadedPromise = import('../../data/generated/afl-drills.json', { with: { type: 'json' } }).then(mod => {
       const masterDb = mod.default || mod;
 
       if (AFL_PRE_GAME_WARMUPS.length === 0) {
