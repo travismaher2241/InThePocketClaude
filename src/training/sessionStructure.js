@@ -61,33 +61,48 @@ export function buildSegmentFromDrill(drill, slot, context) {
   const groups = calculateGroupAllocations(playerCount);
 
   const drillId = drill.drillId || `DRILL-${slot.slotIndex + 1}`;
-  const title = drill.title || drill.name || `Segment ${slot.slotIndex + 1}`;
+  const rawTitle = drill.title || drill.name || `Segment ${slot.slotIndex + 1}`;
   const phase = drill.category || slot.phase || 'Skill Development';
   const minutes = slot.minutes || 15;
 
+  const objective = drill.objective || 'Develop core skill execution under match-appropriate conditions.';
   const setup = drill.setup || 'Set up marked grid area with cones and footballs.';
   const execution = drill.howTheDrillWorks || drill.execution || drill.objective || 'Execute drill as directed by coach.';
   const cues = Array.isArray(drill.coachingCues) 
     ? drill.coachingCues 
     : (drill.cues ? String(drill.cues).split(',').map(s => s.trim()) : ['Eyes up before disposal', 'Clean hands', 'Accelerate away']);
 
-  const progressions = Array.isArray(drill.progressions) ? drill.progressions : ['Increase speed of execution', 'Add pressure defender'];
-  const regressions = Array.isArray(drill.regressions) ? drill.regressions : ['Increase grid space', 'Reduce movement speed'];
+  const cuesText = cues.map(c => `• ${c}`).join('\n');
+  const progressionsText = Array.isArray(drill.progressions) ? drill.progressions.join(' | ') : 'Increase speed of execution | Add pressure defender';
+
+  const instructions = `DRILL NAME & OBJECTIVE: [${drillId}] ${rawTitle} - ${objective}
+
+SETUP & GRID DIMENSIONS: ${setup}
+
+EXECUTION & RULES: ${execution}
+
+ELITE COACHING CUES:
+${cuesText}
+
+PROGRESSIONS & REGRESSIONS: ${progressionsText}`;
+
+  const slotTitle = slot.slotName ? `${slot.slotName.toUpperCase()}: ${rawTitle.toUpperCase()}` : rawTitle.toUpperCase();
 
   return {
     segmentId: `seg_${slot.slotIndex + 1}_${drillId}`,
     drillId,
-    title,
+    title: slotTitle,
     phase,
     minutes,
     duration: minutes,
-    objective: drill.objective || 'Develop core skill execution under match-appropriate conditions.',
+    objective,
+    goal: objective,
     setup,
-    instructions: `${execution}\n\nELITE COACHING CUES:\n${cues.map(c => `• ${c}`).join('\n')}`,
+    instructions,
     howTheDrillWorks: execution,
     coachingCues: cues,
-    progressions,
-    regressions,
+    progressions: Array.isArray(drill.progressions) ? drill.progressions : [progressionsText],
+    regressions: Array.isArray(drill.regressions) ? drill.regressions : [],
     groupAllocation: groups.description,
     equipment: Array.isArray(drill.equipment) ? drill.equipment : ['Footballs', 'Cones'],
     source: 'authoritative_database'
