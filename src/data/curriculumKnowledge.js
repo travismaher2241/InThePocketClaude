@@ -545,10 +545,68 @@ export const SYLLABUS_DRILLS = [];
 
 let drillsLoadedPromise = null;
 
-export function loadDrillsDatabase() {
-  if (!drillsLoadedPromise) {
-    drillsLoadedPromise = import('../../data/generated/afl-drills.json', { with: { type: 'json' } }).then(mod => {
-      const masterDb = mod.default || mod;
+export async function loadDrillsDatabase(url = '/data/generated/afl-drills.json', forceReload = false) {
+  if (forceReload) {
+    drillsLoadedPromise = null;
+  }
+  if (drillsLoadedPromise) {
+    return drillsLoadedPromise;
+  }
+
+  drillsLoadedPromise = (async () => {
+    try {
+      let masterDb = null;
+
+      if (typeof fetch === 'function') {
+        try {
+          const origin = (typeof window !== 'undefined' && window.location && window.location.origin && window.location.origin !== 'null') 
+            ? window.location.origin 
+            : 'http://localhost';
+          const fetchUrl = url.startsWith('/') ? `${origin}${url}` : url;
+
+          const res = await fetch(fetchUrl);
+          if (!res.ok) {
+            throw new Error(`HTTP error ${res.status}: Failed to fetch ${url}`);
+          }
+          const rawData = await res.json();
+
+          if (Array.isArray(rawData)) {
+            masterDb = rawData;
+          } else if (rawData && Array.isArray(rawData.drills)) {
+            masterDb = rawData.drills;
+          } else if (rawData && Array.isArray(rawData.default)) {
+            masterDb = rawData.default;
+          }
+        } catch (fetchErr) {
+          if (fetchErr.message && (fetchErr.message.startsWith('HTTP error') || fetchErr.message.includes('Unexpected token') || fetchErr.message.includes('JSON'))) {
+            throw fetchErr;
+          }
+          if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+            try {
+              const fs = await import('fs');
+              const path = await import('path');
+              const localPath = path.resolve(process.cwd(), 'public/data/generated/afl-drills.json');
+              if (fs.existsSync(localPath)) {
+                const raw = JSON.parse(fs.readFileSync(localPath, 'utf8'));
+                masterDb = Array.isArray(raw) ? raw : (raw.drills || raw.default);
+              }
+            } catch (fsErr) {
+            }
+          }
+          if (!masterDb) throw fetchErr;
+        }
+      } else if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+        const req = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require;
+        const fs = req('fs');
+        const path = req('path');
+        const localPath = path.resolve(process.cwd(), 'public/data/generated/afl-drills.json');
+        const raw = JSON.parse(fs.readFileSync(localPath, 'utf8'));
+        masterDb = Array.isArray(raw) ? raw : (raw.drills || raw.default);
+      }
+
+      if (!Array.isArray(masterDb) || masterDb.length === 0) {
+        throw new Error('Loaded drill database is not a valid non-empty array.');
+      }
 
       if (AFL_PRE_GAME_WARMUPS.length === 0) {
         const warmups = masterDb
@@ -601,14 +659,19 @@ export function loadDrillsDatabase() {
           commonErrors: d.commonErrors || [],
           regressions: d.regressions || [],
           successIndicators: d.successIndicators || [],
-          matchApplication: d.matchApplication || ''
+          matchApplication: d.matchApplication || '',
+          diagramUrl: d.diagramUrl || ''
         }));
         SYLLABUS_DRILLS.push(...syllabus);
       }
 
-      return { AFL_PRE_GAME_WARMUPS, SYLLABUS_DRILLS };
-    });
-  }
+      return { masterDb, AFL_PRE_GAME_WARMUPS, SYLLABUS_DRILLS };
+    } catch (err) {
+      drillsLoadedPromise = null;
+      throw err;
+    }
+  })();
+
   return drillsLoadedPromise;
 }
 

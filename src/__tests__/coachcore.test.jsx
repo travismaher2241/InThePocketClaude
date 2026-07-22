@@ -540,6 +540,102 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
     });
   });
 
+  // 9. SHARED DRILL DATABASE ASYNC FETCH & ERROR RECOVERY TESTS
+  describe('Priority — Shared Drill Database Async Fetch & Error Recovery', () => {
+    const { loadDrillsDatabase } = require('../data/curriculumKnowledge.js');
+
+    it('Database Fetch: Successful fetch parses JSON array correctly', async () => {
+      const origFetch = global.fetch;
+      global.fetch = vi.fn(async () => ({
+        ok: true,
+        json: async () => [{ drillId: 'WU-100', title: 'Test Dynamic Fetch', category: 'Warm-Up', coachingDifficulty: 1 }]
+      }));
+
+      const res = await loadDrillsDatabase('/test-fetch-ok.json', true);
+      expect(res.masterDb).toBeDefined();
+      expect(Array.isArray(res.masterDb)).toBe(true);
+
+      global.fetch = origFetch;
+    });
+
+    it('Database Fetch: Non-200 HTTP response throws clear error', async () => {
+      const origFetch = global.fetch;
+      global.fetch = vi.fn(async () => ({
+        ok: false,
+        status: 404
+      }));
+
+      await expect(loadDrillsDatabase('/test-404.json', true)).rejects.toThrow(/HTTP error 404/i);
+
+      global.fetch = origFetch;
+    });
+
+    it('Database Fetch: Malformed JSON response throws syntax error', async () => {
+      const origFetch = global.fetch;
+      global.fetch = vi.fn(async () => ({
+        ok: true,
+        json: async () => { throw new SyntaxError("Unexpected token in JSON"); }
+      }));
+
+      await expect(loadDrillsDatabase('/test-malformed.json', true)).rejects.toThrow(/Unexpected token/i);
+
+      global.fetch = origFetch;
+    });
+
+    it('Database Fetch: Invalid database structure (non-array) throws error', async () => {
+      const origFetch = global.fetch;
+      global.fetch = vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ invalidKey: "Not an array" })
+      }));
+
+      await expect(loadDrillsDatabase('/test-invalid-struct.json', true)).rejects.toThrow(/not a valid non-empty array/i);
+
+      global.fetch = origFetch;
+    });
+
+    it('UI Error & Loading Cleanup: Loading state clears in finally upon fetch/engine failure', async () => {
+      const origFetch = global.fetch;
+      global.fetch = vi.fn(async () => ({
+        ok: false,
+        status: 500
+      }));
+
+      const helperStartGeneration = async () => {
+        const planBtn = screen.getByText(/Plan New Session with AI/i);
+        fireEvent.click(planBtn);
+
+        const selectAllBtn = screen.getByText(/Select All/i);
+        fireEvent.click(selectAllBtn);
+
+        const confirmBtns = screen.getAllByText(/Confirm Attendance/i);
+        fireEvent.click(confirmBtns[0]);
+
+        const generateBtn = screen.getByText(/Generate Training Plan/i);
+        await act(async () => {
+          fireEvent.click(generateBtn);
+        });
+      };
+
+      render(
+        <TrainingLab
+          squad={[{ id: 'p1', name: 'Dustin Martin' }]}
+          subscriptionTier="pro"
+          logSyncTransaction={vi.fn()}
+        />
+      );
+
+      await helperStartGeneration();
+
+      // Verify loading state finishes cleanly in finally block
+      await waitFor(() => {
+        expect(screen.queryByText(/SYNTHESIZING/i)).not.toBeInTheDocument();
+      }, { timeout: 4000 });
+
+      global.fetch = origFetch;
+    });
+  });
+
 });
 
 
