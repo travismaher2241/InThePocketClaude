@@ -384,7 +384,7 @@ export default function SettingsModal({
                       <option value="Free">Free (Roster Import & 2 Free AI Generations)</option>
                       <option value="Pro">Pro (Full AI Training, Late-Arrivals, Custom File RAG)</option>
                       <option value="Ultra">Ultra (Tactics Board, Playbook Export, FootyFlow Clock, Poster Downloads)</option>
-                      <option value="ULTRA- CLUB">ULTRA- CLUB (Junior Club Master Package - Covers U8-U18)</option>
+                      <option value="ULTRA CLUB">ULTRA CLUB (Whole-of-Club License - Covers U8-U18)</option>
                     </select>
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
                       Simulates upgrading via RevenueCat in Google Play Store. Different tiers unlock tabs and operations.

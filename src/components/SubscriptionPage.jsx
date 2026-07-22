@@ -87,7 +87,7 @@ export default function SubscriptionPage({
           transition: 'transform 0.2s ease-in-out'
         }}>
           <div>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.1em' }}>Retention & Onboarding</span>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.1em' }}>THE STARTER KIT</span>
             <h3 className="scoreboard-font" style={{ fontSize: '1.6rem', color: '#ffffff', margin: '4px 0 12px 0' }}>FREE</h3>
             <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: '16px' }}>
               <span style={{ fontSize: '2rem', fontWeight: '800', color: '#ffffff' }}>$0</span>
@@ -115,19 +115,19 @@ export default function SubscriptionPage({
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(230, 57, 70, 0.08)', border: '1px solid rgba(230, 57, 70, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#ff8fa3' }}>
                   <span>❌ AI Training Suite</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(230, 57, 70, 0.3)', color: '#ffffff' }}>Pro+</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(230, 57, 70, 0.3)', color: '#ffffff' }}>PRO</span>
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(230, 57, 70, 0.08)', border: '1px solid rgba(230, 57, 70, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#ff8fa3' }}>
                   <span>❌ Playbook RAG Upload</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(230, 57, 70, 0.3)', color: '#ffffff' }}>Pro+</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(230, 57, 70, 0.3)', color: '#ffffff' }}>PRO</span>
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(230, 57, 70, 0.08)', border: '1px solid rgba(230, 57, 70, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#ff8fa3' }}>
                   <span>❌ Tactics Board Canvas</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(42, 157, 143, 0.3)', color: '#ffffff' }}>Ultra+</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(42, 157, 143, 0.3)', color: '#ffffff' }}>ULTRA</span>
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(230, 57, 70, 0.08)', border: '1px solid rgba(230, 57, 70, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#ff8fa3' }}>
                   <span>❌ Live FootyFlow Clock</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(42, 157, 143, 0.3)', color: '#ffffff' }}>Ultra+</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(42, 157, 143, 0.3)', color: '#ffffff' }}>ULTRA</span>
                 </li>
               </ul>
             </div>
@@ -189,7 +189,7 @@ export default function SubscriptionPage({
             </div>
           )}
           <div>
-            <span style={{ fontSize: '0.7rem', color: '#e63946', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.1em' }}>The Efficiency Driver</span>
+            <span style={{ fontSize: '0.7rem', color: '#e63946', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.1em' }}>THE COACHING ENGINE</span>
             <h3 className="scoreboard-font" style={{ fontSize: '1.6rem', color: '#ffffff', margin: '4px 0 12px 0' }}>PRO</h3>
             <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: '16px' }}>
               <span style={{ fontSize: '2rem', fontWeight: '800', color: '#ffffff' }}>$9.99</span>
@@ -218,15 +218,15 @@ export default function SubscriptionPage({
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(230, 57, 70, 0.08)', border: '1px solid rgba(230, 57, 70, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#ff8fa3' }}>
                   <span>❌ Tactics Board Canvas</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(42, 157, 143, 0.3)', color: '#ffffff' }}>Ultra+</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(42, 157, 143, 0.3)', color: '#ffffff' }}>ULTRA</span>
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(230, 57, 70, 0.08)', border: '1px solid rgba(230, 57, 70, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#ff8fa3' }}>
                   <span>❌ Live FootyFlow Clock</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(42, 157, 143, 0.3)', color: '#ffffff' }}>Ultra+</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(42, 157, 143, 0.3)', color: '#ffffff' }}>ULTRA</span>
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(230, 57, 70, 0.08)', border: '1px solid rgba(230, 57, 70, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#ff8fa3' }}>
                   <span>❌ Playbook Multi-Export</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(42, 157, 143, 0.3)', color: '#ffffff' }}>Ultra+</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(42, 157, 143, 0.3)', color: '#ffffff' }}>ULTRA</span>
                 </li>
               </ul>
             </div>
@@ -259,7 +259,7 @@ export default function SubscriptionPage({
           boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
         }}>
           <div>
-            <span style={{ fontSize: '0.7rem', color: 'var(--color-training)', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.1em' }}>The High-Performance Studio</span>
+            <span style={{ fontSize: '0.7rem', color: 'var(--color-training)', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.1em' }}>MATCH DAY & TACTICS</span>
             <h3 className="scoreboard-font" style={{ fontSize: '1.6rem', color: '#ffffff', margin: '4px 0 12px 0' }}>ULTRA</h3>
             <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: '16px' }}>
               <span style={{ fontSize: '2rem', fontWeight: '800', color: '#ffffff' }}>$19.99</span>
@@ -288,11 +288,11 @@ export default function SubscriptionPage({
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(255, 183, 3, 0.08)', border: '1px solid rgba(255, 183, 3, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#ffc300' }}>
                   <span>❌ Committee Multi-Coach Pass</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(255, 183, 3, 0.3)', color: '#0e0e12' }}>ULTRA- CLUB</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(255, 183, 3, 0.3)', color: '#0e0e12' }}>CLUB</span>
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(255, 183, 3, 0.08)', border: '1px solid rgba(255, 183, 3, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#ffc300' }}>
                   <span>❌ Centralized Club Roster Sync</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(255, 183, 3, 0.3)', color: '#0e0e12' }}>ULTRA- CLUB</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(255, 183, 3, 0.3)', color: '#0e0e12' }}>CLUB</span>
                 </li>
               </ul>
             </div>
@@ -307,7 +307,7 @@ export default function SubscriptionPage({
           </button>
         </div>
 
-        {/* B2B TIER CARD */}
+        {/* ULTRA CLUB TIER CARD */}
         <div style={isB2BHighlighted ? {
           backgroundColor: '#1c1812',
           border: '2px solid #ffb703',
@@ -353,8 +353,8 @@ export default function SubscriptionPage({
             </div>
           )}
           <div>
-            <span style={{ fontSize: '0.7rem', color: '#ffb703', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.1em' }}>Junior Club Master Package</span>
-            <h3 className="scoreboard-font" style={{ fontSize: '1.6rem', color: '#ffffff', margin: '4px 0 12px 0' }}>ULTRA- CLUB</h3>
+            <span style={{ fontSize: '0.7rem', color: '#ffb703', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.1em' }}>WHOLE-OF-CLUB LICENSE</span>
+            <h3 className="scoreboard-font" style={{ fontSize: '1.6rem', color: '#ffffff', margin: '4px 0 12px 0' }}>ULTRA CLUB</h3>
             <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: '16px' }}>
               <span style={{ fontSize: '2rem', fontWeight: '800', color: '#ffffff' }}>$49.99</span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginLeft: '4px' }}>/ month</span>
@@ -386,7 +386,7 @@ export default function SubscriptionPage({
           </div>
 
           <button 
-            onClick={() => handleOpenCheckout('ULTRA- CLUB')}
+            onClick={() => handleOpenCheckout('ULTRA CLUB')}
             className={isB2BHighlighted ? "btn btn-match" : "btn"}
             style={{ 
               width: '100%', 
@@ -397,7 +397,7 @@ export default function SubscriptionPage({
               ...(isB2BHighlighted ? { backgroundColor: '#ffb703', color: '#0e0e12', borderColor: '#ffb703' } : {})
             }}
           >
-            {currentTierClean === 'b2b' || currentTierClean === 'ultra- club' || currentTierClean === 'ultra-club' ? 'Active Plan' : 'Purchase Club Package'}
+            {currentTierClean === 'b2b' || currentTierClean === 'ultra club' || currentTierClean === 'ultra- club' || currentTierClean === 'ultra-club' ? 'Active Plan' : 'Purchase Ultra Club'}
           </button>
         </div>
 

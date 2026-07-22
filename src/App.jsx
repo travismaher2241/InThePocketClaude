@@ -156,8 +156,8 @@ export default function App() {
             const tierLower = mergedProfile.subscriptionTier.toLowerCase();
             let matchedTier = 'Free';
             if (tierLower === 'pro') matchedTier = 'Pro';
-            else if (tierLower === 'ultra' || tierLower === 'team') matchedTier = 'Ultra';
-            else if (tierLower === 'b2b' || tierLower === 'club' || tierLower.includes('ultra-')) matchedTier = 'ULTRA- CLUB';
+            else if (tierLower === 'ultra') matchedTier = 'Ultra';
+            else if (tierLower === 'b2b' || tierLower.includes('club')) matchedTier = 'ULTRA CLUB';
             setSubscriptionTier(matchedTier);
           }
         } catch (err) {
@@ -646,13 +646,13 @@ export default function App() {
                 <button 
                   className="btn" 
                   onClick={() => {
-                    handleUpdateSubscriptionTier('ULTRA- CLUB');
+                    handleUpdateSubscriptionTier('ULTRA CLUB');
                     setPaywallFeature(null);
-                    showToast("Simulated Upgrade: Welcome to ULTRA- CLUB! You now have access to all of the amazing pro features in In The Pocket!");
+                    showToast("Simulated Upgrade: Welcome to ULTRA CLUB! You now have access to all of the amazing pro features in In The Pocket!");
                   }}
                   style={{ width: '100%', padding: '12px', borderColor: 'rgba(255, 183, 3, 0.4)', color: '#ffb703' }}
                 >
-                  Activate ULTRA- CLUB Tier (Junior Club Package)
+                  Activate ULTRA CLUB Tier (Whole-of-Club License)
                 </button>
               </div>
 
