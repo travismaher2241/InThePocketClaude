@@ -1078,20 +1078,6 @@ const renderDrillTextFramework = (card) => {
           {renderFormattedList(setupText)}
         </div>
       )}
-
-      {card.knowledgeRef && (
-        <div style={{ backgroundColor: 'rgba(56, 176, 0, 0.08)', padding: '8px 12px', borderRadius: '6px', borderLeft: '3px solid #38b000', fontSize: '0.8rem', marginTop: '2px' }}>
-          <strong style={{ color: '#38b000', textTransform: 'uppercase', fontSize: '0.72rem', display: 'block', marginBottom: '2px', letterSpacing: '0.04em' }}>
-            Coaching Reference — {card.knowledgeRef.sourceLocator || 'Official Guide'}
-          </strong>
-          <span style={{ color: '#e0e7ff', display: 'block', marginBottom: '3px', fontWeight: '600', fontSize: '0.78rem' }}>
-            Source: {card.knowledgeRef.source}
-          </span>
-          <span style={{ color: '#9ca3af', fontStyle: 'italic', fontSize: '0.78rem', lineHeight: '1.3', display: 'block' }}>
-            "{card.knowledgeRef.excerpt}"
-          </span>
-        </div>
-      )}
     </div>
   );
 };

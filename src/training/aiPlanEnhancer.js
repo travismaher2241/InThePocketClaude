@@ -59,6 +59,7 @@ ${JSON.stringify(drillSummaries, null, 2)}
 
 Instructions:
 Return a JSON array containing refined coaching cues and tactical notes for each of the 6 segments in exact order.
+Do NOT include source document names, page numbers, or reference labels in the output text.
 Do NOT change drillId, duration, or core safety rules.`;
 
   try {

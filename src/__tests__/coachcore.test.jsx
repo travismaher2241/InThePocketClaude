@@ -1019,6 +1019,27 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
       expect(rules.ageGroups.U12).toBeDefined();
       expect(rules.ageGroups.U8.maxContactLevel).toBe(0);
     });
+
+    it('20. UI Regression: Training Lab UI does not render Coaching Reference, source filename, page number or passage excerpt', async () => {
+      const plan = await generateLocalPlan({ ageGroup: 'U8', coachLevel: 1, durationMinutes: 60, seed: 12345 });
+      expect(plan.knowledgeContext).toBeDefined();
+      expect(plan.segments[0].knowledgeRef).toBeDefined();
+
+      await act(async () => {
+        render(
+          <TrainingLab
+            squad={[{ id: 'p1', name: 'Dustin Martin' }]}
+            subscriptionTier="pro"
+            logSyncTransaction={vi.fn()}
+          />
+        );
+      });
+
+      // Verify that visible labels "COACHING REFERENCE", "Coaching Reference", "Why this fits" and source filenames are NOT present in rendered UI text
+      expect(screen.queryByText(/COACHING REFERENCE/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Why this fits/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Guidebook\.pdf/i)).not.toBeInTheDocument();
+    });
   });
 
 });
