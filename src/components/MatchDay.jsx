@@ -1026,7 +1026,7 @@ export default function MatchDay({
         </div>
       </div>
 
-      {/* MATCH DAY SQUAD CONFIGURATION SELECTOR */}
+      {/* MATCH DAY TEAM AVAILABILITY SELECTOR */}
       <div style={{
         backgroundColor: 'var(--bg-surface)',
         border: '1px solid var(--border-light)',
@@ -1039,7 +1039,7 @@ export default function MatchDay({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }} onClick={() => setShowSelector(!showSelector)}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Match Day Squad Configuration
+              Match Day Team Availability
             </span>
             <span style={{
               backgroundColor: 'rgba(58, 134, 255, 0.15)',
@@ -1216,192 +1216,6 @@ export default function MatchDay({
       {/* TAB 1: LINEUP & BENCH */}
       {matchDayTab === 'lineup' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* MATCH DAY SQUAD CONFIGURATION SELECTOR */}
-          <div style={{
-            backgroundColor: 'var(--bg-surface)',
-            border: '1px solid var(--border-light)',
-            borderRadius: '12px',
-            padding: '16px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }} onClick={() => setShowSelector(!showSelector)}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Match Day Squad Configuration
-                </span>
-                <span style={{
-                  backgroundColor: 'rgba(58, 134, 255, 0.15)',
-                  color: 'var(--color-squad)',
-                  fontSize: '0.75rem',
-                  fontWeight: '700',
-                  padding: '2px 8px',
-                  borderRadius: '20px',
-                  fontFamily: 'var(--font-family-locker)'
-                }}>
-                  {activeMatchDayIds.length} / {squad.length} Active
-                </span>
-              </div>
-              <button style={{
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--text-secondary)',
-                cursor: 'pointer',
-                fontSize: '0.8rem',
-                fontWeight: '600',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                {showSelector ? 'Collapse' : 'Manage Squad'}
-                <svg 
-                  width="12" 
-                  height="12" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2.5" 
-                  viewBox="0 0 24 24"
-                  style={{ transform: showSelector ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            </div>
-
-            {showSelector && (
-              <div style={{ 
-                borderTop: '1px solid rgba(255, 255, 255, 0.05)', 
-                paddingTop: '16px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    Select who is active for today's match. Unselected players will be excluded from the field and bench.
-                  </div>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button 
-                      onClick={handleSelectAllMatchDay}
-                      style={{
-                        backgroundColor: 'transparent',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        color: '#ffffff',
-                        fontSize: '0.75rem',
-                        fontWeight: '600',
-                        padding: '4px 10px',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.2s'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                    >
-                      Select All
-                    </button>
-                    <button 
-                      onClick={handleClearAllMatchDay}
-                      style={{
-                        backgroundColor: 'transparent',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        color: '#ffffff',
-                        fontSize: '0.75rem',
-                        fontWeight: '600',
-                        padding: '4px 10px',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.2s'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                    >
-                      Clear All
-                    </button>
-                  </div>
-                </div>
-                
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
-                  gap: '8px',
-                  maxHeight: '180px',
-                  overflowY: 'auto',
-                  paddingRight: '4px'
-                }}>
-                  {squad.map(player => {
-                    const isActive = activeMatchDayIds.includes(player.id);
-                    const isOnField = onFieldPlayerIds.includes(player.id);
-                    return (
-                      <div 
-                        key={player.id}
-                        onClick={() => togglePlayerActive(player.id)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '8px 12px',
-                          borderRadius: '8px',
-                          backgroundColor: isActive ? 'rgba(58, 134, 255, 0.08)' : 'rgba(255, 255, 255, 0.02)',
-                          border: isActive ? '1px solid rgba(58, 134, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0.05)',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          userSelect: 'none'
-                        }}
-                      >
-                        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                          <span style={{ fontSize: '0.85rem', fontWeight: '700', color: isActive ? '#ffffff' : 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {player.name}
-                          </span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span className="scoreboard-font" style={{ fontSize: '0.7rem', color: isActive ? 'var(--color-match)' : 'var(--text-muted)' }}>
-                              #{player.jersey}
-                            </span>
-                            {isActive && (
-                              <span style={{ 
-                                fontSize: '0.65rem', 
-                                color: isOnField ? '#2a9d8f' : 'var(--color-match)',
-                                fontWeight: '600',
-                                textTransform: 'uppercase'
-                              }}>
-                                {isOnField ? 'Field' : 'Bench'}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div style={{
-                          width: '18px',
-                          height: '18px',
-                          borderRadius: '50%',
-                          border: '1.5px solid',
-                          borderColor: isActive ? 'var(--color-squad)' : 'rgba(255,255,255,0.15)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          backgroundColor: isActive ? 'var(--color-squad)' : 'transparent',
-                          color: '#ffffff',
-                          fontSize: '0.7rem',
-                          fontWeight: 'bold',
-                          transition: 'all 0.2s'
-                        }}>
-                          {isActive ? '✓' : ''}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {squad.length === 0 && (
-                  <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', padding: '16px 0', fontStyle: 'italic' }}>
-                    No players in squad. Go to Team Hub to add players.
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
 
           {/* FORMAL AFL POSITIONAL GRID */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
