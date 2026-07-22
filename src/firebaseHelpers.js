@@ -24,15 +24,23 @@ const db = getFirestore(app);
  */
 export async function getPlayers(uid) {
   if (!uid) return [];
-  const playersRef = collection(db, "players");
-  const q = query(playersRef, where("ownerId", "==", uid));
-  const querySnapshot = await getDocs(q);
-  
-  const players = [];
-  querySnapshot.forEach((doc) => {
-    players.push({ id: doc.id, ...doc.data() });
-  });
-  return players;
+  try {
+    const playersRef = collection(db, "players");
+    const q = query(playersRef, where("ownerId", "==", uid));
+    const querySnapshot = await getDocs(q);
+    
+    const players = [];
+    querySnapshot.forEach((doc) => {
+      players.push({ id: doc.id, ...doc.data() });
+    });
+    return players;
+  } catch (err) {
+    if (err?.code === 'permission-denied' || err?.message?.includes('permissions') || err?.message?.includes('Missing or insufficient')) {
+      console.warn("Firestore permission restricted for getPlayers; falling back to local isolated storage.");
+      return [];
+    }
+    throw err;
+  }
 }
 
 /**
@@ -96,7 +104,6 @@ export async function bulkDeletePlayersFromFirestore(playerIds, uid) {
   
   for (const id of playerIds) {
     const playerRef = doc(db, "players", id);
-    // Add the delete to the batch
     batch.delete(playerRef);
   }
   
@@ -105,7 +112,7 @@ export async function bulkDeletePlayersFromFirestore(playerIds, uid) {
     console.log("Batch successfully deleted.");
   } catch (error) {
     console.error("Batch failed - check your Security Rules:", error);
-    throw error; // This will show you exactly which rule is blocking it
+    throw error;
   }
 }
 
@@ -116,14 +123,12 @@ export async function bulkDeletePlayersFromFirestore(playerIds, uid) {
 export async function archivePlayersInFirestore(players) {
   const batch = writeBatch(db);
   players.forEach((player) => {
-    // Write copy of the player profile to 'archived_players'
     const archiveRef = doc(db, "archived_players", player.id);
     batch.set(archiveRef, {
       ...player,
       archivedAt: new Date().toISOString()
     });
 
-    // Delete player from main 'players' collection
     const playerRef = doc(db, "players", player.id);
     batch.delete(playerRef);
   });
@@ -137,10 +142,16 @@ export async function archivePlayersInFirestore(players) {
  */
 export async function getSquadSettings(uid) {
   if (!uid) return { squadName: "My Squad", ageGroup: "U14" };
-  const docRef = doc(db, "squad_settings", uid);
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-    return docSnap.data();
+  try {
+    const docRef = doc(db, "squad_settings", uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data();
+    }
+  } catch (err) {
+    if (err?.code === 'permission-denied' || err?.message?.includes('permissions') || err?.message?.includes('Missing or insufficient')) {
+      console.warn("Firestore permission restricted for getSquadSettings; falling back to local isolated storage.");
+    }
   }
   return { squadName: "My Squad", ageGroup: "U14" };
 }
@@ -152,12 +163,20 @@ export async function getSquadSettings(uid) {
  */
 export async function updateSquadSettings(settings, uid) {
   if (!uid) throw new Error("Authenticated user uid is required to save squad settings.");
-  const docRef = doc(db, "squad_settings", uid);
-  await setDoc(docRef, {
-    ...settings,
-    ownerId: uid,
-    updatedAt: new Date().toISOString()
-  }, { merge: true });
+  try {
+    const docRef = doc(db, "squad_settings", uid);
+    await setDoc(docRef, {
+      ...settings,
+      ownerId: uid,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+  } catch (err) {
+    if (err?.code === 'permission-denied' || err?.message?.includes('permissions') || err?.message?.includes('Missing or insufficient')) {
+      console.warn("Firestore write restricted for updateSquadSettings; falling back to local state.");
+      return;
+    }
+    throw err;
+  }
 }
 
 /**
@@ -184,18 +203,25 @@ export async function saveTrainingSession(sessionData, uid) {
  */
 export async function getTrainingSessions(uid) {
   if (!uid) return [];
-  const sessionsRef = collection(db, "training_sessions");
-  const q = query(sessionsRef, where("ownerId", "==", uid));
-  const querySnapshot = await getDocs(q);
-  
-  const sessions = [];
-  querySnapshot.forEach((doc) => {
-    sessions.push({ id: doc.id, ...doc.data() });
-  });
-  
-  // Sort locally by createdAt desc to avoid composite index configuration requirement
-  sessions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  return sessions;
+  try {
+    const sessionsRef = collection(db, "training_sessions");
+    const q = query(sessionsRef, where("ownerId", "==", uid));
+    const querySnapshot = await getDocs(q);
+    
+    const sessions = [];
+    querySnapshot.forEach((doc) => {
+      sessions.push({ id: doc.id, ...doc.data() });
+    });
+    
+    sessions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return sessions;
+  } catch (err) {
+    if (err?.code === 'permission-denied' || err?.message?.includes('permissions') || err?.message?.includes('Missing or insufficient')) {
+      console.warn("Firestore permission restricted for getTrainingSessions; falling back to local isolated storage.");
+      return [];
+    }
+    throw err;
+  }
 }
 
 /**
@@ -247,26 +273,44 @@ export function hasAccess(userTier, requiredTier) {
 
 /**
  * Fetches the user profile document from Firestore.
- * If it doesn't exist, initializes it with Free tier.
+ * If it doesn't exist, initializes it with Free profile.
  * @param {string} uid 
  * @returns {Promise<object>}
  */
 export async function getUserProfile(uid) {
   if (!uid) return null;
-  const userRef = doc(db, "users", uid);
-  const docSnap = await getDoc(userRef);
-  if (docSnap.exists()) {
-    return docSnap.data();
+  try {
+    const userRef = doc(db, "users", uid);
+    const docSnap = await getDoc(userRef);
+    if (docSnap.exists()) {
+      return docSnap.data();
+    }
+    const defaultProfile = {
+      subscriptionTier: "free",
+      isActive: true,
+      aiGensCount: 0,
+      createdAt: new Date().toISOString()
+    };
+    try {
+      await setDoc(userRef, defaultProfile);
+    } catch (setErr) {
+      if (setErr?.code === 'permission-denied' || setErr?.message?.includes('permissions') || setErr?.message?.includes('Missing or insufficient')) {
+        console.warn("Firestore setDoc restricted for getUserProfile; using local profile.");
+      }
+    }
+    return defaultProfile;
+  } catch (err) {
+    if (err?.code === 'permission-denied' || err?.message?.includes('permissions') || err?.message?.includes('Missing or insufficient')) {
+      console.warn("Firestore permission restricted for getUserProfile; using local profile.");
+      return {
+        subscriptionTier: "free",
+        isActive: true,
+        aiGensCount: 0,
+        createdAt: new Date().toISOString()
+      };
+    }
+    throw err;
   }
-  // Initialize default Free profile
-  const defaultProfile = {
-    subscriptionTier: "free",
-    isActive: true,
-    aiGensCount: 0,
-    createdAt: new Date().toISOString()
-  };
-  await setDoc(userRef, defaultProfile);
-  return defaultProfile;
 }
 
 /**
@@ -276,8 +320,16 @@ export async function getUserProfile(uid) {
  */
 export async function updateUserProfile(uid, fields) {
   if (!uid) throw new Error("UID required to update profile");
-  const userRef = doc(db, "users", uid);
-  await setDoc(userRef, fields, { merge: true });
+  try {
+    const userRef = doc(db, "users", uid);
+    await setDoc(userRef, fields, { merge: true });
+  } catch (err) {
+    if (err?.code === 'permission-denied' || err?.message?.includes('permissions') || err?.message?.includes('Missing or insufficient')) {
+      console.warn("Firestore write restricted for updateUserProfile; falling back to local state.");
+      return;
+    }
+    throw err;
+  }
 }
 
 /**

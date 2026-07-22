@@ -3,11 +3,13 @@ import SquadHub from './components/SquadHub';
 import SettingsModal from './components/SettingsModal';
 import SetupWizard from './components/SetupWizard';
 
-const TrainingLab = lazy(() => import('./components/TrainingLab'));
-const TacticsBoard = lazy(() => import('./components/TacticsBoard'));
-const MatchDay = lazy(() => import('./components/MatchDay'));
-const VideoAnalyser = lazy(() => import('./components/VideoAnalyser'));
-const SubscriptionPage = lazy(() => import('./components/SubscriptionPage'));
+import { lazyWithRetry } from './utils/lazyWithRetry';
+
+const TrainingLab = lazyWithRetry(() => import('./components/TrainingLab'));
+const TacticsBoard = lazyWithRetry(() => import('./components/TacticsBoard'));
+const MatchDay = lazyWithRetry(() => import('./components/MatchDay'));
+const VideoAnalyser = lazyWithRetry(() => import('./components/VideoAnalyser'));
+const SubscriptionPage = lazyWithRetry(() => import('./components/SubscriptionPage'));
 import { useAuth } from './context/AuthProvider';
 import { addPlayer, getPlayers, getSquadSettings, updateSquadSettings, getUserProfile, updateUserProfile, updatePlayerInFirestore } from './firebaseHelpers';
 import { safeJsonParse, getScopedKey, migrateUnscopedKey } from './utils/storageUtils';
