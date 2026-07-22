@@ -1460,7 +1460,7 @@ export default function TrainingLab({
     });
   };
 
-  // Vector Layer 2: Custom playbooks RAG context input
+  // Vector Layer 2: Custom playbooks context input
   const [customPlaybookText, setCustomPlaybookText] = useState(draft?.customPlaybookText || '');
 
   // Generation status
@@ -2361,7 +2361,7 @@ The Switch: Switch stations at the ${s2Half}-minute mark.`;
 
   const handlePlaybookFocus = () => {
     if (!hasAccess(subscriptionTier, 'pro')) {
-      triggerPaywall("The Coach's Edge Custom Playbook Upload (RAG)");
+      triggerPaywall("The Coach's Edge Custom Playbook Upload");
     }
   };
 
@@ -3137,14 +3137,14 @@ The Switch: Switch stations at the ${s2Half}-minute mark.`;
             <div className="form-group">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                 <label style={{ margin: 0, fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>
-                  Coach's Edge RAG Context (Playbooks)
+                  Upload Custom Club Playbook
                 </label>
                 {subscriptionTier === 'Free' && (
                   <span className="paywall-badge" style={{ margin: 0, scale: '0.8' }}>PRO REQUIRED</span>
                 )}
               </div>
               <textarea
-                placeholder={subscriptionTier === 'Free' ? "🔒 Upgrade to Pro to parse playbooks directly into the AI prompt vector..." : "Paste strategic club manuals, structures, or team rules here..."}
+                placeholder={subscriptionTier === 'Free' ? "🔒 Upgrade to Pro to load playbooks directly into the AI generation assistant..." : "Paste strategic club manuals, structures, or team rules here..."}
                 value={customPlaybookText}
                 onChange={(e) => setCustomPlaybookText(e.target.value)}
                 onFocus={handlePlaybookFocus}
@@ -3264,7 +3264,7 @@ The Switch: Switch stations at the ${s2Half}-minute mark.`;
             
             {isFallback && !isGenerating && (
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic', display: 'block', marginTop: '4px' }}>
-                Running on offline local RAG database
+                Running on offline local training database
               </span>
             )}
           </div>

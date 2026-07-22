@@ -8,7 +8,8 @@ import SettingsModal from './components/SettingsModal';
 import SubscriptionPage from './components/SubscriptionPage';
 import SetupWizard from './components/SetupWizard';
 import { useAuth } from './context/AuthProvider';
-import { addPlayer, getPlayers, getSquadSettings, updateSquadSettings, getUserProfile, updateUserProfile } from './firebaseHelpers';
+import { addPlayer, getPlayers, getSquadSettings, updateSquadSettings, getUserProfile, updateUserProfile, updatePlayerInFirestore } from './firebaseHelpers';
+import { safeJsonParse, getScopedKey, migrateUnscopedKey } from './utils/storageUtils';
 import inThePocketLogo from './assets/In The Pocket.png';
 
 // Empty default roster to allow clean user data entry
@@ -38,9 +39,10 @@ export default function App() {
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   }, [activeTab]);
+
   const getAppScopedKey = (baseKey) => {
     const userIdentifier = currentUser?.uid || currentUser?.email || 'guest';
-    return `${baseKey}_${userIdentifier.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+    return getScopedKey(baseKey, userIdentifier);
   };
 
   const [userProfile, setUserProfile] = useState(null);
@@ -48,13 +50,13 @@ export default function App() {
   const [squad, setSquad] = useState(() => {
     const key = currentUser?.uid || currentUser?.email ? `inthepocket_squad_${(currentUser?.uid || currentUser?.email).toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'inthepocket_squad_guest';
     const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_squad');
-    return saved ? JSON.parse(saved) : DEFAULT_ROSTER;
+    return safeJsonParse(saved, DEFAULT_ROSTER, Array.isArray);
   });
 
   const [videoClips, setVideoClips] = useState(() => {
     const key = currentUser?.uid || currentUser?.email ? `inthepocket_videoclips_${(currentUser?.uid || currentUser?.email).toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'inthepocket_videoclips_guest';
     const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_videoclips');
-    return saved ? JSON.parse(saved) : [];
+    return safeJsonParse(saved, [], Array.isArray);
   });
 
   const [selectedReviewClip, setSelectedReviewClip] = useState(null);
@@ -69,13 +71,24 @@ export default function App() {
   const [maxStintMinutes, setMaxStintMinutes] = useState(() => Number(localStorage.getItem('inthepocket_stint_limit')) || 5);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // Connection & Offline Sync states
-  const [isOnline, setIsOnline] = useState(true);
+  // Connection & Offline Sync states (combines navigator.onLine & manual test toggle)
+  const [isOnline, setIsOnline] = useState(() => typeof navigator !== 'undefined' ? navigator.onLine : true);
   const [syncQueue, setSyncQueue] = useState(() => {
     const saved = localStorage.getItem('inthepocket_sync_queue');
-    return saved ? JSON.parse(saved) : [];
+    return safeJsonParse(saved, [], Array.isArray);
   });
   const [isSyncing, setIsSyncing] = useState(false);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Toast System state
   const [toast, setToast] = useState(null);
@@ -86,7 +99,7 @@ export default function App() {
   const [squadSettings, setSquadSettings] = useState(() => {
     const key = currentUser?.uid || currentUser?.email ? `inthepocket_squad_settings_${(currentUser?.uid || currentUser?.email).toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'inthepocket_squad_settings_guest';
     const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_squad_settings');
-    const parsed = saved ? JSON.parse(saved) : { squadName: 'My Squad', ageGroup: 'U14' };
+    const parsed = safeJsonParse(saved, { squadName: 'My Squad', ageGroup: 'U14' }, (val) => typeof val === 'object');
     if (!parsed.equipment) {
       parsed.equipment = {
         cones: 20,
@@ -107,12 +120,17 @@ export default function App() {
   // Synchronously load profile from user-scoped localStorage whenever currentUser changes
   useEffect(() => {
     if (currentUser) {
+      // Migrate legacy keys if needed
+      migrateUnscopedKey('inthepocket_squad', currentUser.uid);
+      migrateUnscopedKey('inthepocket_squad_settings', currentUser.uid);
+      migrateUnscopedKey('inthepocket_videoclips', currentUser.uid);
+
       const localProfileStr = localStorage.getItem(getAppScopedKey('inthepocket_user_profile'));
       if (localProfileStr) {
-        try {
-          const parsed = JSON.parse(localProfileStr);
+        const parsed = safeJsonParse(localProfileStr, null);
+        if (parsed) {
           setUserProfile(prev => ({ ...(prev || {}), ...parsed }));
-        } catch (e) {}
+        }
       }
     }
   }, [currentUser]);
@@ -131,7 +149,7 @@ export default function App() {
 
           const dbSettings = await getSquadSettings(currentUser.uid);
           const localSettingsStr = localStorage.getItem(getAppScopedKey('inthepocket_squad_settings'));
-          const localSettings = localSettingsStr ? JSON.parse(localSettingsStr) : null;
+          const localSettings = safeJsonParse(localSettingsStr, null);
           
           const mergedSettings = {
             squadName: 'My Team',
@@ -143,7 +161,7 @@ export default function App() {
           const profile = await getUserProfile(currentUser.uid);
           // Check scoped localStorage profile fallback
           const localProfileStr = localStorage.getItem(getAppScopedKey('inthepocket_user_profile'));
-          const localProfile = localProfileStr ? JSON.parse(localProfileStr) : null;
+          const localProfile = safeJsonParse(localProfileStr, null);
           
           const mergedProfile = {
             ...profile,
@@ -205,7 +223,7 @@ export default function App() {
 
   // Handle Online status change synchronization flushes
   useEffect(() => {
-    if (isOnline && syncQueue.length > 0) {
+    if (isOnline && syncQueue.some(item => item.status !== 'synced')) {
       triggerSyncFlush();
     }
   }, [isOnline]);
@@ -217,33 +235,43 @@ export default function App() {
     }, duration);
   };
 
-  const triggerSyncFlush = () => {
+  const triggerSyncFlush = async () => {
+    if (isSyncing) return;
     setIsSyncing(true);
     
-    // Simulate database write delay silently in the background
-    setTimeout(() => {
-      setSyncQueue([]);
-      setIsSyncing(false);
-    }, 2000);
+    // Process pending sync queue items idempotently
+    const updatedQueue = [...syncQueue];
+    for (const tx of updatedQueue) {
+      if (tx.status === 'synced') continue;
+      try {
+        if (tx.type === 'PLAYER_EDIT' && tx.payload?.id && currentUser?.uid) {
+          await updatePlayerInFirestore(tx.payload.id, tx.payload.updatedFields || {}, currentUser.uid);
+        }
+        tx.status = 'synced';
+      } catch (err) {
+        console.error(`Sync transaction ${tx.type} failed:`, err);
+        tx.status = 'failed';
+        tx.lastError = err.message || 'Firestore write error';
+      }
+    }
+    
+    setSyncQueue(updatedQueue.filter(item => item.status !== 'synced'));
+    setIsSyncing(false);
   };
 
   const logSyncTransaction = (type, payload) => {
     const newTx = {
       type,
       payload,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      status: isOnline ? 'synced' : 'pending'
     };
 
+    setSyncQueue(prev => [...prev, newTx]);
     if (isOnline) {
-      // In online mode, we log and instantly sync silently
-      setSyncQueue(prev => [...prev, newTx]);
       setTimeout(() => {
-        // Automatically flush
         setSyncQueue(prev => prev.filter(item => item.timestamp !== newTx.timestamp));
       }, 800);
-    } else {
-      // In offline mode, transaction remains in queue silently
-      setSyncQueue(prev => [...prev, newTx]);
     }
   };
 
@@ -265,9 +293,11 @@ export default function App() {
   // Squad Handlers
   const handleAddPlayer = async (newPlayer) => {
     let docId = 'player_' + Date.now() + '_' + Math.random().toString(36).substring(2, 5);
+    let cloudSynced = false;
     try {
       if (currentUser?.uid) {
         docId = await addPlayer(newPlayer, currentUser.uid);
+        cloudSynced = true;
       }
     } catch (err) {
       console.warn("Firestore addPlayer failed, running local fallback:", err);
@@ -278,14 +308,23 @@ export default function App() {
       id: docId
     };
     setSquad(prevSquad => [...prevSquad, playerWithId]);
-    logSyncTransaction('PLAYER_ADD', { name: newPlayer.name, jersey: newPlayer.jersey });
-    showToast(`Added ${newPlayer.name} to the roster.`);
+    logSyncTransaction('PLAYER_ADD', { name: newPlayer.name, jersey: newPlayer.jersey, status: cloudSynced ? 'synced' : 'pending' });
+    showToast(cloudSynced ? `Added ${newPlayer.name} to the roster.` : `Added ${newPlayer.name} (saved locally).`);
   };
 
-  const handleEditPlayer = (id, updatedFields) => {
-    setSquad(squad.map(p => p.id === id ? { ...p, ...updatedFields } : p));
-    logSyncTransaction('PLAYER_EDIT', { id, name: updatedFields.name });
-    showToast(`Updated player profile.`);
+  const handleEditPlayer = async (id, updatedFields) => {
+    setSquad(prevSquad => prevSquad.map(p => p.id === id ? { ...p, ...updatedFields } : p));
+    let cloudSynced = false;
+    try {
+      if (currentUser?.uid) {
+        await updatePlayerInFirestore(id, updatedFields, currentUser.uid);
+        cloudSynced = true;
+      }
+    } catch (err) {
+      console.warn("Firestore updatePlayerInFirestore failed, running local fallback:", err);
+    }
+    logSyncTransaction('PLAYER_EDIT', { id, name: updatedFields.name, updatedFields, status: cloudSynced ? 'synced' : 'pending' });
+    showToast(cloudSynced ? `Updated player profile.` : `Updated player profile (saved locally).`);
   };
 
   const handleRemovePlayer = (idOrIds) => {

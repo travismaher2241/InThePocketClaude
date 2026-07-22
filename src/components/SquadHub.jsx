@@ -205,16 +205,13 @@ export default function SquadHub({
     if (ids.length === 0) return;
 
     try {
-      console.log("1. Batch Deleting from Firebase:", ids);
-      await bulkDeletePlayersFromFirestore(ids, currentUser?.uid);
-      
-      console.log("2. Syncing UI state for IDs:", ids);
+      if (currentUser?.uid) {
+        await bulkDeletePlayersFromFirestore(ids, currentUser.uid);
+      }
       onRemovePlayer(ids);
     } catch (error) {
       console.error("Critical failure during batch delete:", error);
-      console.warn("Executing local UI state sync fallback.");
-      // Fallback: Delete locally even if Firestore query failed
-      onRemovePlayer(ids);
+      alert("Failed to delete player(s) from cloud database: " + (error.message || "Unknown error"));
     }
 
     // Always clear selection sets and close modals
@@ -242,16 +239,16 @@ export default function SquadHub({
 
     const playersToArchive = squad.filter(p => ids.includes(p.id));
 
-    // 1. Firebase Integration
     try {
-      await archivePlayersInFirestore(playersToArchive);
+      if (currentUser?.uid) {
+        await archivePlayersInFirestore(playersToArchive);
+      }
+      if (typeof onRemovePlayer === 'function') {
+        onRemovePlayer(ids);
+      }
     } catch (err) {
-      console.warn("Firestore archive failed, running local fallback:", err);
-    }
-
-    // 2. Local State update
-    if (typeof onRemovePlayer === 'function') {
-      onRemovePlayer(ids);
+      console.error("Firestore archive failed:", err);
+      alert("Failed to archive player(s) in cloud database: " + (err.message || "Unknown error"));
     }
 
     // Reset State

@@ -382,7 +382,7 @@ export default function SettingsModal({
                       style={{ fontWeight: '600', color: 'var(--color-match)' }}
                     >
                       <option value="Free">Free (Roster Import & 2 Free AI Generations)</option>
-                      <option value="Pro">Pro (Full AI Training, Late-Arrivals, Custom File RAG)</option>
+                      <option value="Pro">Pro (Full AI Training, Late-Arrivals, Custom Playbook Upload)</option>
                       <option value="Ultra">Ultra (Tactics Board, Playbook Export, FootyFlow Clock, Poster Downloads)</option>
                       <option value="ULTRA CLUB">ULTRA CLUB (Whole-of-Club License - Covers U8-U18)</option>
                     </select>

@@ -91,8 +91,8 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
   // Laser guide fading lines (stored in virtual 1000x600 coordinates)
   const laserPoints = useRef([]); // { x, y, time }
 
-  // Draggable Active Tokens on the board (initialized with standard AFL layout)
-  const [tokens, setTokens] = useState(() => getDefaultTokens());
+  // Draggable Active Tokens on the board (starts empty by default)
+  const [tokens, setTokens] = useState([]);
 
   // Context Menu State
   const [contextMenu, setContextMenu] = useState(null); // { x, y, clientX, clientY, vx, vy, token }
@@ -139,25 +139,6 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
     return () => cancelAnimationFrame(animFrameId);
   }, []);
 
-  if (isGated) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }}>
-        <div>
-          <h2 className="scoreboard-font" style={{ color: 'var(--color-tactics)' }}>Tactics Board</h2>
-        </div>
-        <div className="paywall-container">
-          <div className="paywall-badge">ULTRA TIER REQUIRED</div>
-          <h3 className="paywall-title">Interactive Tactics Board</h3>
-          <p className="paywall-desc">
-            Upgrade to the Ultra Tier to unlock the full 1:1 scaled interactive AFL field canvas, self-fading laser guides, drawing tools, and custom drag-and-drop playbook tokens.
-          </p>
-          <button className="btn btn-match" onClick={() => triggerPaywall('Tactics Board access')}>
-            Upgrade Account Now
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   // Main Draw function using virtual scaling
   const drawCanvas = () => {
@@ -587,6 +568,26 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
       document.removeEventListener('touchstart', handleOutsideClick);
     };
   }, [contextMenu, whiteDropdownOpen, blackDropdownOpen]);
+
+  if (isGated) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }}>
+        <div>
+          <h2 className="scoreboard-font" style={{ color: 'var(--color-tactics)' }}>Tactics Board</h2>
+        </div>
+        <div className="paywall-container">
+          <div className="paywall-badge">ULTRA TIER REQUIRED</div>
+          <h3 className="paywall-title">Interactive Tactics Board</h3>
+          <p className="paywall-desc">
+            Upgrade to the Ultra Tier to unlock the full 1:1 scaled interactive AFL field canvas, self-fading laser guides, drawing tools, and custom drag-and-drop playbook tokens.
+          </p>
+          <button className="btn btn-match" onClick={() => triggerPaywall('Tactics Board access')}>
+            Upgrade Account Now
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
