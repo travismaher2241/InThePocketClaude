@@ -1,0 +1,240 @@
+{
+  "version": "2.0.0",
+  "generatedAt": "2026-07-22T22:59:14.037Z",
+  "ageGroups": {
+    "U8": {
+      "code": "U8",
+      "mappedBands": [
+        "Under 8",
+        "U8",
+        "Level 4"
+      ],
+      "ageRange": [
+        7,
+        8
+      ],
+      "maxContactLevel": 0,
+      "allowedContactTypes": [
+        "0 – No Contact",
+        "Incidental Pressure",
+        "Touch"
+      ],
+      "prohibitedActivities": [
+        "full tackling",
+        "bumping",
+        "barging",
+        "heavy collision",
+        "ground dumping"
+      ],
+      "maxCoachDifficulty": 2,
+      "maxPhysicalLoad": 3,
+      "maxMentalLoad": 2,
+      "prioritySkills": [
+        "kicking",
+        "marking",
+        "ground balls",
+        "handball",
+        "fundamental movement"
+      ],
+      "sessionGuidance": {
+        "technicalWeight": 0.75,
+        "tacticalWeight": 0.1,
+        "physicalWeight": 0.15
+      },
+      "finalGameCategory": "Small-Sided Game",
+      "recommendedMethods": [
+        "small-sided games",
+        "high repetitions",
+        "minimal queues",
+        "fun exploration"
+      ]
+    },
+    "U10": {
+      "code": "U10",
+      "mappedBands": [
+        "Under 10",
+        "U10",
+        "Level 5"
+      ],
+      "ageRange": [
+        9,
+        10
+      ],
+      "maxContactLevel": 1,
+      "allowedContactTypes": [
+        "0 – No Contact",
+        "1 – Incidental / Controlled Pressure",
+        "Touch",
+        "Controlled Tag"
+      ],
+      "prohibitedActivities": [
+        "full tackling",
+        "bumping",
+        "ground dumping",
+        "head-high pressure"
+      ],
+      "maxCoachDifficulty": 3,
+      "maxPhysicalLoad": 4,
+      "maxMentalLoad": 3,
+      "prioritySkills": [
+        "kicking",
+        "marking",
+        "ground balls",
+        "handball",
+        "decision making",
+        "spatial awareness"
+      ],
+      "sessionGuidance": {
+        "technicalWeight": 0.65,
+        "tacticalWeight": 0.2,
+        "physicalWeight": 0.15
+      },
+      "finalGameCategory": "Small-Sided Game",
+      "recommendedMethods": [
+        "small-sided games",
+        "game sense",
+        "peer learning",
+        "decision scenarios"
+      ]
+    },
+    "U12": {
+      "code": "U12",
+      "mappedBands": [
+        "Under 12",
+        "U12",
+        "Level 6"
+      ],
+      "ageRange": [
+        11,
+        12
+      ],
+      "maxContactLevel": 2,
+      "allowedContactTypes": [
+        "0 – No Contact",
+        "1 – Incidental / Controlled Pressure",
+        "2 – Controlled Contact",
+        "Wrap Tackle"
+      ],
+      "prohibitedActivities": [
+        "dangerous tackles",
+        "slinging",
+        "spear tackles",
+        "head-high contact"
+      ],
+      "maxCoachDifficulty": 4,
+      "maxPhysicalLoad": 4,
+      "maxMentalLoad": 4,
+      "prioritySkills": [
+        "kicking",
+        "marking",
+        "ground balls",
+        "handball",
+        "tackling technique",
+        "stoppage craft",
+        "team transition"
+      ],
+      "sessionGuidance": {
+        "technicalWeight": 0.55,
+        "tacticalWeight": 0.3,
+        "physicalWeight": 0.15
+      },
+      "finalGameCategory": "Small-Sided Game",
+      "recommendedMethods": [
+        "small-sided games",
+        "scenario games",
+        "controlled contact drills"
+      ]
+    },
+    "U14": {
+      "code": "U14",
+      "mappedBands": [
+        "Under 14",
+        "U14",
+        "Youth"
+      ],
+      "ageRange": [
+        13,
+        14
+      ],
+      "maxContactLevel": 3,
+      "allowedContactTypes": [
+        "0 – No Contact",
+        "1 – Incidental",
+        "2 – Full Contact"
+      ],
+      "prohibitedActivities": [
+        "high contact",
+        "slinging",
+        "dangerous tackle"
+      ],
+      "maxCoachDifficulty": 5,
+      "maxPhysicalLoad": 5,
+      "maxMentalLoad": 5,
+      "prioritySkills": [
+        "kicking",
+        "marking",
+        "handball",
+        "team offence",
+        "team defence",
+        "stoppages",
+        "transition"
+      ],
+      "sessionGuidance": {
+        "technicalWeight": 0.45,
+        "tacticalWeight": 0.35,
+        "physicalWeight": 0.2
+      },
+      "finalGameCategory": "Match Simulation",
+      "recommendedMethods": [
+        "match simulation",
+        "full ground scenarios",
+        "high intensity pressure"
+      ]
+    },
+    "Senior": {
+      "code": "Senior",
+      "mappedBands": [
+        "U16",
+        "U18",
+        "Senior Women",
+        "Senior Men",
+        "Over 35 Men"
+      ],
+      "ageRange": [
+        15,
+        99
+      ],
+      "maxContactLevel": 3,
+      "allowedContactTypes": [
+        "0 – No Contact",
+        "1 – Incidental",
+        "2 – Full Contact"
+      ],
+      "prohibitedActivities": [
+        "high contact",
+        "slinging"
+      ],
+      "maxCoachDifficulty": 5,
+      "maxPhysicalLoad": 5,
+      "maxMentalLoad": 5,
+      "prioritySkills": [
+        "team offence",
+        "team defence",
+        "transition",
+        "stoppage craft",
+        "match simulation"
+      ],
+      "sessionGuidance": {
+        "technicalWeight": 0.35,
+        "tacticalWeight": 0.45,
+        "physicalWeight": 0.2
+      },
+      "finalGameCategory": "Match Simulation",
+      "recommendedMethods": [
+        "match simulation",
+        "tactical setup",
+        "game plan execution"
+      ]
+    }
+  }
+}

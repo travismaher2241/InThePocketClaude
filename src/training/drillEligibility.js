@@ -1,12 +1,17 @@
 /**
  * Hard Drill Eligibility Engine for CoachCore Training Lab
- * Evaluates candidate drills against strict age, safety, coaching level, equipment, and player-count rules.
+ * Evaluates candidate drills against strict age, safety, coaching level, equipment, physical load,
+ * and player-count rules.
+ * 
+ * Hard safety failures must NEVER be relaxed as a fallback.
  */
 
-// Normalizes coaching difficulty into an integer 1–5
+/**
+ * Normalizes coaching difficulty into an integer 1–5
+ */
 export function normalizeCoachingDifficulty(difficultyVal) {
   if (typeof difficultyVal === 'number') return difficultyVal;
-  if (!difficultyVal) return 1; // Default to simple if unstated
+  if (!difficultyVal) return 1;
   const str = String(difficultyVal);
   const match = str.match(/([1-5])/);
   if (match) return parseInt(match[1], 10);
@@ -19,7 +24,9 @@ export function normalizeCoachingDifficulty(difficultyVal) {
   return 1;
 }
 
-// Maps CoachCore ageGroup string to drill.ageGroups property key
+/**
+ * Maps CoachCore ageGroup string to drill.ageGroups property key
+ */
 export function mapAgeGroupToDrillKey(ageGroup) {
   if (!ageGroup) return 'Under 14';
   const ag = String(ageGroup).toUpperCase().trim();
@@ -34,18 +41,22 @@ export function mapAgeGroupToDrillKey(ageGroup) {
   return 'Senior Men';
 }
 
-// Normalizes contact level into 0 (No Contact), 1 (Controlled/Wrap), 2 (Full Contact)
+/**
+ * Normalizes contact level into 0 (No Contact), 1 (Modified/Touch), 2 (Full Contact)
+ */
 export function normalizeContactLevel(contactVal) {
   if (typeof contactVal === 'number') return contactVal;
   if (!contactVal) return 0;
   const str = String(contactVal).toLowerCase();
   if (str.includes('0') || str.includes('no contact') || str.includes('none')) return 0;
-  if (str.includes('1') || str.includes('controlled') || str.includes('wrap') || str.includes('modified') || str.includes('light')) return 1;
+  if (str.includes('1') || str.includes('controlled') || str.includes('wrap') || str.includes('modified') || str.includes('light') || str.includes('touch')) return 1;
   if (str.includes('2') || str.includes('full contact') || str.includes('tackle') || str.includes('collision')) return 2;
   return 1;
 }
 
-// Parses drill player bounds from string e.g. "Minimum: 2\nIdeal: 10–20\nMaximum: Unlimited"
+/**
+ * Parses drill player bounds from string e.g. "Minimum: 2\nIdeal: 10–20\nMaximum: Unlimited"
+ */
 export function parsePlayerBounds(playersVal) {
   if (!playersVal) return { min: 2, max: 99 };
   if (typeof playersVal === 'number') return { min: playersVal, max: 99 };
@@ -61,7 +72,9 @@ export function parsePlayerBounds(playersVal) {
   return { min, max };
 }
 
-// Parses equipment text into numeric requirements object { footballs, cones, bibs, poles, mats }
+/**
+ * Parses equipment text into numeric requirements object
+ */
 export function parseDrillEquipment(equipmentVal) {
   const reqs = { footballs: 0, cones: 0, bibs: 0, poles: 0, mats: 0 };
   if (!equipmentVal) return reqs;
@@ -92,8 +105,8 @@ export function parseDrillEquipment(equipmentVal) {
  * Checks if a drill is hard-eligible for the given session context.
  * Returns { eligible: boolean, reason?: string }
  */
-export function checkDrillEligibility(drill, context) {
-  if (!drill || !drill.drillId) {
+export function checkDrillEligibility(drill, context = {}) {
+  if (!drill || (!drill.drillId && !drill.title)) {
     return { eligible: false, reason: 'Invalid or missing drill object' };
   }
 
@@ -104,9 +117,16 @@ export function checkDrillEligibility(drill, context) {
     equipment = { footballs: 10, cones: 20, bibs: 15, agilityPoles: 6, tackleMats: 4 }
   } = context;
 
+  const agClean = String(ageGroup).toUpperCase().trim();
+  const isU8 = agClean === 'U8' || agClean === 'U9' || agClean.includes('UNDER 8') || agClean.includes('UNDER 9');
+  const isU10 = agClean === 'U10' || agClean.includes('UNDER 10');
+  const isU12 = agClean === 'U12' || agClean.includes('UNDER 12');
+  const isVeteran = agClean.includes('VETERAN') || agClean.includes('OVER 35');
+
   // 1. Coaching Level / Knowledge Check
-  const drillDiff = normalizeCoachingDifficulty(drill.coachingDifficulty || drill.skillLevel);
-  const maxAllowedDiff = Math.min(5, Math.max(2, parseInt(coachLevel, 10) || 3));
+  const drillDiff = normalizeCoachingDifficulty(drill.minimumCoachLevel || drill.coachingDifficulty || drill.skillLevel);
+  const parsedCoachLevel = parseInt(coachLevel, 10) || 3;
+  const maxAllowedDiff = Math.min(5, Math.max(2, parsedCoachLevel + 1));
   if (drillDiff > maxAllowedDiff) {
     return {
       eligible: false,
@@ -114,42 +134,64 @@ export function checkDrillEligibility(drill, context) {
     };
   }
 
-  // 2. Age Group Suitability Check
+  // 2. Explicit Age Group Suitability Check
   const mappedAgeKey = mapAgeGroupToDrillKey(ageGroup);
-  const ageMetadata = drill.ageGroups;
-  if (ageMetadata && typeof ageMetadata === 'object') {
-    const mark = ageMetadata[mappedAgeKey];
+  if (drill.ageEligibility && typeof drill.ageEligibility === 'object') {
+    if (isU8 && drill.ageEligibility.U8 === false) {
+      return { eligible: false, reason: `Ineligible for Under 8 cohort` };
+    }
+    if (isU10 && drill.ageEligibility.U10 === false) {
+      return { eligible: false, reason: `Ineligible for Under 10 cohort` };
+    }
+    if (isU12 && drill.ageEligibility.U12 === false) {
+      return { eligible: false, reason: `Ineligible for Under 12 cohort` };
+    }
+  }
+
+  if (drill.ageGroups && typeof drill.ageGroups === 'object') {
+    const mark = drill.ageGroups[mappedAgeKey];
     if (mark === '✗') {
       return {
         eligible: false,
         reason: `Explicitly marked unsuitable for age group ${ageGroup} (${mappedAgeKey})`
       };
     }
-    if (mark === undefined || mark === null) {
-      if (drillDiff > maxAllowedDiff) {
-        return { eligible: false, reason: `Missing age metadata and difficulty is too high` };
-      }
-    }
   }
 
   // 3. Contact & Safety Restrictions
-  const agClean = String(ageGroup).toUpperCase();
-  const contactLevel = normalizeContactLevel(drill.contact);
-  if (agClean === 'U8' || agClean === 'U9') {
+  const contactLevel = typeof drill.contactLevel === 'number'
+    ? drill.contactLevel
+    : normalizeContactLevel(drill.contact);
+
+  if (isU8) {
     if (contactLevel > 1) {
-      return { eligible: false, reason: `U8 requires non-contact or incidental pressure (drill level: ${contactLevel})` };
+      return { eligible: false, reason: `U8 requires non-contact or incidental pressure (drill contact level: ${contactLevel})` };
     }
-  } else if (agClean === 'U10') {
-    if (contactLevel > 1) {
-      return { eligible: false, reason: `U10 requires modified contact (drill level: ${contactLevel})` };
+    // Hard prohibition on full tackling for U8
+    const textLower = `${drill.title} ${drill.objective} ${drill.category}`.toLowerCase();
+    if (textLower.includes('full tackle') || textLower.includes('ground dump') || textLower.includes('heavy collision')) {
+      return { eligible: false, reason: `Full tackling and heavy collisions are prohibited for U8` };
     }
-  } else if (agClean.includes('VETERAN') || agClean.includes('OVER 35')) {
+  } else if (isU10) {
     if (contactLevel > 1) {
-      return { eligible: false, reason: `Veterans require low-impact contact (drill level: ${contactLevel})` };
+      return { eligible: false, reason: `U10 requires modified contact (drill contact level: ${contactLevel})` };
+    }
+  } else if (isVeteran) {
+    if (contactLevel > 1) {
+      return { eligible: false, reason: `Veterans require low-impact contact (drill contact level: ${contactLevel})` };
     }
   }
 
-  // 4. Equipment Availability Check
+  // 4. Physical Load Safety Thresholds
+  const physLoad = drill.physicalLoadScore || 2;
+  if (isU8 && physLoad > 3) {
+    return { eligible: false, reason: `Physical load score (${physLoad}) exceeds safe threshold for U8` };
+  }
+  if (isU10 && physLoad > 4) {
+    return { eligible: false, reason: `Physical load score (${physLoad}) exceeds safe threshold for U10` };
+  }
+
+  // 5. Equipment Availability Check
   const drillReqs = parseDrillEquipment(drill.equipment);
   const availableBalls = equipment.footballs ?? 10;
   const availableCones = equipment.cones ?? 20;
@@ -173,9 +215,10 @@ export function checkDrillEligibility(drill, context) {
     return { eligible: false, reason: `Requires ${drillReqs.mats} tackle mats (available: ${availableMats})` };
   }
 
-  // 5. Player Count Range Check
-  if (playerCount < 1) {
-    return { eligible: false, reason: `At least 1 active player is required for session generation` };
+  // 6. Player Count Range Check
+  const minP = drill.minimumPlayers || parsePlayerBounds(drill.players).min;
+  if (playerCount >= 4 && playerCount < minP) {
+    return { eligible: false, reason: `Requires at least ${minP} players (squad count: ${playerCount})` };
   }
 
   return { eligible: true };

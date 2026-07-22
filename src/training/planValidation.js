@@ -47,6 +47,12 @@ export function validatePlan(plan, context = {}) {
     if (!seg.title || !seg.title.trim()) {
       errors.push(`Segment ${idx + 1} is missing a title`);
     }
+
+    // Independent Hard Safety & Eligibility Validation
+    const el = checkDrillEligibility(seg, context);
+    if (!el.eligible) {
+      errors.push(`Segment ${idx + 1} (${seg.title}) failed hard safety validation: ${el.reason}`);
+    }
   });
 
   // 3. Station uniqueness (Stations A, B, C, D must all be distinct)

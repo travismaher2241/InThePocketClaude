@@ -4,7 +4,7 @@
  */
 
 import { checkDrillEligibility } from './drillEligibility.js';
-import { scoreCandidateDrill } from './drillScoring.js';
+import { scoreCandidateDrill, scoreCandidateDrillDetailed } from './drillScoring.js';
 import { createPRNG, getRepetitionMultiplier, selectWeightedRandom } from './planRandomization.js';
 import { getSessionSlots, calculateSlotDurations, calculateGroupAllocations, buildSegmentFromDrill, isJuniorAgeGroup } from './sessionStructure.js';
 import { validatePlan } from './planValidation.js';
@@ -133,7 +133,22 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
     }
 
     if (selectedDrill) {
+      const detailedScore = scoreCandidateDrillDetailed(selectedDrill, slot, context);
       const segment = buildSegmentFromDrill(selectedDrill, slot, context);
+      segment.selectionMetadata = {
+        eligibilityPassed: true,
+        suitabilityScore: Math.round(detailedScore.total),
+        scoringFactors: detailedScore.factors,
+        matchedParameters: [
+          'ageGroup',
+          'focusAreas',
+          'playerCount',
+          'sessionPhase',
+          'coachLevel',
+          'equipment'
+        ]
+      };
+
       selectedSegments.push(segment);
       if (selectedDrill.drillId) {
         currentPlanDrillIds.push(selectedDrill.drillId);

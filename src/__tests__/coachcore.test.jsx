@@ -938,6 +938,87 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
       expect(plan.segments[5].category.toLowerCase()).toContain('small-sided game');
       expect(plan.validation.isValid).toBe(true);
     });
+
+    it('11. U8 contact prohibition rejects full contact and tackling drills', () => {
+      const { checkDrillEligibility } = require('../training/drillEligibility.js');
+      const res = checkDrillEligibility({ drillId: 'TEST-1', title: 'Full Tackle Contest', category: 'Tackling', contactLevel: 2 }, { ageGroup: 'U8' });
+      expect(res.eligible).toBe(false);
+      expect(res.reason).toContain('U8 requires non-contact');
+    });
+
+    it('12. U10 modified contact restrictions reject full contact collision drills', () => {
+      const { checkDrillEligibility } = require('../training/drillEligibility.js');
+      const res = checkDrillEligibility({ drillId: 'TEST-2', title: 'Heavy Collision', contactLevel: 2 }, { ageGroup: 'U10' });
+      expect(res.eligible).toBe(false);
+      expect(res.reason).toContain('U10 requires modified contact');
+    });
+
+    it('13. Coach level filtering rejects advanced drills exceeding coach capacity', () => {
+      const { checkDrillEligibility } = require('../training/drillEligibility.js');
+      const res = checkDrillEligibility({ drillId: 'TEST-3', title: 'Complex Setup', minimumCoachLevel: 5 }, { ageGroup: 'U14', coachLevel: 2 });
+      expect(res.eligible).toBe(false);
+      expect(res.reason).toContain('exceeds max allowed level');
+    });
+
+    it('14. Player count filtering rejects drills requiring more players than available', () => {
+      const { checkDrillEligibility } = require('../training/drillEligibility.js');
+      const res = checkDrillEligibility({ drillId: 'TEST-4', title: '18v18 Zone Drill', minimumPlayers: 36 }, { ageGroup: 'U14', playerCount: 10 });
+      expect(res.eligible).toBe(false);
+      expect(res.reason).toContain('Requires at least 36 players');
+    });
+
+    it('15. Equipment filtering rejects drills when required cones or footballs are missing', () => {
+      const { checkDrillEligibility } = require('../training/drillEligibility.js');
+      const res = checkDrillEligibility({ drillId: 'TEST-5', title: 'Multi-Cone Grid', equipment: ['50 cones'] }, { ageGroup: 'U14', equipment: { footballs: 10, cones: 10 } });
+      expect(res.eligible).toBe(false);
+      expect(res.reason).toContain('Requires 50 cones');
+    });
+
+    it('16. Detailed scoring returns deterministic factor breakdown', () => {
+      const { scoreCandidateDrillDetailed } = require('../training/drillScoring.js');
+      const drill = { drillId: 'KK-001', primarySkill: 'Drop Punt', category: 'Kicking', contactLevel: 0, minimumCoachLevel: 1 };
+      const scoreObj = scoreCandidateDrillDetailed(drill, { slotKey: 'STATION_A', slotIndex: 1 }, { focusAreas: ['Kicking'], ageGroup: 'U10', playerCount: 16 });
+      expect(scoreObj.total).toBeGreaterThan(20);
+      expect(scoreObj.factors).toBeDefined();
+      expect(scoreObj.factors.focusMatch).toBeGreaterThan(0);
+    });
+
+    it('17. Generated plan segments contain internal selectionMetadata', async () => {
+      const plan = await generateLocalPlan({ ageGroup: 'U14', coachLevel: 3, durationMinutes: 60, seed: 54321 });
+      expect(plan.segments[0].selectionMetadata).toBeDefined();
+      expect(plan.segments[0].selectionMetadata.eligibilityPassed).toBe(true);
+      expect(plan.segments[0].selectionMetadata.suitabilityScore).toBeGreaterThan(0);
+      expect(plan.segments[0].selectionMetadata.matchedParameters).toContain('ageGroup');
+    });
+
+    it('18. Independent validation rejects any segment violating age contact safety', () => {
+      const { validatePlan } = require('../training/planValidation.js');
+      const invalidPlan = {
+        segments: [
+          { drillId: 'WU-1', title: 'Warmup', minutes: 10, category: 'Warmup' },
+          { drillId: 'ST-1', title: 'Station A', minutes: 15, category: 'Kicking' },
+          { drillId: 'ST-2', title: 'Station B', minutes: 15, category: 'Handball' },
+          { drillId: 'ST-3', title: 'Station C', minutes: 15, category: 'Marking' },
+          { drillId: 'ST-4', title: 'Station D', minutes: 15, category: 'Tackling', contactLevel: 2 }, // Illegal full contact for U8
+          { drillId: 'SSG-1', title: 'Small Game', minutes: 10, category: 'Small-Sided Game' }
+        ]
+      };
+      const val = validatePlan(invalidPlan, { ageGroup: 'U8', durationMinutes: 60, focusAreas: ['Kicking'] });
+      expect(val.isValid).toBe(false);
+      expect(val.errors.some(e => e.includes('failed hard safety validation'))).toBe(true);
+    });
+
+    it('19. Curriculum rules asset is built and contains all age cohort specifications', () => {
+      const fs = require('fs');
+      const path = require('path');
+      const rulesPath = path.resolve(process.cwd(), 'public/data/knowledge/curriculum_rules.json');
+      expect(fs.existsSync(rulesPath)).toBe(true);
+      const rules = JSON.parse(fs.readFileSync(rulesPath, 'utf8'));
+      expect(rules.ageGroups.U8).toBeDefined();
+      expect(rules.ageGroups.U10).toBeDefined();
+      expect(rules.ageGroups.U12).toBeDefined();
+      expect(rules.ageGroups.U8.maxContactLevel).toBe(0);
+    });
   });
 
 });
