@@ -222,7 +222,9 @@ const TIER_HIERARCHY = {
   'ultra': 2,
   'b2b': 2,
   'team': 2,
-  'club': 2
+  'club': 2,
+  'ultra- club': 2,
+  'ultra-club': 2
 };
 
 /**

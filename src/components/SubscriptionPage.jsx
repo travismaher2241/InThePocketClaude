@@ -288,11 +288,11 @@ export default function SubscriptionPage({
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(255, 183, 3, 0.08)', border: '1px solid rgba(255, 183, 3, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#ffc300' }}>
                   <span>❌ Committee Multi-Coach Pass</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(255, 183, 3, 0.3)', color: '#0e0e12' }}>B2B</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(255, 183, 3, 0.3)', color: '#0e0e12' }}>ULTRA- CLUB</span>
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(255, 183, 3, 0.08)', border: '1px solid rgba(255, 183, 3, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#ffc300' }}>
                   <span>❌ Centralized Club Roster Sync</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(255, 183, 3, 0.3)', color: '#0e0e12' }}>B2B</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(255, 183, 3, 0.3)', color: '#0e0e12' }}>ULTRA- CLUB</span>
                 </li>
               </ul>
             </div>
@@ -354,7 +354,7 @@ export default function SubscriptionPage({
           )}
           <div>
             <span style={{ fontSize: '0.7rem', color: '#ffb703', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.1em' }}>Junior Club Master Package</span>
-            <h3 className="scoreboard-font" style={{ fontSize: '1.6rem', color: '#ffffff', margin: '4px 0 12px 0' }}>B2B</h3>
+            <h3 className="scoreboard-font" style={{ fontSize: '1.6rem', color: '#ffffff', margin: '4px 0 12px 0' }}>ULTRA- CLUB</h3>
             <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: '16px' }}>
               <span style={{ fontSize: '2rem', fontWeight: '800', color: '#ffffff' }}>$49.99</span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginLeft: '4px' }}>/ month</span>
@@ -386,7 +386,7 @@ export default function SubscriptionPage({
           </div>
 
           <button 
-            onClick={() => handleOpenCheckout('B2B')}
+            onClick={() => handleOpenCheckout('ULTRA- CLUB')}
             className={isB2BHighlighted ? "btn btn-match" : "btn"}
             style={{ 
               width: '100%', 
@@ -397,7 +397,7 @@ export default function SubscriptionPage({
               ...(isB2BHighlighted ? { backgroundColor: '#ffb703', color: '#0e0e12', borderColor: '#ffb703' } : {})
             }}
           >
-            {currentTierClean === 'b2b' ? 'Active Plan' : 'Purchase Club Package'}
+            {currentTierClean === 'b2b' || currentTierClean === 'ultra- club' || currentTierClean === 'ultra-club' ? 'Active Plan' : 'Purchase Club Package'}
           </button>
         </div>
 
@@ -432,7 +432,7 @@ export default function SubscriptionPage({
                 <th style={{ padding: '16px 12px', fontWeight: '700', textAlign: 'center' }}>FREE</th>
                 <th style={{ padding: '16px 12px', fontWeight: '700', textAlign: 'center', color: '#e63946' }}>PRO ($9.99)</th>
                 <th style={{ padding: '16px 12px', fontWeight: '700', textAlign: 'center', color: 'var(--color-training)' }}>ULTRA ($19.99)</th>
-                <th style={{ padding: '16px 12px', fontWeight: '700', textAlign: 'center', color: '#ffb703' }}>B2B ($49.99)</th>
+                <th style={{ padding: '16px 12px', fontWeight: '700', textAlign: 'center', color: '#ffb703' }}>ULTRA- CLUB ($49.99)</th>
               </tr>
             </thead>
             <tbody>
@@ -480,9 +480,9 @@ export default function SubscriptionPage({
               </tr>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                 <td style={{ padding: '14px 12px', fontWeight: '600' }}>Junior Committee Multi-Coach Pass</td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(230, 57, 70, 0.15)', color: '#ff6b6b', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>❌ Locked (Needs B2B)</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(230, 57, 70, 0.15)', color: '#ff6b6b', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>❌ Locked (Needs B2B)</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(230, 57, 70, 0.15)', color: '#ff6b6b', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>❌ Locked (Needs B2B)</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(230, 57, 70, 0.15)', color: '#ff6b6b', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>❌ Locked (Needs ULTRA- CLUB)</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(230, 57, 70, 0.15)', color: '#ff6b6b', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>❌ Locked (Needs ULTRA- CLUB)</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(230, 57, 70, 0.15)', color: '#ff6b6b', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>❌ Locked (Needs ULTRA- CLUB)</span></td>
                 <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(255, 183, 3, 0.15)', color: '#ffb703', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included (U8-U18)</span></td>
               </tr>
             </tbody>

@@ -157,7 +157,7 @@ export default function App() {
             let matchedTier = 'Free';
             if (tierLower === 'pro') matchedTier = 'Pro';
             else if (tierLower === 'ultra' || tierLower === 'team') matchedTier = 'Ultra';
-            else if (tierLower === 'b2b' || tierLower === 'club') matchedTier = 'B2B';
+            else if (tierLower === 'b2b' || tierLower === 'club' || tierLower.includes('ultra-')) matchedTier = 'ULTRA- CLUB';
             setSubscriptionTier(matchedTier);
           }
         } catch (err) {
@@ -646,13 +646,13 @@ export default function App() {
                 <button 
                   className="btn" 
                   onClick={() => {
-                    handleUpdateSubscriptionTier('B2B');
+                    handleUpdateSubscriptionTier('ULTRA- CLUB');
                     setPaywallFeature(null);
-                    showToast("Simulated Upgrade: Welcome to B2B! You now have access to all of the amazing pro features in In The Pocket!");
+                    showToast("Simulated Upgrade: Welcome to ULTRA- CLUB! You now have access to all of the amazing pro features in In The Pocket!");
                   }}
                   style={{ width: '100%', padding: '12px', borderColor: 'rgba(255, 183, 3, 0.4)', color: '#ffb703' }}
                 >
-                  Activate B2B Club Tier (Junior Club Package)
+                  Activate ULTRA- CLUB Tier (Junior Club Package)
                 </button>
               </div>
 
