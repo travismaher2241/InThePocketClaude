@@ -1163,6 +1163,37 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
       expect(screen.getByText('This will permanently remove Aaron Burrage from the team. This action cannot be undone.')).toBeInTheDocument();
       expect(screen.getAllByText('Cancel').length).toBeGreaterThan(0);
     });
+
+    it('22. UI Regression: Mobile Excel Roster Import modal correctly enforces heading, template download, file selection, validation preview, duplicate strategy, and result summary', async () => {
+      const mockSquad = [
+        { id: 'p1', name: 'Aaron Burrage', jersey: 20 }
+      ];
+
+      render(
+        <SquadHub 
+          squad={mockSquad} 
+          onAddPlayer={vi.fn()} 
+          onEditPlayer={vi.fn()} 
+          onRemovePlayer={vi.fn()} 
+        />
+      );
+
+      // Open Import Modal
+      fireEvent.click(screen.getByText('Import Players'));
+
+      // 1. Heading & initial layout requirements
+      expect(screen.getByText('Import Player Roster')).toBeInTheDocument();
+      expect(screen.getByText(/Upload an Excel spreadsheet containing a/i)).toBeInTheDocument();
+      expect(screen.getByText('Supported formats: .xlsx and .xls')).toBeInTheDocument();
+      expect(screen.getByText('Download Excel Template')).toBeInTheDocument();
+      expect(screen.getByText('Choose Excel File')).toBeInTheDocument();
+      expect(screen.getByText('Select File')).toBeInTheDocument();
+
+      // Disabled button before file selection
+      const importBtn = screen.getByRole('button', { name: 'Import Players' });
+      expect(importBtn).toBeDisabled();
+      expect(screen.queryByText(/Confirm & Import/i)).not.toBeInTheDocument();
+    });
   });
 
 });

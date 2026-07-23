@@ -16,8 +16,22 @@ export default function SquadHub({
   const { currentUser } = useAuth();
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [excelPlayers, setExcelPlayers] = useState([]);
-  const [excelFileName, setExcelFileName] = useState('');
+  const [importStep, setImportStep] = useState('SELECT'); // 'SELECT' | 'PREVIEW' | 'RESULT'
+  const [excelFile, setExcelFile] = useState(null);
+  const [duplicateStrategy, setDuplicateStrategy] = useState('skip'); // 'skip' | 'update' | 'import'
+  const [importAnalysis, setImportAnalysis] = useState({
+    totalRows: 0,
+    validPlayers: [],
+    errors: [],
+    warnings: [],
+    blockingError: null
+  });
+  const [importResult, setImportResult] = useState({
+    addedCount: 0,
+    updatedCount: 0,
+    skippedCount: 0,
+    failedCount: 0
+  });
 
   // Bulk Management State
   const [isManageMode, setIsManageMode] = useState(false);
@@ -265,77 +279,341 @@ export default function SquadHub({
     setIsManageMode(false);
   };
 
-  const handleExcelUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setExcelFileName(file.name);
+  // 1. Download Pre-formatted Excel Template
+  const handleDownloadTemplate = () => {
+    try {
+      const templateData = [
+        { "Player Name": "Aaron Burrage", "Player Number": 20 },
+        { "Player Name": "Adrian Mazza", "Player Number": 41 }
+      ];
+      const worksheet = XLSX.utils.json_to_sheet(templateData);
+      worksheet['!cols'] = [{ wch: 24 }, { wch: 16 }];
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Player Roster");
+      XLSX.writeFile(workbook, "CoachCore_Player_Roster_Template.xlsx");
+    } catch (err) {
+      console.error("Failed to generate Excel template:", err);
+      alert("Failed to download template. Please try again.");
+    }
+  };
 
+  // 2. Parse and Validate Uploaded Excel Spreadsheet
+  const parseAndValidateExcel = (file) => {
+    if (!file) return;
+    const fileName = file.name || 'uploaded.xlsx';
+    const ext = fileName.slice(((fileName.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase();
+    
+    if (ext !== 'xlsx' && ext !== 'xls') {
+      setImportAnalysis({
+        totalRows: 0,
+        validPlayers: [],
+        errors: [{ rowNum: 0, message: "Unsupported file format. Please upload an Excel spreadsheet (.xlsx or .xls)." }],
+        warnings: [],
+        blockingError: "Unsupported file format. Please select an Excel file ending in .xlsx or .xls."
+      });
+      setExcelFile(file);
+      setImportStep('PREVIEW');
+      return;
+    }
+
+    setExcelFile(file);
     const reader = new FileReader();
+
+    reader.onerror = () => {
+      setImportAnalysis({
+        totalRows: 0,
+        validPlayers: [],
+        errors: [{ rowNum: 0, message: "Could not read file. The file may be damaged or corrupted." }],
+        warnings: [],
+        blockingError: "The file could not be opened. Please verify the file is not damaged and try again."
+      });
+      setImportStep('PREVIEW');
+    };
+
     reader.onload = (evt) => {
       try {
         const data = new Uint8Array(evt.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
         
-        const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        const parsed = [];
+        if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+          throw new Error("The workbook contains no visible sheets.");
+        }
 
-        rows.forEach((row, idx) => {
-          // Skip header if it matches name/number headers
-          if (idx === 0 && row.some(cell => typeof cell === 'string' && (cell.toLowerCase().includes('name') || cell.toLowerCase().includes('number') || cell.toLowerCase().includes('jersey')))) {
-            return;
-          }
-          
-          let name = '';
-          let jersey = null;
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rawRows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
 
-          row.forEach(cell => {
-            if (typeof cell === 'string' && !name) {
-              name = cell.trim();
-            } else if (typeof cell === 'number' && jersey === null) {
-              jersey = Math.round(cell);
-            } else if (typeof cell === 'string' && !isNaN(parseInt(cell)) && jersey === null) {
-              jersey = parseInt(cell);
+        if (!rawRows || rawRows.length === 0) {
+          setImportAnalysis({
+            totalRows: 0,
+            validPlayers: [],
+            errors: [{ rowNum: 0, message: "The spreadsheet is completely empty." }],
+            warnings: [],
+            blockingError: "The spreadsheet contains no data. Please add player rows and try again."
+          });
+          setImportStep('PREVIEW');
+          return;
+        }
+
+        // Find header row (search first 5 rows for Name & Number headers)
+        let headerRowIndex = -1;
+        let nameColIdx = -1;
+        let numColIdx = -1;
+
+        const nameKeys = ['player name', 'name', 'full name', 'player', 'athlete'];
+        const numKeys = ['player number', 'player #', 'number', 'jersey', 'jersey #', 'jersey number', '#', 'no', 'no.'];
+
+        for (let i = 0; i < Math.min(rawRows.length, 5); i++) {
+          const row = rawRows[i];
+          if (!Array.isArray(row)) continue;
+
+          let foundNameIdx = -1;
+          let foundNumIdx = -1;
+
+          row.forEach((cell, cellIdx) => {
+            const strCell = String(cell || '').trim().toLowerCase();
+            if (foundNameIdx === -1 && nameKeys.some(k => strCell === k || strCell.includes(k))) {
+              foundNameIdx = cellIdx;
+            }
+            if (foundNumIdx === -1 && numKeys.some(k => strCell === k || strCell.includes(k))) {
+              foundNumIdx = cellIdx;
             }
           });
 
-          if (name && jersey !== null) {
-            parsed.push({
-              name,
-              jersey,
-              position: 'Bench', // default
-              medical: 'None'    // default
-            });
+          if (foundNameIdx !== -1 && foundNumIdx !== -1) {
+            headerRowIndex = i;
+            nameColIdx = foundNameIdx;
+            numColIdx = foundNumIdx;
+            break;
           }
+        }
+
+        // Fallback: If no header row matched by text, assume col 0 is Name and col 1 is Number if row 0 has data
+        if (nameColIdx === -1 || numColIdx === -1) {
+          if (rawRows.length > 0 && rawRows[0].length >= 2) {
+            headerRowIndex = 0;
+            nameColIdx = 0;
+            numColIdx = 1;
+          } else {
+            setImportAnalysis({
+              totalRows: rawRows.length,
+              validPlayers: [],
+              errors: [{ rowNum: 0, message: "Missing required 'Player Name' or 'Player Number' column." }],
+              warnings: [],
+              blockingError: "Required columns missing. Spreadsheet must have 'Player Name' and 'Player Number' columns. Click 'Download Excel Template' above to get a compatible format."
+            });
+            setImportStep('PREVIEW');
+            return;
+          }
+        }
+
+        const validPlayers = [];
+        const errors = [];
+        const warnings = [];
+        const seenJerseysInFile = new Map();
+
+        const dataRows = rawRows.slice(headerRowIndex + 1);
+        let validIndex = 0;
+
+        dataRows.forEach((row, idx) => {
+          const excelRowNum = headerRowIndex + 2 + idx;
+          if (!Array.isArray(row) || row.every(cell => String(cell || '').trim() === '')) {
+            return;
+          }
+
+          const rawName = String(row[nameColIdx] || '').trim();
+          const rawNum = String(row[numColIdx] || '').trim();
+
+          // Check for blank name
+          if (!rawName) {
+            errors.push({
+              rowNum: excelRowNum,
+              message: `Row ${excelRowNum}: Player Name is missing.`,
+              severity: 'row'
+            });
+            return;
+          }
+
+          // Check for blank number
+          if (!rawNum) {
+            errors.push({
+              rowNum: excelRowNum,
+              message: `Row ${excelRowNum}: Player Number is missing for ${rawName}.`,
+              severity: 'row'
+            });
+            return;
+          }
+
+          // Clean jersey number (strip #)
+          const cleanNumStr = rawNum.replace(/#/g, '').trim();
+          const parsedJersey = parseInt(cleanNumStr, 10);
+
+          if (isNaN(parsedJersey) || parsedJersey < 1 || parsedJersey > 99) {
+            errors.push({
+              rowNum: excelRowNum,
+              message: `Row ${excelRowNum}: Invalid jersey number '${rawNum}' for ${rawName} (must be 1–99).`,
+              severity: 'row'
+            });
+            return;
+          }
+
+          // Check for in-file duplicate jersey number
+          if (seenJerseysInFile.has(parsedJersey)) {
+            warnings.push({
+              rowNum: excelRowNum,
+              message: `Row ${excelRowNum}: Jersey number ${parsedJersey} appears more than once in spreadsheet (also on Row ${seenJerseysInFile.get(parsedJersey)}).`
+            });
+          } else {
+            seenJerseysInFile.set(parsedJersey, excelRowNum);
+          }
+
+          // Check for matching player in existing squad
+          const existingMatch = squad.find(p => 
+            p.name.toLowerCase().trim() === rawName.toLowerCase().trim() ||
+            (parseInt(p.jersey, 10) === parsedJersey)
+          );
+
+          let isDuplicate = false;
+          let duplicateType = null;
+          let existingPlayerId = null;
+
+          if (existingMatch) {
+            isDuplicate = true;
+            existingPlayerId = existingMatch.id;
+            const sameName = existingMatch.name.toLowerCase().trim() === rawName.toLowerCase().trim();
+            const sameJersey = parseInt(existingMatch.jersey, 10) === parsedJersey;
+
+            if (sameName && sameJersey) {
+              duplicateType = 'both';
+              warnings.push({
+                rowNum: excelRowNum,
+                message: `Row ${excelRowNum}: ${rawName} (#${parsedJersey}) already exists in your team.`
+              });
+            } else if (sameName) {
+              duplicateType = 'name';
+              warnings.push({
+                rowNum: excelRowNum,
+                message: `Row ${excelRowNum}: ${rawName} matches an existing team member's name.`
+              });
+            } else {
+              duplicateType = 'jersey';
+              warnings.push({
+                rowNum: excelRowNum,
+                message: `Row ${excelRowNum}: Jersey #${parsedJersey} is already assigned to ${existingMatch.name}.`
+              });
+            }
+          }
+
+          validPlayers.push({
+            tempId: `import_${excelRowNum}_${validIndex++}`,
+            rowNum: excelRowNum,
+            name: rawName,
+            jersey: parsedJersey,
+            position: 'Bench',
+            medical: 'None',
+            isDuplicate,
+            duplicateType,
+            existingPlayerId
+          });
         });
 
-        setExcelPlayers(parsed);
+        if (validPlayers.length === 0 && errors.length > 0) {
+          setImportAnalysis({
+            totalRows: dataRows.length,
+            validPlayers: [],
+            errors,
+            warnings,
+            blockingError: "No valid player rows found in spreadsheet. Please review error items below."
+          });
+        } else {
+          setImportAnalysis({
+            totalRows: dataRows.length,
+            validPlayers,
+            errors,
+            warnings,
+            blockingError: null
+          });
+        }
+
+        setImportStep('PREVIEW');
       } catch (err) {
-        console.error("Failed to parse Excel file:", err);
-        alert("Failed to parse Excel file. Make sure it contains a column of Names and a column of Numbers.");
+        console.error("Spreadsheet parsing failed:", err);
+        setImportAnalysis({
+          totalRows: 0,
+          validPlayers: [],
+          errors: [{ rowNum: 0, message: "Failed to parse file: " + (err.message || "Invalid file format") }],
+          warnings: [],
+          blockingError: "Unable to read spreadsheet. Make sure it is a valid Excel workbook (.xlsx or .xls) and try downloading our template."
+        });
+        setImportStep('PREVIEW');
       }
     };
+
     reader.readAsArrayBuffer(file);
   };
 
-  const handleExcelSubmit = () => {
-    if (excelPlayers.length === 0) return;
-    
-    excelPlayers.forEach(player => {
+  // 3. Execute Validated Player Import
+  const handleExecuteImport = () => {
+    if (!importAnalysis.validPlayers || importAnalysis.validPlayers.length === 0) return;
+
+    let addedCount = 0;
+    let updatedCount = 0;
+    let skippedCount = 0;
+
+    importAnalysis.validPlayers.forEach(player => {
+      if (player.isDuplicate) {
+        if (duplicateStrategy === 'skip') {
+          skippedCount++;
+          return;
+        } else if (duplicateStrategy === 'update' && player.existingPlayerId) {
+          onEditPlayer(player.existingPlayerId, {
+            name: player.name,
+            jersey: player.jersey
+          });
+          updatedCount++;
+          return;
+        }
+      }
+
+      // Add player
       onAddPlayer({
         name: player.name,
         jersey: player.jersey,
-        position: player.position,
-        medical: player.medical,
+        position: player.position || 'Bench',
+        medical: player.medical || 'None',
         attendance: [],
         stats: { totalTime: 0, stints: 0 }
       });
+      addedCount++;
     });
 
-    setExcelPlayers([]);
-    setExcelFileName('');
-    setIsImportOpen(false);
+    setImportResult({
+      addedCount,
+      updatedCount,
+      skippedCount,
+      failedCount: importAnalysis.errors.length
+    });
+
+    setImportStep('RESULT');
+  };
+
+  // 4. Reset Import Modal State
+  const handleResetImport = () => {
+    setImportStep('SELECT');
+    setExcelFile(null);
+    setDuplicateStrategy('skip');
+    setImportAnalysis({
+      totalRows: 0,
+      validPlayers: [],
+      errors: [],
+      warnings: [],
+      blockingError: null
+    });
+    setImportResult({
+      addedCount: 0,
+      updatedCount: 0,
+      skippedCount: 0,
+      failedCount: 0
+    });
   };
 
   return (
@@ -996,107 +1274,324 @@ export default function SquadHub({
         document.body
       )}
 
-      {/* Excel Import Modal Backdrop overlay */}
+      {/* ENHANCED MOBILE EXCEL IMPORT MODAL */}
       {isImportOpen && (
-        <div className="overlay-backdrop">
-          <div className="modal-content" style={{ maxWidth: '500px' }}>
-            <div className="modal-header">
-              <h3 className="scoreboard-font" style={{ color: 'var(--color-squad)' }}>Import Roster Excel</h3>
-              <button className="icon-btn" onClick={() => {
-                setIsImportOpen(false);
-                setExcelPlayers([]);
-                setExcelFileName('');
-              }}>
+        <div 
+          className="overlay-backdrop" 
+          style={{ zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+          onClick={() => {
+            setIsImportOpen(false);
+            handleResetImport();
+          }}
+        >
+          <div 
+            className="modal-content" 
+            style={{ maxWidth: '500px', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px', backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Sticky Modal Header */}
+            <div className="modal-header" style={{ flexShrink: 0, padding: '16px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 className="scoreboard-font" style={{ color: 'var(--color-squad)', margin: 0, fontSize: '1.1rem' }}>
+                Import Player Roster
+              </h3>
+              <button 
+                type="button"
+                className="icon-btn" 
+                onClick={() => {
+                  setIsImportOpen(false);
+                  handleResetImport();
+                }}
+              >
                 <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
               </button>
             </div>
-            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <p style={{ fontSize: '0.85rem', color: '#8d939e', lineHeight: '1.5' }}>
-                Upload an Excel sheet (`.xlsx`, `.xls`) containing **Player Name** and **Player Number** (e.g. Jersey #) columns. Medical details and positions are not required during upload and can be edited later.
-              </p>
-              
-              <div style={{
-                border: '2px dashed rgba(255, 255, 255, 0.1)',
-                borderRadius: '8px',
-                padding: '24px 16px',
-                textAlign: 'center',
-                backgroundColor: 'rgba(0,0,0,0.2)',
-                cursor: 'pointer',
-                position: 'relative'
-              }}>
-                <input 
-                  type="file" 
-                  accept=".xlsx, .xls"
-                  onChange={handleExcelUpload}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    opacity: 0,
-                    cursor: 'pointer'
-                  }}
-                />
-                <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ color: 'var(--color-squad)', marginBottom: '8px' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-                <div style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '600' }}>
-                  {excelFileName ? excelFileName : "Click or Drag & Drop Excel File"}
-                </div>
-                <div style={{ fontSize: '0.7rem', color: '#8d939e', marginTop: '4px' }}>
-                  Supports .xlsx, .xls spreadsheet formats
-                </div>
-              </div>
 
-              {excelPlayers.length > 0 && (
-                <div>
-                  <span style={{ fontSize: '0.75rem', color: '#8d939e', display: 'block', marginBottom: '8px', fontWeight: '600', textTransform: 'uppercase' }}>
-                    Parsed Players Preview ({excelPlayers.length}):
-                  </span>
-                  <div style={{ 
-                    maxHeight: '180px', 
-                    overflowY: 'auto', 
-                    backgroundColor: 'rgba(0,0,0,0.3)', 
-                    borderRadius: '6px', 
-                    border: '1px solid rgba(255,255,255,0.05)',
-                    padding: '8px'
-                  }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', color: '#ffffff' }}>
-                      <thead>
-                        <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>
-                          <th style={{ padding: '6px 4px', color: '#8d939e', fontWeight: '600' }}>Name</th>
-                          <th style={{ padding: '6px 4px', color: '#8d939e', fontWeight: '600', textAlign: 'right' }}>Number</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {excelPlayers.map((p, i) => (
-                          <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                            <td style={{ padding: '6px 4px', fontWeight: '500' }}>{p.name}</td>
-                            <td style={{ padding: '6px 4px', fontWeight: '700', color: 'var(--color-squad)', textAlign: 'right' }}>#{parseInt(p.jersey, 10) || p.jersey}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+            {/* Modal Body */}
+            <div className="modal-body" style={{ flex: '1 1 auto', overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', WebkitOverflowScrolling: 'touch' }}>
+              
+              {importStep === 'RESULT' ? (
+                /* RESULT CONFIRMATION SUMMARY */
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center', padding: '10px 0' }}>
+                  <div style={{ backgroundColor: 'rgba(56, 176, 0, 0.12)', border: '1px solid rgba(56, 176, 0, 0.3)', borderRadius: '8px', padding: '16px', color: '#38b000' }}>
+                    <svg width="36" height="36" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ margin: '0 auto 8px auto', display: 'block' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '1.1rem', fontWeight: '700', color: '#ffffff' }}>
+                      Player roster imported
+                    </h4>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#8d939e' }}>
+                      Your team roster has been updated successfully.
+                    </p>
+                  </div>
+
+                  <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.25)', borderRadius: '8px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                      <span style={{ color: '#8d939e' }}>Players added:</span>
+                      <strong style={{ color: '#38b000' }}>{importResult.addedCount} players added</strong>
+                    </div>
+                    {importResult.updatedCount > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                        <span style={{ color: '#8d939e' }}>Players updated:</span>
+                        <strong style={{ color: '#3a86ff' }}>{importResult.updatedCount} players updated</strong>
+                      </div>
+                    )}
+                    {importResult.skippedCount > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                        <span style={{ color: '#8d939e' }}>Existing players skipped:</span>
+                        <strong style={{ color: '#ffb703' }}>{importResult.skippedCount} existing players skipped</strong>
+                      </div>
+                    )}
+                    {importResult.failedCount > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                        <span style={{ color: '#8d939e' }}>Rows not imported:</span>
+                        <strong style={{ color: '#e63946' }}>{importResult.failedCount} row not imported</strong>
+                      </div>
+                    )}
                   </div>
                 </div>
+              ) : (
+                /* SELECT AND PREVIEW STEPS */
+                <>
+                  {/* Instructions */}
+                  <p style={{ fontSize: '0.85rem', color: '#d1d5db', lineHeight: '1.5', margin: 0 }}>
+                    Upload an Excel spreadsheet containing a <strong style={{ color: '#ffffff' }}>Player Name</strong> and <strong style={{ color: '#ffffff' }}>Player Number</strong> column. Position and medical details can be added later.
+                  </p>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '500' }}>
+                      Supported formats: .xlsx and .xls
+                    </span>
+                    <button 
+                      type="button" 
+                      className="btn" 
+                      onClick={handleDownloadTemplate}
+                      style={{ fontSize: '0.75rem', fontWeight: '700', padding: '6px 12px', color: 'var(--color-squad)', borderColor: 'rgba(58, 134, 255, 0.3)', backgroundColor: 'rgba(58, 134, 255, 0.08)' }}
+                    >
+                      Download Excel Template
+                    </button>
+                  </div>
+
+                  {/* File Pick / Preview Box */}
+                  {!excelFile ? (
+                    <div style={{
+                      border: '2px dashed rgba(255, 255, 255, 0.12)',
+                      borderRadius: '10px',
+                      padding: '24px 16px',
+                      textAlign: 'center',
+                      backgroundColor: 'rgba(0, 0, 0, 0.25)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '12px'
+                    }}>
+                      <svg width="36" height="36" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ color: 'var(--color-squad)' }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                      </svg>
+                      
+                      <div>
+                        <div style={{ fontSize: '0.95rem', color: '#ffffff', fontWeight: '700', marginBottom: '2px' }}>
+                          Choose Excel File
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: '#8d939e' }}>
+                          or drag & drop spreadsheet file here
+                        </div>
+                      </div>
+
+                      <label className="btn btn-squad" style={{ minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '10px 24px', cursor: 'pointer', fontWeight: '700', fontSize: '0.85rem' }}>
+                        Select File
+                        <input 
+                          type="file" 
+                          accept=".xlsx, .xls"
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              parseAndValidateExcel(e.target.files[0]);
+                            }
+                          }}
+                          style={{ display: 'none' }}
+                        />
+                      </label>
+                    </div>
+                  ) : (
+                    /* Selected File Analysis & Preview */
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                      
+                      {/* Selected File Header Bar */}
+                      <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '8px', padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
+                          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ color: 'var(--color-squad)', flexShrink: 0 }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                          </svg>
+                          <span style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {excelFile.name}
+                          </span>
+                        </div>
+                        <button 
+                          type="button" 
+                          className="btn" 
+                          onClick={handleResetImport}
+                          style={{ fontSize: '0.75rem', padding: '4px 10px', color: '#8d939e' }}
+                        >
+                          Choose Different File
+                        </button>
+                      </div>
+
+                      {/* Blocking Error Alert */}
+                      {importAnalysis.blockingError && (
+                        <div style={{ backgroundColor: 'rgba(230, 57, 70, 0.12)', border: '1px solid rgba(230, 57, 70, 0.3)', borderRadius: '8px', padding: '12px 14px', color: '#e63946', fontSize: '0.8rem', lineHeight: '1.4' }}>
+                          <strong style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem' }}>Cannot Import File</strong>
+                          {importAnalysis.blockingError}
+                        </div>
+                      )}
+
+                      {/* Summary Metrics Pills */}
+                      {!importAnalysis.blockingError && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                          <span style={{ backgroundColor: 'rgba(56, 176, 0, 0.12)', border: '1px solid rgba(56, 176, 0, 0.3)', color: '#38b000', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: '700' }}>
+                            {importAnalysis.validPlayers.length} players ready to import
+                          </span>
+                          {importAnalysis.warnings.length > 0 && (
+                            <span style={{ backgroundColor: 'rgba(255, 183, 3, 0.12)', border: '1px solid rgba(255, 183, 3, 0.3)', color: '#ffb703', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: '700' }}>
+                              {importAnalysis.warnings.length} warning{importAnalysis.warnings.length === 1 ? '' : 's'}
+                            </span>
+                          )}
+                          {importAnalysis.errors.length > 0 && (
+                            <span style={{ backgroundColor: 'rgba(230, 57, 70, 0.12)', border: '1px solid rgba(230, 57, 70, 0.3)', color: '#e63946', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: '700' }}>
+                              {importAnalysis.errors.length} row{importAnalysis.errors.length === 1 ? '' : 's'} cannot be imported
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Duplicate Strategy Selector (if existing team matches found) */}
+                      {importAnalysis.validPlayers.some(p => p.isDuplicate) && (
+                        <div style={{ backgroundColor: 'rgba(255, 183, 3, 0.06)', border: '1px solid rgba(255, 183, 3, 0.2)', borderRadius: '8px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <label style={{ fontSize: '0.75rem', fontWeight: '700', color: '#ffb703', textTransform: 'uppercase' }}>
+                            Existing Team Duplicates Action:
+                          </label>
+                          <select 
+                            value={duplicateStrategy}
+                            onChange={(e) => setDuplicateStrategy(e.target.value)}
+                            style={{ width: '100%', backgroundColor: '#0a0b0e', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#ffffff', padding: '8px 10px', borderRadius: '6px', fontSize: '0.8rem', outline: 'none' }}
+                          >
+                            <option value="skip">Skip existing player (Recommended)</option>
+                            <option value="update">Update existing player</option>
+                            <option value="import">Import as a new player</option>
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Validation Log Items */}
+                      {(importAnalysis.errors.length > 0 || importAnalysis.warnings.length > 0) && (
+                        <div style={{ maxHeight: '160px', overflowY: 'auto', backgroundColor: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <span style={{ fontSize: '0.7rem', color: '#8d939e', fontWeight: '700', textTransform: 'uppercase' }}>
+                            Validation Notes:
+                          </span>
+                          {importAnalysis.errors.map((errItem, idx) => (
+                            <div key={`err_${idx}`} style={{ fontSize: '0.75rem', color: '#e63946', lineHeight: '1.4' }}>
+                              ⚠️ {errItem.message}
+                            </div>
+                          ))}
+                          {importAnalysis.warnings.map((warnItem, idx) => (
+                            <div key={`warn_${idx}`} style={{ fontSize: '0.75rem', color: '#ffb703', lineHeight: '1.4' }}>
+                              ℹ️ {warnItem.message}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Parsed Players Table Preview */}
+                      {importAnalysis.validPlayers.length > 0 && (
+                        <div>
+                          <span style={{ fontSize: '0.7rem', color: '#8d939e', display: 'block', marginBottom: '6px', fontWeight: '700', textTransform: 'uppercase' }}>
+                            Valid Roster Preview ({importAnalysis.validPlayers.length}):
+                          </span>
+                          <div style={{ maxHeight: '150px', overflowY: 'auto', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)', padding: '6px' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', color: '#ffffff' }}>
+                              <thead>
+                                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>
+                                  <th style={{ padding: '4px', color: '#8d939e', fontWeight: '600' }}>Row</th>
+                                  <th style={{ padding: '4px', color: '#8d939e', fontWeight: '600' }}>Name</th>
+                                  <th style={{ padding: '4px', color: '#8d939e', fontWeight: '600', textAlign: 'right' }}>Number</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {importAnalysis.validPlayers.map((p) => (
+                                  <tr key={p.tempId} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                                    <td style={{ padding: '4px', color: '#8d939e', fontSize: '0.75rem' }}>#{p.rowNum}</td>
+                                    <td style={{ padding: '4px', fontWeight: '500' }}>
+                                      {p.name}
+                                      {p.isDuplicate && (
+                                        <span style={{ fontSize: '0.65rem', color: '#ffb703', marginLeft: '6px' }}>
+                                          ({duplicateStrategy})
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td style={{ padding: '4px', fontWeight: '700', color: 'var(--color-squad)', textAlign: 'right' }}>
+                                      #{p.jersey}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+
+                    </div>
+                  )}
+                </>
               )}
+
             </div>
-            <div className="modal-footer">
-              <button className="btn" onClick={() => {
-                setIsImportOpen(false);
-                setExcelPlayers([]);
-                setExcelFileName('');
-              }}>Cancel</button>
-              <button 
-                className="btn btn-squad" 
-                onClick={handleExcelSubmit} 
-                disabled={excelPlayers.length === 0}
-              >
-                Confirm & Import ({excelPlayers.length})
-              </button>
+
+            {/* Sticky Modal Footer */}
+            <div className="modal-footer" style={{ flexShrink: 0, padding: '14px 20px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              {importStep === 'RESULT' ? (
+                <button 
+                  type="button" 
+                  className="btn btn-squad" 
+                  onClick={() => {
+                    setIsImportOpen(false);
+                    handleResetImport();
+                  }}
+                  style={{ width: '100%', minHeight: '44px', fontWeight: '700' }}
+                >
+                  Return to Players
+                </button>
+              ) : (
+                <>
+                  <button 
+                    type="button" 
+                    className="btn" 
+                    onClick={() => {
+                      setIsImportOpen(false);
+                      handleResetImport();
+                    }}
+                    style={{ minHeight: '44px', minWidth: '90px' }}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-squad" 
+                    onClick={handleExecuteImport} 
+                    disabled={!excelFile || importAnalysis.blockingError || importAnalysis.validPlayers.length === 0}
+                    style={{ 
+                      minHeight: '44px', 
+                      fontWeight: '700', 
+                      opacity: (!excelFile || importAnalysis.blockingError || importAnalysis.validPlayers.length === 0) ? 0.4 : 1,
+                      cursor: (!excelFile || importAnalysis.blockingError || importAnalysis.validPlayers.length === 0) ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    {(!excelFile || importAnalysis.validPlayers.length === 0)
+                      ? 'Import Players'
+                      : `Import ${importAnalysis.validPlayers.length} Player${importAnalysis.validPlayers.length === 1 ? '' : 's'}`
+                    }
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
