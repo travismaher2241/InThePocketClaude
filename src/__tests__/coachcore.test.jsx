@@ -465,7 +465,7 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
         expect(screen.queryByText(/SYNTHESIZING/i)).not.toBeInTheDocument();
       }, { timeout: 4000 });
 
-      expect(screen.getByText(/Training Plan/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Training Plan/i).length).toBeGreaterThan(0);
     });
 
     it('3 & 4: Loading always finishes and generation errors display a useful message when constraints cannot be met', async () => {
@@ -800,10 +800,10 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
         expect(screen.queryByText(/SYNTHESIZING/i)).not.toBeInTheDocument();
       }, { timeout: 4000 });
 
-      expect(screen.getByText((content) => content.includes('STATION A'))).toBeInTheDocument();
-      expect(screen.getByText((content) => content.includes('STATION B'))).toBeInTheDocument();
-      expect(screen.getByText((content) => content.includes('STATION C'))).toBeInTheDocument();
-      expect(screen.getByText((content) => content.includes('STATION D'))).toBeInTheDocument();
+      expect(screen.getAllByText((content) => content.includes('STATION A')).length).toBeGreaterThan(0);
+      expect(screen.getAllByText((content) => content.includes('STATION B')).length).toBeGreaterThan(0);
+      expect(screen.getAllByText((content) => content.includes('STATION C')).length).toBeGreaterThan(0);
+      expect(screen.getAllByText((content) => content.includes('STATION D')).length).toBeGreaterThan(0);
     });
 
     it('17: Saving and reopening plan preserves 6-slot concurrent station structure', async () => {
@@ -1193,6 +1193,69 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
       const importBtn = screen.getByRole('button', { name: 'Import Players' });
       expect(importBtn).toBeDisabled();
       expect(screen.queryByText(/Confirm & Import/i)).not.toBeInTheDocument();
+    });
+
+    it('23: UI Regression: Mobile Training Plan UI enforces compact header, session overview, collapsible cards, overflow cancel confirmation, and active session coaching mode', async () => {
+      const mockToggleNav = vi.fn();
+      const mockLogSync = vi.fn();
+
+      render(
+        <TrainingLab
+          squad={[{ id: 'p1', name: 'Dustin Martin' }, { id: 'p2', name: 'Shai Bolton' }]}
+          subscriptionTier="pro"
+          logSyncTransaction={mockLogSync}
+          onToggleBottomNav={mockToggleNav}
+        />
+      );
+
+      // Start generation
+      const planBtn = screen.getByText(/Plan New Session with AI/i);
+      fireEvent.click(planBtn);
+
+      const selectAllBtn = screen.getByText(/Select All/i);
+      fireEvent.click(selectAllBtn);
+
+      const confirmBtns = screen.getAllByText(/Confirm Attendance/i);
+      fireEvent.click(confirmBtns[0]);
+
+      const generateBtn = screen.getByText(/Generate Training Plan/i);
+      await act(async () => {
+        fireEvent.click(generateBtn);
+      });
+
+      // Verify onToggleBottomNav called with true for plan step
+      expect(mockToggleNav).toHaveBeenCalledWith(true);
+
+      // Verify compact session overview card elements
+      expect(screen.getByText('SESSION OVERVIEW')).toBeInTheDocument();
+      expect(screen.getByText(/4 activities/i)).toBeInTheDocument();
+      expect(screen.getByText(/Equipment:/i)).toBeInTheDocument();
+
+      // Verify sticky bottom action bar before session start
+      expect(screen.getByRole('button', { name: 'Remix' })).toBeInTheDocument();
+      const startBtn = screen.getByRole('button', { name: 'Start Session' });
+      expect(startBtn).toBeInTheDocument();
+
+      // Start Session to enter Active Coaching Mode
+      fireEvent.click(startBtn);
+
+      expect(screen.getByText(/ACTIVE COACHING MODE — STAGE 1 OF 4/i)).toBeInTheDocument();
+      expect(screen.getAllByRole('button', { name: 'Pause' }).length).toBeGreaterThan(0);
+      expect(screen.getAllByRole('button', { name: 'Next Activity' }).length).toBeGreaterThan(0);
+
+      // Test Cancel Plan overflow modal
+      const overflowBtn = screen.getByLabelText('More options');
+      fireEvent.click(overflowBtn);
+
+      const cancelPlanOption = screen.getByText('Cancel Plan');
+      fireEvent.click(cancelPlanOption);
+
+      expect(screen.getByText('Cancel this training plan?')).toBeInTheDocument();
+      expect(screen.getByText('Your current generated training plan will be discarded.')).toBeInTheDocument();
+      
+      const keepBtn = screen.getByRole('button', { name: 'Keep Plan' });
+      fireEvent.click(keepBtn);
+      expect(screen.queryByText('Cancel this training plan?')).not.toBeInTheDocument();
     });
   });
 

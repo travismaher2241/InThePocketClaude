@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import ContextualTaggingModal from './ContextualTaggingModal';
 import DrillDetailsModal from './DrillDetailsModal';
 import { saveTrainingSession, getTrainingSessions, deleteSession, hasAccess, fetchRawAIPlan, confirmAIGenerationQuota, getUserProfile } from '../firebaseHelpers';
@@ -1242,7 +1243,8 @@ export default function TrainingLab({
   onSaveVideoClip,
   squadSettings,
   userProfile,
-  setActiveTab
+  setActiveTab,
+  onToggleBottomNav
 }) {
   const { currentUser } = useAuth();
 
@@ -1255,6 +1257,19 @@ export default function TrainingLab({
   const [coachNotes, setCoachNotes] = useState('');
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [activeInspectDrill, setActiveInspectDrill] = useState(null);
+
+  // Mobile Training Plan UX State
+  const [expandedCards, setExpandedCards] = useState(() => new Set());
+  const [isPlanOverflowOpen, setIsPlanOverflowOpen] = useState(false);
+  const [isCancelPlanConfirmOpen, setIsCancelPlanConfirmOpen] = useState(false);
+  const [replaceConfirmIndex, setReplaceConfirmIndex] = useState(null);
+
+  // Active Session Coaching Mode State
+  const [isSessionActive, setIsSessionActive] = useState(false);
+  const [activeStageIndex, setActiveStageIndex] = useState(0);
+  const [sessionSeconds, setSessionSeconds] = useState(0);
+  const [isTimerPaused, setIsTimerPaused] = useState(false);
+  const [isEndSessionConfirmOpen, setIsEndSessionConfirmOpen] = useState(false);
 
   const resolveFullDrillRecord = (card) => {
     if (!card) return null;
@@ -1519,6 +1534,42 @@ export default function TrainingLab({
     fetchGensCount();
   }, [currentUser]);
 
+  // Toggle Bottom Navigation Visibility based on Plan step
+  useEffect(() => {
+    if (onToggleBottomNav) {
+      onToggleBottomNav(step === 'plan');
+    }
+    return () => {
+      if (onToggleBottomNav) onToggleBottomNav(false);
+    };
+  }, [step, onToggleBottomNav]);
+
+  // Active Session Timer
+  useEffect(() => {
+    let interval = null;
+    if (isSessionActive && !isTimerPaused) {
+      interval = setInterval(() => {
+        setSessionSeconds(prev => prev + 1);
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isSessionActive, isTimerPaused]);
+
+  // Expand / Collapse Card Toggle Handler
+  const toggleCardExpanded = (cardId) => {
+    setExpandedCards(prev => {
+      const next = new Set(prev);
+      if (next.has(cardId)) {
+        next.delete(cardId);
+      } else {
+        next.add(cardId);
+      }
+      return next;
+    });
+  };
+
   // Sync draft parameters to User-Scoped LocalStorage on changes
   useEffect(() => {
     if (!currentUser) return;
@@ -1530,9 +1581,13 @@ export default function TrainingLab({
       coachLevel,
       focusAreas,
       customPlaybookText,
-      planCards
+      planCards,
+      isSessionActive,
+      activeStageIndex,
+      sessionSeconds,
+      isTimerPaused
     }));
-  }, [step, presentIds, duration, coachLevel, focusAreas, customPlaybookText, planCards, currentUser]);
+  }, [step, presentIds, duration, coachLevel, focusAreas, customPlaybookText, planCards, isSessionActive, activeStageIndex, sessionSeconds, isTimerPaused, currentUser]);
 
   const clearDraft = () => {
     if (currentUser) {
@@ -1778,6 +1833,356 @@ export default function TrainingLab({
         alert(`Error: Failed to delete session. Details: ${err.message || err}`);
       }
     }
+  };
+
+  // Mobile Training Plan Helpers & Renderers
+  const formatTimer = (totalSecs) => {
+    const mins = Math.floor(totalSecs / 60);
+    const secs = totalSecs % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
+  const getEquipmentSummary = (cards, globalEquip) => {
+    const items = new Set();
+    if (cards && Array.isArray(cards)) {
+      cards.forEach(c => {
+        const inst = String(c.instructions || c.setup || '').toLowerCase();
+        if (inst.includes('ball') || inst.includes('footy')) items.add('Footballs');
+        if (inst.includes('cone')) items.add('Cones');
+        if (inst.includes('bib')) items.add('Bibs');
+        if (inst.includes('pole')) items.add('Agility poles');
+        if (inst.includes('mat')) items.add('Tackle mats');
+      });
+    }
+    if (items.size === 0 && globalEquip) {
+      if (globalEquip.footballs > 0) items.add('Footballs');
+      if (globalEquip.cones > 0) items.add('Cones');
+      if (globalEquip.bibs > 0) items.add('Bibs');
+    }
+    const arr = Array.from(items);
+    if (arr.length === 0) return null;
+    if (arr.length === 1) return arr[0];
+    if (arr.length === 2) return `${arr[0]} and ${arr[1]}`;
+    return `${arr.slice(0, -1).join(', ')} and ${arr[arr.length - 1]}`;
+  };
+
+  const renderChronologicalStages = ({
+    planCards,
+    expandedCards,
+    toggleCardExpanded,
+    presentIds,
+    group1,
+    group2,
+    setActiveInspectDrill,
+    resolveFullDrillRecord,
+    setReplaceConfirmIndex,
+    handleDrillVideoUpload,
+    activeStageIndex,
+    isSessionActive
+  }) => {
+    if (!planCards || planCards.length === 0) return null;
+
+    const warmUpSeg = planCards[0];
+    const block1Seg = planCards[1];
+    const block2Seg = planCards[2];
+    const finalSeg = planCards[3] || planCards[planCards.length - 1];
+
+    const stages = [
+      { id: 'stage_1', seq: 1, title: 'Warm-Up', segment: warmUpSeg, type: 'warmup', duration: warmUpSeg?.duration || 10 },
+      { id: 'stage_2', seq: 2, title: 'Station Rotation 1 (Stations A & B)', segment: block1Seg, type: 'block1', duration: block1Seg?.duration || 15 },
+      { id: 'stage_3', seq: 3, title: 'Station Rotation 2 (Stations C & D)', segment: block2Seg, type: 'block2', duration: block2Seg?.duration || 15 },
+      { id: 'stage_4', seq: 4, title: 'Final Activity', segment: finalSeg, type: 'final', duration: finalSeg?.duration || 20 }
+    ];
+
+    return stages.map((stg, stgIdx) => {
+      const isExpanded = expandedCards.has(stg.id);
+      const isCurrentActive = isSessionActive && activeStageIndex === stgIdx;
+
+      if (!stg.segment) return null;
+
+      // Handle Concurrent Station Blocks (Stations A & B, Stations C & D)
+      if (stg.type === 'block1' || stg.type === 'block2') {
+        const subCards = parseStationCards(stg.segment, group1, group2);
+        const cardA = subCards[0] || stg.segment;
+        const cardB = subCards[1] || stg.segment;
+        const halfMins = Math.max(5, Math.round((stg.duration || 15) / 2));
+        const isBlock1 = stg.type === 'block1';
+
+        return (
+          <div 
+            key={stg.id}
+            style={{
+              backgroundColor: isCurrentActive ? '#1c2234' : '#161922',
+              border: isCurrentActive ? '2px solid #3a86ff' : '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              boxShadow: isCurrentActive ? '0 0 20px rgba(58, 134, 255, 0.2)' : '0 4px 12px rgba(0,0,0,0.3)'
+            }}
+          >
+            {/* Card Header - Min 44px Touch Target */}
+            <div 
+              onClick={() => toggleCardExpanded(stg.id)}
+              style={{
+                padding: '14px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                justify: 'space-between',
+                cursor: 'pointer',
+                userSelect: 'none',
+                minHeight: '44px',
+                backgroundColor: isCurrentActive ? 'rgba(58, 134, 255, 0.12)' : 'rgba(255, 255, 255, 0.02)'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                <span className="scoreboard-font" style={{ color: 'var(--color-squad)', fontSize: '1rem', fontWeight: '800', flexShrink: 0 }}>
+                  {stg.seq}.
+                </span>
+                <div style={{ overflow: 'hidden', flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <h4 style={{ margin: 0, color: '#ffffff', fontSize: '1rem', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {stg.title}
+                    </h4>
+                    <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(255, 183, 3, 0.15)', color: '#ffb703', border: '1px solid rgba(255, 183, 3, 0.3)', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>
+                      {stg.duration} MINS TOTAL
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#8d939e', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    Group 1 ({group1}) @ {isBlock1 ? 'STATION A' : 'STATION C'} | Group 2 ({group2}) @ {isBlock1 ? 'STATION B' : 'STATION D'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Expand Chevron Indicator */}
+              <div style={{ marginLeft: '10px', flexShrink: 0, display: 'flex', alignItems: 'center', minWidth: '24px', justifyContent: 'center' }}>
+                <svg 
+                  width="18" 
+                  height="18" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  viewBox="0 0 24 24"
+                  style={{ 
+                    color: '#8d939e',
+                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease'
+                  }}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+            </div>
+
+            {/* Card Body (Expanded Content) */}
+            {isExpanded && (
+              <div style={{ padding: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Station Rotation Rule Banner */}
+                <div style={{ backgroundColor: 'rgba(58, 134, 255, 0.08)', border: '1px dashed rgba(58, 134, 255, 0.3)', borderRadius: '8px', padding: '10px 12px', fontSize: '0.8rem', color: '#3a86ff', fontWeight: '600' }}>
+                  🔄 <strong>Rotation Schedule:</strong> Groups rotate at the {halfMins}-minute mark.
+                  <div style={{ color: '#ffffff', marginTop: '4px', fontSize: '0.78rem' }}>
+                    {isBlock1 
+                      ? 'Group 1 moves from Station A → Station B | Group 2 moves from Station B → Station A' 
+                      : 'Group 1 moves from Station C → Station D | Group 2 moves from Station D → Station C'
+                    }
+                  </div>
+                </div>
+
+                {/* STATION A / C DETAILS */}
+                <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', borderLeft: '4px solid #ffb703', borderRadius: '8px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h5 style={{ margin: 0, color: '#ffb703', fontSize: '0.95rem', fontWeight: '700' }}>
+                      {cardA.title || (isBlock1 ? 'Station A' : 'Station C')}
+                    </h5>
+                    <span style={{ fontSize: '0.7rem', color: '#8d939e', fontWeight: '600' }}>
+                      Group 1 ({group1} players)
+                    </span>
+                  </div>
+
+                  {renderDrillTextFramework(cardA)}
+
+                  {/* Actions */}
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => setActiveInspectDrill(resolveFullDrillRecord(cardA))}
+                      style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px' }}
+                    >
+                      View Manual
+                    </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => setReplaceConfirmIndex(1)}
+                      style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px', color: '#ffbe0b' }}
+                    >
+                      Replace Drill
+                    </button>
+                    <label className="btn" style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px', cursor: 'pointer', color: 'var(--color-video)' }}>
+                      Record or Upload Video
+                      <input 
+                        type="file" 
+                        accept="video/*" 
+                        onChange={(e) => handleDrillVideoUpload(e, cardA.title || 'Station Drill')}
+                        style={{ display: 'none' }} 
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {/* STATION B / D DETAILS */}
+                <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', borderLeft: '4px solid #fb8500', borderRadius: '8px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h5 style={{ margin: 0, color: '#fb8500', fontSize: '0.95rem', fontWeight: '700' }}>
+                      {cardB.title || (isBlock1 ? 'Station B' : 'Station D')}
+                    </h5>
+                    <span style={{ fontSize: '0.7rem', color: '#8d939e', fontWeight: '600' }}>
+                      Group 2 ({group2} players)
+                    </span>
+                  </div>
+
+                  {renderDrillTextFramework(cardB)}
+
+                  {/* Actions */}
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => setActiveInspectDrill(resolveFullDrillRecord(cardB))}
+                      style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px' }}
+                    >
+                      View Manual
+                    </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => setReplaceConfirmIndex(stg.type === 'block1' ? 1 : 2)}
+                      style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px', color: '#ffbe0b' }}
+                    >
+                      Replace Drill
+                    </button>
+                    <label className="btn" style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px', cursor: 'pointer', color: 'var(--color-video)' }}>
+                      Record or Upload Video
+                      <input 
+                        type="file" 
+                        accept="video/*" 
+                        onChange={(e) => handleDrillVideoUpload(e, cardB.title || 'Station Drill')}
+                        style={{ display: 'none' }} 
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // Single Drill Segment (Warm-Up or Final Game)
+      const segCard = stg.segment;
+      const cardTitle = (segCard.title || stg.title).replace(/[#*`[\]]/g, '');
+
+      return (
+        <div 
+          key={stg.id}
+          style={{
+            backgroundColor: isCurrentActive ? '#1c2234' : '#161922',
+            border: isCurrentActive ? '2px solid #3a86ff' : '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            boxShadow: isCurrentActive ? '0 0 20px rgba(58, 134, 255, 0.2)' : '0 4px 12px rgba(0,0,0,0.3)'
+          }}
+        >
+          {/* Card Header - Min 44px Touch Target */}
+          <div 
+            onClick={() => toggleCardExpanded(stg.id)}
+            style={{
+              padding: '14px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              justify: 'space-between',
+              cursor: 'pointer',
+              userSelect: 'none',
+              minHeight: '44px',
+              backgroundColor: isCurrentActive ? 'rgba(58, 134, 255, 0.12)' : 'rgba(255, 255, 255, 0.02)'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+              <span className="scoreboard-font" style={{ color: 'var(--color-squad)', fontSize: '1rem', fontWeight: '800', flexShrink: 0 }}>
+                {stg.seq}.
+              </span>
+              <div style={{ overflow: 'hidden', flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <h4 style={{ margin: 0, color: '#ffffff', fontSize: '1rem', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {cardTitle}
+                  </h4>
+                  <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(58, 134, 255, 0.15)', color: '#3a86ff', border: '1px solid rgba(58, 134, 255, 0.3)', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>
+                    {stg.duration} MINS
+                  </span>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#8d939e', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {segCard.goal || 'All Players Whole Group Activity'}
+                </div>
+              </div>
+            </div>
+
+            {/* Expand Chevron Indicator */}
+            <div style={{ marginLeft: '10px', flexShrink: 0, display: 'flex', alignItems: 'center', minWidth: '24px', justifyContent: 'center' }}>
+              <svg 
+                width="18" 
+                height="18" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2.5" 
+                viewBox="0 0 24 24"
+                style={{ 
+                  color: '#8d939e',
+                  transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.2s ease'
+                }}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </div>
+          </div>
+
+          {/* Card Body (Expanded Content) */}
+          {isExpanded && (
+            <div style={{ padding: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {renderDrillTextFramework(segCard)}
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => setActiveInspectDrill(resolveFullDrillRecord(segCard))}
+                  style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px' }}
+                >
+                  View Manual
+                </button>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => setReplaceConfirmIndex(stgIdx)}
+                  style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px', color: '#ffbe0b' }}
+                >
+                  Replace Drill
+                </button>
+                <label className="btn" style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px', cursor: 'pointer', color: 'var(--color-video)' }}>
+                  Record or Upload Video
+                  <input 
+                    type="file" 
+                    accept="video/*" 
+                    onChange={(e) => handleDrillVideoUpload(e, cardTitle)}
+                    style={{ display: 'none' }} 
+                  />
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    });
   };
 
   return (
@@ -2564,540 +2969,327 @@ export default function TrainingLab({
         </div>
       )}
 
-      {/* STEP 4: TRAINING PLAN SCREEN - DRILL CARD DECK ARCHITECTURE */}
+      {/* STEP 4: TRAINING PLAN SCREEN - FOCUSED FULL-SCREEN MOBILE VIEW */}
       {step === 'plan' && (
         <div 
           style={{
             width: '100%',
-            maxWidth: '480px',
+            maxWidth: '520px',
             margin: '0 auto',
             display: 'flex',
             flexDirection: 'column',
-            gap: '24px',
-            animation: 'slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+            gap: '16px',
+            animation: 'fadeIn 0.25s ease-out',
+            paddingBottom: '140px'
           }}
         >
-          {/* Header section */}
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <div 
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
-                  color: 'var(--text-secondary)'
-                }}
-                onClick={() => setStep('parameters')}
-              >
-                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
-                </svg>
-                <span style={{ fontSize: '0.85rem', fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>Back</span>
-              </div>
-              <span
-                onClick={() => {
-                  if (window.confirm("Cancel this plan and restart? This will clear all current parameters.")) {
-                    clearDraft();
-                  }
-                }}
-                style={{
-                  fontSize: '0.85rem',
-                  fontFamily: 'var(--font-family-body)',
-                  fontWeight: '600',
-                  color: '#e63946',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
-              >
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-                Cancel Plan
-              </span>
-            </div>
-
-            {generationError && (
-              <div 
-                className="generation-error-banner"
-                style={{
-                  backgroundColor: 'rgba(230, 57, 70, 0.15)',
-                  border: '1px solid rgba(230, 57, 70, 0.4)',
-                  color: '#ff4d4d',
-                  padding: '14px 16px',
-                  borderRadius: '8px',
-                  fontSize: '0.9rem',
-                  fontWeight: '600',
-                  lineHeight: '1.4',
-                  marginTop: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px'
-                }}
-              >
-                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-                <span>{generationError}</span>
-              </div>
-            )}
-            
-            <h2 
-              style={{ 
-                fontFamily: 'var(--font-family-locker)',
-                fontSize: '2.5rem',
-                fontWeight: '700',
-                color: 'var(--text-primary)',
-                letterSpacing: '-0.02em',
-                lineHeight: '1.1'
-              }}
-            >
-              Training Plan
-            </h2>
-            
-            {isFallback && !isGenerating && (
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic', display: 'block', marginTop: '4px' }}>
-                Running on offline local training database
-              </span>
-            )}
-          </div>
-
-          {/* Late arrival notice banner */}
-          {lateArrivalMessage && (
-            <div 
-              style={{ 
-                padding: '12px', 
-                backgroundColor: 'rgba(255, 183, 3, 0.1)', 
-                border: '1px solid var(--color-match)',
-                color: '#ffffff',
-                borderRadius: '6px',
-                fontSize: '0.85rem',
-                lineHeight: '1.4'
-              }}
-            >
-              {lateArrivalMessage}
-            </div>
-          )}
-
-          {/* DRILL CARD DECK VIEWPORTS */}
+          {/* Sticky Mobile Header */}
           <div 
-            style={{ 
+            style={{
+              position: 'sticky',
+              top: 0,
+              zIndex: 95,
+              backgroundColor: 'rgba(10, 11, 14, 0.95)',
+              backdropFilter: 'blur(12px)',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              margin: '-40px -16px 0 -16px',
+              padding: '12px 16px',
               display: 'flex',
-              flexDirection: 'column',
-              gap: '20px',
-              maxHeight: 'calc(100vh - 260px)',
-              overflowY: 'auto',
-              paddingBottom: '20px'
+              justify: 'space-between',
+              alignItems: 'center'
             }}
           >
-            {isGenerating ? (
-              <div 
-                style={{ 
-                  textAlign: 'center', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'center', 
-                  gap: '16px',
-                  padding: '80px 20px',
-                  backgroundColor: '#1c1f26',
-                  border: '1px solid rgba(255, 255, 255, 0.05)',
-                  borderRadius: '10px'
-                }}
+            <div 
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: '#8d939e' }}
+              onClick={() => setStep('parameters')}
+            >
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
+              </svg>
+              <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>Back</span>
+            </div>
+
+            <h3 className="scoreboard-font" style={{ color: '#ffffff', margin: 0, fontSize: '1.1rem', fontWeight: '700' }}>
+              Training Plan
+            </h3>
+
+            {/* Overflow 3-Dot Menu */}
+            <div style={{ position: 'relative' }}>
+              <button
+                type="button"
+                className="icon-btn"
+                onClick={() => setIsPlanOverflowOpen(!isPlanOverflowOpen)}
+                style={{ padding: '4px 8px', fontSize: '1.2rem', color: '#8d939e', background: 'none', border: 'none', cursor: 'pointer' }}
+                aria-label="More options"
               >
+                &#8285;
+              </button>
+
+              {isPlanOverflowOpen && (
                 <div style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  border: '3px solid rgba(230, 57, 70, 0.1)',
-                  borderTopColor: 'var(--color-training)',
-                  animation: 'spin 0.8s linear infinite'
-                }} />
-                <span className="scoreboard-font" style={{ fontSize: '1rem', color: 'var(--color-training)', letterSpacing: '0.05em' }}>
-                  SYNTHESIZING DRILL DECK...
-                </span>
-              </div>
-            ) : (
-              (() => {
-                const displayedCards = [];
-                const currentGround = squadSettings?.groundName || "home ground";
-                const sanitizedCards = sanitizePlanCards(planCards, currentGround, totalPlayersCount, ageGroup);
-                sanitizedCards.forEach((card, index) => {
-                  const parsed = parseStationCards(card, group1, group2);
-                  parsed.forEach(sub => {
-                    sub.originalIndex = index;
-                    displayedCards.push(sub);
-                  });
-                });
-
-                if (displayedCards.length === 0) {
-                  return (
-                    <div 
-                      style={{
-                        backgroundColor: '#1c1f26',
-                        border: '1px solid rgba(255, 255, 255, 0.05)',
-                        borderRadius: '10px',
-                        padding: '40px 20px',
-                        textAlign: 'center',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '16px'
-                      }}
-                    >
-                      <div style={{ fontSize: '1rem', color: '#9ca3af', fontWeight: '600' }}>
-                        No session plan cards generated yet.
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => runPlanGeneration()}
-                        style={{
-                          padding: '12px 24px',
-                          backgroundColor: 'var(--color-training)',
-                          color: '#ffffff',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontFamily: 'var(--font-family-locker)',
-                          fontSize: '1rem',
-                          fontWeight: '700',
-                          letterSpacing: '0.05em',
-                          cursor: 'pointer',
-                          boxShadow: '0 4px 16px rgba(230, 57, 70, 0.4)'
-                        }}
-                      >
-                        ⚡ GENERATE SESSION PLAN NOW
-                      </button>
-                    </div>
-                  );
-                }
-
-                return displayedCards.map((card, idx) => (
-                  <div 
-                    key={idx}
-                    style={{
-                      backgroundColor: '#1c1f26', // Lighter tactile slate-gray card
-                      border: '1px solid rgba(255, 255, 255, 0.05)', // Subtle thin border
-                      borderLeft: card.isSubCard 
-                        ? (card.stationLabel === 'STATION A' ? '4px solid #ffb703' : '4px solid #fb8500') 
-                        : '1px solid rgba(255, 255, 255, 0.05)',
-                      borderRadius: '10px',
-                      padding: '24px 20px',
-                      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.25)', // Soft panel lift shadow
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '12px',
-                      animation: 'fadeIn 0.3s ease-out'
+                  position: 'absolute',
+                  right: 0,
+                  top: '100%',
+                  marginTop: '4px',
+                  backgroundColor: '#1c202c',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '8px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                  padding: '4px',
+                  zIndex: 100,
+                  minWidth: '140px'
+                }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsPlanOverflowOpen(false);
+                      handleGenerateVariation();
                     }}
+                    style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', color: '#ffbe0b', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer', borderRadius: '4px' }}
                   >
-                    {/* Headline (Locker Font, bold, clean) */}
-                    <h3 
-                      style={{
-                        fontFamily: 'var(--font-family-locker)',
-                        fontSize: '1.5rem',
-                        fontWeight: '700',
-                        color: '#ffffff',
-                        letterSpacing: '-0.01em',
-                        lineHeight: '1.2'
-                      }}
-                    >
-                      {(card.title || 'DRILL SEGMENT').replace(/[#*`[\]]/g, '')}
-                      {card.isSubCard && (
-                        <span style={{ 
-                          color: card.stationLabel === 'STATION A' ? '#ffb703' : '#fb8500',
-                          fontSize: '1.1rem',
-                          marginLeft: '8px',
-                          fontWeight: '800',
-                          fontFamily: 'var(--font-family-board)'
-                        }}>
-                          [{card.stationLabel}]
-                        </span>
-                      )}
-                    </h3>
-
-                    {/* Quick Stats */}
-                    <div 
-                      style={{
-                        fontFamily: 'var(--font-family-board)',
-                        fontSize: '0.85rem',
-                        color: 'var(--color-match)', // Sherrin Yellow accent for stats
-                        fontWeight: '700',
-                        letterSpacing: '0.05em',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <span>
-                        {card.duration} MINS | {
-                          card.isSubCard 
-                            ? card.playerLabel 
-                            : `${presentIds.length} PLAYERS`
-                        }
-                      </span>
-                      {card.phase && (
-                        <span 
-                          style={{
-                            fontSize: '0.7rem',
-                            backgroundColor: card.phase.toUpperCase() === 'ATTACK' ? 'rgba(58, 134, 255, 0.15)' : 
-                                             card.phase.toUpperCase() === 'DEFENCE' ? 'rgba(230, 57, 70, 0.15)' : 
-                                             'rgba(255, 183, 3, 0.15)',
-                            color: card.phase.toUpperCase() === 'ATTACK' ? '#3a86ff' : 
-                                   card.phase.toUpperCase() === 'DEFENCE' ? '#e63946' : 
-                                   '#ffb703',
-                            border: `1px solid ${
-                              card.phase.toUpperCase() === 'ATTACK' ? 'rgba(58, 134, 255, 0.3)' : 
-                              card.phase.toUpperCase() === 'DEFENCE' ? 'rgba(230, 57, 70, 0.3)' : 
-                              'rgba(255, 183, 3, 0.3)'
-                            }`,
-                            padding: '2px 8px',
-                            borderRadius: '4px',
-                            textTransform: 'uppercase',
-                            fontWeight: '700'
-                          }}
-                        >
-                          {card.phase}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Summary Framework (Objective & Setup only) */}
-                    {renderDrillTextFramework(card)}
-
-                        {/* Rotation indicator for stations */}
-                        {card.isSubCard && card.switchLabel && (
-                          <div 
-                            style={{
-                              backgroundColor: 'rgba(58, 134, 255, 0.08)',
-                              border: '1px dashed rgba(58, 134, 255, 0.25)',
-                              borderRadius: '6px',
-                              padding: '10px 12px',
-                              marginTop: '4px',
-                              fontSize: '0.85rem',
-                              fontFamily: 'var(--font-family-body)',
-                              color: '#3a86ff',
-                              fontWeight: '600',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px'
-                            }}
-                          >
-                            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <span>Rotation: {card.switchLabel.replace(/[#*`[\]]/g, '')}</span>
-                          </div>
-                        )}
-
-                    {/* Video Capture/Upload & Full Manual Action Row */}
-                    <div style={{ 
-                      display: 'flex', 
-                      gap: '8px', 
-                      marginTop: '12px', 
-                      borderTop: '1px solid rgba(255, 255, 255, 0.05)', 
-                      paddingTop: '12px',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      flexWrap: 'wrap'
-                    }}>
-                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        <button
-                          onClick={() => setActiveInspectDrill(resolveFullDrillRecord(card))}
-                          style={{
-                            backgroundColor: 'rgba(58, 134, 255, 0.12)',
-                            border: '1px solid rgba(58, 134, 255, 0.3)',
-                            color: '#3a86ff',
-                            borderRadius: '6px',
-                            padding: '6px 12px',
-                            fontFamily: 'var(--font-family-locker)',
-                            fontSize: '0.75rem',
-                            fontWeight: '700',
-                            letterSpacing: '0.03em',
-                            textTransform: 'uppercase',
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            transition: 'all 0.2s'
-                          }}
-                        >
-                          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                          View Manual
-                        </button>
-                        <button
-                          onClick={() => handleReplaceDrillCard(idx)}
-                          style={{
-                            backgroundColor: 'rgba(255, 190, 11, 0.12)',
-                            border: '1px solid rgba(255, 190, 11, 0.3)',
-                            color: '#ffbe0b',
-                            borderRadius: '6px',
-                            padding: '6px 12px',
-                            fontFamily: 'var(--font-family-locker)',
-                            fontSize: '0.75rem',
-                            fontWeight: '700',
-                            letterSpacing: '0.03em',
-                            textTransform: 'uppercase',
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            transition: 'all 0.2s'
-                          }}
-                        >
-                          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                          </svg>
-                          Replace Drill
-                        </button>
-                      </div>
-
-                      <div>
-                        <input 
-                          type="file" 
-                          accept="video/*" 
-                          id={`drill-video-${idx}`} 
-                          onChange={(e) => handleDrillVideoUpload(e, (card.title + (card.stationLabel ? ' ' + card.stationLabel : '')).replace(/[#*`[\]]/g, ''))}
-                          style={{ display: 'none' }} 
-                        />
-                        <label 
-                          htmlFor={`drill-video-${idx}`}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            fontSize: '0.75rem',
-                            fontWeight: '700',
-                            color: 'var(--color-video)',
-                            textTransform: 'uppercase',
-                            fontFamily: 'var(--font-family-locker)',
-                            cursor: 'pointer',
-                            letterSpacing: '0.02em',
-                            transition: 'opacity 0.2s'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.75'}
-                          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-                        >
-                          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                          </svg>
-                          Record/Upload Video
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                ));
-              })()
-            )}
+                    Remix Plan
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsPlanOverflowOpen(false);
+                      setIsCancelPlanConfirmOpen(true);
+                    }}
+                    style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', color: '#e63946', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer', borderRadius: '4px' }}
+                  >
+                    Cancel Plan
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Sticky Full-Width Footer Action (Remix & End Session) */}
+          {/* Loading / Error / Plan Content */}
+          {isGenerating ? (
+            <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', padding: '60px 20px', backgroundColor: '#161922', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', border: '3px solid rgba(230, 57, 70, 0.15)', borderTopColor: 'var(--color-training)', animation: 'spin 0.8s linear infinite' }} />
+              <div style={{ fontSize: '1rem', color: '#ffffff', fontWeight: '700' }}>
+                Preparing your training plan…
+              </div>
+              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px', opacity: 0.4 }}>
+                <div style={{ height: '40px', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: '6px' }} />
+                <div style={{ height: '60px', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: '6px' }} />
+                <div style={{ height: '60px', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: '6px' }} />
+              </div>
+            </div>
+          ) : generationError ? (
+            <div style={{ textAlign: 'center', padding: '40px 20px', backgroundColor: '#161922', borderRadius: '12px', border: '1px solid rgba(230, 57, 70, 0.3)', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+              <div style={{ fontSize: '1.05rem', color: '#e63946', fontWeight: '700' }}>
+                We couldn’t load this training plan.
+              </div>
+              <div style={{ fontSize: '0.85rem', color: '#8d939e' }}>
+                {generationError}
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button type="button" className="btn btn-squad" onClick={() => runPlanGeneration()}>
+                  Try Again
+                </button>
+                <button type="button" className="btn" onClick={() => setStep('wizard')}>
+                  Return to Training Lab
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* COMPACT SESSION OVERVIEW CARD */}
+              <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
+                  SESSION OVERVIEW
+                </div>
+
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--color-training)' }}>{duration} min</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '1.1rem', fontWeight: '800', color: '#ffffff' }}>{presentIds.length || 18} players</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '1.1rem', fontWeight: '800', color: '#3a86ff' }}>4 activities</span>
+                  </div>
+                </div>
+
+                <div style={{ fontSize: '0.85rem', color: '#d1d5db', lineHeight: '1.4' }}>
+                  <strong style={{ color: '#ffffff' }}>Focus:</strong> {focusAreas.join(', ')}
+                </div>
+
+                {getEquipmentSummary(planCards, getGlobalEquipment()) && (
+                  <div style={{ fontSize: '0.85rem', color: '#8d939e', lineHeight: '1.4' }}>
+                    <strong style={{ color: '#ffffff' }}>Equipment:</strong> {getEquipmentSummary(planCards, getGlobalEquipment())}
+                  </div>
+                )}
+              </div>
+
+              {/* ACTIVE COACHING MODE BANNER (When Session is Active) */}
+              {isSessionActive && (
+                <div style={{ backgroundColor: 'rgba(58, 134, 255, 0.1)', border: '1px solid rgba(58, 134, 255, 0.3)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <span style={{ fontSize: '0.7rem', color: '#3a86ff', textTransform: 'uppercase', fontWeight: '700' }}>
+                        ACTIVE COACHING MODE — STAGE {activeStageIndex + 1} OF 4
+                      </span>
+                      <h4 style={{ margin: '2px 0 0 0', color: '#ffffff', fontSize: '1.1rem', fontWeight: '700' }}>
+                        {activeStageIndex === 0 && '1. Warm-Up'}
+                        {activeStageIndex === 1 && '2. Station Rotation 1 (Stations A & B)'}
+                        {activeStageIndex === 2 && '3. Station Rotation 2 (Stations C & D)'}
+                        {activeStageIndex === 3 && '4. Final Activity'}
+                      </h4>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div className="scoreboard-font" style={{ fontSize: '1.3rem', color: 'var(--color-match)', fontWeight: '700' }}>
+                        {formatTimer(sessionSeconds)}
+                      </div>
+                      <button 
+                        type="button" 
+                        className="btn" 
+                        onClick={() => setIsTimerPaused(!isTimerPaused)}
+                        style={{ padding: '2px 8px', fontSize: '0.7rem', marginTop: '2px' }}
+                      >
+                        {isTimerPaused ? 'Resume' : 'Pause'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Active Station Rotation Prompts */}
+                  {(activeStageIndex === 1 || activeStageIndex === 2) && (
+                    <div style={{ backgroundColor: 'rgba(255, 183, 3, 0.08)', border: '1px dashed rgba(255, 183, 3, 0.3)', borderRadius: '8px', padding: '10px 12px', fontSize: '0.8rem', color: '#ffb703', lineHeight: '1.4' }}>
+                      <strong>🔄 Station Rotation Notice:</strong> Groups switch at the halfway mark.
+                      <div style={{ color: '#ffffff', marginTop: '4px', fontSize: '0.78rem' }}>
+                        {activeStageIndex === 1 
+                          ? 'Group 1: Move from Station A to Station B | Group 2: Move from Station B to Station A' 
+                          : 'Group 1: Move from Station C to Station D | Group 2: Move from Station D to Station C'
+                        }
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Active Coaching Actions */}
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between', marginTop: '4px' }}>
+                    <button 
+                      type="button" 
+                      className="btn" 
+                      disabled={activeStageIndex === 0}
+                      onClick={() => setActiveStageIndex(prev => Math.max(0, prev - 1))}
+                      style={{ flex: 1, padding: '8px', fontSize: '0.78rem' }}
+                    >
+                      Previous Activity
+                    </button>
+
+                    <button 
+                      type="button" 
+                      className="btn btn-squad" 
+                      onClick={() => {
+                        if (activeStageIndex < 3) {
+                          setActiveStageIndex(prev => prev + 1);
+                        } else {
+                          setIsEndSessionConfirmOpen(true);
+                        }
+                      }}
+                      style={{ flex: 1, padding: '8px', fontSize: '0.78rem', fontWeight: '700' }}
+                    >
+                      {activeStageIndex === 3 ? 'End Session' : 'Next Activity'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* DRILL CARDS SEQUENCE - SINGLE PAGE SCROLL */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {renderChronologicalStages({
+                  planCards,
+                  expandedCards,
+                  toggleCardExpanded,
+                  presentIds,
+                  group1,
+                  group2,
+                  setActiveInspectDrill,
+                  resolveFullDrillRecord,
+                  setReplaceConfirmIndex,
+                  handleDrillVideoUpload,
+                  activeStageIndex,
+                  isSessionActive
+                })}
+              </div>
+            </>
+          )}
+
+          {/* STICKY BOTTOM SESSION ACTION BAR */}
           <div 
             style={{
               position: 'fixed',
-              bottom: '64px', 
+              bottom: 0,
               left: 0,
               right: 0,
-              padding: '16px',
-              backgroundColor: 'rgba(18, 20, 28, 0.95)',
-              backdropFilter: 'blur(8px)',
-              borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+              padding: '12px 16px max(12px, env(safe-area-inset-bottom)) 16px',
+              backgroundColor: 'rgba(10, 11, 14, 0.95)',
+              backdropFilter: 'blur(12px)',
+              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
               zIndex: 90
             }}
           >
-            <div style={{ maxWidth: '480px', margin: '0 auto', display: 'flex', gap: '12px' }}>
-              <button
-                onClick={() => {
-                  if (window.confirm("Cancel this plan and restart? This will clear all current parameters.")) {
-                    clearDraft();
-                  }
-                }}
-                disabled={isGenerating}
-                style={{
-                  flex: 1,
-                  backgroundColor: 'transparent',
-                  color: '#e63946',
-                  border: '1px solid rgba(230, 57, 70, 0.4)',
-                  borderRadius: '6px',
-                  padding: '12px 8px',
-                  fontFamily: 'var(--font-family-locker)',
-                  fontSize: '0.85rem',
-                  fontWeight: '700',
-                  letterSpacing: '0.02em',
-                  textTransform: 'uppercase',
-                  cursor: isGenerating ? 'not-allowed' : 'pointer',
-                  opacity: isGenerating ? 0.6 : 1,
-                  transition: 'opacity 0.2s ease, transform 0.1s ease',
-                }}
-                onMouseDown={(e) => !isGenerating && (e.currentTarget.style.transform = 'scale(0.98)')}
-                onMouseUp={(e) => !isGenerating && (e.currentTarget.style.transform = 'none')}
-              >
-                Cancel Plan
-              </button>
-
-              <button
-                onClick={() => handleGenerateVariation()}
-                disabled={isGenerating}
-                style={{
-                  flex: 1,
-                  backgroundColor: 'transparent',
-                  color: '#ffbe0b',
-                  border: '1px solid rgba(255, 190, 11, 0.3)',
-                  borderRadius: '6px',
-                  padding: '12px 8px',
-                  fontFamily: 'var(--font-family-locker)',
-                  fontSize: '0.85rem',
-                  fontWeight: '700',
-                  letterSpacing: '0.02em',
-                  textTransform: 'uppercase',
-                  cursor: isGenerating ? 'not-allowed' : 'pointer',
-                  opacity: isGenerating ? 0.6 : 1,
-                  transition: 'opacity 0.2s ease, transform 0.1s ease',
-                }}
-                onMouseDown={(e) => !isGenerating && (e.currentTarget.style.transform = 'scale(0.98)')}
-                onMouseUp={(e) => !isGenerating && (e.currentTarget.style.transform = 'none')}
-              >
-                Remix Session
-              </button>
-
-              <button
-                onClick={() => {
-                  setCoachNotes('');
-                  setShowEndSessionModal(true);
-                }}
-                disabled={isGenerating}
-                style={{
-                  flex: 1,
-                  backgroundColor: 'var(--color-training)',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '12px 8px',
-                  fontFamily: 'var(--font-family-locker)',
-                  fontSize: '0.85rem',
-                  fontWeight: '700',
-                  letterSpacing: '0.02em',
-                  textTransform: 'uppercase',
-                  cursor: isGenerating ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 12px rgba(230, 57, 70, 0.3)',
-                  opacity: isGenerating ? 0.6 : 1,
-                  transition: 'opacity 0.2s ease, transform 0.1s ease',
-                  borderTop: '1px solid rgba(255,255,255,0.1)'
-                }}
-                onMouseDown={(e) => !isGenerating && (e.currentTarget.style.transform = 'scale(0.98)')}
-                onMouseUp={(e) => !isGenerating && (e.currentTarget.style.transform = 'none')}
-              >
-                End Session
-              </button>
+            <div style={{ maxWidth: '520px', margin: '0 auto', display: 'flex', gap: '10px' }}>
+              {!isSessionActive ? (
+                <>
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => handleGenerateVariation()}
+                    disabled={isGenerating}
+                    style={{ flex: 1, minHeight: '44px', fontWeight: '700', color: '#ffbe0b', borderColor: 'rgba(255, 190, 11, 0.3)' }}
+                  >
+                    Remix
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-squad"
+                    onClick={() => {
+                      setIsSessionActive(true);
+                      setActiveStageIndex(0);
+                      setSessionSeconds(0);
+                    }}
+                    disabled={isGenerating || planCards.length === 0}
+                    style={{ flex: 2, minHeight: '44px', fontWeight: '700', fontSize: '0.95rem' }}
+                  >
+                    Start Session
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => setIsTimerPaused(!isTimerPaused)}
+                    style={{ flex: 1, minHeight: '44px', fontWeight: '700' }}
+                  >
+                    {isTimerPaused ? 'Resume' : 'Pause'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-squad"
+                    onClick={() => {
+                      if (activeStageIndex < 3) {
+                        setActiveStageIndex(prev => prev + 1);
+                      } else {
+                        setIsEndSessionConfirmOpen(true);
+                      }
+                    }}
+                    style={{ flex: 2, minHeight: '44px', fontWeight: '700', fontSize: '0.95rem' }}
+                  >
+                    {activeStageIndex === 3 ? 'End Session' : 'Next Activity'}
+                  </button>
+                </>
+              )}
             </div>
           </div>
-
         </div>
       )}
-        </>
-      )}
+    </>
+  )}
 
       {/* Sticky Floating Action Button (Late Arrival Override) */}
       {step === 'parameters' && (
@@ -3408,6 +3600,149 @@ export default function TrainingLab({
             </div>
           </div>
         </div>
+      )}
+
+      {/* CANCEL PLAN CONFIRMATION MODAL */}
+      {isCancelPlanConfirmOpen && createPortal(
+        <div 
+          className="overlay-backdrop" 
+          style={{ zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+          onClick={() => setIsCancelPlanConfirmOpen(false)}
+        >
+          <div 
+            className="modal-content" 
+            style={{ maxWidth: '360px', width: '100%', borderRadius: '12px', padding: '24px', backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h4 style={{ color: '#ffffff', fontSize: '1.15rem', fontWeight: '700', margin: '0 0 10px 0' }}>
+              Cancel this training plan?
+            </h4>
+            <p style={{ fontSize: '0.85rem', color: '#8d939e', lineHeight: '1.5', margin: '0 0 20px 0' }}>
+              Your current generated training plan will be discarded.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button 
+                type="button" 
+                className="btn" 
+                onClick={() => setIsCancelPlanConfirmOpen(false)}
+                style={{ flex: 1, padding: '10px', fontSize: '0.85rem' }}
+              >
+                Keep Plan
+              </button>
+              <button 
+                type="button" 
+                className="btn" 
+                onClick={() => {
+                  setIsCancelPlanConfirmOpen(false);
+                  setIsSessionActive(false);
+                  clearDraft();
+                }}
+                style={{ 
+                  flex: 1, 
+                  padding: '10px', 
+                  fontSize: '0.85rem', 
+                  backgroundColor: '#e63946', 
+                  color: '#ffffff', 
+                  borderColor: '#e63946',
+                  fontWeight: '700' 
+                }}
+              >
+                Cancel Plan
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* REPLACE DRILL CONFIRMATION MODAL */}
+      {replaceConfirmIndex !== null && createPortal(
+        <div 
+          className="overlay-backdrop" 
+          style={{ zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+          onClick={() => setReplaceConfirmIndex(null)}
+        >
+          <div 
+            className="modal-content" 
+            style={{ maxWidth: '360px', width: '100%', borderRadius: '12px', padding: '24px', backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h4 style={{ color: '#ffffff', fontSize: '1.15rem', fontWeight: '700', margin: '0 0 10px 0' }}>
+              Replace this drill?
+            </h4>
+            <p style={{ fontSize: '0.85rem', color: '#8d939e', lineHeight: '1.5', margin: '0 0 20px 0' }}>
+              This will select a new suitable drill matching your session duration and focus.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button 
+                type="button" 
+                className="btn" 
+                onClick={() => setReplaceConfirmIndex(null)}
+                style={{ flex: 1, padding: '10px', fontSize: '0.85rem' }}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-squad" 
+                onClick={() => {
+                  const idxToReplace = replaceConfirmIndex;
+                  setReplaceConfirmIndex(null);
+                  handleReplaceDrillCard(idxToReplace);
+                }}
+                style={{ flex: 1, padding: '10px', fontSize: '0.85rem', fontWeight: '700' }}
+              >
+                Replace Drill
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* END SESSION CONFIRMATION MODAL */}
+      {isEndSessionConfirmOpen && createPortal(
+        <div 
+          className="overlay-backdrop" 
+          style={{ zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+          onClick={() => setIsEndSessionConfirmOpen(false)}
+        >
+          <div 
+            className="modal-content" 
+            style={{ maxWidth: '360px', width: '100%', borderRadius: '12px', padding: '24px', backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h4 style={{ color: '#ffffff', fontSize: '1.15rem', fontWeight: '700', margin: '0 0 10px 0' }}>
+              End training session?
+            </h4>
+            <p style={{ fontSize: '0.85rem', color: '#8d939e', lineHeight: '1.5', margin: '0 0 20px 0' }}>
+              This will complete the current session and save it to Session History.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button 
+                type="button" 
+                className="btn" 
+                onClick={() => setIsEndSessionConfirmOpen(false)}
+                style={{ flex: 1, padding: '10px', fontSize: '0.85rem' }}
+              >
+                Continue Session
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-squad" 
+                onClick={() => {
+                  setIsEndSessionConfirmOpen(false);
+                  setIsSessionActive(false);
+                  handleEndSessionSubmit();
+                }}
+                style={{ flex: 1, padding: '10px', fontSize: '0.85rem', fontWeight: '700' }}
+              >
+                End Session
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
 
       {/* Full Drill Manual Inspection Modal */}
