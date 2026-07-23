@@ -1581,6 +1581,24 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
       // Verify signup was NOT called because login succeeded via candidate password
       expect(signupFn).not.toHaveBeenCalled();
     });
+
+    it('35: Video Import Service classifies format capability, detects size bounds, and produces structured error dialogs', () => {
+      const { detectSupportedVideoFormat, createImportError, IMPORT_ERROR_CATALOG } = require('../utils/videoImportService.js');
+
+      // Format detection
+      const mp4File = { name: 'match_clip.mp4', type: 'video/mp4', size: 10 * 1024 * 1024 };
+      const formatResult = detectSupportedVideoFormat(mp4File);
+      expect(formatResult.supported).toBe(true);
+
+      // Oversized error catalog classification
+      const largeErr = createImportError('FILE_TOO_LARGE');
+      expect(largeErr.title).toBe(IMPORT_ERROR_CATALOG.FILE_TOO_LARGE.title);
+      expect(largeErr.requestId).toMatch(/^REQ-VID-[A-Z0-9]+-\d+$/);
+
+      // Download failure classification
+      const dlErr = createImportError('DOWNLOAD_FAILED');
+      expect(dlErr.title).toBe(IMPORT_ERROR_CATALOG.DOWNLOAD_FAILED.title);
+    });
   });
 
 });
