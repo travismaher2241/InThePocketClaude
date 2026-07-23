@@ -4,6 +4,8 @@
  * and dynamic group allocations based on the authoritative participating player count.
  */
 
+export const SUPPORTED_SESSION_DURATIONS = [30, 45, 60, 75, 90];
+
 /**
  * Validates if an ageGroup string represents a junior age group (U8, U10, U12)
  */
@@ -15,37 +17,40 @@ export function isJuniorAgeGroup(ageGroup = '') {
 
 /**
  * Calculates exact slot durations for a session given target duration.
+ * Throws a clear error for unsupported durations (Item 9).
  */
 export function calculateSlotDurations(durationMinutes = 60) {
-  const total = parseInt(durationMinutes, 10) || 60;
+  const total = parseInt(durationMinutes, 10);
+  if (!SUPPORTED_SESSION_DURATIONS.includes(total)) {
+    throw new Error(`Unsupported session duration '${durationMinutes}' mins. CoachCore supports exactly 30, 45, 60, 75, or 90 minute sessions.`);
+  }
 
   let warmUpMins = 10;
   let stationBlockABMins = 15;
   let stationBlockCDMins = 15;
   let finalGameMins = 20;
 
-  if (total <= 30) {
+  if (total === 30) {
     warmUpMins = 5;
     stationBlockABMins = 8;
     stationBlockCDMins = 8;
     finalGameMins = 9;
-  } else if (total <= 45) {
+  } else if (total === 45) {
     warmUpMins = 7.5;
     stationBlockABMins = 12;
     stationBlockCDMins = 12;
     finalGameMins = 13.5;
-  } else if (total <= 60) {
+  } else if (total === 60) {
     warmUpMins = 10;
     stationBlockABMins = 15;
     stationBlockCDMins = 15;
     finalGameMins = 20;
-  } else if (total <= 75) {
+  } else if (total === 75) {
     warmUpMins = 12;
     stationBlockABMins = 19;
     stationBlockCDMins = 19;
     finalGameMins = 25;
-  } else {
-    // 90 minutes
+  } else if (total === 90) {
     warmUpMins = 15;
     stationBlockABMins = 22.5;
     stationBlockCDMins = 22.5;
@@ -159,8 +164,8 @@ export function calculateGroupAllocations(playerCount) {
     group2Size,
     maximumStationGroupSize,
     isSplit: attendingPlayerCount > 1,
-    group1: group1Size, // Backward compatibility
-    group2: group2Size, // Backward compatibility
+    group1: group1Size,
+    group2: group2Size,
     description: attendingPlayerCount > 1 
       ? `Concurrent Stations: Group 1 (${group1Size} players) & Group 2 (${group2Size} players). Swap halfway.`
       : `Full squad (${attendingPlayerCount} player) executing drill.`
@@ -169,10 +174,6 @@ export function calculateGroupAllocations(playerCount) {
 
 /**
  * Builds a structured 6-slot plan segment preserving authoritative drillId and dynamic group allocation metadata.
- * @param {object} drill 
- * @param {object} slot 
- * @param {object} context 
- * @returns {object} Structured segment
  */
 export function buildSegmentFromDrill(drill, slot, context = {}) {
   const attendingPlayerCount = context.attendingPlayerCount !== undefined 
@@ -223,13 +224,19 @@ Swap stations after ${minutes} minutes.`;
     rotationText = `ROTATION & GROUP SPLIT: Full Squad (${groups.attendingPlayerCount} players) executing ${slot.slotName} together for ${blockMinutes} mins.`;
   }
 
+  let ageModText = '';
+  if (drill.ageModificationInfo || context.ageModificationInfo) {
+    const info = drill.ageModificationInfo || context.ageModificationInfo;
+    ageModText = `\n\nAGE MODIFICATION APPLIED (${info.ageGroup}):\n• Modified for cohort: ${info.ageGroup}\n• Specific modification: ${info.specificModification}\n• Authoritative source: ${info.authoritativeSource}`;
+  }
+
   const instructions = `DRILL NAME & OBJECTIVE: [${drillId}] ${rawTitle} - ${objective}
 
 ${rotationText}
 
 SETUP & GRID DIMENSIONS: ${setup}
 
-EXECUTION & RULES: ${execution}
+EXECUTION & RULES: ${execution}${ageModText}
 
 ELITE COACHING CUES:
 ${cuesText}
@@ -276,6 +283,7 @@ PROGRESSIONS & REGRESSIONS: ${progressionsText}`;
     coachingCues: cues,
     progressions: Array.isArray(drill.progressions) ? drill.progressions : [progressionsText],
     regressions: Array.isArray(drill.regressions) ? drill.regressions : [],
+    ageModificationInfo: drill.ageModificationInfo || null,
     groupAllocation: groups.description,
     group1Count: groups.group1Size,
     group2Count: groups.group2Size,

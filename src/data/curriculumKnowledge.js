@@ -544,60 +544,59 @@ export const AFL_PRE_GAME_WARMUPS = [];
 export const SYLLABUS_DRILLS = [];
 
 let drillsLoadedPromise = null;
+let masterDb = null;
 
-export async function loadDrillsDatabase(url = '/data/generated/afl-drills.json', forceReload = false) {
-  if (forceReload) {
-    drillsLoadedPromise = null;
-    AFL_PRE_GAME_WARMUPS.length = 0;
-    SYLLABUS_DRILLS.length = 0;
-  }
-  if (drillsLoadedPromise) {
+export function loadDrillsDatabase(url = '/data/generated/afl-drills.json', forceReload = false) {
+  if (drillsLoadedPromise && !forceReload) {
     return drillsLoadedPromise;
   }
 
   drillsLoadedPromise = (async () => {
     try {
-      let masterDb = null;
+      if (forceReload) {
+        masterDb = null;
+        AFL_PRE_GAME_WARMUPS.length = 0;
+        SYLLABUS_DRILLS.length = 0;
+      }
+
+      if (masterDb && masterDb.length > 0 && !forceReload) {
+        return { masterDb, AFL_PRE_GAME_WARMUPS, SYLLABUS_DRILLS };
+      }
 
       if (typeof fetch === 'function') {
+        const origin = (typeof window !== 'undefined' && window.location && window.location.origin && window.location.origin !== 'null') 
+          ? window.location.origin 
+          : 'http://localhost';
+        const fetchUrl = url.startsWith('/') ? `${origin}${url}` : url;
+
+        let res = null;
         try {
-          const origin = (typeof window !== 'undefined' && window.location && window.location.origin && window.location.origin !== 'null') 
-            ? window.location.origin 
-            : 'http://localhost';
-          const fetchUrl = url.startsWith('/') ? `${origin}${url}` : url;
+          res = await fetch(fetchUrl);
+        } catch (netErr) {
+          if (url !== '/data/generated/afl-drills.json') throw netErr;
+        }
 
-          const res = await fetch(fetchUrl);
+        if (res) {
           if (!res.ok) {
-            throw new Error(`HTTP error ${res.status}: Failed to fetch ${url}`);
-          }
-          const rawData = await res.json();
-
-          if (Array.isArray(rawData)) {
-            masterDb = rawData;
-          } else if (rawData && Array.isArray(rawData.drills)) {
-            masterDb = rawData.drills;
-          } else if (rawData && Array.isArray(rawData.default)) {
-            masterDb = rawData.default;
-          }
-        } catch (fetchErr) {
-          if (fetchErr.message && (fetchErr.message.startsWith('HTTP error') || fetchErr.message.includes('Unexpected token') || fetchErr.message.includes('JSON'))) {
-            throw fetchErr;
-          }
-          if (typeof process !== 'undefined' && process.versions && process.versions.node) {
-            try {
-              const fs = await import('fs');
-              const path = await import('path');
-              const localPath = path.resolve(process.cwd(), 'public/data/generated/afl-drills.json');
-              if (fs.existsSync(localPath)) {
-                const raw = JSON.parse(fs.readFileSync(localPath, 'utf8'));
-                masterDb = Array.isArray(raw) ? raw : (raw.drills || raw.default);
-              }
-            } catch (fsErr) {
+            if (url !== '/data/generated/afl-drills.json') {
+              throw new Error(`HTTP error ${res.status}`);
+            }
+          } else {
+            const rawData = await res.json();
+            if (Array.isArray(rawData)) {
+              masterDb = rawData;
+            } else if (rawData && Array.isArray(rawData.drills)) {
+              masterDb = rawData.drills;
+            } else if (rawData && Array.isArray(rawData.default)) {
+              masterDb = rawData.default;
+            } else {
+              throw new Error('Database payload is not a valid non-empty array');
             }
           }
-          if (!masterDb) throw fetchErr;
         }
-      } else if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+      }
+
+      if (!masterDb && typeof process !== 'undefined' && process.versions && process.versions.node) {
         try {
           const fs = await import('fs');
           const path = await import('path');
@@ -610,8 +609,8 @@ export async function loadDrillsDatabase(url = '/data/generated/afl-drills.json'
         }
       }
 
-      if (!Array.isArray(masterDb) || masterDb.length === 0) {
-        throw new Error('Loaded drill database is not a valid non-empty array.');
+      if (!masterDb || !Array.isArray(masterDb) || masterDb.length === 0) {
+        throw new Error('Database payload is not a valid non-empty array');
       }
 
       if (AFL_PRE_GAME_WARMUPS.length === 0) {
@@ -640,6 +639,7 @@ export async function loadDrillsDatabase(url = '/data/generated/afl-drills.json'
 
       if (SYLLABUS_DRILLS.length === 0) {
         const syllabus = masterDb.map(d => ({
+          ...d,
           drillId: d.drillId,
           name: `[${d.drillId}] ${d.title}`,
           title: d.title,
@@ -652,7 +652,14 @@ export async function loadDrillsDatabase(url = '/data/generated/afl-drills.json'
           cues: Array.isArray(d.coachingCues) ? d.coachingCues.join(', ') : (d.coachingCues || ''),
           coachingCues: d.coachingCues,
           progressions: d.progressions,
+          regressions: d.regressions || [],
           ageGroups: d.ageGroups || {},
+          ageEligibility: d.ageEligibility || {},
+          minimumCoachLevel: d.minimumCoachLevel,
+          contactLevel: d.contactLevel,
+          physicalLoadScore: d.physicalLoadScore,
+          minimumPlayers: d.minimumPlayers,
+          maximumPlayers: d.maximumPlayers,
           primarySkill: d.primarySkill || '',
           secondarySkills: d.secondarySkills || [],
           equipment: d.equipment || [],
@@ -663,7 +670,6 @@ export async function loadDrillsDatabase(url = '/data/generated/afl-drills.json'
           contact: d.contact || '',
           coachingDifficulty: d.coachingDifficulty || '',
           commonErrors: d.commonErrors || [],
-          regressions: d.regressions || [],
           successIndicators: d.successIndicators || [],
           matchApplication: d.matchApplication || '',
           diagramUrl: d.diagramUrl || ''

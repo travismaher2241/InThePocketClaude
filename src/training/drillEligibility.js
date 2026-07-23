@@ -55,20 +55,28 @@ export function normalizeContactLevel(contactVal) {
 }
 
 /**
- * Parses drill player bounds from string e.g. "Minimum: 2\nIdeal: 10–20\nMaximum: Unlimited"
+ * Parses drill player bounds from string e.g. "Minimum: 6 Ideal: 10–18 Maximum: 24"
  */
 export function parsePlayerBounds(playersVal) {
   if (!playersVal) return { min: 2, max: 99 };
-  if (typeof playersVal === 'number') return { min: playersVal, max: 99 };
+  if (typeof playersVal === 'number') return { min: playersVal, max: playersVal };
+  if (typeof playersVal === 'object') {
+    const min = playersVal.min || playersVal.minimumPlayers || playersVal.minimum || 2;
+    const max = playersVal.max || playersVal.maximumPlayers || playersVal.maximum || 99;
+    return { min: Number(min), max: Number(max) };
+  }
+
   const str = String(playersVal);
-  const minMatch = str.match(/minimum:\s*(\d+)/i) || str.match(/min:\s*(\d+)/i) || str.match(/(\d+)\s*\+/);
-  const maxMatch = str.match(/maximum:\s*(\d+)/i) || str.match(/max:\s*(\d+)/i);
+  const minMatch = str.match(/minimum:\s*(\d+)/i) || str.match(/min:\s*(\d+)/i) || str.match(/(\d+)\s*[-–]\s*\d+/) || str.match(/(\d+)\s*\+/);
+  const maxMatch = str.match(/maximum:\s*(\d+)/i) || str.match(/max:\s*(\d+)/i) || str.match(/\d+\s*[-–]\s*(\d+)/);
 
   const min = minMatch ? parseInt(minMatch[1], 10) : 2;
   let max = maxMatch ? parseInt(maxMatch[1], 10) : 99;
+
   if (str.toLowerCase().includes('unlimited') || str.toLowerCase().includes('entire squad')) {
     max = 99;
   }
+
   return { min, max };
 }
 
@@ -103,7 +111,7 @@ export function parseDrillEquipment(equipmentVal) {
 
 /**
  * Checks if a drill is hard-eligible for the given session context.
- * Returns { eligible: boolean, reason?: string }
+ * Returns { eligible: boolean, reason?: string, ageModificationInfo?: object }
  */
 export function checkDrillEligibility(drill, context = {}) {
   if (!drill || (!drill.drillId && !drill.title)) {
@@ -123,19 +131,23 @@ export function checkDrillEligibility(drill, context = {}) {
   const isU12 = agClean === 'U12' || agClean.includes('UNDER 12');
   const isVeteran = agClean.includes('VETERAN') || agClean.includes('OVER 35');
 
-  // 1. Coaching Level / Knowledge Check
-  const drillDiff = normalizeCoachingDifficulty(drill.minimumCoachLevel || drill.coachingDifficulty || drill.skillLevel);
+  // 1. Coaching Level / Knowledge Check (Hard Maximum: Item 4)
+  const diffVal = drill.minimumCoachLevel !== undefined && drill.minimumCoachLevel !== null 
+    ? drill.minimumCoachLevel 
+    : (drill.coachingDifficulty || drill.skillLevel);
+  const drillDiff = normalizeCoachingDifficulty(diffVal);
   const parsedCoachLevel = parseInt(coachLevel, 10) || 3;
-  const maxAllowedDiff = Math.min(5, Math.max(2, parsedCoachLevel + 1));
-  if (drillDiff > maxAllowedDiff) {
+  if (drillDiff > parsedCoachLevel) {
     return {
       eligible: false,
-      reason: `Coaching difficulty (${drillDiff}) exceeds max allowed level for coach (${maxAllowedDiff})`
+      reason: `Coaching difficulty (${drillDiff}) exceeds max allowed level for coach (${parsedCoachLevel})`
     };
   }
 
-  // 2. Explicit Age Group Suitability Check
+  // 2. Explicit Age Group Suitability Check (Item 5)
   const mappedAgeKey = mapAgeGroupToDrillKey(ageGroup);
+  let ageModificationInfo = null;
+
   if (drill.ageEligibility && typeof drill.ageEligibility === 'object') {
     if (isU8 && drill.ageEligibility.U8 === false) {
       return { eligible: false, reason: `Ineligible for Under 8 cohort` };
@@ -153,7 +165,23 @@ export function checkDrillEligibility(drill, context = {}) {
     if (mark === '✗') {
       return {
         eligible: false,
-        reason: `Explicitly marked unsuitable for age group ${ageGroup} (${mappedAgeKey})`
+        reason: `Explicitly marked unsuitable (✗) for age group ${ageGroup} (${mappedAgeKey})`
+      };
+    } else if (mark === '○') {
+      const regressions = drill.regressions || drill.modifications || drill.variations;
+      const hasModification = Array.isArray(regressions) ? regressions.length > 0 : Boolean(regressions);
+      if (!hasModification) {
+        return {
+          eligible: false,
+          reason: `Marked modified (○) for ${ageGroup} but no concrete age-specific modification is available`
+        };
+      }
+      ageModificationInfo = {
+        modifiedForAge: true,
+        ageGroup,
+        mappedAgeKey,
+        specificModification: Array.isArray(regressions) ? regressions[0] : String(regressions),
+        authoritativeSource: drill.sourceName || drill.source || 'AFL Coaching Knowledge Base'
       };
     }
   }
@@ -167,7 +195,6 @@ export function checkDrillEligibility(drill, context = {}) {
     if (contactLevel > 1) {
       return { eligible: false, reason: `U8 requires non-contact or incidental pressure (drill contact level: ${contactLevel})` };
     }
-    // Hard prohibition on full tackling for U8
     const textLower = `${drill.title} ${drill.objective} ${drill.category}`.toLowerCase();
     if (textLower.includes('full tackle') || textLower.includes('ground dump') || textLower.includes('heavy collision')) {
       return { eligible: false, reason: `Full tackling and heavy collisions are prohibited for U8` };
@@ -215,18 +242,47 @@ export function checkDrillEligibility(drill, context = {}) {
     return { eligible: false, reason: `Requires ${drillReqs.mats} tackle mats (available: ${availableMats})` };
   }
 
-  // 6. Player Count Range Check
-  const minP = drill.minimumPlayers || parsePlayerBounds(drill.players).min;
+  // 6. Player Count Range Check (Items 2 & 3: Min and Max Bounds)
+  const bounds = parsePlayerBounds(drill.players || { min: drill.minimumPlayers, max: drill.maximumPlayers });
+  const minP = drill.minimumPlayers || bounds.min;
+  const maxP = drill.maximumPlayers || bounds.max;
+
   const isStationSlot = (context.slotKey && context.slotKey.startsWith('STATION_')) || (context.slotName && String(context.slotName).startsWith('Station'));
+  const catLower = (drill.category || '').toLowerCase();
+  const titleLower = (drill.title || '').toLowerCase();
+  const isSSG = (context.slotKey === 'FINAL_GAME' && (catLower.includes('ssg') || catLower.includes('small-sided') || catLower.includes('small sided') || catLower.includes('small game'))) ||
+                catLower.includes('ssg') || catLower.includes('small-sided') || catLower.includes('small sided') || titleLower.includes('small-sided') || titleLower.includes('small sided');
+  const isMatchSim = (context.slotKey === 'FINAL_GAME' && (catLower.includes('match sim') || catLower.includes('match simulation'))) ||
+                     catLower.includes('match simulation') || catLower.includes('match sim') || titleLower.includes('match simulation');
 
-  // Station drills check capacity against maximumStationGroupSize; Warmup and Final Game check against complete attending count
-  const effectivePlayerCount = isStationSlot && context.maximumStationGroupSize !== undefined
-    ? context.maximumStationGroupSize
-    : (context.attendingPlayerCount !== undefined ? context.attendingPlayerCount : (context.playerCount || 18));
-
-  if (effectivePlayerCount >= 4 && effectivePlayerCount < minP) {
-    return { eligible: false, reason: `Requires at least ${minP} players (effective group size: ${effectivePlayerCount})` };
+  let effectivePlayerCount = context.attendingPlayerCount !== undefined ? context.attendingPlayerCount : (context.playerCount || 18);
+  if (isStationSlot && context.maximumStationGroupSize !== undefined) {
+    effectivePlayerCount = context.maximumStationGroupSize;
+  } else if (isSSG && context.maximumStationGroupSize !== undefined && effectivePlayerCount > maxP && maxP < 99) {
+    effectivePlayerCount = context.maximumStationGroupSize;
+  } else if (isMatchSim && maxP < 99 && effectivePlayerCount > maxP) {
+    // Match Simulation includes on-field players and bench rotations for the attending squad
+    effectivePlayerCount = Math.min(effectivePlayerCount, maxP);
   }
 
-  return { eligible: true };
+  // If 1-4 players attend, coach runs modified small-group activities for stations & final game
+  if (effectivePlayerCount < minP && ((context.attendingPlayerCount !== undefined && context.attendingPlayerCount <= 4) || (context.playerCount !== undefined && context.playerCount <= 4))) {
+    effectivePlayerCount = minP;
+  }
+
+  if (effectivePlayerCount < minP) {
+    return {
+      eligible: false,
+      reason: `Requires at least ${minP} players (effective group size: ${effectivePlayerCount})`
+    };
+  }
+
+  if (maxP < 99 && effectivePlayerCount > maxP) {
+    return {
+      eligible: false,
+      reason: `Exceeds maximum player capacity of ${maxP} (effective group size: ${effectivePlayerCount})`
+    };
+  }
+
+  return { eligible: true, ageModificationInfo };
 }

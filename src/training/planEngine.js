@@ -38,12 +38,12 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
   const seed = engineInput.seed || Date.now();
 
   const prng = createPRNG(seed);
+  // getSessionSlots will throw an error for unsupported session durations (Item 9)
   const slots = getSessionSlots(durationMinutes, ageGroup);
   const durations = calculateSlotDurations(durationMinutes);
   const groupAllocations = calculateGroupAllocations(playerCount);
 
-  const isJunior = ['u8', 'u10', 'u12', 'under 8', 'under 10', 'under 12']
-    .some(ag => ageGroup.toLowerCase().includes(ag));
+  const isJunior = isJuniorAgeGroup(ageGroup);
 
   const recentSessionDrillIds = [];
   recentSessions.forEach(sess => {
@@ -54,7 +54,7 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
     }
   });
 
-  const context = {
+  const baseContext = {
     ageGroup,
     coachLevel,
     playerCount,
@@ -65,19 +65,31 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
     variationAvoidIds,
     seed,
     durations,
-    groupAllocations
+    groupAllocations,
+    attendingPlayerCount: groupAllocations.attendingPlayerCount,
+    group1Size: groupAllocations.group1Size,
+    group2Size: groupAllocations.group2Size,
+    maximumStationGroupSize: groupAllocations.maximumStationGroupSize
   };
 
   const selectedSegments = [];
   const currentPlanDrillIds = [];
 
   for (const slot of slots) {
-    const slotCandidates = database.filter(drill => {
-      if (!drill || !drill.drillId) return false;
-      const cat = (drill.category || drill.phase || '').toLowerCase();
-      const idUpper = String(drill.drillId).toUpperCase();
+    const isStationSlot = slot.slotKey.startsWith('STATION_');
+    const slotContext = {
+      ...baseContext,
+      slotKey: slot.slotKey,
+      slotName: slot.slotName,
+      playerCount: isStationSlot ? groupAllocations.maximumStationGroupSize : groupAllocations.attendingPlayerCount
+    };
 
-      // 1. Slot-type specific classification check
+    const slotCandidates = database.filter(drill => {
+      if (!drill || (!drill.drillId && !drill.title)) return false;
+      const cat = (drill.category || drill.phase || '').toLowerCase();
+      const idUpper = String(drill.drillId || '').toUpperCase();
+
+      // 1. Slot-type classification check
       if (slot.slotKey === 'WARM_UP') {
         const isWu = idUpper.startsWith('WU-') || idUpper.startsWith('WU') ||
                      cat.includes('warm-up') || cat.includes('warmup') || cat.includes('warm up') || 
@@ -94,36 +106,50 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
           if (!isMatchSim) return false;
         }
       } else {
-        // Station A, B, C, D must be standard training stations (not Warm-Up, not SSG, not Match Sim)
+        // Station A, B, C, D
         const isWu = idUpper.startsWith('WU-') || idUpper.startsWith('WU') || cat.includes('warm-up') || cat.includes('warmup') || cat.includes('warm up');
         const isFinal = idUpper.startsWith('SSG-') || idUpper.startsWith('SG-') || idUpper.startsWith('MS-') || idUpper.startsWith('CH14-') || idUpper.startsWith('CH15-') ||
                         cat.includes('ssg') || cat.includes('small-sided game') || cat.includes('small sided game') || cat.includes('match simulation') || cat.includes('match sim');
         if (isWu || isFinal) return false;
 
         // Station drills must be unique within the plan
-        if (currentPlanDrillIds.includes(drill.drillId)) return false;
+        if (drill.drillId && currentPlanDrillIds.includes(drill.drillId)) return false;
       }
 
-      // 2. Hard eligibility check
-      const el = checkDrillEligibility(drill, context);
+      // 2. Hard eligibility check with slot-specific context
+      const el = checkDrillEligibility(drill, slotContext);
+      if (el.eligible && el.ageModificationInfo) {
+        drill._tempAgeMod = el.ageModificationInfo;
+      }
       return el.eligible;
     });
 
     if (slotCandidates.length === 0) {
-      throw new Error(`No eligible drill found for slot '${slot.slotName}' matching constraints (Age: ${ageGroup}, Coach Level: ${coachLevel}). Please adjust your session settings.`);
+      throw new Error(`No eligible drill found for slot '${slot.slotName}' matching constraints (Age: ${ageGroup}, Coach Level: ${coachLevel}, Group Size: ${slotContext.playerCount}). Please adjust your session settings.`);
     }
 
-    // Score and apply repetition penalties
+    // Score and apply repetition & variety penalties
     const scoredPool = slotCandidates.map(drill => {
-      const rawScore = scoreCandidateDrill(drill, slot, context);
+      const rawScore = scoreCandidateDrill(drill, slot, slotContext);
       const repMultiplier = getRepetitionMultiplier(drill.drillId, {
         recentSessionDrillIds,
         currentPlanDrillIds,
         variationAvoidIds
       });
+
+      // Station variety multiplier (Item 10)
+      let varietyMultiplier = 1.0;
+      if (isStationSlot && selectedSegments.length > 0) {
+        selectedSegments.forEach(prevSeg => {
+          if (prevSeg.category && drill.category && prevSeg.category.toLowerCase() === drill.category.toLowerCase()) {
+            varietyMultiplier *= 0.6;
+          }
+        });
+      }
+
       return {
         drill,
-        score: Math.max(0.1, rawScore * repMultiplier)
+        score: Math.max(0.1, rawScore * repMultiplier * varietyMultiplier)
       };
     });
 
@@ -133,8 +159,11 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
     }
 
     if (selectedDrill) {
-      const detailedScore = scoreCandidateDrillDetailed(selectedDrill, slot, context);
-      const segment = buildSegmentFromDrill(selectedDrill, slot, context);
+      const detailedScore = scoreCandidateDrillDetailed(selectedDrill, slot, slotContext);
+      if (selectedDrill._tempAgeMod) {
+        selectedDrill.ageModificationInfo = selectedDrill._tempAgeMod;
+      }
+      const segment = buildSegmentFromDrill(selectedDrill, slot, slotContext);
       segment.selectionMetadata = {
         eligibilityPassed: true,
         suitabilityScore: Math.round(detailedScore.total),
@@ -168,6 +197,7 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
     generatedAt: new Date().toISOString(),
     source: 'local',
     seed,
+    knowledgeEnriched: false,
     parameters: {
       uid,
       ageGroup,
@@ -182,7 +212,7 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
     validation: { isValid: true, errors: [] }
   };
 
-  // Asynchronously retrieve coaching knowledge passages for traceability
+  // Asynchronously retrieve coaching knowledge passages for traceability (Item 16)
   try {
     const knowledgeReferences = await retrieveKnowledge({
       ageGroup,
@@ -193,6 +223,7 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
     if (Array.isArray(knowledgeReferences) && knowledgeReferences.length > 0) {
       plan.knowledgeContext = knowledgeReferences;
       plan.knowledgeReferences = knowledgeReferences;
+      plan.knowledgeEnriched = true;
 
       plan.segments.forEach((seg, idx) => {
         const matchingRef = knowledgeReferences.find(ref => {
@@ -217,11 +248,19 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
       });
     }
   } catch (kErr) {
-    console.warn('[PlanEngine] Knowledge retrieval skipped:', kErr);
+    console.warn('[PlanEngine] Knowledge enrichment unavailable:', kErr?.message || kErr);
+    plan.knowledgeEnriched = false;
   }
 
-  const validationResult = validatePlan(plan, context);
+  // Final Deterministic Validation (Items 6 & 7)
+  const validationResult = validatePlan(plan, baseContext);
   plan.validation = validationResult;
+
+  if (!validationResult.isValid) {
+    const errText = `Generated plan failed validation: ${validationResult.errors.join('; ')}`;
+    console.error('[PlanEngine]', errText);
+    throw new Error(errText);
+  }
 
   return plan;
 }

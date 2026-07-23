@@ -31,8 +31,19 @@ export default function Login() {
           throw new Error('Tester nickname must contain letters or numbers.');
         }
         const virtualEmail = `${sanitizedCode}@tester.inthepocket.com.au`;
-        // Using a secure virtual password for all virtual tester accounts
-        const virtualPassword = `InThePocketTesterAccess2026!`;
+        let deviceSalt = localStorage.getItem('inthepocket_device_salt');
+        if (!deviceSalt) {
+          deviceSalt = 'salt_' + Math.random().toString(36).substring(2, 15) + '_' + Date.now().toString(36);
+          localStorage.setItem('inthepocket_device_salt', deviceSalt);
+        }
+        let hash = 0;
+        const seedStr = `ITP_TESTER_${sanitizedCode}_${deviceSalt}`;
+        for (let i = 0; i < seedStr.length; i++) {
+          const char = seedStr.charCodeAt(i);
+          hash = ((hash << 5) - hash) + char;
+          hash |= 0;
+        }
+        const virtualPassword = `ItpTester#${Math.abs(hash).toString(36)}${sanitizedCode.length}!`;
 
         try {
           // Attempt to log in the tester

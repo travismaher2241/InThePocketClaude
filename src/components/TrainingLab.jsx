@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import ContextualTaggingModal from './ContextualTaggingModal';
 import DrillDetailsModal from './DrillDetailsModal';
@@ -1089,7 +1089,7 @@ const sanitizePlanCards = (cards, groundName = "home ground", playerCount = 0, a
     (ageGroup || '').toLowerCase().includes('veteran') || 
     (ageGroup || '').toLowerCase().includes('over 35') || 
     (ageGroup || '').toLowerCase().includes('master');
-  return cards.map(card => {
+  const processedCards = cards.map(card => {
     const scrub = (str) => {
       if (typeof str !== 'string') return str;
       return str
@@ -1677,7 +1677,18 @@ export default function TrainingLab({
   const [generationError, setGenerationError] = useState(null);
 
   // Perform hybrid local generation & optional AI enhancement
+  const currentRequestIdRef = useRef(0);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   const runPlanGeneration = async (overrideCount, customSeed = null, variationAvoidIds = []) => {
+    const requestId = ++currentRequestIdRef.current;
     setIsGenerating(true);
     setGenerationError(null);
     setPlanCards([]);
@@ -1702,15 +1713,19 @@ export default function TrainingLab({
 
       // 1. Immediate local plan generation using authoritative deterministic engine
       const localPlan = await generateLocalPlan(engineInput);
-      setPlanCards(sanitizePlanCards(localPlan.segments || [], squadSettings?.groundName || "home ground", playerCount));
-      setIsFallback(false);
+      if (requestId === currentRequestIdRef.current && isMountedRef.current) {
+        setPlanCards(sanitizePlanCards(localPlan.segments || [], squadSettings?.groundName || "home ground", playerCount));
+        setIsFallback(false);
+      }
 
       // 2. Non-blocking optional AI enhancement if configured
       const isAIEnabled = import.meta.env.VITE_AI_PLAN_ENHANCEMENT_ENABLED !== 'false';
       if (isAIEnabled && apiKey && hasAccess(subscriptionTier, 'pro')) {
         enhancePlanWithAI(localPlan, apiKey).then(enhancedPlan => {
-          if (enhancedPlan && enhancedPlan.aiEnhanced) {
-            setPlanCards(sanitizePlanCards(enhancedPlan.segments || [], squadSettings?.groundName || "home ground", playerCount));
+          if (requestId === currentRequestIdRef.current && isMountedRef.current) {
+            if (enhancedPlan && enhancedPlan.aiEnhanced) {
+              setPlanCards(sanitizePlanCards(enhancedPlan.segments || [], squadSettings?.groundName || "home ground", playerCount));
+            }
           }
         }).catch(err => {
           console.warn("Optional AI enhancement skipped:", err);
@@ -1718,9 +1733,13 @@ export default function TrainingLab({
       }
     } catch (err) {
       console.error("Local plan engine error:", err);
-      setGenerationError(err.message || "Failed to generate training plan.");
+      if (requestId === currentRequestIdRef.current && isMountedRef.current) {
+        setGenerationError(err.message || "Failed to generate training plan.");
+      }
     } finally {
-      setIsGenerating(false);
+      if (requestId === currentRequestIdRef.current && isMountedRef.current) {
+        setIsGenerating(false);
+      }
     }
   };
 

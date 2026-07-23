@@ -5,7 +5,8 @@
  */
 
 import { checkDrillEligibility } from './drillEligibility.js';
-import { isJuniorAgeGroup } from './sessionStructure.js';
+import { isJuniorAgeGroup, calculateGroupAllocations } from './sessionStructure.js';
+import { SYLLABUS_DRILLS } from '../data/curriculumKnowledge.js';
 
 /**
  * Validates a training plan object against context and hard constraints.
@@ -26,13 +27,22 @@ export function validatePlan(plan, context = {}) {
     return { isValid: false, errors };
   }
 
-  const {
-    ageGroup = 'U14',
-    durationMinutes = 60,
-    focusAreas = []
-  } = context;
+  const ageGroup = context.ageGroup || plan.parameters?.ageGroup || 'U14';
+  const durationMinutes = context.durationMinutes || plan.parameters?.durationMinutes || 60;
+  const focusAreas = context.focusAreas || plan.parameters?.focusAreas || [];
+  const playerCount = context.playerCount !== undefined ? context.playerCount : (plan.parameters?.playerCount || 18);
+  const coachLevel = context.coachLevel !== undefined ? context.coachLevel : (plan.parameters?.coachLevel || 3);
+  const equipment = context.equipment || plan.parameters?.equipment || { footballs: 10, cones: 20, bibs: 15, agilityPoles: 6, tackleMats: 4 };
 
   const isJunior = isJuniorAgeGroup(ageGroup);
+  const groupAllocations = calculateGroupAllocations(playerCount);
+
+  const masterDrillMap = new Map();
+  if (Array.isArray(SYLLABUS_DRILLS)) {
+    SYLLABUS_DRILLS.forEach(d => {
+      if (d && d.drillId) masterDrillMap.set(d.drillId, d);
+    });
+  }
 
   // 2. Inspect individual segments
   const drillIds = [];
@@ -48,8 +58,28 @@ export function validatePlan(plan, context = {}) {
       errors.push(`Segment ${idx + 1} is missing a title`);
     }
 
-    // Independent Hard Safety & Eligibility Validation
-    const el = checkDrillEligibility(seg, context);
+    // Look up original master drill object if available to ensure safety properties are trusted
+    const authoritativeDrill = masterDrillMap.get(seg.drillId) || seg;
+
+    const isStationSlot = idx >= 1 && idx <= 4;
+    const slotContext = {
+      ...context,
+      ageGroup,
+      coachLevel,
+      playerCount,
+      durationMinutes,
+      equipment,
+      slotKey: seg.slotKey || (idx === 0 ? 'WARM_UP' : idx === 5 ? 'FINAL_GAME' : `STATION_${String.fromCharCode(64 + idx)}`),
+      slotName: seg.slotName || `Slot ${idx + 1}`,
+      attendingPlayerCount: groupAllocations.attendingPlayerCount,
+      group1Size: groupAllocations.group1Size,
+      group2Size: groupAllocations.group2Size,
+      maximumStationGroupSize: groupAllocations.maximumStationGroupSize,
+      effectivePlayerCount: isStationSlot ? groupAllocations.maximumStationGroupSize : groupAllocations.attendingPlayerCount
+    };
+
+    // Independent Hard Safety & Eligibility Validation against Authoritative Record
+    const el = checkDrillEligibility(authoritativeDrill, slotContext);
     if (!el.eligible) {
       errors.push(`Segment ${idx + 1} (${seg.title}) failed hard safety validation: ${el.reason}`);
     }
@@ -80,7 +110,6 @@ export function validatePlan(plan, context = {}) {
   }
 
   // 5. Concurrent duration arithmetic total check
-  // Elapsed time = warmUp (seg 0) + stationABBlock (seg 1 blockMinutes) + stationCDBlock (seg 3 blockMinutes) + finalGame (seg 5)
   const warmUpMins = Number(plan.segments[0]?.blockMinutes || plan.segments[0]?.minutes || 0);
   const stationABMins = Number(plan.segments[1]?.blockMinutes || (plan.segments[1]?.minutes || 0) * 2);
   const stationCDMins = Number(plan.segments[3]?.blockMinutes || (plan.segments[3]?.minutes || 0) * 2);

@@ -1368,6 +1368,159 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
       const queueBtn = screen.getByRole('button', { name: 'Queue Rotation' });
       expect(queueBtn).toBeDisabled();
     });
+
+    it('26: Video Analyser category filtering, empty state, and no ReferenceError', async () => {
+      const mockSetClips = vi.fn();
+      const sampleClips = [
+        { id: 'v1', drillName: 'Q1 Match Play', category: 'match', isPending: false, playerIds: ['p1'] },
+        { id: 'v2', drillName: 'Kicking Practice', category: 'training', isPending: false, playerIds: [] },
+        { id: 'v3', drillName: 'Tagged Drill', category: 'training', isPending: false, playerIds: ['p2'] }
+      ];
+
+      // Render with empty array
+      const { rerender } = render(
+        <VideoAnalyser squad={[]} videoClips={[]} setVideoClips={mockSetClips} />
+      );
+      expect(screen.getByText('Video Library (0)')).toBeInTheDocument();
+
+      // Render with clips
+      rerender(
+        <VideoAnalyser squad={[]} videoClips={sampleClips} setVideoClips={mockSetClips} />
+      );
+      expect(screen.getByText('Video Library (3)')).toBeInTheDocument();
+
+      // Test Category Chips
+      const matchChip = screen.getByRole('button', { name: 'Match Day' });
+      fireEvent.click(matchChip);
+      expect(screen.getByText('Video Library (1)')).toBeInTheDocument();
+
+      const trainingChip = screen.getByRole('button', { name: 'Training' });
+      fireEvent.click(trainingChip);
+      expect(screen.getByText('Video Library (2)')).toBeInTheDocument();
+
+      const taggedChip = screen.getByRole('button', { name: 'Tagged Players' });
+      fireEvent.click(taggedChip);
+      expect(screen.getByText('Video Library (2)')).toBeInTheDocument();
+
+      const allChip = screen.getByRole('button', { name: 'All Clips' });
+      fireEvent.click(allChip);
+      expect(screen.getByText('Video Library (3)')).toBeInTheDocument();
+    });
+
+    it('27: Station player-count eligibility context evaluates station capacity against larger half-group', () => {
+      const { checkDrillEligibility } = require('../training/drillEligibility.js');
+      // 9 players -> split into Group 1 = 5, Group 2 = 4 -> maximumStationGroupSize = 5
+      const context = {
+        ageGroup: 'U14',
+        coachLevel: 3,
+        attendingPlayerCount: 9,
+        group1Size: 5,
+        group2Size: 4,
+        maximumStationGroupSize: 5,
+        slotKey: 'STATION_A',
+        slotName: 'Station A'
+      };
+
+      // Drill requiring min 6 players must be rejected for 9 attending players at a station (effective capacity = 5)
+      const heavyStationDrill = { drillId: 'D1', title: 'Big Group Station', minimumPlayers: 6 };
+      const el1 = checkDrillEligibility(heavyStationDrill, context);
+      expect(el1.eligible).toBe(false);
+      expect(el1.reason).toMatch(/Requires at least 6 players/i);
+
+      // Drill requiring min 5 players must be accepted
+      const validStationDrill = { drillId: 'D2', title: '5 Player Station', minimumPlayers: 5 };
+      const el2 = checkDrillEligibility(validStationDrill, context);
+      expect(el2.eligible).toBe(true);
+
+      // Warm Up checking full attendance (9 players) accepts min 6 players drill
+      const warmUpContext = { ...context, slotKey: 'WARM_UP', slotName: 'Warm Up' };
+      const elWarmUp = checkDrillEligibility(heavyStationDrill, warmUpContext);
+      expect(elWarmUp.eligible).toBe(true);
+    });
+
+    it('28: Enforces minimum and maximum player capacity bounds with exact rejection reasons', () => {
+      const { checkDrillEligibility } = require('../training/drillEligibility.js');
+      const context = {
+        ageGroup: 'U14',
+        coachLevel: 3,
+        attendingPlayerCount: 18,
+        slotKey: 'WARM_UP',
+        slotName: 'Warm Up'
+      };
+
+      // Below minimum
+      const minDrill = { drillId: 'D_MIN', title: 'Min Drill', players: 'Minimum: 20' };
+      const elMin = checkDrillEligibility(minDrill, context);
+      expect(elMin.eligible).toBe(false);
+      expect(elMin.reason).toMatch(/Requires at least 20 players/i);
+
+      // Above maximum
+      const maxDrill = { drillId: 'D_MAX', title: 'Max Drill', players: 'Minimum: 4 Ideal: 8-12 Maximum: 12' };
+      const elMax = checkDrillEligibility(maxDrill, context);
+      expect(elMax.eligible).toBe(false);
+      expect(elMax.reason).toMatch(/Exceeds maximum player capacity of 12/i);
+
+      // Unlimited maximum
+      const unlimDrill = { drillId: 'D_UNLIM', title: 'Unlimited Drill', players: 'Minimum: 4 Maximum: Unlimited' };
+      const elUnlim = checkDrillEligibility(unlimDrill, context);
+      expect(elUnlim.eligible).toBe(true);
+    });
+
+    it('29: Coaching level is enforced as a hard maximum without level relaxation', () => {
+      const { checkDrillEligibility } = require('../training/drillEligibility.js');
+      const lvl1Drill = { drillId: 'D1', title: 'Lvl 1', minimumCoachLevel: 1 };
+      const lvl2Drill = { drillId: 'D2', title: 'Lvl 2', minimumCoachLevel: 2 };
+      const lvl3Drill = { drillId: 'D3', title: 'Lvl 3', minimumCoachLevel: 3 };
+
+      // Coach level 1 may receive ONLY level 1 drills
+      expect(checkDrillEligibility(lvl1Drill, { coachLevel: 1 }).eligible).toBe(true);
+      expect(checkDrillEligibility(lvl2Drill, { coachLevel: 1 }).eligible).toBe(false);
+
+      // Coach level 2 may receive levels 1 and 2
+      expect(checkDrillEligibility(lvl1Drill, { coachLevel: 2 }).eligible).toBe(true);
+      expect(checkDrillEligibility(lvl2Drill, { coachLevel: 2 }).eligible).toBe(true);
+      expect(checkDrillEligibility(lvl3Drill, { coachLevel: 2 }).eligible).toBe(false);
+    });
+
+    it('30: Interprets age suitability markers (✓, ○, ✗) correctly', () => {
+      const { checkDrillEligibility } = require('../training/drillEligibility.js');
+
+      const crossDrill = { drillId: 'DX', title: 'Unsuitable', ageGroups: { 'Under 8': '✗' } };
+      const checkDrill = { drillId: 'DC', title: 'Suitable', ageGroups: { 'Under 8': '✓' } };
+      const circleDrillMod = { drillId: 'DCM', title: 'Modified', ageGroups: { 'Under 8': '○' }, regressions: ['Reduce grid size to 15m'] };
+      const circleDrillNoMod = { drillId: 'DCNM', title: 'No Mod', ageGroups: { 'Under 8': '○' } };
+
+      expect(checkDrillEligibility(crossDrill, { ageGroup: 'U8' }).eligible).toBe(false);
+      expect(checkDrillEligibility(checkDrill, { ageGroup: 'U8' }).eligible).toBe(true);
+      
+      const elMod = checkDrillEligibility(circleDrillMod, { ageGroup: 'U8' });
+      expect(elMod.eligible).toBe(true);
+      expect(elMod.ageModificationInfo.modifiedForAge).toBe(true);
+
+      expect(checkDrillEligibility(circleDrillNoMod, { ageGroup: 'U8' }).eligible).toBe(false);
+    });
+
+    it('31: Authoritative plan validation blocks invalid plans from returning or displaying', async () => {
+      const { generateLocalPlan } = require('../training/planEngine.js');
+      
+      // Attempting to generate with unsupported parameters throws a clear error
+      await expect(generateLocalPlan({
+        ageGroup: 'U14',
+        coachLevel: 1,
+        durationMinutes: 50 // Unsupported duration
+      })).rejects.toThrow(/Unsupported session duration/i);
+    });
+
+    it('32: Enforces supported session durations strictly (30, 45, 60, 75, 90 mins)', () => {
+      const { calculateSlotDurations } = require('../training/sessionStructure.js');
+
+      expect(() => calculateSlotDurations(30)).not.toThrow();
+      expect(() => calculateSlotDurations(45)).not.toThrow();
+      expect(() => calculateSlotDurations(60)).not.toThrow();
+      expect(() => calculateSlotDurations(75)).not.toThrow();
+      expect(() => calculateSlotDurations(90)).not.toThrow();
+      expect(() => calculateSlotDurations(50)).toThrow(/Unsupported session duration/i);
+    });
   });
 
 });

@@ -82,6 +82,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
   const [activeClip, setActiveClip] = useState(null);
   const [activeTab, setActiveTab] = useState('review'); // 'review' or 'tagging'
   const [tagFilter, setTagFilter] = useState('ALL');
+  const [activeCategory, setActiveCategory] = useState('all'); // 'all', 'match', 'training', 'tagged'
 
   // Load clips from IndexedDB on mount & when currentUser changes
   useEffect(() => {
@@ -1282,13 +1283,14 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
 
           {/* 3. Video Library (With Filter Chips & Clean Empty State) */}
           {(() => {
-            let taggedClips = videoClips.filter(c => !c.isPending);
+            const rawClips = Array.isArray(videoClips) ? videoClips : [];
+            let taggedClips = rawClips.filter(c => c && !c.isPending);
             if (activeCategory === 'match') {
-              taggedClips = taggedClips.filter(c => c.category === 'match' || /match|game|q[1-4]/i.test(c.drillName));
+              taggedClips = taggedClips.filter(c => c && (c.category === 'match' || /match|game|q[1-4]/i.test(c.drillName || '')));
             } else if (activeCategory === 'training') {
-              taggedClips = taggedClips.filter(c => c.category === 'training' || /train|drill|practice/i.test(c.drillName));
+              taggedClips = taggedClips.filter(c => c && (c.category === 'training' || /train|drill|practice/i.test(c.drillName || '')));
             } else if (activeCategory === 'tagged') {
-              taggedClips = taggedClips.filter(c => c.playerIds && c.playerIds.length > 0);
+              taggedClips = taggedClips.filter(c => c && Array.isArray(c.playerIds) && c.playerIds.length > 0);
             }
 
             return (
