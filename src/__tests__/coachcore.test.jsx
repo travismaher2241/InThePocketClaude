@@ -29,7 +29,23 @@ vi.mock('../context/AuthProvider', () => ({
 // Mock Firebase Config & Helpers
 vi.mock('../firebaseConfig', () => ({
   app: {},
-  db: {}
+  db: {},
+  auth: { currentUser: { uid: 'user_123' } }
+}));
+
+vi.mock('../firebaseConfig.js', () => ({
+  app: {},
+  db: {},
+  auth: { currentUser: { uid: 'user_123' } }
+}));
+
+vi.mock('firebase/auth', () => ({
+  onAuthStateChanged: vi.fn(),
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  updatePassword: vi.fn(async () => {})
 }));
 
 vi.mock('../firebaseHelpers', () => ({
@@ -1530,6 +1546,7 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
       const creds2 = deriveVirtualCredentials('coach_bob');
       expect(creds1.virtualEmail).toBe('coach_bob@tester.inthepocket.com.au');
       expect(creds1.primaryPassword).toBe(creds2.primaryPassword);
+      expect(creds1.candidatePasswords).toContain('InThePocketTesterAccess2026!');
 
       // 2. Structured error classification
       const emptyErr = classifyAuthError({ errorCode: 'EMPTY_CODE' });
@@ -1541,6 +1558,28 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
 
       const timeoutErr = classifyAuthError(new Error('request timeout'));
       expect(timeoutErr.errorCode).toBe('REQUEST_TIMEOUT');
+    });
+
+    it('34: Legacy tester accounts (such as Travis) authenticate via candidate passwords and trigger password migration', async () => {
+      const { authenticateTesterSession } = require('../utils/testerAuthService.js');
+
+      // Mock loginFn that fails for new v2 password but succeeds for static legacy password
+      const loginFn = vi.fn(async (email, password) => {
+        if (password === 'InThePocketTesterAccess2026!') {
+          return { user: { uid: 'travis_legacy_uid', email } };
+        }
+        const err = new Error('Invalid credential');
+        err.code = 'auth/invalid-credential';
+        throw err;
+      });
+
+      const signupFn = vi.fn();
+
+      const result = await authenticateTesterSession('Travis', loginFn, signupFn);
+      expect(result.success).toBe(true);
+      expect(loginFn).toHaveBeenCalled();
+      // Verify signup was NOT called because login succeeded via candidate password
+      expect(signupFn).not.toHaveBeenCalled();
     });
   });
 
