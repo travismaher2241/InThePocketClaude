@@ -129,8 +129,10 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
       );
 
       fireEvent.click(screen.getByText('Marcus Bontempelli'));
+      fireEvent.click(screen.getByText('Edit Profile'));
       fireEvent.click(screen.getByText('Delete Player'));
-      fireEvent.click(screen.getByText('Confirm'));
+      const deleteConfirmBtn = screen.getAllByText('Delete Player')[1];
+      fireEvent.click(deleteConfirmBtn);
 
       await waitFor(() => {
         expect(bulkDeletePlayersFromFirestore).toHaveBeenCalledWith(['p1'], 'user_123');
@@ -1112,6 +1114,54 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
       expect(screen.queryByText(/COACHING REFERENCE/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/Why this fits/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/Guidebook\.pdf/i)).not.toBeInTheDocument();
+    });
+
+    it('21. UI Regression: Team Hub player list screen displays dynamic player count, simplified rows, jersey search with/without #, and delete confirmation', async () => {
+      const mockSquad = [
+        { id: 'p1', name: 'Aaron Burrage', jersey: 20, position: 'Midfield', medical: 'Ankle', attendance: [{ present: true }] },
+        { id: 'p2', name: 'Marcus Bontempelli', jersey: 4, position: 'Forward', medical: 'None', attendance: [{ present: true }] }
+      ];
+
+      render(
+        <SquadHub 
+          squad={mockSquad} 
+          onAddPlayer={vi.fn()} 
+          onEditPlayer={vi.fn()} 
+          onRemovePlayer={vi.fn()} 
+        />
+      );
+
+      // 1. Heading displays dynamic count: Players (2)
+      expect(screen.getByText('Players (2)')).toBeInTheDocument();
+      expect(screen.getByText('Manage Team')).toBeInTheDocument();
+      expect(screen.getByText('Import Players')).toBeInTheDocument();
+
+      // 2. Player row displays jersey number & name, but NO attendance % or MED badge
+      expect(screen.getByText('#20')).toBeInTheDocument();
+      expect(screen.getByText('Aaron Burrage')).toBeInTheDocument();
+      expect(screen.queryByText(/Att:/i)).not.toBeInTheDocument();
+
+      // 3. Search with #20 and 20 works
+      const searchInput = screen.getByPlaceholderText('Search by name or jersey number…');
+      fireEvent.change(searchInput, { target: { value: '#20' } });
+      expect(screen.getByText('Aaron Burrage')).toBeInTheDocument();
+      expect(screen.queryByText('Marcus Bontempelli')).not.toBeInTheDocument();
+
+      fireEvent.change(searchInput, { target: { value: '4' } });
+      expect(screen.getByText('Marcus Bontempelli')).toBeInTheDocument();
+      expect(screen.queryByText('Aaron Burrage')).not.toBeInTheDocument();
+
+      // Reset search
+      fireEvent.change(searchInput, { target: { value: '' } });
+
+      // 4. Delete player confirmation dialog includes player name and specific copy
+      fireEvent.click(screen.getByText('Aaron Burrage'));
+      fireEvent.click(screen.getByText('Edit Profile'));
+      fireEvent.click(screen.getByText('Delete Player'));
+
+      expect(screen.getByText('Delete Aaron Burrage?')).toBeInTheDocument();
+      expect(screen.getByText('This will permanently remove Aaron Burrage from the team. This action cannot be undone.')).toBeInTheDocument();
+      expect(screen.getAllByText('Cancel').length).toBeGreaterThan(0);
     });
   });
 

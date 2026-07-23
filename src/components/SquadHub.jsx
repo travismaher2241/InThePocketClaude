@@ -29,6 +29,7 @@ export default function SquadHub({
   const [detailPlayer, setDetailPlayer] = useState(null);
   const [isDetailEditing, setIsDetailEditing] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isOverflowOpen, setIsOverflowOpen] = useState(false);
 
   // New Player Form State
   const [newName, setNewName] = useState('');
@@ -51,6 +52,8 @@ export default function SquadHub({
     setIsDetailOpen(false);
     setDetailPlayer(null);
     setIsDetailEditing(false);
+    setIsDeleteConfirmOpen(false);
+    setIsOverflowOpen(false);
     setEditNameError('');
     setEditJerseyError('');
   };
@@ -84,10 +87,16 @@ export default function SquadHub({
   const filteredAndSortedSquad = useMemo(() => {
     let result = [...squad];
 
-    // Filter by name
+    // Filter by name or jersey number (# supported)
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(player => player.name.toLowerCase().includes(q));
+      const q = searchQuery.trim().toLowerCase();
+      const cleanQ = q.startsWith('#') ? q.slice(1).trim() : q;
+      result = result.filter(player => {
+        const nameMatch = player.name.toLowerCase().includes(q);
+        const jerseyStr = player.jersey !== undefined && player.jersey !== null ? String(player.jersey).toLowerCase().trim() : '';
+        const jerseyMatch = cleanQ !== '' && (jerseyStr === cleanQ || jerseyStr.includes(cleanQ));
+        return nameMatch || jerseyMatch;
+      });
     }
 
     // Sort
@@ -343,25 +352,26 @@ export default function SquadHub({
     }}>
       
       {/* Header section with actions */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', width: '100%' }}>
         <h2 
           style={{ 
             fontFamily: 'var(--font-family-body)',
-            fontSize: '1.75rem',
+            fontSize: '1.4rem',
             fontWeight: '700',
             color: 'var(--text-primary)',
-            paddingBottom: '8px',
+            paddingBottom: '4px',
             borderBottom: '2px solid var(--color-squad)',
             display: 'inline-block',
             letterSpacing: '-0.02em',
-            margin: 0
+            margin: 0,
+            whiteSpace: 'nowrap'
           }}
         >
-          Team Hub
+          Players ({squad ? squad.length : 0})
         </h2>
         
         {/* Simple text link actions */}
-        <div style={{ display: 'flex', gap: '24px', alignItems: 'center', userSelect: 'none' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', userSelect: 'none', flexShrink: 0 }}>
           <span 
             onClick={() => {
               setIsManageMode(!isManageMode);
@@ -369,33 +379,35 @@ export default function SquadHub({
             }}
             style={{
               fontFamily: 'var(--font-family-locker)',
-              fontSize: '1.1rem',
+              fontSize: '0.85rem',
               fontWeight: '700',
               color: isManageMode ? 'var(--color-match)' : '#8d939e',
               cursor: 'pointer',
               textTransform: 'uppercase',
-              transition: 'color 0.2s ease'
+              transition: 'color 0.2s ease',
+              whiteSpace: 'nowrap'
             }}
             onMouseEnter={(e) => { if (!isManageMode) e.currentTarget.style.color = '#ffffff'; }}
             onMouseLeave={(e) => { if (!isManageMode) e.currentTarget.style.color = '#8d939e'; }}
           >
-            {isManageMode ? 'Cancel' : 'Manage'}
+            {isManageMode ? 'Cancel' : 'Manage Team'}
           </span>
           <span 
             onClick={() => setIsImportOpen(true)}
             style={{
               fontFamily: 'var(--font-family-locker)',
-              fontSize: '1.1rem',
+              fontSize: '0.85rem',
               fontWeight: '700',
               color: '#8d939e',
               cursor: 'pointer',
               textTransform: 'uppercase',
-              transition: 'color 0.2s ease'
+              transition: 'color 0.2s ease',
+              whiteSpace: 'nowrap'
             }}
             onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
             onMouseLeave={(e) => e.currentTarget.style.color = '#8d939e'}
           >
-            Import
+            Import Players
           </span>
         </div>
       </div>
@@ -424,7 +436,7 @@ export default function SquadHub({
           <input
             type="text"
             className="search-input-field"
-            placeholder="Search players by name..."
+            placeholder="Search by name or jersey number…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -505,16 +517,13 @@ export default function SquadHub({
         {filteredAndSortedSquad.length === 0 ? (
           <div style={{ border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '6px', padding: '40px 16px', textAlign: 'center', color: '#8d939e', fontSize: '0.9rem' }}>
             {squad.length === 0 
-              ? 'No players added yet. Tap the "+" button at the bottom or "Import" in the header to register your squad roster.'
+              ? 'No players added yet. Tap the "+" button at the bottom or "Import Players" in the header to register your squad roster.'
               : 'No players match your search criteria.'}
           </div>
         ) : (
           filteredAndSortedSquad.map((player) => {
             const isSelected = selectedPlayerIds.has(player.id);
-            const attendanceRate = player.attendance && player.attendance.length > 0
-              ? Math.round((player.attendance.filter(a => a.present).length / player.attendance.length) * 100)
-              : 100;
-            const isInjured = player.medical && player.medical !== 'None' && player.medical.trim() !== '';
+            const jerseyNum = parseInt(player.jersey, 10) || player.jersey;
 
             return (
               <div 
@@ -528,14 +537,20 @@ export default function SquadHub({
                     setIsDetailOpen(true);
                     setIsDetailEditing(false);
                     setIsDeleteConfirmOpen(false);
+                    setIsOverflowOpen(false);
                   }
                 }}
                 style={{ 
                   backgroundColor: isSelected ? 'rgba(58, 134, 255, 0.08)' : 'transparent',
                   borderColor: isSelected ? 'rgba(58, 134, 255, 0.2)' : 'transparent',
+                  padding: '14px 12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
                   {/* Checkbox (Manage Mode) */}
                   {isManageMode && (
                     <input 
@@ -545,13 +560,14 @@ export default function SquadHub({
                       style={{
                         width: '16px',
                         height: '16px',
-                        pointerEvents: 'none', // click passes through to the parent row
-                        accentColor: 'var(--color-squad)'
+                        pointerEvents: 'none',
+                        accentColor: 'var(--color-squad)',
+                        flexShrink: 0
                       }}
                     />
                   )}
 
-                  {/* Industrial number box (Single-Digit formatted e.g. #8) */}
+                  {/* Industrial number box (#20) */}
                   <div 
                     className="scoreboard-font" 
                     style={{ 
@@ -563,56 +579,29 @@ export default function SquadHub({
                       padding: '4px 6px',
                       borderRadius: '4px',
                       border: '1px solid rgba(58, 134, 255, 0.15)',
-                      fontWeight: '700'
+                      fontWeight: '700',
+                      flexShrink: 0
                     }}
                   >
-                    #{parseInt(player.jersey, 10) || player.jersey}
+                    #{jerseyNum}
                   </div>
 
-                  {/* Name & High-Visibility Medical Warning Badge */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: '700', fontSize: '1.05rem', color: '#ffffff' }}>
-                      {player.name}
-                    </span>
-                    {isInjured && (
-                      <span 
-                        style={{ 
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          backgroundColor: 'rgba(230, 57, 70, 0.15)',
-                          border: '1px solid rgba(230, 57, 70, 0.4)',
-                          color: '#e63946',
-                          borderRadius: '4px',
-                          padding: '1px 6px',
-                          fontSize: '0.65rem',
-                          fontWeight: '700',
-                          gap: '3px'
-                        }}
-                        title={`Medical Alert: ${player.medical}`}
-                      >
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"/>
-                        </svg>
-                        MED
-                      </span>
-                    )}
-                  </div>
+                  {/* Player Name ONLY */}
+                  <span style={{ fontWeight: '700', fontSize: '1.05rem', color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {player.name}
+                  </span>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {/* Right-padding buffer added to Att label to prevent collision with right chevron arrow */}
-                  <span style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '500', opacity: 0.7, paddingRight: '8px' }}>
-                    Att: {attendanceRate}%
-                  </span>
-
+                {/* Right-facing chevron ONLY */}
+                <div style={{ display: 'flex', alignItems: 'center', marginLeft: '8px', flexShrink: 0 }}>
                   <svg 
-                    width="14" 
-                    height="14" 
+                    width="16" 
+                    height="16" 
                     fill="none" 
                     stroke="currentColor" 
                     strokeWidth="2.5" 
                     viewBox="0 0 24 24"
-                    style={{ color: '#8d939e', flexShrink: 0 }}
+                    style={{ color: '#8d939e' }}
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
                   </svg>
@@ -709,7 +698,7 @@ export default function SquadHub({
           >
             
             {/* Modal Header */}
-            <div className="modal-header" style={{ flexShrink: 0, padding: '16px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="modal-header" style={{ flexShrink: 0, padding: '16px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span className="scoreboard-font" style={{ color: 'var(--color-squad)', fontSize: '1.1rem', fontWeight: '700' }}>
                   #{parseInt(detailPlayer.jersey, 10) || detailPlayer.jersey}
@@ -718,14 +707,93 @@ export default function SquadHub({
                   {detailPlayer.name}
                 </h3>
               </div>
-              <button 
-                className="icon-btn" 
-                onClick={handleCloseDetail}
-              >
-                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {/* 3-Dot Overflow Menu Button */}
+                <div style={{ position: 'relative' }}>
+                  <button 
+                    className="icon-btn" 
+                    type="button"
+                    onClick={() => setIsOverflowOpen(!isOverflowOpen)}
+                    title="More actions"
+                    aria-label="More options"
+                    style={{ padding: '4px 8px', fontSize: '1.2rem', color: '#8d939e' }}
+                  >
+                    &#8285;
+                  </button>
+
+                  {isOverflowOpen && (
+                    <div style={{
+                      position: 'absolute',
+                      right: 0,
+                      top: '100%',
+                      marginTop: '4px',
+                      backgroundColor: '#1c202c',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      borderRadius: '8px',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                      padding: '4px',
+                      zIndex: 100,
+                      minWidth: '130px'
+                    }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsOverflowOpen(false);
+                          handleEditClick(detailPlayer);
+                        }}
+                        style={{
+                          width: '100%',
+                          textAlign: 'left',
+                          padding: '8px 12px',
+                          background: 'none',
+                          border: 'none',
+                          color: '#ffffff',
+                          fontSize: '0.85rem',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          borderRadius: '4px'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      >
+                        Edit Profile
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsOverflowOpen(false);
+                          setIsDeleteConfirmOpen(true);
+                        }}
+                        style={{
+                          width: '100%',
+                          textAlign: 'left',
+                          padding: '8px 12px',
+                          background: 'none',
+                          border: 'none',
+                          color: '#e63946',
+                          fontSize: '0.85rem',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          borderRadius: '4px'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(230,57,70,0.1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      >
+                        Delete Player
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <button 
+                  className="icon-btn" 
+                  onClick={handleCloseDetail}
+                >
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
             </div>
 
             {/* Modal Body - Scrollable Container for Virtual Keyboard Handling */}
@@ -790,39 +858,16 @@ export default function SquadHub({
                     )}
                   </div>
 
-                  {/* Inner Delete Confirmation */}
-                  {isDeleteConfirmOpen ? (
-                    <div style={{ 
-                      backgroundColor: 'rgba(230, 57, 70, 0.06)', 
-                      border: '1px solid rgba(230, 57, 70, 0.15)', 
-                      padding: '12px', 
-                      borderRadius: '6px', 
-                      textAlign: 'center',
-                      marginTop: '8px' 
-                    }}>
-                      <p style={{ margin: '0 0 10px 0', fontSize: '0.8rem', color: '#ffffff' }}>
-                        Are you sure you want to delete **{detailPlayer.name}**?
-                      </p>
-                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                        <button className="btn" onClick={() => setIsDeleteConfirmOpen(false)} style={{ padding: '4px 10px', fontSize: '0.75rem' }}>Cancel</button>
-                        <button className="btn" onClick={() => handleDelete(detailPlayer.id)} style={{ padding: '4px 10px', fontSize: '0.75rem', backgroundColor: '#e63946', color: '#ffffff', borderColor: '#e63946' }}>Confirm</button>
-                      </div>
-                    </div>
-                  ) : (
-                    /* Action footer buttons */
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '12px' }}>
-                      <button className="btn" onClick={() => handleEditClick(detailPlayer)}>
-                        Edit Profile
-                      </button>
-                      <button 
-                        className="btn" 
-                        onClick={() => setIsDeleteConfirmOpen(true)}
-                        style={{ color: '#e63946', borderColor: 'rgba(230,57,70,0.1)' }}
-                      >
-                        Delete Player
-                      </button>
-                    </div>
-                  )}
+                  {/* Action footer button - Edit Profile only */}
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' }}>
+                    <button 
+                      className="btn btn-squad" 
+                      onClick={() => handleEditClick(detailPlayer)}
+                      style={{ width: '100%', padding: '10px 16px', fontWeight: '700' }}
+                    >
+                      Edit Profile
+                    </button>
+                  </div>
                 </div>
               ) : (
                 /* Inner Edit Form with Custom Inline Validation */
@@ -877,12 +922,74 @@ export default function SquadHub({
                       <input type="text" value={editMedical} onChange={(e) => setEditMedical(e.target.value)} placeholder="Asthma, allergy..." />
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '10px' }}>
-                    <button type="button" className="btn" onClick={() => { setIsDetailEditing(false); setEditNameError(''); setEditJerseyError(''); }}>Cancel</button>
-                    <button type="submit" className="btn btn-squad">Save Profile</button>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                    <button 
+                      type="button" 
+                      className="btn" 
+                      onClick={() => setIsDeleteConfirmOpen(true)}
+                      style={{ color: '#e63946', borderColor: 'rgba(230, 57, 70, 0.3)', backgroundColor: 'rgba(230, 57, 70, 0.08)', fontSize: '0.8rem', fontWeight: '600' }}
+                    >
+                      Delete Player
+                    </button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button type="button" className="btn" onClick={() => { setIsDetailEditing(false); setEditNameError(''); setEditJerseyError(''); }}>Cancel</button>
+                      <button type="submit" className="btn btn-squad">Save Profile</button>
+                    </div>
                   </div>
                 </form>
               )}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* SINGLE PLAYER DELETE CONFIRMATION MODAL */}
+      {isDeleteConfirmOpen && detailPlayer && createPortal(
+        <div 
+          className="overlay-backdrop" 
+          style={{ zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+          onClick={() => setIsDeleteConfirmOpen(false)}
+        >
+          <div 
+            className="modal-content" 
+            style={{ maxWidth: '360px', width: '100%', borderRadius: '12px', padding: '24px', backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h4 style={{ color: '#ffffff', fontSize: '1.15rem', fontWeight: '700', margin: '0 0 10px 0' }}>
+              Delete {detailPlayer.name}?
+            </h4>
+            <p style={{ fontSize: '0.85rem', color: '#8d939e', lineHeight: '1.5', margin: '0 0 20px 0' }}>
+              This will permanently remove {detailPlayer.name} from the team. This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button 
+                type="button" 
+                className="btn" 
+                onClick={() => setIsDeleteConfirmOpen(false)}
+                style={{ flex: 1, padding: '10px', fontSize: '0.85rem' }}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                className="btn" 
+                onClick={() => {
+                  handleDelete(detailPlayer.id);
+                  handleCloseDetail();
+                }}
+                style={{ 
+                  flex: 1, 
+                  padding: '10px', 
+                  fontSize: '0.85rem', 
+                  backgroundColor: '#e63946', 
+                  color: '#ffffff', 
+                  borderColor: '#e63946',
+                  fontWeight: '700' 
+                }}
+              >
+                Delete Player
+              </button>
             </div>
           </div>
         </div>,
