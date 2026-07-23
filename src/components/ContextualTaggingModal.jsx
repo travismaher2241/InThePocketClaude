@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 export default function ContextualTaggingModal({
   isOpen,
@@ -10,6 +11,39 @@ export default function ContextualTaggingModal({
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [customDrillName, setCustomDrillName] = useState(drillName);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState([]);
+  const previousScrollYRef = useRef(0);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const currentScrollY = window.scrollY || window.pageYOffset || 0;
+    previousScrollYRef.current = currentScrollY;
+
+    const originalOverflow = document.body.style.overflow;
+    const originalPosition = document.body.style.position;
+    const originalTop = document.body.style.top;
+    const originalWidth = document.body.style.width;
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${currentScrollY}px`;
+    document.body.style.width = '100%';
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && onClose) onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.position = originalPosition;
+      document.body.style.top = originalTop;
+      document.body.style.width = originalWidth;
+
+      window.scrollTo(0, previousScrollYRef.current);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -37,11 +71,33 @@ export default function ContextualTaggingModal({
     });
   };
 
-  return (
-    <div className="overlay-backdrop" onClick={onClose} style={{ zIndex: 1100 }}>
+  return createPortal(
+    <div
+      tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Tag Analysis Segment"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: 'rgba(0, 0, 0, 0.82)',
+        backdropFilter: 'blur(6px)',
+        WebkitBackdropFilter: 'blur(6px)',
+        zIndex: 99999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 'max(16px, env(safe-area-inset-top, 16px)) 16px max(16px, env(safe-area-inset-bottom, 16px)) 16px',
+        boxSizing: 'border-box',
+        touchAction: 'none'
+      }}
+      onClick={onClose}
+    >
       <div 
         className="modal-content" 
-        style={{ maxWidth: '420px', backgroundColor: '#1c1f26', border: '1px solid rgba(255, 255, 255, 0.08)' }} 
+        style={{ maxWidth: '420px', width: '100%', maxHeight: 'calc(100vh - 32px)', backgroundColor: '#1c1f26', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', overflow: 'hidden' }} 
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
@@ -197,6 +253,7 @@ export default function ContextualTaggingModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

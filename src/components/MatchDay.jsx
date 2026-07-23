@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import ContextualTaggingModal from './ContextualTaggingModal';
 import { hasAccess } from '../firebaseHelpers';
 import { useAuth } from '../context/AuthProvider';
@@ -37,6 +38,124 @@ const FIELD_POSITIONS = [
   { id: 'pos_fb', name: 'Full Back', line: 'Backs', code: 'FB' },
   { id: 'pos_bp_r', name: 'Back Pocket', line: 'Backs', code: 'BP' }
 ];
+
+function MatchDayPortalModal({
+  isOpen,
+  onClose,
+  children,
+  isBottomSheet = false,
+  preventBackdropClose = true,
+  ariaLabel = "Match Day Dialog"
+}) {
+  const previousScrollYRef = useRef(0);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const currentScrollY = window.scrollY || window.pageYOffset || 0;
+    previousScrollYRef.current = currentScrollY;
+
+    const originalOverflow = document.body.style.overflow;
+    const originalPosition = document.body.style.position;
+    const originalTop = document.body.style.top;
+    const originalWidth = document.body.style.width;
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${currentScrollY}px`;
+    document.body.style.width = '100%';
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && onClose) {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.position = originalPosition;
+      document.body.style.top = originalTop;
+      document.body.style.width = originalWidth;
+
+      window.scrollTo(0, previousScrollYRef.current);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  const backdropStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0, 0, 0, 0.82)',
+    backdropFilter: 'blur(6px)',
+    WebkitBackdropFilter: 'blur(6px)',
+    zIndex: 99999,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: isBottomSheet ? 'flex-end' : 'center',
+    alignItems: 'center',
+    padding: isBottomSheet
+      ? '0 0 max(16px, env(safe-area-inset-bottom, 16px)) 0'
+      : 'max(16px, env(safe-area-inset-top, 16px)) 16px max(16px, env(safe-area-inset-bottom, 16px)) 16px',
+    boxSizing: 'border-box',
+    touchAction: 'none'
+  };
+
+  const dialogStyle = {
+    backgroundColor: '#161922',
+    border: '1px solid rgba(255, 255, 255, 0.12)',
+    borderRadius: isBottomSheet ? '20px 20px 0 0' : '16px',
+    padding: '20px 16px',
+    maxWidth: isBottomSheet ? '520px' : '400px',
+    width: '100%',
+    maxHeight: isBottomSheet ? '80vh' : 'calc(100vh - 32px)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '14px',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+    boxSizing: 'border-box',
+    overflowY: 'auto',
+    touchAction: 'pan-y',
+    zIndex: 100000
+  };
+
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget && !preventBackdropClose && onClose) {
+      onClose();
+    }
+  };
+
+  return createPortal(
+    <div
+      ref={containerRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={ariaLabel}
+      tabIndex={-1}
+      style={backdropStyle}
+      onClick={handleBackdropClick}
+      onTouchMove={(e) => {
+        if (e.target === containerRef.current) {
+          e.preventDefault();
+        }
+      }}
+    >
+      <div style={dialogStyle} onClick={(e) => e.stopPropagation()}>
+        {children}
+      </div>
+    </div>,
+    document.body
+  );
+}
 
 export default function MatchDay({
   squad = [],
@@ -1174,9 +1293,13 @@ export default function MatchDay({
       )}
 
       {/* CONFIRMATION DIALOG MODAL */}
-      {confirmModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '20px', maxWidth: '380px', width: '100%', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <MatchDayPortalModal
+        isOpen={Boolean(confirmModal)}
+        onClose={() => setConfirmModal(null)}
+        ariaLabel={confirmModal?.title || "Confirmation"}
+      >
+        {confirmModal && (
+          <>
             <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.15rem', fontWeight: '800' }}>
               {confirmModal.title}
             </h3>
@@ -1197,95 +1320,145 @@ export default function MatchDay({
                 {confirmModal.primaryText || 'Confirm'}
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </MatchDayPortalModal>
 
       {/* PREGAME SUMMARY START MATCH MODAL (Items 13-14) */}
-      {pregameSummaryModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '20px', maxWidth: '400px', width: '100%', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.15rem', fontWeight: '800' }}>
-              Confirm Match Setup
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', backgroundColor: 'rgba(255,255,255,0.04)', padding: '12px', borderRadius: '8px', fontSize: '0.88rem' }}>
-              <div style={{ color: '#ffffff' }}>• Active Players: <strong>{activePlayers.length}</strong></div>
-              <div style={{ color: '#2ec4b6' }}>• On Field: <strong>{onFieldCount}/18</strong></div>
-              <div style={{ color: '#ffb703' }}>• Bench: <strong>{benchCount}</strong></div>
-              <div style={{ color: unfilledSlotsCount > 0 ? '#ffb703' : '#8d939e' }}>• Unfilled Positions: <strong>{unfilledSlotsCount}</strong></div>
-              <div style={{ color: '#ffffff' }}>• Starting Quarter: <strong>Q{period}</strong></div>
-            </div>
-
-            {unfilledSlotsCount > 0 && (
-              <div style={{ fontSize: '0.8rem', color: '#ffb703', backgroundColor: 'rgba(255,183,3,0.12)', padding: '8px 12px', borderRadius: '6px' }}>
-                ⚠️ Notice: {unfilledSlotsCount} field positions remain vacant.
-              </div>
-            )}
-
-            <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
-              <button
-                onClick={() => setPregameSummaryModal(false)}
-                style={{ flex: 1, minHeight: '44px', padding: '10px', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
-              >
-                Back to Setup
-              </button>
-              <button
-                onClick={handleConfirmStartMatch}
-                style={{ flex: 1, minHeight: '44px', padding: '10px', backgroundColor: 'var(--color-match)', color: '#000000', border: 'none', borderRadius: '8px', fontWeight: '800', cursor: 'pointer' }}
-              >
-                Start Match Now
-              </button>
-            </div>
-          </div>
+      <MatchDayPortalModal
+        isOpen={pregameSummaryModal}
+        onClose={() => setPregameSummaryModal(false)}
+        ariaLabel="Confirm Match Setup"
+      >
+        <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.15rem', fontWeight: '800' }}>
+          Confirm Match Setup
+        </h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', backgroundColor: 'rgba(255,255,255,0.04)', padding: '12px', borderRadius: '8px', fontSize: '0.88rem' }}>
+          <div style={{ color: '#ffffff' }}>• Active Players: <strong>{activePlayers.length}</strong></div>
+          <div style={{ color: '#2ec4b6' }}>• On Field: <strong>{onFieldCount}/18</strong></div>
+          <div style={{ color: '#ffb703' }}>• Bench: <strong>{benchCount}</strong></div>
+          <div style={{ color: unfilledSlotsCount > 0 ? '#ffb703' : '#8d939e' }}>• Unfilled Positions: <strong>{unfilledSlotsCount}</strong></div>
+          <div style={{ color: '#ffffff' }}>• Starting Quarter: <strong>Q{period}</strong></div>
         </div>
-      )}
+
+        {unfilledSlotsCount > 0 && (
+          <div style={{ fontSize: '0.8rem', color: '#ffb703', backgroundColor: 'rgba(255,183,3,0.12)', padding: '8px 12px', borderRadius: '6px' }}>
+            ⚠️ Notice: {unfilledSlotsCount} field positions remain vacant.
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+          <button
+            onClick={() => setPregameSummaryModal(false)}
+            style={{ flex: 1, minHeight: '44px', padding: '10px', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
+          >
+            Back to Setup
+          </button>
+          <button
+            onClick={handleConfirmStartMatch}
+            style={{ flex: 1, minHeight: '44px', padding: '10px', backgroundColor: 'var(--color-match)', color: '#000000', border: 'none', borderRadius: '8px', fontWeight: '800', cursor: 'pointer' }}
+          >
+            Start Match Now
+          </button>
+        </div>
+      </MatchDayPortalModal>
 
       {/* EXIT LIVE MATCH GUARD MODAL (Items 134-136) */}
-      {exitMatchGuardModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '20px', maxWidth: '400px', width: '100%', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <MatchDayPortalModal
+        isOpen={exitMatchGuardModal}
+        onClose={() => setExitMatchGuardModal(false)}
+        ariaLabel="Leave Active Match"
+      >
+        <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.15rem', fontWeight: '800' }}>
+          Leave Active Match?
+        </h3>
+        <p style={{ margin: 0, color: '#d1d5db', fontSize: '0.88rem', lineHeight: 1.4 }}>
+          Match Q{period} is currently in progress. Select an action below:
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
+          <button
+            onClick={() => setExitMatchGuardModal(false)}
+            style={{ minHeight: '44px', padding: '10px', backgroundColor: 'var(--color-match)', color: '#000000', border: 'none', borderRadius: '8px', fontWeight: '800', cursor: 'pointer' }}
+          >
+            Return to Match
+          </button>
+          <button
+            onClick={() => { setExitMatchGuardModal(false); setMatchMode('live'); }}
+            style={{ minHeight: '44px', padding: '10px', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
+          >
+            Leave Match Running
+          </button>
+          <button
+            onClick={handleConfirmEndMatch}
+            style={{ minHeight: '44px', padding: '10px', backgroundColor: 'rgba(230,57,70,0.2)', color: '#e63946', border: '1px solid #e63946', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
+          >
+            End & Save Match
+          </button>
+        </div>
+      </MatchDayPortalModal>
+
+      {/* IMMEDIATE SUBSTITUTION CONFIRMATION MODAL */}
+      <MatchDayPortalModal
+        isOpen={Boolean(pendingSubstitution)}
+        onClose={() => setPendingSubstitution(null)}
+        ariaLabel="Confirm Substitution"
+      >
+        {pendingSubstitution && (
+          <>
             <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.15rem', fontWeight: '800' }}>
-              Leave Active Match?
+              Confirm Substitution
             </h3>
-            <p style={{ margin: 0, color: '#d1d5db', fontSize: '0.88rem', lineHeight: 1.4 }}>
-              Match Q{period} is currently in progress. Select an action below:
+            <p style={{ margin: 0, color: '#d1d5db', fontSize: '0.9rem', lineHeight: 1.4 }}>
+              Substitute <strong style={{ color: '#2ec4b6' }}>{pendingSubstitution.incoming.number ? `#${pendingSubstitution.incoming.number} ` : ''}{pendingSubstitution.incoming.name} ON</strong> for <strong style={{ color: '#ffb703' }}>{pendingSubstitution.outgoing.number ? `#${pendingSubstitution.outgoing.number} ` : ''}{pendingSubstitution.outgoing.name} OFF</strong>?
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
               <button
-                onClick={() => setExitMatchGuardModal(false)}
-                style={{ minHeight: '44px', padding: '10px', backgroundColor: 'var(--color-match)', color: '#000000', border: 'none', borderRadius: '8px', fontWeight: '800', cursor: 'pointer' }}
+                onClick={() => setPendingSubstitution(null)}
+                style={{ flex: 1, minHeight: '44px', padding: '10px', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
               >
-                Return to Match
+                Cancel
               </button>
               <button
-                onClick={() => { setExitMatchGuardModal(false); setMatchMode('live'); }}
-                style={{ minHeight: '44px', padding: '10px', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
+                onClick={() => {
+                  handleExecuteRotation({
+                    id: `rot_${Date.now()}`,
+                    incomingId: pendingSubstitution.incoming.id,
+                    incomingName: pendingSubstitution.incoming.name,
+                    outgoingId: pendingSubstitution.outgoing.id,
+                    outgoingName: pendingSubstitution.outgoing.name,
+                    quarter: period,
+                    matchTime: formatDuration(quarterSeconds),
+                    status: 'pending'
+                  });
+                  setPendingSubstitution(null);
+                }}
+                style={{ flex: 1, minHeight: '44px', padding: '10px', backgroundColor: '#2ec4b6', color: '#000000', border: 'none', borderRadius: '8px', fontWeight: '800', cursor: 'pointer' }}
               >
-                Leave Match Running
-              </button>
-              <button
-                onClick={handleConfirmEndMatch}
-                style={{ minHeight: '44px', padding: '10px', backgroundColor: 'rgba(230,57,70,0.2)', color: '#e63946', border: '1px solid #e63946', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
-              >
-                End & Save Match
+                Confirm Sub
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </MatchDayPortalModal>
 
       {/* POSITION PICKER BOTTOM SHEET (Items 50-51) */}
-      {positionPickerModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-          <div style={{ backgroundColor: '#161922', borderTopLeftRadius: '20px', borderTopRightRadius: '20px', padding: '20px 16px 30px', maxHeight: '70vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <MatchDayPortalModal
+        isOpen={Boolean(positionPickerModal)}
+        onClose={() => setPositionPickerModal(null)}
+        isBottomSheet={true}
+        preventBackdropClose={false}
+        ariaLabel="Assign Player to Position"
+      >
+        {positionPickerModal && (
+          <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' }}>
               <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.1rem', fontWeight: '800' }}>
                 Assign {positionPickerModal.name} ({positionPickerModal.code})
               </h3>
-              <button onClick={() => setPositionPickerModal(null)} style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+              <button onClick={() => setPositionPickerModal(null)} style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '1.2rem', cursor: 'pointer', padding: '4px 8px', minHeight: '44px' }}>✕</button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', maxHeight: '55vh' }}>
               {activePlayers.map(p => (
                 <button
                   key={p.id}
@@ -1310,19 +1483,25 @@ export default function MatchDay({
                 </button>
               ))}
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </MatchDayPortalModal>
 
       {/* OCCUPIED SLOT ACTIONS BOTTOM SHEET (Item 51) */}
-      {occupiedSlotModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-          <div style={{ backgroundColor: '#161922', borderTopLeftRadius: '20px', borderTopRightRadius: '20px', padding: '20px 16px 30px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <MatchDayPortalModal
+        isOpen={Boolean(occupiedSlotModal)}
+        onClose={() => setOccupiedSlotModal(null)}
+        isBottomSheet={true}
+        preventBackdropClose={false}
+        ariaLabel="Position Slot Actions"
+      >
+        {occupiedSlotModal && (
+          <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' }}>
               <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.1rem', fontWeight: '800' }}>
                 {occupiedSlotModal.position.code}: {occupiedSlotModal.player.name}
               </h3>
-              <button onClick={() => setOccupiedSlotModal(null)} style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+              <button onClick={() => setOccupiedSlotModal(null)} style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '1.2rem', cursor: 'pointer', padding: '4px 8px', minHeight: '44px' }}>✕</button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1363,9 +1542,9 @@ export default function MatchDay({
                 Mark Unavailable
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </MatchDayPortalModal>
 
       {/* VIDEO TAGGING MODAL */}
       {taggingModalOpen && pendingClip && (
