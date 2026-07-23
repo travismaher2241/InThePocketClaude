@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthProvider';
 import inThePocketLogo from '../assets/In The Pocket.png';
+import { 
+  authenticateTesterSession, 
+  classifyAuthError, 
+  createStructuredError 
+} from '../utils/testerAuthService';
 
 export default function Login() {
-  const { login, signup, resetPassword } = useAuth();
+  const { login, signup, resetPassword, logout } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [testerCode, setTesterCode] = useState('');
@@ -11,57 +16,49 @@ export default function Login() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [error, setError] = useState('');
+  const [structuredError, setStructuredError] = useState(null);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const testerInputRef = useRef(null);
+
+  const executeTesterLogin = async () => {
+    setStructuredError(null);
     setError('');
     setMessage('');
     setLoading(true);
 
     try {
-      if (isTesterMode) {
-        if (!testerCode.trim()) {
-          throw new Error('Tester nickname or code is required.');
-        }
-        // Sanitize code to make it a valid email prefix
-        const sanitizedCode = testerCode.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-        if (!sanitizedCode) {
-          throw new Error('Tester nickname must contain letters or numbers.');
-        }
-        const virtualEmail = `${sanitizedCode}@tester.inthepocket.com.au`;
-        let deviceSalt = localStorage.getItem('inthepocket_device_salt');
-        if (!deviceSalt) {
-          deviceSalt = 'salt_' + Math.random().toString(36).substring(2, 15) + '_' + Date.now().toString(36);
-          localStorage.setItem('inthepocket_device_salt', deviceSalt);
-        }
-        let hash = 0;
-        const seedStr = `ITP_TESTER_${sanitizedCode}_${deviceSalt}`;
-        for (let i = 0; i < seedStr.length; i++) {
-          const char = seedStr.charCodeAt(i);
-          hash = ((hash << 5) - hash) + char;
-          hash |= 0;
-        }
-        const virtualPassword = `ItpTester#${Math.abs(hash).toString(36)}${sanitizedCode.length}!`;
+      await authenticateTesterSession(testerCode, login, signup);
+    } catch (err) {
+      const classified = classifyAuthError(err, 'auth');
+      setStructuredError(classified);
+      setError(classified.userMessage);
 
-        try {
-          // Attempt to log in the tester
-          await login(virtualEmail, virtualPassword);
-        } catch {
-          // If login fails (usually because the account doesn't exist yet), auto-signup
-          try {
-            await signup(virtualEmail, virtualPassword);
-          } catch (signupErr) {
-            // Handle if email is already in use under a different configuration
-            if (signupErr.code === 'auth/email-already-in-use') {
-              throw new Error('This tester code is registered but could not be logged in.');
-            } else {
-              throw signupErr;
-            }
-          }
-        }
-      } else if (isForgotPassword) {
+      // Focus input field if invalid/empty code error
+      if (classified.focusField && testerInputRef.current) {
+        setTimeout(() => testerInputRef.current?.focus(), 50);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (isTesterMode) {
+      await executeTesterLogin();
+      return;
+    }
+
+    setError('');
+    setStructuredError(null);
+    setMessage('');
+    setLoading(true);
+
+    try {
+      if (isForgotPassword) {
         await resetPassword(email);
         setMessage('Check your inbox for password reset instructions.');
       } else if (isSignUp) {
@@ -73,6 +70,36 @@ export default function Login() {
       setError(err.message.replace('Firebase:', '').trim());
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAction = (type) => {
+    if (type === 'retry') {
+      executeTesterLogin();
+    } else if (type === 'focus_field') {
+      setStructuredError(null);
+      setError('');
+      setTimeout(() => testerInputRef.current?.focus(), 50);
+    } else if (type === 'clear_code') {
+      setTesterCode('');
+      setStructuredError(null);
+      setError('');
+      setTimeout(() => testerInputRef.current?.focus(), 50);
+    } else if (type === 'create_new') {
+      const suggested = `coach_tester_${Math.floor(Math.random() * 900 + 100)}`;
+      setTesterCode(suggested);
+      setStructuredError(null);
+      setError('');
+      setTimeout(() => testerInputRef.current?.focus(), 50);
+    } else if (type === 'dismiss') {
+      setStructuredError(null);
+      setError('');
+    } else if (type === 'support') {
+      alert(`Contact Support Reference: ${structuredError?.requestId || 'N/A'}\nPlease include this reference code in your request.`);
+    } else if (type === 'sign_out') {
+      logout();
+      setStructuredError(null);
+      setError('');
     }
   };
 
@@ -91,12 +118,12 @@ export default function Login() {
         border: '1px solid rgba(255, 255, 255, 0.05)',
         borderRadius: '12px',
         width: '100%',
-        maxWidth: '380px',
+        maxWidth: '400px',
         padding: '32px 24px',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '20px'
+        gap: '18px'
       }}>
         <div style={{ textAlign: 'center' }}>
           <img 
@@ -123,7 +150,7 @@ export default function Login() {
         }}>
           <button
             type="button"
-            onClick={() => { setIsTesterMode(false); setError(''); setMessage(''); }}
+            onClick={() => { setIsTesterMode(false); setError(''); setStructuredError(null); setMessage(''); }}
             style={{
               flex: 1,
               backgroundColor: 'transparent',
@@ -144,7 +171,7 @@ export default function Login() {
           {import.meta.env.VITE_ENABLE_TESTER_MODE !== 'false' && (
             <button
               type="button"
-              onClick={() => { setIsTesterMode(true); setError(''); setMessage(''); }}
+              onClick={() => { setIsTesterMode(true); setError(''); setStructuredError(null); setMessage(''); }}
               style={{
                 flex: 1,
                 backgroundColor: 'transparent',
@@ -165,7 +192,65 @@ export default function Login() {
           )}
         </div>
 
-        {error && (
+        {/* STRUCTURED TESTER ERROR PANEL */}
+        {structuredError && isTesterMode ? (
+          <div 
+            style={{
+              backgroundColor: '#1c1f26',
+              border: '1px solid rgba(230, 57, 70, 0.35)',
+              borderRadius: '8px',
+              padding: '14px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '1rem' }}>⚠️</span>
+              <h4 style={{ margin: 0, color: '#e63946', fontSize: '0.875rem', fontWeight: '800' }}>
+                {structuredError.title}
+              </h4>
+            </div>
+
+            {structuredError.reassurance && (
+              <div style={{ fontSize: '0.75rem', color: '#2ec4b6', fontWeight: '700', backgroundColor: 'rgba(46, 196, 182, 0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(46, 196, 182, 0.2)' }}>
+                ✓ {structuredError.reassurance}
+              </div>
+            )}
+
+            <p style={{ margin: 0, color: '#d1d5db', fontSize: '0.8rem', lineHeight: '1.4' }}>
+              {structuredError.userMessage}
+            </p>
+
+            {structuredError.requestId && (
+              <div style={{ fontSize: '0.7rem', color: '#8d939e', fontFamily: 'monospace' }}>
+                Reference: {structuredError.requestId}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+              {structuredError.actions?.map((act, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleAction(act.type)}
+                  style={{
+                    backgroundColor: act.type === 'retry' ? 'var(--color-squad)' : 'rgba(255,255,255,0.08)',
+                    color: '#ffffff',
+                    border: act.type === 'retry' ? 'none' : '1px solid rgba(255,255,255,0.15)',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
+                    fontSize: '0.75rem',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {act.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : error ? (
           <div style={{
             backgroundColor: 'rgba(230, 57, 70, 0.08)',
             border: '1px solid rgba(230, 57, 70, 0.15)',
@@ -178,7 +263,7 @@ export default function Login() {
           }}>
             {error}
           </div>
-        )}
+        ) : null}
 
         {message && (
           <div style={{
@@ -200,10 +285,11 @@ export default function Login() {
             <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '600', textTransform: 'uppercase' }}>Tester Nickname / Code</label>
               <input 
+                ref={testerInputRef}
                 type="text" 
                 value={testerCode} 
                 onChange={(e) => setTesterCode(e.target.value)} 
-                required 
+                disabled={loading}
                 placeholder="e.g. coach_bob"
                 style={{
                   backgroundColor: 'rgba(0,0,0,0.3)',
@@ -211,7 +297,8 @@ export default function Login() {
                   color: '#ffffff',
                   padding: '10px',
                   borderRadius: '6px',
-                  fontSize: '0.9rem'
+                  fontSize: '0.9rem',
+                  opacity: loading ? 0.6 : 1
                 }}
               />
               <span style={{ fontSize: '0.7rem', color: '#8d939e', lineHeight: '1.4', marginTop: '4px' }}>
@@ -226,6 +313,7 @@ export default function Login() {
                   type="email" 
                   value={email} 
                   onChange={(e) => setEmail(e.target.value)} 
+                  disabled={loading}
                   required 
                   style={{
                     backgroundColor: 'rgba(0,0,0,0.3)',
@@ -255,6 +343,7 @@ export default function Login() {
                     type="password" 
                     value={password} 
                     onChange={(e) => setPassword(e.target.value)} 
+                    disabled={loading}
                     required={!isForgotPassword} 
                     style={{
                       backgroundColor: 'rgba(0,0,0,0.3)',
@@ -284,13 +373,22 @@ export default function Login() {
               fontSize: '1.1rem',
               fontWeight: '700',
               textTransform: 'uppercase',
-              cursor: 'pointer',
+              cursor: loading ? 'not-allowed' : 'pointer',
               marginTop: '8px',
               transition: 'opacity 0.2s',
               opacity: loading ? 0.6 : 1
             }}
           >
-            {loading ? 'Processing...' : isTesterMode ? 'Access Tester Room' : isForgotPassword ? 'Send Reset Link' : isSignUp ? 'Register Account' : 'Authenticate'}
+            {loading 
+              ? (isTesterMode ? 'Checking tester room…' : 'Processing...') 
+              : isTesterMode 
+                ? 'Access Tester Room' 
+                : isForgotPassword 
+                  ? 'Send Reset Link' 
+                  : isSignUp 
+                    ? 'Register Account' 
+                    : 'Authenticate'
+            }
           </button>
         </form>
 
@@ -320,3 +418,4 @@ export default function Login() {
     </div>
   );
 }
+

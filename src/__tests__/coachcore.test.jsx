@@ -1521,8 +1521,30 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
       expect(() => calculateSlotDurations(90)).not.toThrow();
       expect(() => calculateSlotDurations(50)).toThrow(/Unsupported session duration/i);
     });
+
+    it('33: Tester Access authenticates deterministically and returns structured error panels without raw technical errors', () => {
+      const { deriveVirtualCredentials, classifyAuthError, TESTER_ERROR_CATALOG } = require('../utils/testerAuthService.js');
+
+      // 1. Deterministic password derivation across sessions/devices
+      const creds1 = deriveVirtualCredentials('coach_bob');
+      const creds2 = deriveVirtualCredentials('coach_bob');
+      expect(creds1.virtualEmail).toBe('coach_bob@tester.inthepocket.com.au');
+      expect(creds1.primaryPassword).toBe(creds2.primaryPassword);
+
+      // 2. Structured error classification
+      const emptyErr = classifyAuthError({ errorCode: 'EMPTY_CODE' });
+      expect(emptyErr.title).toBe(TESTER_ERROR_CATALOG.EMPTY_CODE.title);
+
+      const offlineErr = classifyAuthError(new Error('Failed to fetch'));
+      expect(offlineErr.errorCode).toBe('SERVER_UNAVAILABLE');
+      expect(offlineErr.requestId).toMatch(/^REQ-[A-Z0-9]+-\d+$/);
+
+      const timeoutErr = classifyAuthError(new Error('request timeout'));
+      expect(timeoutErr.errorCode).toBe('REQUEST_TIMEOUT');
+    });
   });
 
 });
+
 
 
