@@ -38,24 +38,15 @@ const FIELD_POSITIONS = [
   { id: 'pos_bp_r', name: 'Back Pocket', line: 'Backs', code: 'BP' }
 ];
 
-const ALL_SLOTS = FIELD_POSITIONS;
-
-const getFontSizeForName = (name) => {
-  if (name.length > 12) return '0.62rem';
-  if (name.length > 10) return '0.68rem';
-  if (name.length > 8) return '0.74rem';
-  if (name.length > 6) return '0.8rem';
-  return '0.9rem';
-};
-
 export default function MatchDay({
-  squad,
+  squad = [],
   subscriptionTier,
   maxStintMinutes,
   triggerPaywall,
   logSyncTransaction,
   onSaveVideoClip,
-  onEditPlayer
+  onEditPlayer,
+  onToggleBottomNav
 }) {
   const { currentUser } = useAuth();
   const getMatchDayScopedKey = (baseKey) => {
@@ -63,34 +54,442 @@ export default function MatchDay({
     return getScopedKey(baseKey, identifier);
   };
 
-  // Migrate legacy unscoped keys once if available
-  useEffect(() => {
-    if (currentUser?.uid) {
-      migrateUnscopedKey('inthepocket_field_assignments', currentUser.uid);
-      migrateUnscopedKey('inthepocket_matchday_homescore', currentUser.uid);
-      migrateUnscopedKey('inthepocket_matchday_awayscore', currentUser.uid);
-      migrateUnscopedKey('inthepocket_matchday_playerstats', currentUser.uid);
-      migrateUnscopedKey('inthepocket_matchday_notes', currentUser.uid);
-      migrateUnscopedKey('inthepocket_active_matchday_ids', currentUser.uid);
-    }
-  }, [currentUser]);
+  // Ultra Tier Entitlement Gating Check
+  const isGated = !hasAccess(subscriptionTier, 'ultra');
+  const [unlockedSuccess, setUnlockedSuccess] = useState(false);
 
-  // Map positions to player IDs. Default: first 22 players to active slots, rest on bench
+  // Loading and Error states (Items 126-129)
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(null);
+
+  // Navigation: Match Day Sections: 'lineup' (Lineup & Bench), 'rotations' (Rotations), 'stats' (Stats & Notes)
+  const [activeTab, setActiveTab] = useState('lineup');
+
+  // Match Day Modes: 'pregame' vs 'live' (Items 9-17)
+  const [matchMode, setMatchMode] = useState(() => {
+    const saved = localStorage.getItem(getMatchDayScopedKey('inthepocket_matchday_mode'));
+    return saved === 'live' ? 'live' : 'pregame';
+  });
+
+  // Toggle Global Navigation Bar based on Match Mode
+  useEffect(() => {
+    if (onToggleBottomNav) {
+      onToggleBottomNav(matchMode === 'live');
+    }
+  }, [matchMode, onToggleBottomNav]);
+
+  // Active Quarter & Clock State (Items 18-27)
+  const [period, setPeriod] = useState(1); // 1, 2, 3, 4
+  const [isClockRunning, setIsClockRunning] = useState(false);
+  const [quarterSeconds, setQuarterSeconds] = useState(0);
+  const quarterStartTimeRef = useRef(null);
+
+  // Field assignments: map position id -> player id
   const [fieldAssignments, setFieldAssignments] = useState(() => {
     const key = getMatchDayScopedKey('inthepocket_field_assignments');
-    const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_field_assignments');
+    const saved = localStorage.getItem(key);
     return safeJsonParse(saved, {}, (val) => typeof val === 'object');
   });
 
-  // Sync fieldAssignments state to LocalStorage
+  // Player Availability State (Items 38-47)
+  const [availability, setAvailability] = useState(() => {
+    const key = getMatchDayScopedKey('inthepocket_matchday_availability');
+    const saved = localStorage.getItem(key);
+    if (saved) return safeJsonParse(saved, {});
+    // Default: all players available
+    const initAvail = {};
+    squad.forEach(p => { initAvail[p.id] = true; });
+    return initAvail;
+  });
+
+  const [availabilitySearch, setAvailabilitySearch] = useState('');
+
+  // Scores (Items 28-37)
+  const [homeScore, setHomeScore] = useState(() => {
+    const saved = localStorage.getItem(getMatchDayScopedKey('inthepocket_matchday_homescore'));
+    return safeJsonParse(saved, { goals: 0, behinds: 0 });
+  });
+
+  const [awayScore, setAwayScore] = useState(() => {
+    const saved = localStorage.getItem(getMatchDayScopedKey('inthepocket_matchday_awayscore'));
+    return safeJsonParse(saved, { goals: 0, behinds: 0 });
+  });
+
+  // Score History Stack for Undo
+  const scoreHistoryRef = useRef([]);
+  const [toastMessage, setToastMessage] = useState(null);
+
+  // Rotation Queues & Timers (Items 57-79, 87-98)
+  const [plannedRotations, setPlannedRotations] = useState(() => {
+    const saved = localStorage.getItem(getMatchDayScopedKey('inthepocket_matchday_planned_rotations'));
+    return safeJsonParse(saved, []);
+  });
+
+  // Queue Rotation Form State (Items 58-66)
+  const [queueIncomingId, setQueueIncomingId] = useState('');
+  const [queueOutgoingId, setQueueOutgoingId] = useState('');
+
+  // Tap-to-Swap State (Items 71-79)
+  const [selectedIncomingBenchPlayer, setSelectedIncomingBenchPlayer] = useState(null);
+  const [pendingSubstitution, setPendingSubstitution] = useState(null); // { incoming, outgoing }
+
+  // Player Timers (TOG, Bench Time, Current Stints)
+  const [playerTimers, setPlayerTimers] = useState(() => {
+    const saved = localStorage.getItem(getMatchDayScopedKey('inthepocket_matchday_timers'));
+    return safeJsonParse(saved, {}); // { [id]: { tog: 0, bench: 0, stintStart: timestamp, isBench: bool } }
+  });
+
+  // Stats & Notes (Items 99-109)
+  const [playerStats, setPlayerStats] = useState(() => {
+    const saved = localStorage.getItem(getMatchDayScopedKey('inthepocket_matchday_playerstats'));
+    return safeJsonParse(saved, {});
+  });
+  const [statsHistory, setStatsHistory] = useState([]);
+  const [selectedStatPlayerId, setSelectedStatPlayerId] = useState(null);
+  const [statSearch, setStatSearch] = useState('');
+
+  const [matchNotes, setMatchNotes] = useState(() => {
+    return localStorage.getItem(getMatchDayScopedKey('inthepocket_matchday_notes')) || '';
+  });
+  const [notesSaveStatus, setNotesSaveStatus] = useState('Saved');
+
+  // Volunteer Roles (Items 110-113)
+  const [volunteerRoles, setVolunteerRoles] = useState(() => {
+    const saved = localStorage.getItem(getMatchDayScopedKey('inthepocket_matchday_volunteers'));
+    return safeJsonParse(saved, { timekeeper: '', interchange: '', statsKeeper: '' });
+  });
+
+  // Modals & Confirmation Dialogs
+  const [confirmModal, setConfirmModal] = useState(null); // { title, message, primaryText, cancelText, onConfirm }
+  const [pregameSummaryModal, setPregameSummaryModal] = useState(false);
+  const [exitMatchGuardModal, setExitMatchGuardModal] = useState(false);
+  const [positionPickerModal, setPositionPickerModal] = useState(null); // position object | null
+  const [occupiedSlotModal, setOccupiedSlotModal] = useState(null); // { position, player }
+
+  // Video tagging state
+  const [taggingModalOpen, setTaggingModalOpen] = useState(false);
+  const [pendingClip, setPendingClip] = useState(null);
+
+  // Sync states to LocalStorage
+  useEffect(() => {
+    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_mode'), matchMode);
+  }, [matchMode, currentUser]);
+
   useEffect(() => {
     localStorage.setItem(getMatchDayScopedKey('inthepocket_field_assignments'), JSON.stringify(fieldAssignments));
   }, [fieldAssignments, currentUser]);
 
-  // Video upload states
-  const [taggingModalOpen, setTaggingModalOpen] = useState(false);
-  const [pendingClip, setPendingClip] = useState(null); // { videoUrl, fileName, drillName }
+  useEffect(() => {
+    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_availability'), JSON.stringify(availability));
+  }, [availability, currentUser]);
 
+  useEffect(() => {
+    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_homescore'), JSON.stringify(homeScore));
+  }, [homeScore, currentUser]);
+
+  useEffect(() => {
+    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_awayscore'), JSON.stringify(awayScore));
+  }, [awayScore, currentUser]);
+
+  useEffect(() => {
+    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_planned_rotations'), JSON.stringify(plannedRotations));
+  }, [plannedRotations, currentUser]);
+
+  useEffect(() => {
+    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_timers'), JSON.stringify(playerTimers));
+  }, [playerTimers, currentUser]);
+
+  useEffect(() => {
+    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_playerstats'), JSON.stringify(playerStats));
+  }, [playerStats, currentUser]);
+
+  useEffect(() => {
+    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_volunteers'), JSON.stringify(volunteerRoles));
+  }, [volunteerRoles, currentUser]);
+
+  // Live Quarter Clock Interval
+  useEffect(() => {
+    let interval;
+    if (isClockRunning) {
+      interval = setInterval(() => {
+        setQuarterSeconds(prev => prev + 1);
+        // Increment player stint timers for active players
+        setPlayerTimers(prev => {
+          const next = { ...prev };
+          Object.keys(fieldAssignments).forEach(posId => {
+            const playerId = fieldAssignments[posId];
+            if (playerId) {
+              if (!next[playerId]) next[playerId] = { tog: 0, bench: 0, stintSecs: 0 };
+              next[playerId] = {
+                ...next[playerId],
+                tog: (next[playerId].tog || 0) + 1,
+                stintSecs: (next[playerId].stintSecs || 0) + 1
+              };
+            }
+          });
+
+          // Bench players
+          squad.forEach(p => {
+            const isOnField = Object.values(fieldAssignments).includes(p.id);
+            const isAvail = availability[p.id] !== false;
+            if (isAvail && !isOnField) {
+              if (!next[p.id]) next[p.id] = { tog: 0, bench: 0, stintSecs: 0 };
+              next[p.id] = {
+                ...next[p.id],
+                bench: (next[p.id].bench || 0) + 1,
+                stintSecs: (next[p.id].stintSecs || 0) + 1
+              };
+            }
+          });
+          return next;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isClockRunning, fieldAssignments, squad, availability]);
+
+  // Toast Auto-Dismiss
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
+
+  // Handle Notes Auto-Save (Items 106-108)
+  const handleNotesChange = (val) => {
+    setMatchNotes(val);
+    setNotesSaveStatus('Saving…');
+    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_notes'), val);
+    setTimeout(() => setNotesSaveStatus('Saved'), 600);
+  };
+
+  // Helper Calculations
+  const activePlayers = squad.filter(p => availability[p.id] !== false);
+  const onFieldPlayerIds = Object.values(fieldAssignments).filter(Boolean);
+  const onFieldCount = onFieldPlayerIds.length;
+  const benchPlayers = activePlayers.filter(p => !onFieldPlayerIds.includes(p.id));
+  const benchCount = benchPlayers.length;
+  const unfilledSlotsCount = FIELD_POSITIONS.length - onFieldCount;
+
+  // Score helper calculation (Items 28-29)
+  const calcTotalPoints = (scoreObj) => (scoreObj.goals || 0) * 6 + (scoreObj.behinds || 0);
+
+  // Score Update with Undo Stack (Items 30-37)
+  const updateScore = (team, type, delta) => {
+    scoreHistoryRef.current.push({ homeScore: { ...homeScore }, awayScore: { ...awayScore } });
+
+    let teamName = team === 'home' ? 'Home' : 'Away';
+    let typeName = type === 'goals' ? 'Goal' : 'Behind';
+
+    if (team === 'home') {
+      const newVal = Math.max(0, (homeScore[type] || 0) + delta);
+      setHomeScore(prev => ({ ...prev, [type]: newVal }));
+    } else {
+      const newVal = Math.max(0, (awayScore[type] || 0) + delta);
+      setAwayScore(prev => ({ ...prev, [type]: newVal }));
+    }
+
+    if (delta > 0) {
+      setToastMessage({
+        text: `${typeName} added to ${teamName}`,
+        action: handleUndoScore
+      });
+    }
+  };
+
+  const handleUndoScore = () => {
+    if (scoreHistoryRef.current.length === 0) return;
+    const prev = scoreHistoryRef.current.pop();
+    setHomeScore(prev.homeScore);
+    setAwayScore(prev.awayScore);
+    setToastMessage(null);
+  };
+
+  // Pregame -> Start Match (Items 11-15)
+  const handleStartMatchClick = () => {
+    setPregameSummaryModal(true);
+  };
+
+  const handleConfirmStartMatch = () => {
+    setPregameSummaryModal(false);
+    setMatchMode('live');
+    setIsClockRunning(true);
+  };
+
+  // Quarter Clock Controls (Items 22-25)
+  const handleToggleClock = () => {
+    setIsClockRunning(!isClockRunning);
+  };
+
+  const handleEndQuarterClick = () => {
+    setConfirmModal({
+      title: `End Quarter ${period}?`,
+      message: `This will stop the Q${period} clock and stint timers while preserving all scores, stats and rotation data.`,
+      primaryText: 'End Quarter',
+      cancelText: 'Continue Quarter',
+      onConfirm: () => {
+        setIsClockRunning(false);
+        if (period < 4) {
+          setPeriod(period + 1);
+          setQuarterSeconds(0);
+        }
+        setConfirmModal(null);
+      }
+    });
+  };
+
+  // Availability Select / Clear All (Items 42-43)
+  const handleSelectAllAvailability = () => {
+    const next = {};
+    squad.forEach(p => { next[p.id] = true; });
+    setAvailability(next);
+  };
+
+  const handleClearAllAvailability = () => {
+    if (onFieldCount > 0) {
+      setConfirmModal({
+        title: 'Clear all match availability?',
+        message: 'A starting lineup has already been assigned. Clearing availability will unassign all players.',
+        primaryText: 'Clear All',
+        cancelText: 'Cancel',
+        onConfirm: () => {
+          setAvailability({});
+          setFieldAssignments({});
+          setConfirmModal(null);
+        }
+      });
+    } else {
+      setAvailability({});
+      setFieldAssignments({});
+    }
+  };
+
+  // Queue Rotation Handler (Items 58-66)
+  // BUG FIX (Items 59-60): Button remains disabled until BOTH incoming and outgoing are selected!
+  const isQueueRotationValid = Boolean(queueIncomingId && queueOutgoingId && queueIncomingId !== queueOutgoingId);
+
+  const handleQueueRotation = () => {
+    if (!isQueueRotationValid) return;
+    const incomingPlayer = squad.find(p => p.id === queueIncomingId);
+    const outgoingPlayer = squad.find(p => p.id === queueOutgoingId);
+
+    const newRotation = {
+      id: `rot_${Date.now()}`,
+      incomingId: queueIncomingId,
+      incomingName: incomingPlayer?.name || 'Player',
+      outgoingId: queueOutgoingId,
+      outgoingName: outgoingPlayer?.name || 'Player',
+      quarter: period,
+      matchTime: formatDuration(quarterSeconds),
+      status: 'queued'
+    };
+
+    setPlannedRotations(prev => [...prev, newRotation]);
+    setQueueIncomingId('');
+    setQueueOutgoingId('');
+  };
+
+  // Atomic Rotation Execution (Items 68-70)
+  const handleExecuteRotation = (rotation) => {
+    if (rotation.status === 'executed') return;
+
+    // Find outgoing player's on-field position slot
+    let targetPosId = null;
+    Object.keys(fieldAssignments).forEach(posId => {
+      if (fieldAssignments[posId] === rotation.outgoingId) {
+        targetPosId = posId;
+      }
+    });
+
+    // Update Field Assignments atomically
+    setFieldAssignments(prev => {
+      const next = { ...prev };
+      if (targetPosId) {
+        next[targetPosId] = rotation.incomingId;
+      }
+      return next;
+    });
+
+    // Reset stint timers for both incoming and outgoing
+    setPlayerTimers(prev => ({
+      ...prev,
+      [rotation.incomingId]: { ...(prev[rotation.incomingId] || {}), stintSecs: 0 },
+      [rotation.outgoingId]: { ...(prev[rotation.outgoingId] || {}), stintSecs: 0 }
+    }));
+
+    // Update rotation status to executed
+    setPlannedRotations(prev => prev.map(r => r.id === rotation.id ? { ...r, status: 'executed' } : r));
+    setSelectedIncomingBenchPlayer(null);
+    setPendingSubstitution(null);
+  };
+
+  const handleCancelQueuedRotation = (rotId) => {
+    setPlannedRotations(prev => prev.filter(r => r.id !== rotId));
+  };
+
+  // Tap-to-Swap Substitution Flow (Items 71-79)
+  const handleTapBenchPlayer = (player) => {
+    if (selectedIncomingBenchPlayer?.id === player.id) {
+      setSelectedIncomingBenchPlayer(null);
+    } else {
+      setSelectedIncomingBenchPlayer(player);
+    }
+  };
+
+  const handleTapOnFieldPlayerForSwap = (outgoingPlayer) => {
+    if (!selectedIncomingBenchPlayer) return;
+    setPendingSubstitution({
+      incoming: selectedIncomingBenchPlayer,
+      outgoing: outgoingPlayer
+    });
+  };
+
+  // Player Stats Logger (Items 99-104)
+  const handleLogStat = (statType, delta = 1) => {
+    if (!selectedStatPlayerId) return;
+    setStatsHistory(prev => [...prev, { playerStats: JSON.parse(JSON.stringify(playerStats)) }]);
+
+    setPlayerStats(prev => {
+      const pStats = prev[selectedStatPlayerId] || { kicks: 0, handballs: 0, marks: 0, tackles: 0, goals: 0, behinds: 0 };
+      const newVal = Math.max(0, (pStats[statType] || 0) + delta);
+      return {
+        ...prev,
+        [selectedStatPlayerId]: { ...pStats, [statType]: newVal }
+      };
+    });
+  };
+
+  const handleUndoStat = () => {
+    if (statsHistory.length === 0) return;
+    const prev = statsHistory[statsHistory.length - 1];
+    setStatsHistory(stack => stack.slice(0, stack.length - 1));
+    setPlayerStats(prev.playerStats);
+  };
+
+  // Time Formatter: MM:SS (< 1h) or H:MM:SS (>= 1h) (Item 95)
+  const formatDuration = (totalSecs = 0) => {
+    const hrs = Math.floor(totalSecs / 3600);
+    const mins = Math.floor((totalSecs % 3600) / 60);
+    const secs = totalSecs % 60;
+    if (hrs > 0) {
+      return `${hrs}:${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+    return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  // Exit Match Guard Handler (Items 134-136)
+  const handleExitLiveMatch = () => {
+    setExitMatchGuardModal(true);
+  };
+
+  const handleConfirmEndMatch = () => {
+    setExitMatchGuardModal(false);
+    setMatchMode('pregame');
+    setIsClockRunning(false);
+  };
+
+  // Video Clip Handler
   const handleMatchVideoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -121,2082 +520,865 @@ export default function MatchDay({
       };
 
       saveVideoClipToIDB(clipRecord, pendingClip.file, uid).catch(console.error);
-
-      if (onSaveVideoClip) {
-        onSaveVideoClip(clipRecord);
-      }
+      if (onSaveVideoClip) onSaveVideoClip(clipRecord);
       setTaggingModalOpen(false);
       setPendingClip(null);
     }
   };
-  
-  // Game running state
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [period, setPeriod] = useState(1);
-  const [gameTime, setGameTime] = useState(0); // in seconds (Session Timer)
 
-  // Player rotation states
-  const [playerTOG, setPlayerTOG] = useState({});
-  const [playerBenchTime, setPlayerBenchTime] = useState({});
-  const [playerOnGroundStint, setPlayerOnGroundStint] = useState({});
-  const [playerBenchStint, setPlayerBenchStint] = useState({});
-
-  const [isStatsExported, setIsStatsExported] = useState(false);
-
-  const [homeScore, setHomeScore] = useState(() => {
-    const key = getMatchDayScopedKey('inthepocket_matchday_homescore');
-    const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_matchday_homescore');
-    return safeJsonParse(saved, { goals: 0, behinds: 0 });
-  });
-
-  const [awayScore, setAwayScore] = useState(() => {
-    const key = getMatchDayScopedKey('inthepocket_matchday_awayscore');
-    const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_matchday_awayscore');
-    return safeJsonParse(saved, { goals: 0, behinds: 0 });
-  });
-
-  const [activeScoreTeam, setActiveScoreTeam] = useState('home');
-  const [activeView, setActiveView] = useState('field'); // 'field' or 'list'
-  const [plannedRotations, setPlannedRotations] = useState([]);
-  
-  const [playerStats, setPlayerStats] = useState(() => {
-    const key = getMatchDayScopedKey('inthepocket_matchday_playerstats');
-    const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_matchday_playerstats');
-    return safeJsonParse(saved, {}, (val) => typeof val === 'object');
-  });
-
-  const [selectedPlayerForStats, setSelectedPlayerForStats] = useState(null);
-  
-  const [matchNotes, setMatchNotes] = useState(() => {
-    const key = getMatchDayScopedKey('inthepocket_matchday_notes');
-    return localStorage.getItem(key) || localStorage.getItem('inthepocket_matchday_notes') || '';
-  });
-
-  // Sync scores and stats to localStorage
-  useEffect(() => {
-    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_homescore'), JSON.stringify(homeScore));
-  }, [homeScore, currentUser]);
-
-  useEffect(() => {
-    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_awayscore'), JSON.stringify(awayScore));
-  }, [awayScore, currentUser]);
-
-  useEffect(() => {
-    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_playerstats'), JSON.stringify(playerStats));
-  }, [playerStats, currentUser]);
-
-  useEffect(() => {
-    localStorage.setItem(getMatchDayScopedKey('inthepocket_matchday_notes'), matchNotes);
-  }, [matchNotes, currentUser]);
-
-  // Mobile Tap-To-Swap state helper
-  const [selectedBenchId, setSelectedBenchId] = useState(null);
-
-  // Direct Player Slot Assignment state
-  const [activeSelectSlotId, setActiveSelectSlotId] = useState(null);
-
-  // Lock body scroll when activeSelectSlotId is open
-  useEffect(() => {
-    if (activeSelectSlotId) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [activeSelectSlotId]);
-
-  // Handler for direct assignment & swapping inside inline selector
-  const pendingUpdatesRef = useRef({});
-  const debounceTimerRef = useRef(null);
-  const [exportedMatchTime, setExportedMatchTime] = useState(false);
-
-  const queuePlayerUpdate = (playerId, updateFields) => {
-    if (!playerId) return;
-    pendingUpdatesRef.current[playerId] = {
-      ...(pendingUpdatesRef.current[playerId] || {}),
-      ...updateFields
-    };
-
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-
-    debounceTimerRef.current = setTimeout(() => {
-      flushPendingUpdates();
-    }, 2000);
-  };
-
-  const flushPendingUpdates = () => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-      debounceTimerRef.current = null;
-    }
-
-    const updates = pendingUpdatesRef.current;
-    pendingUpdatesRef.current = {};
-
-    Object.entries(updates).forEach(([id, fields]) => {
-      if (typeof onEditPlayer === 'function') {
-        onEditPlayer(id, fields);
-      }
-    });
-  };
-
-  useEffect(() => {
-    return () => {
-      flushPendingUpdates();
-    };
-  }, []);
-
-  const handleAssignPlayerToSlot = (playerId, slotId) => {
-    if (!slotId) return;
-    
-    const pos = FIELD_POSITIONS.find(p => p.id === slotId);
-    if (!pos) return;
-
-    const currentAssignedId = fieldAssignments[slotId];
-    
-    // Swap/displacement: if slot occupied, return previous player to bench
-    if (currentAssignedId && currentAssignedId !== playerId) {
-      queuePlayerUpdate(currentAssignedId, { position: 'Bench' });
-    }
-
-    if (playerId) {
-      // Assign new player to slot
-      queuePlayerUpdate(playerId, { position: pos.code });
-      
-      setFieldAssignments(prev => {
-        const next = { ...prev };
-        // If the player was previously in another slot, clear that slot
-        const previousSlotId = Object.keys(next).find(key => next[key] === playerId);
-        if (previousSlotId && previousSlotId !== slotId) {
-          next[previousSlotId] = null;
-        }
-        next[slotId] = playerId;
-        return next;
-      });
-    } else {
-      // Remove player
-      if (currentAssignedId) {
-        queuePlayerUpdate(currentAssignedId, { position: 'Bench' });
-      }
-      setFieldAssignments(prev => {
-        const next = { ...prev };
-        next[slotId] = null;
-        return next;
-      });
-    }
-
-    setActiveSelectSlotId(null);
-  };
-
-  // Match Day Squad Selector states
-  const [activeMatchDayIds, setActiveMatchDayIds] = useState(() => {
-    const key = getMatchDayScopedKey('inthepocket_active_matchday_ids');
-    const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_active_matchday_ids');
-    const parsed = safeJsonParse(saved, null, Array.isArray);
-    if (parsed) return parsed;
-    return squad.map(p => p.id);
-  });
-  const [showSelector, setShowSelector] = useState(false);
-  const [matchDayTab, setMatchDayTab] = useState('lineup'); // 'lineup', 'rotations', 'stats'
-
-  // Sync activeMatchDayIds state to LocalStorage
-  useEffect(() => {
-    localStorage.setItem(getMatchDayScopedKey('inthepocket_active_matchday_ids'), JSON.stringify(activeMatchDayIds));
-  }, [activeMatchDayIds, currentUser]);
-
-  // Keep activeMatchDayIds in sync with squad prop changes
-  useEffect(() => {
-    const squadIds = squad.map(p => p.id);
-    setActiveMatchDayIds(prev => {
-      const filtered = prev.filter(id => squadIds.includes(id));
-      const newIds = squadIds.filter(id => !prev.includes(id));
-      if (newIds.length > 0 || filtered.length !== prev.length) {
-        return [...filtered, ...newIds];
-      }
-      return prev;
-    });
-  }, [squad]);
-
-  const togglePlayerActive = (playerId) => {
-    setActiveMatchDayIds(prev => {
-      if (prev.includes(playerId)) {
-        // Toggling OUT - remove from field assignments
-        setFieldAssignments(prevFields => {
-          const nextFields = { ...prevFields };
-          const slotId = Object.keys(nextFields).find(key => nextFields[key] === playerId);
-          if (slotId) {
-            nextFields[slotId] = null;
-          }
-          return nextFields;
-        });
-        return prev.filter(id => id !== playerId);
-      } else {
-        // Toggling IN
-        return [...prev, playerId];
-      }
-    });
-  };
-
-  const handleSelectAllMatchDay = () => {
-    setActiveMatchDayIds(squad.map(p => p.id));
-  };
-
-  const handleClearAllMatchDay = () => {
-    setActiveMatchDayIds([]);
-    setFieldAssignments({});
-    squad.forEach(p => {
-      onEditPlayer && onEditPlayer(p.id, { position: 'Bench' });
-    });
-  };
-
-  // Initialize roster assignments
-  useEffect(() => {
-    if (squad.length > 0 && Object.keys(fieldAssignments).length === 0) {
-      const initialField = {};
-      squad.forEach((player, idx) => {
-        if (idx < ALL_SLOTS.length) {
-          const slot = ALL_SLOTS[idx];
-          initialField[slot.id] = player.id;
-          onEditPlayer && onEditPlayer(player.id, { position: slot.code });
-        }
-      });
-      setFieldAssignments(initialField);
-    }
-  }, [squad]);
-
-  // Compute on-field and benched roster dynamically
-  const onFieldPlayerIds = FIELD_POSITIONS.map(pos => fieldAssignments[pos.id]).filter(Boolean);
-  const benchPlayerIds = activeMatchDayIds.filter(id => !onFieldPlayerIds.includes(id));
-
-  // Session Timer Tick Loop
-  useEffect(() => {
-    let interval = null;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setGameTime(prev => prev + 1);
-
-        // Get players currently in FIELD_POSITIONS (On Ground)
-        const onGroundIds = FIELD_POSITIONS.map(pos => fieldAssignments[pos.id]).filter(Boolean);
-
-        // Increment TOG (Time-on-Ground)
-        setPlayerTOG(prev => {
-          const next = { ...prev };
-          onGroundIds.forEach(id => {
-            next[id] = (next[id] || 0) + 1;
-          });
-          return next;
-        });
-
-        // Increment ground stints, reset benched ones
-        setPlayerOnGroundStint(prev => {
-          const next = { ...prev };
-          onGroundIds.forEach(id => {
-            next[id] = (next[id] || 0) + 1;
-          });
-          squad.forEach(p => {
-            if (!onGroundIds.includes(p.id)) {
-              next[p.id] = 0;
-            }
-          });
-          return next;
-        });
-
-        // Get players currently on bench (Active match-day squad but not on ground)
-        const benchIds = activeMatchDayIds.filter(id => !onGroundIds.includes(id));
-
-        // Increment Bench Time
-        setPlayerBenchTime(prev => {
-          const next = { ...prev };
-          benchIds.forEach(id => {
-            next[id] = (next[id] || 0) + 1;
-          });
-          return next;
-        });
-
-        // Increment bench stints, reset ground ones
-        setPlayerBenchStint(prev => {
-          const next = { ...prev };
-          benchIds.forEach(id => {
-            next[id] = (next[id] || 0) + 1;
-          });
-          onGroundIds.forEach(id => {
-            next[id] = 0;
-          });
-          squad.forEach(p => {
-            if (!activeMatchDayIds.includes(p.id)) {
-              next[p.id] = 0;
-            }
-          });
-          return next;
-        });
-
-      }, 1000);
-    } else {
-      clearInterval(interval);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, fieldAssignments, squad, activeMatchDayIds]);
-
-  const isGated = !hasAccess(subscriptionTier, 'ultra');
-
+  // Gated Subscription View (Items 114-125)
   if (isGated) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }}>
-        <div>
-          <h2 className="scoreboard-font" style={{ color: 'var(--color-match)' }}>Match Day (FootyFlow)</h2>
-        </div>
-        <div className="paywall-container" style={{
-          backgroundColor: '#12141c',
-          border: '1px solid rgba(255, 255, 255, 0.05)',
-          borderRadius: '12px',
-          padding: '40px 24px',
-          textAlign: 'center',
-          marginTop: '20px',
-          maxWidth: '600px',
-          margin: '20px auto'
-        }}>
-          <div className="paywall-badge" style={{
-            backgroundColor: 'rgba(230, 57, 70, 0.1)',
-            border: '1.5px solid #e63946',
-            color: '#e63946',
-            padding: '4px 10px',
-            borderRadius: '12px',
-            fontSize: '0.75rem',
-            fontWeight: '700',
-            display: 'inline-block',
-            marginBottom: '16px'
-          }}>ULTRA TIER REQUIRED</div>
-          <h3 className="paywall-title" style={{ fontSize: '1.4rem', color: '#ffffff', margin: '0 0 10px 0', fontFamily: 'var(--font-family-locker)' }}>FootyFlow Match Rotation Manager</h3>
-          <p className="paywall-desc" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: '0 0 24px 0' }}>
-            Upgrade to the Ultra Tier to unlock live player stint timers, automatic visual rotation warnings (FootyFlow), squad interchange rotation boards, and high-res lineup downloads.
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '20px 16px', maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
+        <h2 className="scoreboard-font" style={{ color: 'var(--color-match)', margin: 0, fontSize: '1.4rem' }}>
+          Unlock Match Day
+        </h2>
+        <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '16px', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+          <span style={{ backgroundColor: 'rgba(255, 183, 3, 0.15)', color: '#ffb703', border: '1px solid rgba(255, 183, 3, 0.3)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700', letterSpacing: '0.05em' }}>
+            ULTRA TIER REQUIRED
+          </span>
+          <p style={{ color: '#d1d5db', fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>
+            Manage your lineup, interchange rotations, time on ground, scores and live match statistics in one place.
           </p>
-          <button className="btn btn-match" style={{ backgroundColor: '#e63946', borderColor: '#e63946', color: '#ffffff', fontWeight: '700' }} onClick={() => triggerPaywall('Match Day (FootyFlow)')}>
-            Upgrade Account Now
-          </button>
+          
+          {unlockedSuccess ? (
+            <div style={{ backgroundColor: 'rgba(46, 196, 182, 0.15)', border: '1px solid #2ec4b6', padding: '14px', borderRadius: '10px', color: '#2ec4b6', width: '100%' }}>
+              <div style={{ fontWeight: '800', fontSize: '1.1rem' }}>Ultra unlocked</div>
+              <div style={{ fontSize: '0.85rem', marginTop: '4px' }}>You now have full access to Match Day.</div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', marginTop: '8px' }}>
+              <button
+                className="btn btn-match"
+                onClick={() => {
+                  if (triggerPaywall) {
+                    triggerPaywall('Match Day access');
+                  } else {
+                    setUnlockedSuccess(true);
+                  }
+                }}
+                style={{ width: '100%', padding: '14px', fontSize: '1rem', fontWeight: '700' }}
+              >
+                Upgrade to Ultra
+              </button>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                <button
+                  onClick={() => triggerPaywall && triggerPaywall('Restore')}
+                  style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
+                >
+                  Restore Purchases
+                </button>
+                <span style={{ color: '#4b5563' }}>•</span>
+                <button
+                  onClick={() => triggerPaywall && triggerPaywall('Details')}
+                  style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
+                >
+                  View Plan Details
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
   }
 
-  const toggleGameClock = () => {
-    setIsPlaying(!isPlaying);
-    logSyncTransaction(isPlaying ? 'GAME_PAUSE' : 'GAME_START', { time: gameTime });
-  };
+  // Loading & Error Views
+  if (isLoading) {
+    return (
+      <div style={{ padding: '40px 16px', textAlign: 'center', color: '#ffffff' }}>
+        <div style={{ fontSize: '1.1rem', fontWeight: '700' }}>Preparing Match Day…</div>
+      </div>
+    );
+  }
 
-  const resetGameClock = () => {
-    setIsPlaying(false);
-    setGameTime(0);
-    setPlayerOnGroundStint({});
-    setPlayerBenchStint({});
-    logSyncTransaction('GAME_RESET', {});
-  };
-
-  const handleExportRotationStats = () => {
-    if (!onEditPlayer || exportedMatchTime) return;
-    squad.forEach(p => {
-      const togSeconds = playerTOG[p.id] || 0;
-      const togMinutes = Math.round(togSeconds / 60);
-      const benchSeconds = playerBenchTime[p.id] || 0;
-      const benchMinutes = Math.round(benchSeconds / 60);
-
-      const currentStats = p.stats || { totalTime: 0, stints: 0 };
-      const updatedStats = {
-        ...currentStats,
-        totalTime: (currentStats.totalTime || 0) + togMinutes,
-        togMinutes: (currentStats.togMinutes || 0) + togMinutes,
-        benchMinutes: (currentStats.benchMinutes || 0) + benchMinutes,
-        stints: (currentStats.stints || 0) + (togMinutes > 0 ? 1 : 0)
-      };
-
-      queuePlayerUpdate(p.id, { stats: updatedStats });
-    });
-
-    flushPendingUpdates();
-    setExportedMatchTime(true);
-
-    if (navigator.vibrate) {
-      navigator.vibrate([100, 50, 100]);
-    }
-    
-    setIsStatsExported(true);
-    setTimeout(() => setIsStatsExported(false), 2000);
-  };
-
-  // Rotation swap mechanic
-  const executeSwap = (incomingId, targetSlotId) => {
-    if (!incomingId || !targetSlotId) return;
-
-    const outgoingId = fieldAssignments[targetSlotId];
-    const pos = FIELD_POSITIONS.find(p => p.id === targetSlotId);
-    
-    setFieldAssignments(prev => {
-      const next = { ...prev };
-      const previousSlotId = Object.keys(next).find(key => next[key] === incomingId);
-      
-      const squadUpdates = [];
-      if (previousSlotId) {
-        // incoming was on field, outgoing goes to previousSlotId
-        next[previousSlotId] = outgoingId || null;
-        if (outgoingId) {
-          const otherPos = FIELD_POSITIONS.find(p => p.id === previousSlotId);
-          squadUpdates.push({ id: outgoingId, position: otherPos ? otherPos.code : 'Bench' });
-        }
-      } else {
-        // incoming was on bench, outgoing goes to bench
-        if (outgoingId) {
-          squadUpdates.push({ id: outgoingId, position: 'Bench' });
-        }
-      }
-      
-      next[targetSlotId] = incomingId;
-      if (pos) {
-        squadUpdates.push({ id: incomingId, position: pos.code });
-      }
-
-      // Execute squad updates to sync with inthepocket_squad localStorage
-      squadUpdates.forEach(u => {
-        onEditPlayer && onEditPlayer(u.id, { position: u.position });
-      });
-
-      return next;
-    });
-
-    // Reset stint timers for swapped players
-    setPlayerOnGroundStint(prev => {
-      const next = { ...prev };
-      if (incomingId) next[incomingId] = 0;
-      if (outgoingId) next[outgoingId] = 0;
-      return next;
-    });
-    setPlayerBenchStint(prev => {
-      const next = { ...prev };
-      if (incomingId) next[incomingId] = 0;
-      if (outgoingId) next[outgoingId] = 0;
-      return next;
-    });
-
-    // Fire haptic vibration
-    if (navigator.vibrate) {
-      navigator.vibrate(80);
-    } else {
-      console.log("🔊 Haptic Feedback pop (vibrate 80ms) triggered on rotation swap.");
-    }
-
-    logSyncTransaction('ROTATION_SWAP', {
-      in: squad.find(p => p.id === incomingId)?.name || 'Unknown',
-      out: squad.find(p => p.id === outgoingId)?.name || 'None',
-      position: ALL_SLOTS.find(s => s.id === targetSlotId)?.name || 'Unknown',
-      timestamp: new Date().toISOString()
-    });
-
-    setSelectedBenchId(null);
-  };
-
-  // Drag and Drop Events
-  const handleDragStart = (e, playerId) => {
-    e.dataTransfer.setData('text/plain', playerId);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e, targetSlotId) => {
-    e.preventDefault();
-    const incomingId = e.dataTransfer.getData('text/plain');
-    executeSwap(incomingId, targetSlotId);
-  };
-
-  const handleDropToBench = (e) => {
-    e.preventDefault();
-    const incomingId = e.dataTransfer.getData('text/plain');
-    if (!incomingId) return;
-
-    // Remove from field assignments
-    setFieldAssignments(prev => {
-      const next = { ...prev };
-      const previousSlotId = Object.keys(next).find(key => next[key] === incomingId);
-      if (previousSlotId) {
-        next[previousSlotId] = null;
-      }
-      onEditPlayer && onEditPlayer(incomingId, { position: 'Bench' });
-      return next;
-    });
-
-    // Reset stint timers for benched player
-    setPlayerOnGroundStint(prev => {
-      const next = { ...prev };
-      next[incomingId] = 0;
-      return next;
-    });
-    setPlayerBenchStint(prev => {
-      const next = { ...prev };
-      next[incomingId] = 0;
-      return next;
-    });
-
-    if (navigator.vibrate) {
-      navigator.vibrate(80);
-    }
-  };
-
-  // Mobile Tap-To-Swap selection helpers
-  const handleSlotTap = (slotId) => {
-    const activePlayerId = fieldAssignments[slotId];
-    if (selectedBenchId) {
-      if (selectedBenchId === activePlayerId) {
-        setSelectedBenchId(null); // untoggle
-      } else {
-        executeSwap(selectedBenchId, slotId);
-      }
-    } else {
-      if (activePlayerId) {
-        setSelectedBenchId(activePlayerId);
-      }
-    }
-  };
-
-  const handleBenchTap = (playerId) => {
-    if (selectedBenchId === playerId) {
-      setSelectedBenchId(null); // untoggle
-    } else {
-      setSelectedBenchId(playerId);
-    }
-  };
-
-  const handleBenchAreaTap = () => {
-    if (selectedBenchId) {
-      // If a field player is selected, move them to the bench
-      const isFieldPlayer = FIELD_POSITIONS.some(pos => fieldAssignments[pos.id] === selectedBenchId);
-      if (isFieldPlayer) {
-        setFieldAssignments(prev => {
-          const next = { ...prev };
-          const previousSlotId = Object.keys(next).find(key => next[key] === selectedBenchId);
-          if (previousSlotId) {
-            next[previousSlotId] = null;
-          }
-          onEditPlayer && onEditPlayer(selectedBenchId, { position: 'Bench' });
-          return next;
-        });
-
-        setPlayerOnGroundStint(prev => {
-          const next = { ...prev };
-          next[selectedBenchId] = 0;
-          return next;
-        });
-        setPlayerBenchStint(prev => {
-          const next = { ...prev };
-          next[selectedBenchId] = 0;
-          return next;
-        });
-
-        if (navigator.vibrate) {
-          navigator.vibrate(80);
-        }
-      }
-      setSelectedBenchId(null);
-    }
-  };
-
-  // Manual overlay score modifiers
-  const adjustScore = (type, val) => {
-    if (!activeScoreTeam) return;
-
-    if (activeScoreTeam === 'home') {
-      setHomeScore(prev => {
-        const next = { ...prev };
-        next[type] = Math.max(0, next[type] + val);
-        logSyncTransaction('SCORE_UPDATE_HOME', next);
-        return next;
-      });
-    } else {
-      setAwayScore(prev => {
-        const next = { ...prev };
-        next[type] = Math.max(0, next[type] + val);
-        logSyncTransaction('SCORE_UPDATE_AWAY', next);
-        return next;
-      });
-    }
-  };
-
-  const formatClock = (sec) => {
-    const mins = Math.floor(sec / 60);
-    const secs = sec % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const quarterDuration = 20 * 60; // 20 minutes (1200 seconds)
-  const remainingSec = Math.max(0, quarterDuration - gameTime);
-  const formatRemaining = (sec) => {
-    const mins = Math.floor(sec / 60);
-    const secs = sec % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')} remaining`;
-  };
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%', paddingBottom: '120px' }}>
-          {/* Sleek Hardware-style Header Bar */}
-      <div style={{
-        backgroundColor: '#12141c',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
-        borderRadius: '12px',
-        padding: '16px 20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-        userSelect: 'none'
-      }}>
-        {/* Top Section: Title & Timers & View Switcher */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '16px' }}>
-          {/* Left Side: Title & Session Timing */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <h2 className="scoreboard-font" style={{ color: '#ffffff', margin: 0, fontSize: '1.4rem', letterSpacing: '0.5px' }}>
-              MATCH DAY
-            </h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '500', fontFamily: 'var(--font-family-locker)' }}>
-                Q{period} | {formatClock(gameTime)}
-              </span>
-              
-              {/* Play/Pause Toggle button */}
-              <button 
-                onClick={toggleGameClock}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#ffffff',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '2px 4px',
-                  opacity: 0.6,
-                  transition: 'opacity 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}
-              >
-                {isPlaying ? (
-                  <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="16" /><rect x="14" y="4" width="6" height="16" /></svg>
-                ) : (
-                  <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                )}
-              </button>
-
-              {/* Reset Button */}
-              <button 
-                onClick={resetGameClock}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#ffffff',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '2px 4px',
-                  opacity: 0.6,
-                  transition: 'opacity 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}
-                title="Reset session timer"
-              >
-                <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3-3-3"/>
-                </svg>
-              </button>
-
-              {/* Quarter select button group */}
-              <div style={{ display: 'flex', gap: '4px', alignItems: 'center', flexShrink: 0 }}>
-                {[1, 2, 3, 4].map((q) => {
-                  const isActive = period === q;
-                  return (
-                    <button
-                      key={q}
-                      type="button"
-                      onClick={() => setPeriod(q)}
-                      style={{
-                        padding: '2px 6px',
-                        fontSize: '0.7rem',
-                        fontFamily: 'var(--font-family-locker)',
-                        fontWeight: '700',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        border: '1px solid',
-                        borderColor: isActive ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.1)',
-                        backgroundColor: isActive ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.03)',
-                        color: isActive ? '#000000' : '#8d939e',
-                        transition: 'all 0.15s ease',
-                        flexShrink: 0,
-                        height: '18px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      Q{q}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Segmented Control Bar (3 View Tabs) */}
-          <div style={{
-            display: 'flex',
-            backgroundColor: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '10px',
-            padding: '4px',
-            gap: '4px',
-            width: '100%',
-            boxSizing: 'border-box'
-          }}>
-            <button
-              onClick={() => setMatchDayTab('lineup')}
-              style={{
-                flex: 1,
-                backgroundColor: matchDayTab === 'lineup' ? 'var(--color-match)' : 'transparent',
-                color: matchDayTab === 'lineup' ? '#000000' : '#ffffff',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '8px 6px',
-                fontSize: '0.78rem',
-                fontWeight: '700',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                fontFamily: 'var(--font-family-locker)',
-                textAlign: 'center',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              📋 Lineup & Bench
-            </button>
-            <button
-              onClick={() => setMatchDayTab('rotations')}
-              style={{
-                flex: 1,
-                backgroundColor: matchDayTab === 'rotations' ? 'var(--color-match)' : 'transparent',
-                color: matchDayTab === 'rotations' ? '#000000' : '#ffffff',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '8px 6px',
-                fontSize: '0.78rem',
-                fontWeight: '700',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                fontFamily: 'var(--font-family-locker)',
-                textAlign: 'center',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              🔄 Rotations
-            </button>
-            <button
-              onClick={() => setMatchDayTab('stats')}
-              style={{
-                flex: 1,
-                backgroundColor: matchDayTab === 'stats' ? 'var(--color-match)' : 'transparent',
-                color: matchDayTab === 'stats' ? '#000000' : '#ffffff',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '8px 6px',
-                fontSize: '0.78rem',
-                fontWeight: '700',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                fontFamily: 'var(--font-family-locker)',
-                textAlign: 'center',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              📊 Stats & Notes
-            </button>
-          </div>
-
-          {/* Right Side Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <button 
-              onClick={handleExportRotationStats}
-              style={{
-                background: isStatsExported 
-                  ? 'linear-gradient(180deg, rgba(42, 157, 143, 0.22) 0%, rgba(42, 157, 143, 0.08) 100%)' 
-                  : 'linear-gradient(180deg, rgba(255, 122, 0, 0.22) 0%, rgba(255, 122, 0, 0.08) 100%)',
-                border: '1px solid',
-                borderColor: isStatsExported ? '#2a9d8f' : 'var(--color-video)',
-                color: isStatsExported ? '#2a9d8f' : 'var(--color-video)',
-                fontFamily: 'var(--font-family-locker)',
-                fontSize: '0.85rem',
-                fontWeight: '700',
-                textTransform: 'uppercase',
-                padding: '6px 14px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                transition: 'all 0.25s ease'
-              }}
-            >
-              {isStatsExported ? 'Stats Exported' : 'Export Stats'}
-            </button>
-            <input 
-              type="file" 
-              accept="video/*" 
-              id="match-segment-video-upload" 
-              onChange={handleMatchVideoUpload}
-              style={{ display: 'none' }} 
-            />
-            <label 
-              htmlFor="match-segment-video-upload"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(255, 122, 0, 0.1)',
-                border: '1px solid rgba(255, 122, 0, 0.2)',
-                color: 'var(--color-video)',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              title="Record / Upload Match Video Segment"
-            >
-              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-              </svg>
-            </label>
-          </div>
-        </div>
-
-        {/* Bottom Section: Digital Scoreboard Widget */}
-        <div style={{
-          backgroundColor: '#0a0b0e',
-          border: '1px solid rgba(255, 255, 255, 0.03)',
-          borderRadius: '8px',
-          padding: '12px 16px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px'
-        }}>
-          {/* Team Tabs */}
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={() => setActiveScoreTeam('home')}
-              style={{
-                padding: '4px 10px',
-                fontSize: '0.75rem',
-                fontFamily: 'var(--font-family-locker)',
-                fontWeight: '700',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                border: '1px solid',
-                borderColor: activeScoreTeam === 'home' ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.1)',
-                backgroundColor: activeScoreTeam === 'home' ? 'var(--color-match)' : 'transparent',
-                color: activeScoreTeam === 'home' ? '#000000' : '#8d939e',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              Score: Home Team
-            </button>
-            <button
-              onClick={() => setActiveScoreTeam('away')}
-              style={{
-                padding: '4px 10px',
-                fontSize: '0.75rem',
-                fontFamily: 'var(--font-family-locker)',
-                fontWeight: '700',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                border: '1px solid',
-                borderColor: activeScoreTeam === 'away' ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.1)',
-                backgroundColor: activeScoreTeam === 'away' ? 'var(--color-match)' : 'transparent',
-                color: activeScoreTeam === 'away' ? '#000000' : '#8d939e',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              Score: Opposition
-            </button>
-          </div>
-
-          {/* Scores Panel */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
-            {/* Home Score Display */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '0.8rem', color: '#8d939e', fontWeight: '600' }}>HOME:</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span className="scoreboard-font" style={{ color: '#ffffff', fontSize: '1.1rem' }}>{homeScore.goals}G</span>
-                <span className="scoreboard-font" style={{ color: '#ffffff', fontSize: '1.1rem' }}>{homeScore.behinds}B</span>
-                <span className="scoreboard-font" style={{ color: 'var(--color-match)', fontSize: '1.3rem', fontWeight: '800', marginLeft: '4px' }}>
-                  {homeScore.goals * 6 + homeScore.behinds}
-                </span>
-              </div>
-            </div>
-
-            {/* Vs Separator */}
-            <span style={{ color: 'rgba(255, 255, 255, 0.15)', fontWeight: 'bold' }}>VS</span>
-
-            {/* Away Score Display */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '0.8rem', color: '#8d939e', fontWeight: '600' }}>AWAY:</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span className="scoreboard-font" style={{ color: '#ffffff', fontSize: '1.1rem' }}>{awayScore.goals}G</span>
-                <span className="scoreboard-font" style={{ color: '#ffffff', fontSize: '1.1rem' }}>{awayScore.behinds}B</span>
-                <span className="scoreboard-font" style={{ color: '#ffb703', fontSize: '1.3rem', fontWeight: '800', marginLeft: '4px' }}>
-                  {awayScore.goals * 6 + awayScore.behinds}
-                </span>
-              </div>
-            </div>
-
-            {/* Score Modifier controls for selected activeScoreTeam */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
-              paddingLeft: '16px'
-            }}>
-              <span style={{ fontSize: '0.75rem', color: '#8d939e', marginRight: '4px' }}>
-                Adjust {activeScoreTeam.toUpperCase()}:
-              </span>
-              <button
-                type="button"
-                onClick={() => adjustScore('goals', 1)}
-                style={{ backgroundColor: 'rgba(42, 157, 143, 0.2)', border: '1px solid #2a9d8f', color: '#2a9d8f', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}
-              >
-                + Goal
-              </button>
-              <button
-                type="button"
-                onClick={() => adjustScore('goals', -1)}
-                style={{ backgroundColor: 'rgba(230, 57, 70, 0.15)', border: '1px solid #e63946', color: '#e63946', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}
-              >
-                -G
-              </button>
-              <button
-                type="button"
-                onClick={() => adjustScore('behinds', 1)}
-                style={{ backgroundColor: 'rgba(42, 157, 143, 0.2)', border: '1px solid #2a9d8f', color: '#2a9d8f', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}
-              >
-                + Behind
-              </button>
-              <button
-                type="button"
-                onClick={() => adjustScore('behinds', -1)}
-                style={{ backgroundColor: 'rgba(230, 57, 70, 0.15)', border: '1px solid #e63946', color: '#e63946', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}
-              >
-                -B
-              </button>
-            </div>
-          </div>
+  if (loadError) {
+    return (
+      <div style={{ padding: '40px 16px', textAlign: 'center', color: '#ffffff', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <h3>We couldn’t load Match Day.</h3>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+          <button onClick={() => setLoadError(null)} className="btn btn-match">Try Again</button>
         </div>
       </div>
+    );
+  }
 
-      {/* MATCH DAY TEAM AVAILABILITY SELECTOR */}
-      <div style={{
-        backgroundColor: 'var(--bg-surface)',
-        border: '1px solid var(--border-light)',
-        borderRadius: '12px',
-        padding: '16px 20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }} onClick={() => setShowSelector(!showSelector)}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Match Day Team Availability
-            </span>
-            <span style={{
-              backgroundColor: 'rgba(58, 134, 255, 0.15)',
-              color: 'var(--color-squad)',
-              fontSize: '0.75rem',
-              fontWeight: '700',
-              padding: '2px 8px',
-              borderRadius: '20px',
-              fontFamily: 'var(--font-family-locker)'
-            }}>
-              {activeMatchDayIds.length} / {squad.length} Active
-            </span>
-          </div>
-          <button style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--text-secondary)',
-            cursor: 'pointer',
-            fontSize: '0.8rem',
-            fontWeight: '600',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}>
-            {showSelector ? 'Collapse' : 'Manage Team'}
-            <svg 
-              width="12" 
-              height="12" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2.5" 
-              viewBox="0 0 24 24"
-              style={{ transform: showSelector ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', maxWidth: '520px', margin: '0 auto', paddingBottom: matchMode === 'live' ? '140px' : '60px', boxSizing: 'border-box' }}>
+      
+      {/* Toast Notification Banner (Item 36) */}
+      {toastMessage && (
+        <div style={{ position: 'fixed', top: '16px', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#1c1f26', border: '1px solid var(--color-match)', color: '#ffffff', padding: '10px 16px', borderRadius: '24px', zIndex: 1200, display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 8px 20px rgba(0,0,0,0.5)', fontSize: '0.85rem' }}>
+          <span>{toastMessage.text}</span>
+          {toastMessage.action && (
+            <button onClick={toastMessage.action} style={{ background: 'none', border: 'none', color: '#ffb703', fontWeight: '800', cursor: 'pointer', textDecoration: 'underline' }}>
+              Undo
+            </button>
+          )}
         </div>
+      )}
 
-        {showSelector && (
-          <div style={{ 
-            borderTop: '1px solid rgba(255, 255, 255, 0.05)', 
-            paddingTop: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                Select who is active for today's match. Unselected players will be excluded from the field and bench.
+      {/* STICKY LIVE MATCH BAR (Items 18-27) */}
+      {matchMode === 'live' && (
+        <div style={{ position: 'sticky', top: 0, zIndex: 95, backgroundColor: 'rgba(10, 11, 14, 0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', margin: '-40px -16px 0', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            
+            {/* Prominent Quarter Clock */}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+              <span className="scoreboard-font" style={{ fontSize: '1.4rem', fontWeight: '900', color: 'var(--color-match)' }}>
+                Q{period}
+              </span>
+              <span style={{ fontSize: '1.4rem', fontWeight: '800', fontFamily: 'monospace', color: '#ffffff' }}>
+                {formatDuration(quarterSeconds)}
+              </span>
+              <span style={{ fontSize: '0.7rem', fontWeight: '800', color: isClockRunning ? '#2ec4b6' : '#ffb703', backgroundColor: isClockRunning ? 'rgba(46,196,182,0.15)' : 'rgba(255,183,3,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
+                {isClockRunning ? 'RUNNING' : 'PAUSED'}
+              </span>
+            </div>
+
+            {/* Quarter Clock Actions */}
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button
+                onClick={handleToggleClock}
+                style={{ padding: '6px 12px', fontSize: '0.8rem', fontWeight: '800', backgroundColor: isClockRunning ? 'rgba(255,183,3,0.2)' : 'rgba(46,196,182,0.2)', color: isClockRunning ? '#ffb703' : '#2ec4b6', border: '1px solid currentColor', borderRadius: '8px', cursor: 'pointer' }}
+              >
+                {isClockRunning ? 'Pause' : 'Resume'}
+              </button>
+
+              <button
+                onClick={handleEndQuarterClick}
+                style={{ padding: '6px 10px', fontSize: '0.8rem', fontWeight: '700', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', cursor: 'pointer' }}
+              >
+                End Q{period}
+              </button>
+
+              <button
+                onClick={handleExitLiveMatch}
+                style={{ padding: '6px 8px', fontSize: '0.75rem', fontWeight: '700', backgroundColor: 'rgba(230,57,70,0.15)', color: '#e63946', border: '1px solid rgba(230,57,70,0.3)', borderRadius: '8px', cursor: 'pointer' }}
+              >
+                Exit
+              </button>
+            </div>
+          </div>
+
+          {/* Australian Football Scoring Display & Quick Controls (Items 28-37) */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#161922', padding: '10px 12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+            
+            {/* Home Score */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <div style={{ fontSize: '0.7rem', color: '#8d939e', fontWeight: '700', textTransform: 'uppercase' }}>HOME</div>
+              <div style={{ fontSize: '1rem', fontWeight: '900', color: '#ffffff' }}>
+                {homeScore.goals}.{homeScore.behinds} <span style={{ color: 'var(--color-match)' }}>({calcTotalPoints(homeScore)})</span>
               </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button 
-                  onClick={handleSelectAllMatchDay}
-                  style={{
-                    backgroundColor: 'transparent',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    color: '#ffffff',
-                    fontSize: '0.75rem',
-                    fontWeight: '600',
-                    padding: '4px 10px',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
-                  Select All
-                </button>
-                <button 
-                  onClick={handleClearAllMatchDay}
-                  style={{
-                    backgroundColor: 'transparent',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    color: '#ffffff',
-                    fontSize: '0.75rem',
-                    fontWeight: '600',
-                    padding: '4px 10px',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
-                  Clear All
-                </button>
+              <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
+                <button onClick={() => updateScore('home', 'goals', 1)} style={{ padding: '4px 8px', fontSize: '0.7rem', fontWeight: '800', backgroundColor: 'rgba(255,183,3,0.15)', color: '#ffb703', border: '1px solid rgba(255,183,3,0.3)', borderRadius: '4px', cursor: 'pointer' }}>+G</button>
+                <button onClick={() => updateScore('home', 'behinds', 1)} style={{ padding: '4px 8px', fontSize: '0.7rem', fontWeight: '800', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '4px', cursor: 'pointer' }}>+B</button>
               </div>
             </div>
-            
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
-              gap: '8px',
-              maxHeight: '180px',
-              overflowY: 'auto',
-              paddingRight: '4px'
-            }}>
-              {squad.map(player => {
-                const isActive = activeMatchDayIds.includes(player.id);
-                const isOnField = onFieldPlayerIds.includes(player.id);
-                return (
-                  <div 
-                    key={player.id}
-                    onClick={() => togglePlayerActive(player.id)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      backgroundColor: isActive ? 'rgba(58, 134, 255, 0.08)' : 'rgba(255, 255, 255, 0.02)',
-                      border: isActive ? '1px solid rgba(58, 134, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0.05)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      userSelect: 'none'
-                    }}
-                  >
-                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                      <span style={{ fontSize: '0.85rem', fontWeight: '700', color: isActive ? '#ffffff' : 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {player.name}
-                      </span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span className="scoreboard-font" style={{ fontSize: '0.7rem', color: isActive ? 'var(--color-match)' : 'var(--text-muted)' }}>
-                          #{player.jersey}
+
+            <div style={{ fontSize: '0.8rem', color: '#4b5563', fontWeight: '800' }}>VS</div>
+
+            {/* Away Score */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+              <div style={{ fontSize: '0.7rem', color: '#8d939e', fontWeight: '700', textTransform: 'uppercase' }}>AWAY</div>
+              <div style={{ fontSize: '1rem', fontWeight: '900', color: '#ffffff' }}>
+                {awayScore.goals}.{awayScore.behinds} <span style={{ color: 'var(--color-match)' }}>({calcTotalPoints(awayScore)})</span>
+              </div>
+              <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
+                <button onClick={() => updateScore('away', 'goals', 1)} style={{ padding: '4px 8px', fontSize: '0.7rem', fontWeight: '800', backgroundColor: 'rgba(255,183,3,0.15)', color: '#ffb703', border: '1px solid rgba(255,183,3,0.3)', borderRadius: '4px', cursor: 'pointer' }}>+G</button>
+                <button onClick={() => updateScore('away', 'behinds', 1)} style={{ padding: '4px 8px', fontSize: '0.7rem', fontWeight: '800', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '4px', cursor: 'pointer' }}>+B</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pregame Banner & Start Match Action (Items 9-15) */}
+      {matchMode === 'pregame' && (
+        <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: '0.7rem', color: '#ffb703', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>PREGAME SETUP</div>
+            <div style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: '700', marginTop: '2px' }}>
+              On Field: {onFieldCount}/18 · Bench: {benchCount}
+            </div>
+          </div>
+          <button
+            onClick={handleStartMatchClick}
+            disabled={activePlayers.length === 0}
+            className="btn btn-match"
+            style={{ padding: '10px 18px', fontSize: '0.9rem', fontWeight: '800' }}
+          >
+            Start Match
+          </button>
+        </div>
+      )}
+
+      {/* MATCH DAY SECTION NAVIGATION TABS (Items 1-8) */}
+      <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '8px' }}>
+        <button
+          onClick={() => setActiveTab('lineup')}
+          style={{
+            flex: 1,
+            padding: '10px 4px',
+            fontSize: '0.85rem',
+            fontFamily: 'var(--font-family-locker)',
+            fontWeight: '800',
+            textTransform: 'uppercase',
+            backgroundColor: activeTab === 'lineup' ? 'rgba(255, 183, 3, 0.15)' : 'transparent',
+            color: activeTab === 'lineup' ? '#ffb703' : '#8d939e',
+            border: activeTab === 'lineup' ? '1px solid #ffb703' : '1px solid transparent',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          Lineup & Bench
+        </button>
+
+        <button
+          onClick={() => setActiveTab('rotations')}
+          style={{
+            flex: 1,
+            padding: '10px 4px',
+            fontSize: '0.85rem',
+            fontFamily: 'var(--font-family-locker)',
+            fontWeight: '800',
+            textTransform: 'uppercase',
+            backgroundColor: activeTab === 'rotations' ? 'rgba(255, 183, 3, 0.15)' : 'transparent',
+            color: activeTab === 'rotations' ? '#ffb703' : '#8d939e',
+            border: activeTab === 'rotations' ? '1px solid #ffb703' : '1px solid transparent',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          Rotations
+        </button>
+
+        <button
+          onClick={() => setActiveTab('stats')}
+          style={{
+            flex: 1,
+            padding: '10px 4px',
+            fontSize: '0.85rem',
+            fontFamily: 'var(--font-family-locker)',
+            fontWeight: '800',
+            textTransform: 'uppercase',
+            backgroundColor: activeTab === 'stats' ? 'rgba(255, 183, 3, 0.15)' : 'transparent',
+            color: activeTab === 'stats' ? '#ffb703' : '#8d939e',
+            border: activeTab === 'stats' ? '1px solid #ffb703' : '1px solid transparent',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          Stats & Notes
+        </button>
+      </div>
+
+      {/* SECTION 1: LINEUP & BENCH VIEW (Items 4, 38-56) */}
+      {activeTab === 'lineup' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          
+          {/* Match-Day Availability Panel (Items 38-47) */}
+          <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '800', textTransform: 'uppercase' }}>
+                PLAYER AVAILABILITY SUMMARY
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={handleSelectAllAvailability} style={{ background: 'none', border: 'none', color: '#3a84ff', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer' }}>Select All</button>
+                <span style={{ color: '#4b5563' }}>|</span>
+                <button onClick={handleClearAllAvailability} style={{ background: 'none', border: 'none', color: '#e63946', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer' }}>Clear All</button>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', fontWeight: '700', flexWrap: 'wrap' }}>
+              <span style={{ color: '#ffffff' }}>Active: {activePlayers.length}</span>
+              <span style={{ color: '#2ec4b6' }}>On Field: {onFieldCount}</span>
+              <span style={{ color: '#ffb703' }}>Bench: {benchCount}</span>
+              <span style={{ color: '#8d939e' }}>Unavailable: {squad.length - activePlayers.length}</span>
+            </div>
+
+            {/* Search Availability */}
+            <input
+              type="text"
+              placeholder="Search player name or jersey #"
+              value={availabilitySearch}
+              onChange={(e) => setAvailabilitySearch(e.target.value)}
+              style={{ width: '100%', padding: '8px 12px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#ffffff', fontSize: '0.85rem' }}
+            />
+
+            {/* Player List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+              {squad
+                .filter(p => {
+                  if (!availabilitySearch.trim()) return true;
+                  const q = availabilitySearch.toLowerCase().replace('#', '');
+                  return p.name.toLowerCase().includes(q) || (p.number && p.number.toString().includes(q));
+                })
+                .map(p => {
+                  const isAvail = availability[p.id] !== false;
+                  const isOnField = onFieldPlayerIds.includes(p.id);
+                  let statusText = 'Unavailable';
+                  let statusColor = '#8d939e';
+                  if (isAvail) {
+                    if (isOnField) {
+                      statusText = 'On Field';
+                      statusColor = '#2ec4b6';
+                    } else {
+                      statusText = 'Bench';
+                      statusColor = '#ffb703';
+                    }
+                  }
+
+                  return (
+                    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <input
+                          type="checkbox"
+                          checked={isAvail}
+                          onChange={(e) => setAvailability({ ...availability, [p.id]: e.target.checked })}
+                          style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                        />
+                        <span style={{ color: '#ffffff', fontWeight: '700', fontSize: '0.9rem' }}>
+                          {p.number ? `#${p.number} ` : ''}{p.name}
                         </span>
-                        {isActive && (
-                          <span style={{ 
-                            fontSize: '0.65rem', 
-                            color: isOnField ? '#2a9d8f' : 'var(--color-match)',
-                            fontWeight: '600',
-                            textTransform: 'uppercase'
-                          }}>
-                            {isOnField ? 'Field' : 'Bench'}
-                          </span>
-                        )}
                       </div>
+                      <span style={{ fontSize: '0.75rem', fontWeight: '800', color: statusColor, backgroundColor: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '4px' }}>
+                        {statusText}
+                      </span>
                     </div>
-                    
-                    <div style={{
-                      width: '18px',
-                      height: '18px',
-                      borderRadius: '50%',
-                      border: '1.5px solid',
-                      borderColor: isActive ? 'var(--color-squad)' : 'rgba(255,255,255,0.15)',
+                  );
+                })}
+            </div>
+          </div>
+
+          {/* AFL 18-Position Starting Lineup Grid (Items 48-56) */}
+          <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '800', textTransform: 'uppercase' }}>
+                STARTING LINEUP ({onFieldCount}/18)
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+              {FIELD_POSITIONS.map(pos => {
+                const assignedId = fieldAssignments[pos.id];
+                const assignedPlayer = squad.find(p => p.id === assignedId);
+
+                return (
+                  <button
+                    key={pos.id}
+                    onClick={() => {
+                      if (assignedPlayer) {
+                        setOccupiedSlotModal({ position: pos, player: assignedPlayer });
+                      } else {
+                        setPositionPickerModal(pos);
+                      }
+                    }}
+                    style={{
+                      minHeight: '52px',
+                      padding: '8px 6px',
+                      backgroundColor: assignedPlayer ? 'rgba(46, 196, 182, 0.15)' : 'rgba(255,255,255,0.04)',
+                      border: assignedPlayer ? '1px solid #2ec4b6' : '1px dashed rgba(255,255,255,0.2)',
+                      borderRadius: '8px',
                       display: 'flex',
+                      flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      backgroundColor: isActive ? 'var(--color-squad)' : 'transparent',
-                      color: '#ffffff',
-                      fontSize: '0.7rem',
-                      fontWeight: 'bold',
-                      transition: 'all 0.2s'
-                    }}>
-                      {isActive ? '✓' : ''}
+                      gap: '2px',
+                      cursor: 'pointer',
+                      textAlign: 'center'
+                    }}
+                  >
+                    <span style={{ fontSize: '0.65rem', color: '#8d939e', fontWeight: '800' }}>{pos.code}</span>
+                    <span style={{ fontSize: '0.8rem', color: assignedPlayer ? '#ffffff' : '#4b5563', fontWeight: '700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+                      {assignedPlayer ? (assignedPlayer.number ? `#${assignedPlayer.number} ${assignedPlayer.name}` : assignedPlayer.name) : 'Vacant'}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Bench Roster Section */}
+          <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '800', textTransform: 'uppercase' }}>
+              BENCH PLAYERS ({benchCount})
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              {benchPlayers.length === 0 ? (
+                <span style={{ color: '#4b5563', fontSize: '0.85rem' }}>No bench players assigned.</span>
+              ) : (
+                benchPlayers.map(p => (
+                  <span key={p.id} style={{ backgroundColor: 'rgba(255,183,3,0.15)', color: '#ffb703', border: '1px solid rgba(255,183,3,0.3)', padding: '6px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700' }}>
+                    {p.number ? `#${p.number} ` : ''}{p.name}
+                  </span>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SECTION 2: ROTATIONS VIEW (Items 5, 57-98) */}
+      {activeTab === 'rotations' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          
+          {/* Rotation Dashboard Header Cards (Items 87-91) */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+            <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <span style={{ fontSize: '0.68rem', color: '#8d939e', fontWeight: '800', textTransform: 'uppercase' }}>SUGGESTED NEXT OFF</span>
+              <span style={{ fontSize: '0.95rem', color: '#ffb703', fontWeight: '800' }}>
+                {onFieldPlayerIds.length > 0
+                  ? squad.find(p => p.id === onFieldPlayerIds[0])?.name || 'None'
+                  : 'None'}
+              </span>
+            </div>
+
+            <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <span style={{ fontSize: '0.68rem', color: '#8d939e', fontWeight: '800', textTransform: 'uppercase' }}>SUGGESTED NEXT ON</span>
+              <span style={{ fontSize: '0.95rem', color: '#2ec4b6', fontWeight: '800' }}>
+                {benchPlayers.length > 0 ? benchPlayers[0].name : 'None'}
+              </span>
+            </div>
+          </div>
+
+          {/* Queue Rotation Builder Panel (Items 58-66) */}
+          <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '800', textTransform: 'uppercase' }}>
+              PLAN A ROTATION
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {/* Select Incoming Bench Player */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '0.75rem', color: '#2ec4b6', fontWeight: '700' }}>Incoming Player (Bench)</label>
+                <select
+                  value={queueIncomingId}
+                  onChange={(e) => setQueueIncomingId(e.target.value)}
+                  style={{ width: '100%', padding: '10px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', color: '#ffffff', fontSize: '0.85rem' }}
+                >
+                  <option value="">Select Bench Player ON…</option>
+                  {benchPlayers.map(p => (
+                    <option key={p.id} value={p.id}>{p.number ? `#${p.number} ` : ''}{p.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Select Outgoing On-Field Player */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '0.75rem', color: '#ffb703', fontWeight: '700' }}>Outgoing Player (Field)</label>
+                <select
+                  value={queueOutgoingId}
+                  onChange={(e) => setQueueOutgoingId(e.target.value)}
+                  style={{ width: '100%', padding: '10px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', color: '#ffffff', fontSize: '0.85rem' }}
+                >
+                  <option value="">Select Field Player OFF…</option>
+                  {squad
+                    .filter(p => onFieldPlayerIds.includes(p.id))
+                    .map(p => (
+                      <option key={p.id} value={p.id}>{p.number ? `#${p.number} ` : ''}{p.name}</option>
+                    ))}
+                </select>
+              </div>
+
+              {/* Summary & Queue Button (Items 60 & 64-65) */}
+              {queueIncomingId && queueOutgoingId && (
+                <div style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '700', padding: '6px 0' }}>
+                  {squad.find(p => p.id === queueIncomingId)?.name} ON / {squad.find(p => p.id === queueOutgoingId)?.name} OFF
+                </div>
+              )}
+
+              <button
+                onClick={handleQueueRotation}
+                disabled={!isQueueRotationValid}
+                className="btn btn-squad"
+                style={{ width: '100%', padding: '12px', fontSize: '0.9rem', fontWeight: '800', marginTop: '4px', opacity: isQueueRotationValid ? 1 : 0.4, cursor: isQueueRotationValid ? 'pointer' : 'not-allowed' }}
+              >
+                Queue Rotation
+              </button>
+            </div>
+          </div>
+
+          {/* Planned Rotations List (Items 67-70) */}
+          <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '800', textTransform: 'uppercase' }}>
+              QUEUED ROTATIONS ({plannedRotations.length})
+            </div>
+
+            {plannedRotations.length === 0 ? (
+              <span style={{ color: '#4b5563', fontSize: '0.85rem' }}>No queued rotations yet.</span>
+            ) : (
+              plannedRotations.map(rot => (
+                <div key={rot.id} style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '10px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <span style={{ color: '#ffffff', fontWeight: '800', fontSize: '0.88rem' }}>
+                      <span style={{ color: '#2ec4b6' }}>{rot.incomingName} ON</span> · <span style={{ color: '#ffb703' }}>{rot.outgoingName} OFF</span>
+                    </span>
+                    <span style={{ color: '#8d939e', fontSize: '0.72rem' }}>Q{rot.quarter} · {rot.matchTime}</span>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    {rot.status !== 'executed' && (
+                      <button
+                        onClick={() => handleExecuteRotation(rot)}
+                        style={{ padding: '6px 12px', fontSize: '0.75rem', fontWeight: '800', backgroundColor: '#2ec4b6', color: '#000000', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                      >
+                        Execute
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleCancelQueuedRotation(rot.id)}
+                      style={{ padding: '6px 10px', fontSize: '0.75rem', fontWeight: '700', backgroundColor: 'rgba(230,57,70,0.15)', color: '#e63946', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Live Mobile Roster Rotation List (Items 92-98) */}
+          <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '800', textTransform: 'uppercase' }}>
+              ROSTER ROTATION TRACKER
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {activePlayers.map(p => {
+                const isOnField = onFieldPlayerIds.includes(p.id);
+                const timerData = playerTimers[p.id] || { tog: 0, bench: 0, stintSecs: 0 };
+                const isSelectedBench = selectedIncomingBenchPlayer?.id === p.id;
+
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => {
+                      if (!isOnField) handleTapBenchPlayer(p);
+                      else if (selectedIncomingBenchPlayer) handleTapOnFieldPlayerForSwap(p);
+                    }}
+                    style={{
+                      padding: '10px 12px',
+                      backgroundColor: isSelectedBench ? 'rgba(46, 196, 182, 0.15)' : 'rgba(255,255,255,0.03)',
+                      border: isSelectedBench ? '1.5px solid #2ec4b6' : '1px solid rgba(255,255,255,0.06)',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <div style={{ color: '#ffffff', fontWeight: '800', fontSize: '0.9rem' }}>
+                        {p.number ? `#${p.number} ` : ''}{p.name}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: '#8d939e' }}>
+                        Bench: {formatDuration(timerData.bench)} · TOG: {formatDuration(timerData.tog)}
+                      </div>
                     </div>
+
+                    <span style={{ fontSize: '0.75rem', fontWeight: '800', color: isOnField ? '#2ec4b6' : '#ffb703', backgroundColor: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '4px' }}>
+                      {isOnField ? 'ON FIELD' : (isSelectedBench ? 'INCOMING' : 'BENCH')}
+                    </span>
                   </div>
                 );
               })}
             </div>
-
-            {squad.length === 0 && (
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', padding: '16px 0', fontStyle: 'italic' }}>
-                No players in squad. Go to Team Hub to add players.
-              </div>
-            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* TAB 1: LINEUP & BENCH */}
-      {matchDayTab === 'lineup' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-
-          {/* FORMAL AFL POSITIONAL GRID */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {/* SECTION 3: STATS & NOTES VIEW (Items 6, 99-109) */}
+      {activeTab === 'stats' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          
+          {/* Live Player Statistics Logger (Items 99-104) */}
+          <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                On Field ({onFieldPlayerIds.length} / 18 Players)
+              <div style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '800', textTransform: 'uppercase' }}>
+                LIVE STATS LOGGER
               </div>
-              {selectedBenchId && (
-                <span style={{ fontSize: '0.75rem', color: 'var(--color-match)', fontWeight: '600' }}>
-                  👉 Select target slot to swap position
-                </span>
-              )}
+              <button onClick={handleUndoStat} disabled={statsHistory.length === 0} style={{ background: 'none', border: 'none', color: statsHistory.length > 0 ? '#ffb703' : '#4b5563', fontSize: '0.75rem', fontWeight: '700', cursor: statsHistory.length > 0 ? 'pointer' : 'not-allowed' }}>
+                ↩ Undo Stat
+              </button>
             </div>
 
-            <div style={{ 
-              backgroundColor: '#1a3c34',
-              border: '1px solid rgba(255, 255, 255, 0.08)', 
-              borderRadius: '12px', 
-              padding: '24px 12px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '24px',
-              boxShadow: 'inset 0 0 30px rgba(0,0,0,0.5)'
-            }}>
-              
-              {/* Positional grid rows (Forwards to Backs) */}
-              {[
-                { line: 'Forwards', posIds: ['pos_fp_l', 'pos_ff', 'pos_fp_r'] },
-                { line: 'Half Forwards', posIds: ['pos_hff_l', 'pos_chf', 'pos_hff_r'] },
-                { line: 'Midfield (Mids)', posIds: ['pos_w_l', 'pos_c', 'pos_w_r'] },
-                { line: 'Ruck Group', posIds: ['pos_r', 'pos_rr', 'pos_ro'] },
-                { line: 'Half Backs', posIds: ['pos_hbf_l', 'pos_chb', 'pos_hbf_r'] },
-                { line: 'Backs', posIds: ['pos_bp_l', 'pos_fb', 'pos_bp_r'] }
-              ].map((row) => (
-                <div key={row.line} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <div 
-                    className="scoreboard-font" 
-                    style={{ 
-                      fontSize: '0.65rem', 
-                      color: 'rgba(255,255,255,0.25)', 
-                      letterSpacing: '1px', 
-                      borderBottom: '1px dashed rgba(255,255,255,0.05)', 
-                      paddingBottom: '2px',
-                      textAlign: 'center'
-                    }}
-                  >
-                    {row.line.toUpperCase()}
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-                    {row.posIds.map((posId) => {
-                      const pos = FIELD_POSITIONS.find(p => p.id === posId);
-                      const assignedPlayerId = fieldAssignments[posId];
-                      const player = squad.find(p => p.id === assignedPlayerId);
-                      
-                      const activeStintSec = playerOnGroundStint[assignedPlayerId] || 0;
-                      const activeStintMin = Math.floor(activeStintSec / 60);
-                      const togSec = playerTOG[assignedPlayerId] || 0;
-                      
-                      let warningClass = '';
-                      if (assignedPlayerId) {
-                        if (activeStintMin >= maxStintMinutes) {
-                          warningClass = 'flash-danger';
-                        } else if (activeStintMin >= maxStintMinutes - 2) {
-                          warningClass = 'flash-warning';
-                        }
-                      }
-
-                      const isSelected = selectedBenchId === assignedPlayerId && assignedPlayerId !== undefined;
-
-                      return (
-                        <button 
-                          key={posId}
-                          type="button"
-                          onDragOver={handleDragOver}
-                          onDrop={(e) => handleDrop(e, posId)}
-                          onClick={() => handleSlotTap(posId)}
-                          className={warningClass}
-                          style={{ 
-                            backgroundColor: isSelected ? 'rgba(255,183,3,0.15)' : 'rgba(0, 0, 0, 0.4)', 
-                            border: selectedBenchId ? '1.5px dashed rgba(255, 183, 3, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)', 
-                            borderRadius: '6px', 
-                            padding: '10px 6px',
-                            textAlign: 'center',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            minHeight: '68px',
-                            userSelect: 'none',
-                            width: '100%',
-                            outline: 'none',
-                            color: 'inherit',
-                            lineHeight: 'normal'
-                          }}
-                        >
-                          <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.5)', fontWeight: '800', letterSpacing: '0.02em' }}>
-                            {pos.code}
-                          </div>
-                          
-                          {player ? (
-                            <>
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', margin: '2px 0', width: '100%', minWidth: 0 }}>
-                                <span className="scoreboard-font" style={{ fontSize: '0.95rem', color: 'var(--color-match)', fontWeight: '800', flexShrink: 0 }}>
-                                  #{player.jersey}
-                                </span>
-                                <span style={{ 
-                                  fontSize: getFontSizeForName(player.name.split(' ')[0]), 
-                                  fontWeight: '700', 
-                                  color: '#ffffff', 
-                                  overflow: 'hidden', 
-                                  textOverflow: 'ellipsis', 
-                                  whiteSpace: 'nowrap', 
-                                  flex: 1,
-                                  minWidth: 0,
-                                  textAlign: 'center'
-                                }} title={player.name.split(' ')[0]}>
-                                  {player.name.split(' ')[0]}
-                                </span>
-                              </div>
-                              <div className="scoreboard-font" style={{ 
-                                fontSize: '0.62rem', 
-                                color: warningClass ? '#e63946' : 'rgba(255,255,255,0.7)',
-                                opacity: warningClass ? 1 : 0.85,
-                                fontWeight: '700'
-                              }}>
-                                TOG: {Math.round(togSec / 60)}m
-                              </div>
-                            </>
-                          ) : (
-                            <div style={{ fontSize: '0.7rem', color: 'rgba(255, 255, 255, 0.15)', margin: 'auto' }}>
-                              VACANT
-                            </div>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+            {/* Select Player for Stats */}
+            <select
+              value={selectedStatPlayerId || ''}
+              onChange={(e) => setSelectedStatPlayerId(e.target.value)}
+              style={{ width: '100%', padding: '10px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', color: '#ffffff', fontSize: '0.9rem' }}
+            >
+              <option value="">Select Player to Record Stat…</option>
+              {squad.map(p => (
+                <option key={p.id} value={p.id}>{p.number ? `#${p.number} ` : ''}{p.name}</option>
               ))}
+            </select>
 
-            </div>
-          </div>
-
-          {/* INTERCHANGE BENCH MANAGER */}
-          <div 
-            onDragOver={handleDragOver}
-            onDrop={handleDropToBench}
-            onClick={handleBenchAreaTap}
-            style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: '12px',
-              backgroundColor: 'var(--bg-surface)',
-              border: '1px solid var(--border-light)',
-              borderRadius: '12px',
-              padding: '16px 20px',
-              transition: 'all 0.2s',
-              borderColor: selectedBenchId ? 'var(--color-match)' : 'var(--border-light)',
-              cursor: selectedBenchId ? 'pointer' : 'default'
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Interchange ({benchPlayerIds.length} Players)
-              </div>
-              {selectedBenchId && (
-                <span style={{ fontSize: '0.75rem', color: 'var(--color-match)', fontWeight: '600' }}>
-                  👉 Tap Interchange area to move selected player to bench
-                </span>
-              )}
-            </div>
-
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', 
-              gap: '12px',
-              minHeight: '80px',
-              alignItems: 'center'
-            }}>
-              {benchPlayerIds.length === 0 ? (
-                <div style={{ gridColumn: '1 / -1', color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', padding: '20px 0', fontStyle: 'italic' }}>
-                  No players currently on the interchange bench. Drag players here from the field or toggle them active.
-                </div>
-              ) : (
-                benchPlayerIds.map((pid) => {
-                  const player = squad.find(p => p.id === pid);
-                  if (!player) return null;
-                  
-                  const isSelected = selectedBenchId === pid;
-                  const benchStintSec = playerBenchStint[pid] || 0;
-                  const togSec = playerTOG[pid] || 0;
-                  const isAmberAlert = benchStintSec >= 300 || (togSec < 180 && gameTime > 120);
-
-                  return (
-                    <div 
-                      key={pid}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, pid)}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleBenchTap(pid);
-                      }}
-                      style={{ 
-                        backgroundColor: isSelected ? 'rgba(255, 183, 3, 0.25)' : isAmberAlert ? 'rgba(255, 183, 3, 0.12)' : 'var(--bg-floor)', 
-                        border: isSelected ? '2px solid var(--color-match)' : isAmberAlert ? '1.5px solid #ffb703' : '1px solid var(--border-light)', 
-                        borderRadius: '8px', 
-                        padding: '12px 10px',
-                        cursor: 'grab',
-                        textAlign: 'center',
-                        position: 'relative',
-                        transition: 'all 0.2s',
-                        userSelect: 'none'
-                      }}
-                      title="Drag onto field or tap to select for swap"
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', margin: '2px 0', width: '100%', minWidth: 0 }}>
-                        <span className="scoreboard-font" style={{ fontSize: '0.95rem', color: isAmberAlert ? '#ffb703' : 'var(--color-match)', fontWeight: '800', flexShrink: 0 }}>
-                          #{player.jersey}
-                        </span>
-                        <span style={{ 
-                          fontSize: getFontSizeForName(player.name.split(' ')[0]), 
-                          fontWeight: '700', 
-                          color: '#ffffff', 
-                          overflow: 'hidden', 
-                          textOverflow: 'ellipsis', 
-                          whiteSpace: 'nowrap', 
-                          flex: 1,
-                          minWidth: 0,
-                          textAlign: 'center'
-                        }} title={player.name.split(' ')[0]}>
-                          {player.name.split(' ')[0]}
-                        </span>
-                        {isAmberAlert && <span style={{ color: '#ffb703', fontSize: '0.8rem', flexShrink: 0 }}>⚠️</span>}
-                      </div>
-                      <div className="scoreboard-font" style={{ 
-                        fontSize: '0.62rem', 
-                        color: isAmberAlert ? '#ffb703' : 'rgba(255,255,255,0.7)', 
-                        opacity: isAmberAlert ? 1 : 0.85,
-                        fontWeight: '700', 
-                        lineHeight: '1.35',
-                        marginTop: '2px'
-                      }}>
-                        TOG: {Math.round(togSec / 60)}m
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 2: ROTATIONS */}
-      {matchDayTab === 'rotations' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* Tap-to-Swap Helper Banner */}
-          {selectedBenchId ? (
-            <div style={{
-              backgroundColor: 'rgba(255, 183, 3, 0.15)',
-              border: '1px solid #ffb703',
-              borderRadius: '8px',
-              padding: '10px 14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '12px'
-            }}>
-              <span style={{ fontSize: '0.8rem', color: '#ffb703', fontWeight: '700' }}>
-                👉 INCOMING: #{squad.find(p => p.id === selectedBenchId)?.jersey} {squad.find(p => p.id === selectedBenchId)?.name}. Tap target field slot or player to execute instant swap!
-              </span>
-              <button 
-                onClick={() => setSelectedBenchId(null)}
-                style={{ backgroundColor: 'transparent', border: 'none', color: '#ffffff', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}
-              >
-                Cancel
-              </button>
-            </div>
-          ) : (
-            <div style={{
-              backgroundColor: 'rgba(58, 134, 255, 0.08)',
-              border: '1px solid rgba(58, 134, 255, 0.2)',
-              borderRadius: '8px',
-              padding: '10px 14px',
-              fontSize: '0.78rem',
-              color: '#d1d5db',
-              fontWeight: '500'
-            }}>
-              💡 <strong>Tap-to-Swap Interface:</strong> Tap a bench player (INCOMING), then tap a field player (OUTGOING) to execute or queue an instant substitution.
-            </div>
-          )}
-
-          {/* PLANNED ROTATION QUEUE ("PLAN MODE") */}
-          <div style={{
-            backgroundColor: 'var(--bg-surface)',
-            border: '1px solid var(--border-light)',
-            borderRadius: '12px',
-            padding: '16px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
-          }}>
-            <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Plan Mode (Rotations Queue)
-            </span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                <div>
-                  <label style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Incoming (Bench)</label>
-                  <select 
-                    id="plan-incoming"
-                    style={{ width: '100%', backgroundColor: '#0a0b0e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#ffffff', padding: '6px', fontSize: '0.8rem', outline: 'none' }}
-                  >
-                    <option value="">-- Select --</option>
-                    {benchPlayerIds.map(id => {
-                      const p = squad.find(player => player.id === id);
-                      return <option key={id} value={id}>#{p.jersey} {p.name}</option>;
-                    })}
-                  </select>
-                </div>
-                <div>
-                  <label style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Outgoing (Field)</label>
-                  <select 
-                    id="plan-outgoing"
-                    style={{ width: '100%', backgroundColor: '#0a0b0e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#ffffff', padding: '6px', fontSize: '0.8rem', outline: 'none' }}
-                  >
-                    <option value="">-- Select --</option>
-                    {FIELD_POSITIONS.map(pos => {
-                      const pid = fieldAssignments[pos.id];
-                      const p = squad.find(player => player.id === pid);
-                      if (!p) return null;
-                      return <option key={pos.id} value={`${pos.id}|${pid}`}>#{p.jersey} {p.name} ({pos.code})</option>;
-                    }).filter(Boolean)}
-                  </select>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  const incomingEl = document.getElementById('plan-incoming');
-                  const outgoingEl = document.getElementById('plan-outgoing');
-                  if (!incomingEl || !outgoingEl) return;
-                  const incomingId = incomingEl.value;
-                  const outgoingValue = outgoingEl.value;
-                  if (!incomingId || !outgoingValue) return;
-
-                  const [slotId, outgoingId] = outgoingValue.split('|');
-                  
-                  const rotation = {
-                    id: 'rot_' + Date.now(),
-                    incomingId,
-                    outgoingId,
-                    slotId
-                  };
-                  setPlannedRotations(prev => [...prev, rotation]);
-                  
-                  incomingEl.value = "";
-                  outgoingEl.value = "";
-                }}
-                style={{
-                  backgroundColor: 'var(--color-match)',
-                  color: '#000000',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '8px 12px',
-                  fontSize: '0.8rem',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  transition: 'opacity 0.2s',
-                  fontFamily: 'var(--font-family-locker)'
-                }}
-              >
-                + Queue Substitution
-              </button>
-            </div>
-
-            {/* Upcoming Queue List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
-              <span style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Upcoming Rotations:</span>
-              {plannedRotations.length === 0 ? (
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontStyle: 'italic', padding: '6px 0' }}>
-                  No rotations planned. Tap bench and field players to queue.
-                </div>
-              ) : (
-                plannedRotations.map(rot => {
-                  const incP = squad.find(p => p.id === rot.incomingId);
-                  const outP = squad.find(p => p.id === rot.outgoingId);
-                  const pos = FIELD_POSITIONS.find(p => p.id === rot.slotId);
-
-                  return (
-                    <div 
-                      key={rot.id} 
-                      style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
-                        alignItems: 'center', 
-                        backgroundColor: '#0a0b0e', 
-                        border: '1px solid rgba(255, 255, 255, 0.04)', 
-                        borderRadius: '6px', 
-                        padding: '6px 10px' 
-                      }}
-                    >
-                      <span style={{ fontSize: '0.75rem', color: '#d1d5db', lineHeight: '1.4' }}>
-                        🔄 <strong>{incP?.name.split(' ')[0]}</strong> for <strong>{outP?.name.split(' ')[0]}</strong> ({pos?.code})
-                      </span>
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            executeSwap(rot.incomingId, rot.slotId);
-                            setPlannedRotations(prev => prev.filter(r => r.id !== rot.id));
-                          }}
-                          style={{ backgroundColor: 'rgba(42, 157, 143, 0.2)', border: '1px solid #2a9d8f', color: '#2a9d8f', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 'bold', cursor: 'pointer' }}
-                        >
-                          Execute
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setPlannedRotations(prev => prev.filter(r => r.id !== rot.id));
-                          }}
-                          style={{ backgroundColor: 'transparent', border: 'none', color: '#e63946', fontSize: '0.8rem', cursor: 'pointer', padding: '0 4px' }}
-                          title="Cancel"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-
-          {/* FULL ROSTER ROTATION LIST TABLE */}
-          <div style={{
-            backgroundColor: 'var(--bg-surface)',
-            border: '1px solid var(--border-light)',
-            borderRadius: '12px',
-            padding: '16px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Roster Rotation List
-              </span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                Total Game Time: {formatClock(gameTime)}
-              </span>
-            </div>
-
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '420px' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                    <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Player</th>
-                    <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Status</th>
-                    <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Stint</th>
-                    <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>TOG / Bench</th>
-                    <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>TOG %</th>
-                    <th style={{ padding: '8px 4px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Fair Play</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {activeMatchDayIds.map(pid => {
-                    const player = squad.find(p => p.id === pid);
-                    if (!player) return null;
-
-                    const isOnField = onFieldPlayerIds.includes(pid);
-                    const currentSlotId = Object.keys(fieldAssignments).find(key => fieldAssignments[key] === pid);
-                    const pos = FIELD_POSITIONS.find(p => p.id === currentSlotId);
-
-                    const stintSec = isOnField ? (playerOnGroundStint[pid] || 0) : (playerBenchStint[pid] || 0);
-                    const stintMins = Math.floor(stintSec / 60);
-
-                    const togSec = playerTOG[pid] || 0;
-                    const togMins = Math.round(togSec / 60);
-
-                    const benchSec = playerBenchTime[pid] || 0;
-                    const benchMins = Math.round(benchSec / 60);
-
-                    const togPct = gameTime > 0 ? Math.round((togSec / gameTime) * 100) : 0;
-
-                    let fairPlayLabel = "Balanced";
-                    let fairPlayColor = "#2a9d8f";
-                    if (isOnField && stintMins >= maxStintMinutes) {
-                      fairPlayLabel = "Stint limit";
-                      fairPlayColor = "#e63946";
-                    } else if (!isOnField && benchMins >= 10 && gameTime > 300) {
-                      fairPlayLabel = "Benched too long";
-                      fairPlayColor = "#ffb703";
-                    } else if (gameTime > 600) {
-                      const targetTogPct = (18 / activeMatchDayIds.length) * 100;
-                      if (togPct < targetTogPct - 15) {
-                        fairPlayLabel = "Low Play Time";
-                        fairPlayColor = "#ffb703";
-                      }
-                    }
-
-                    return (
-                      <tr key={pid} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)', height: '40px' }}>
-                        <td style={{ padding: '6px 4px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span className="scoreboard-font" style={{ color: 'var(--color-match)', fontSize: '0.8rem', fontWeight: '800' }}>#{player.jersey}</span>
-                            <span style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '600' }}>{player.name}</span>
-                          </div>
-                        </td>
-                        <td style={{ padding: '6px 4px' }}>
-                          <span style={{ 
-                            fontSize: '0.7rem', 
-                            fontWeight: '700', 
-                            textTransform: 'uppercase', 
-                            backgroundColor: isOnField ? 'rgba(42, 157, 143, 0.15)' : 'rgba(255, 183, 3, 0.12)',
-                            color: isOnField ? '#2a9d8f' : '#ffb703',
-                            padding: '2px 6px',
-                            borderRadius: '4px'
-                          }}>
-                            {isOnField ? (pos?.code || 'Field') : 'Bench'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '6px 4px', fontSize: '0.8rem', color: '#d1d5db', fontFamily: 'var(--font-family-locker)' }}>
-                          {Math.floor(stintSec / 60)}m {stintSec % 60}s
-                        </td>
-                        <td style={{ padding: '6px 4px', fontSize: '0.8rem', color: '#d1d5db', fontFamily: 'var(--font-family-locker)' }}>
-                          {togMins}m / {benchMins}m
-                        </td>
-                        <td style={{ padding: '6px 4px', fontSize: '0.8rem', color: '#ffffff', fontWeight: '700', fontFamily: 'var(--font-family-locker)' }}>
-                          {togPct}%
-                        </td>
-                        <td style={{ padding: '6px 4px' }}>
-                          <span style={{ 
-                            fontSize: '0.7rem', 
-                            fontWeight: '700', 
-                            color: fairPlayColor,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}>
-                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: fairPlayColor }}></span>
-                            {fairPlayLabel}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 3: STATS & NOTES */}
-      {matchDayTab === 'stats' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* LIVE STATS LOGGER */}
-          <div style={{
-            backgroundColor: 'var(--bg-surface)',
-            border: '1px solid var(--border-light)',
-            borderRadius: '12px',
-            padding: '16px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
-          }}>
-            <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Live Stats Logger
-            </span>
-            
-            {/* Player Selection Dropdown */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <label style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Active Player to Log</label>
-              <select
-                value={selectedPlayerForStats || ""}
-                onChange={(e) => setSelectedPlayerForStats(e.target.value || null)}
-                style={{ width: '100%', backgroundColor: '#0a0b0e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#ffffff', padding: '8px', fontSize: '0.85rem', outline: 'none' }}
-              >
-                <option value="">-- Tap to Select Player --</option>
-                {activeMatchDayIds.map(id => {
-                  const p = squad.find(player => player.id === id);
-                  if (!p) return null;
-                  const isOnField = onFieldPlayerIds.includes(id);
-                  return <option key={id} value={id}>#{p.jersey} {p.name} {isOnField ? '(Field)' : '(Bench)'}</option>;
-                })}
-              </select>
-            </div>
-
-            {selectedPlayerForStats && (() => {
-              const p = squad.find(player => player.id === selectedPlayerForStats);
-              if (!p) return null;
-
-              const statsObj = playerStats[selectedPlayerForStats] || {
-                kicks: 0,
-                handballs: 0,
-                marks: 0,
-                tackles: 0,
-                hitouts: 0,
-                freesFor: 0,
-                freesAgainst: 0
-              };
-
-              const adjustPlayerStat = (field, amt) => {
-                setPlayerStats(prev => {
-                  const next = { ...prev };
-                  const current = next[selectedPlayerForStats] || {
-                    kicks: 0,
-                    handballs: 0,
-                    marks: 0,
-                    tackles: 0,
-                    hitouts: 0,
-                    freesFor: 0,
-                    freesAgainst: 0
-                  };
-                  next[selectedPlayerForStats] = {
-                    ...current,
-                    [field]: Math.max(0, current[field] + amt)
-                  };
-                  return next;
-                });
-              };
-
-              return (
-                <div style={{ 
-                  backgroundColor: '#0a0b0e', 
-                  border: '1px solid rgba(255, 255, 255, 0.03)', 
-                  borderRadius: '8px', 
-                  padding: '12px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                  animation: 'fadeIn 0.2s ease-out'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '6px' }}>
-                    <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--color-match)' }}>
-                      #{p.jersey} {p.name}
-                    </span>
-                    <button 
-                      onClick={() => setSelectedPlayerForStats(null)}
-                      style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.75rem' }}
-                    >
-                      Clear Selection
-                    </button>
-                  </div>
-
-                  {/* Actions Grid */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
-                    {[
-                      { field: 'kicks', label: 'Kick' },
-                      { field: 'handballs', label: 'Handball' },
-                      { field: 'marks', label: 'Mark' },
-                      { field: 'tackles', label: 'Tackle' },
-                      { field: 'hitouts', label: 'Hitout' },
-                      { field: 'freesFor', label: 'Free For' },
-                      { field: 'freesAgainst', label: 'Free Against' }
-                    ].map(item => (
-                      <div key={item.field} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '6px', padding: '6px 8px' }}>
-                        <span style={{ fontSize: '0.75rem', color: '#d1d5db' }}>{item.label}: <strong>{statsObj[item.field] || 0}</strong></span>
-                        <div style={{ display: 'flex', gap: '4px' }}>
-                          <button
-                            type="button"
-                            onClick={() => adjustPlayerStat(item.field, 1)}
-                            style={{ backgroundColor: 'rgba(42, 157, 143, 0.15)', border: '1px solid #2a9d8f', color: '#2a9d8f', width: '20px', height: '20px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                          >
-                            +
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => adjustPlayerStat(item.field, -1)}
-                            style={{ backgroundColor: 'rgba(230, 57, 70, 0.15)', border: '1px solid #e63946', color: '#e63946', width: '20px', height: '20px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                          >
-                            -
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
-
-            {!selectedPlayerForStats && (
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontStyle: 'italic', textAlign: 'center', padding: '8px 0' }}>
-                Select a player above to log their kicks, handballs, and tackles live during play.
+            {/* Stat Buttons Grid */}
+            {selectedStatPlayerId && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginTop: '6px' }}>
+                <button onClick={() => handleLogStat('kicks')} style={{ minHeight: '44px', padding: '8px', backgroundColor: 'rgba(58,134,255,0.15)', color: '#3a84ff', border: '1px solid rgba(58,134,255,0.3)', borderRadius: '8px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>
+                  + Kick ({playerStats[selectedStatPlayerId]?.kicks || 0})
+                </button>
+                <button onClick={() => handleLogStat('handballs')} style={{ minHeight: '44px', padding: '8px', backgroundColor: 'rgba(58,134,255,0.15)', color: '#3a84ff', border: '1px solid rgba(58,134,255,0.3)', borderRadius: '8px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>
+                  + Handball ({playerStats[selectedStatPlayerId]?.handballs || 0})
+                </button>
+                <button onClick={() => handleLogStat('marks')} style={{ minHeight: '44px', padding: '8px', backgroundColor: 'rgba(58,134,255,0.15)', color: '#3a84ff', border: '1px solid rgba(58,134,255,0.3)', borderRadius: '8px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>
+                  + Mark ({playerStats[selectedStatPlayerId]?.marks || 0})
+                </button>
+                <button onClick={() => handleLogStat('tackles')} style={{ minHeight: '44px', padding: '8px', backgroundColor: 'rgba(46,196,182,0.15)', color: '#2ec4b6', border: '1px solid rgba(46,196,182,0.3)', borderRadius: '8px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>
+                  + Tackle ({playerStats[selectedStatPlayerId]?.tackles || 0})
+                </button>
+                <button onClick={() => handleLogStat('goals')} style={{ minHeight: '44px', padding: '8px', backgroundColor: 'rgba(255,183,3,0.15)', color: '#ffb703', border: '1px solid rgba(255,183,3,0.3)', borderRadius: '8px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>
+                  + Goal ({playerStats[selectedStatPlayerId]?.goals || 0})
+                </button>
+                <button onClick={() => handleLogStat('behinds')} style={{ minHeight: '44px', padding: '8px', backgroundColor: 'rgba(255,183,3,0.15)', color: '#ffb703', border: '1px solid rgba(255,183,3,0.3)', borderRadius: '8px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>
+                  + Behind ({playerStats[selectedStatPlayerId]?.behinds || 0})
+                </button>
               </div>
             )}
           </div>
 
-          {/* STRATEGIC MATCH NOTES */}
-          <div style={{
-            backgroundColor: 'var(--bg-surface)',
-            border: '1px solid var(--border-light)',
-            borderRadius: '12px',
-            padding: '16px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px'
-          }}>
-            <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Strategic Match Notes
-            </span>
+          {/* Strategic Match Notes (Items 105-109) */}
+          <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '800', textTransform: 'uppercase' }}>
+                STRATEGIC MATCH NOTES
+              </div>
+              <span style={{ fontSize: '0.72rem', color: notesSaveStatus === 'Saved' ? '#2ec4b6' : '#ffb703', fontWeight: '700' }}>
+                {notesSaveStatus}
+              </span>
+            </div>
+
             <textarea
+              rows="5"
+              placeholder="Record match observations, tactical adjustments, opposition notes..."
               value={matchNotes}
-              onChange={(e) => setMatchNotes(e.target.value)}
-              placeholder="Jot down feedback, tactical adjustments, or injury updates..."
-              style={{
-                width: '100%',
-                height: '80px',
-                backgroundColor: '#0a0b0e',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: '6px',
-                color: '#ffffff',
-                padding: '8px',
-                fontSize: '0.8rem',
-                outline: 'none',
-                resize: 'none',
-                fontFamily: 'inherit'
-              }}
+              onChange={(e) => handleNotesChange(e.target.value)}
+              style={{ width: '100%', padding: '12px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#ffffff', fontSize: '0.88rem', resize: 'vertical' }}
             />
           </div>
 
-          {/* ROLE DELEGATION DASHBOARD */}
-          <div style={{
-            backgroundColor: 'var(--bg-surface)',
-            border: '1px solid var(--border-light)',
-            borderRadius: '12px',
-            padding: '16px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px'
-          }}>
-            <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Volunteer Role Delegation
-            </span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-              AFL games run smoothest when parent volunteers share the load:
-            </span>
-            <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <li style={{ fontSize: '0.75rem', color: '#d1d5db', lineHeight: '1.35' }}>
-                ⏱️ <strong>Timekeeper:</strong> Start/pause the session clock and call breaks.
-              </li>
-              <li style={{ fontSize: '0.75rem', color: '#d1d5db', lineHeight: '1.35' }}>
-                📋 <strong>Interchange Steward:</strong> Monitor stint times and manage the Planned Rotation Queue.
-              </li>
-              <li style={{ fontSize: '0.75rem', color: '#d1d5db', lineHeight: '1.35' }}>
-                📊 <strong>Stats Keeper:</strong> Use the Live Stats Logger to track kicks, handballs, and tackles.
-              </li>
-            </ul>
+          {/* Video Recording & Clip Actions */}
+          <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '800', textTransform: 'uppercase' }}>
+              MATCH VIDEO RECORDING
+            </div>
+            <label className="btn btn-match" style={{ width: '100%', padding: '12px', textAlign: 'center', cursor: 'pointer', display: 'inline-block' }}>
+              📹 Record or Upload Match Segment
+              <input type="file" accept="video/*" onChange={handleMatchVideoUpload} style={{ display: 'none' }} />
+            </label>
           </div>
         </div>
       )}
 
-      {/* Contextual Tagging Modal */}
-      <ContextualTaggingModal 
-        isOpen={taggingModalOpen}
-        onClose={() => setTaggingModalOpen(false)}
-        drillName={pendingClip ? pendingClip.drillName : ''}
-        squad={squad}
-        onSave={handleSaveTaggedClip}
-      />
-
-      {/* Animations styling */}
-      <style>{`
-        @keyframes pulse {
-          0% { opacity: 0.4; }
-          100% { opacity: 1; }
-        }
-        @keyframes flash-yellow {
-          0%, 100% { background-color: rgba(255, 183, 3, 0.1); border-color: rgba(255, 183, 3, 0.4); }
-          50% { background-color: rgba(255, 183, 3, 0.25); border-color: #ffb703; }
-        }
-        @keyframes flash-red {
-          0%, 100% { background-color: rgba(230, 57, 70, 0.1); border-color: rgba(230, 57, 70, 0.4); }
-          50% { background-color: rgba(230, 57, 70, 0.35); border-color: #e63946; }
-        }
-        .flash-warning {
-          animation: flash-yellow 1s infinite;
-        }
-        .flash-danger {
-          animation: flash-red 0.8s infinite;
-        }
-      `}</style>
-
-      {/* Viewport-Centered Inline Player Selector Modal */}
-      {activeSelectSlotId && (() => {
-        const pos = FIELD_POSITIONS.find(p => p.id === activeSelectSlotId);
-        const currentAssignedId = fieldAssignments[activeSelectSlotId];
-        const currentAssignedPlayer = squad.find(p => p.id === currentAssignedId);
-
-        return (
-          <div 
-            className="player-info-backdrop" 
-            style={{ zIndex: 9999 }} 
-            onClick={() => setActiveSelectSlotId(null)}
-          >
-            <div 
-              className="player-info-modal" 
-              style={{ maxWidth: '380px' }} 
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="modal-header">
-                <h3 className="scoreboard-font" style={{ color: 'var(--color-match)', margin: 0, fontSize: '1.1rem' }}>
-                  Assign: {pos?.name} ({pos?.code})
-                </h3>
-                <button 
-                  className="icon-btn" 
-                  onClick={() => setActiveSelectSlotId(null)}
-                >
-                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                </button>
-              </div>
-              
-              <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', maxHeight: '70vh' }}>
-                {currentAssignedPlayer && (
-                  <button
-                    type="button"
-                    className="btn"
-                    onClick={() => handleAssignPlayerToSlot(null, activeSelectSlotId)}
-                    style={{
-                      width: '100%',
-                      backgroundColor: 'rgba(230, 57, 70, 0.15)',
-                      borderColor: '#e63946',
-                      color: '#e63946',
-                      fontWeight: '700',
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Remove Player ({currentAssignedPlayer.name})
-                  </button>
-                )}
-
-                <span style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600', display: 'block', marginBottom: '4px' }}>
-                  Select Player:
-                </span>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', maxHeight: '50vh' }}>
-                  {squad.map(player => {
-                    const isAssignedElsewhere = Object.values(fieldAssignments).includes(player.id) && player.id !== currentAssignedId;
-                    const isAssignedHere = player.id === currentAssignedId;
-                    
-                    let statusLabel = 'Unassigned';
-                    let statusColor = '#8d939e';
-                    
-                    if (isAssignedHere) {
-                      statusLabel = `Active (${pos?.code})`;
-                      statusColor = 'var(--color-match)';
-                    } else if (isAssignedElsewhere) {
-                      const otherSlotId = Object.keys(fieldAssignments).find(key => fieldAssignments[key] === player.id);
-                      const otherPos = FIELD_POSITIONS.find(p => p.id === otherSlotId);
-                      statusLabel = `On Field (${otherPos?.code || 'Field'})`;
-                      statusColor = '#2a9d8f';
-                    } else if (benchPlayerIds.includes(player.id)) {
-                      statusLabel = 'On Bench';
-                      statusColor = '#f39c12';
-                    }
-
-                    return (
-                      <div
-                        key={player.id}
-                        onClick={() => handleAssignPlayerToSlot(player.id, activeSelectSlotId)}
-                        style={{
-                          backgroundColor: isAssignedHere ? 'rgba(255, 183, 3, 0.08)' : 'rgba(255, 255, 255, 0.02)',
-                          border: '1px solid',
-                          borderColor: isAssignedHere ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.05)',
-                          padding: '10px 12px',
-                          borderRadius: '8px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = 'var(--color-match)';
-                          e.currentTarget.style.backgroundColor = 'rgba(255, 183, 3, 0.04)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = isAssignedHere ? 'var(--color-match)' : 'rgba(255, 255, 255, 0.05)';
-                          e.currentTarget.style.backgroundColor = isAssignedHere ? 'rgba(255, 183, 3, 0.08)' : 'rgba(255, 255, 255, 0.02)';
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span className="scoreboard-font" style={{ color: 'var(--color-match)', fontWeight: '700', fontSize: '0.85rem' }}>
-                            #{player.jersey}
-                          </span>
-                          <span style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '600' }}>
-                            {player.name}
-                          </span>
-                        </div>
-                        <span style={{ fontSize: '0.7rem', color: statusColor, fontWeight: '700', textTransform: 'uppercase' }}>
-                          {statusLabel}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+      {/* CONFIRMATION DIALOG MODAL */}
+      {confirmModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+          <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '20px', maxWidth: '380px', width: '100%', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.15rem', fontWeight: '800' }}>
+              {confirmModal.title}
+            </h3>
+            <p style={{ margin: 0, color: '#d1d5db', fontSize: '0.9rem', lineHeight: 1.4 }}>
+              {confirmModal.message}
+            </p>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+              <button
+                onClick={() => setConfirmModal(null)}
+                style={{ flex: 1, minHeight: '44px', padding: '10px', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                {confirmModal.cancelText || 'Cancel'}
+              </button>
+              <button
+                onClick={confirmModal.onConfirm}
+                style={{ flex: 1, minHeight: '44px', padding: '10px', backgroundColor: '#e63946', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                {confirmModal.primaryText || 'Confirm'}
+              </button>
             </div>
           </div>
-        );
-      })()}
+        </div>
+      )}
+
+      {/* PREGAME SUMMARY START MATCH MODAL (Items 13-14) */}
+      {pregameSummaryModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+          <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '20px', maxWidth: '400px', width: '100%', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.15rem', fontWeight: '800' }}>
+              Confirm Match Setup
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', backgroundColor: 'rgba(255,255,255,0.04)', padding: '12px', borderRadius: '8px', fontSize: '0.88rem' }}>
+              <div style={{ color: '#ffffff' }}>• Active Players: <strong>{activePlayers.length}</strong></div>
+              <div style={{ color: '#2ec4b6' }}>• On Field: <strong>{onFieldCount}/18</strong></div>
+              <div style={{ color: '#ffb703' }}>• Bench: <strong>{benchCount}</strong></div>
+              <div style={{ color: unfilledSlotsCount > 0 ? '#ffb703' : '#8d939e' }}>• Unfilled Positions: <strong>{unfilledSlotsCount}</strong></div>
+              <div style={{ color: '#ffffff' }}>• Starting Quarter: <strong>Q{period}</strong></div>
+            </div>
+
+            {unfilledSlotsCount > 0 && (
+              <div style={{ fontSize: '0.8rem', color: '#ffb703', backgroundColor: 'rgba(255,183,3,0.12)', padding: '8px 12px', borderRadius: '6px' }}>
+                ⚠️ Notice: {unfilledSlotsCount} field positions remain vacant.
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+              <button
+                onClick={() => setPregameSummaryModal(false)}
+                style={{ flex: 1, minHeight: '44px', padding: '10px', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                Back to Setup
+              </button>
+              <button
+                onClick={handleConfirmStartMatch}
+                style={{ flex: 1, minHeight: '44px', padding: '10px', backgroundColor: 'var(--color-match)', color: '#000000', border: 'none', borderRadius: '8px', fontWeight: '800', cursor: 'pointer' }}
+              >
+                Start Match Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EXIT LIVE MATCH GUARD MODAL (Items 134-136) */}
+      {exitMatchGuardModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+          <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '20px', maxWidth: '400px', width: '100%', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.15rem', fontWeight: '800' }}>
+              Leave Active Match?
+            </h3>
+            <p style={{ margin: 0, color: '#d1d5db', fontSize: '0.88rem', lineHeight: 1.4 }}>
+              Match Q{period} is currently in progress. Select an action below:
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
+              <button
+                onClick={() => setExitMatchGuardModal(false)}
+                style={{ minHeight: '44px', padding: '10px', backgroundColor: 'var(--color-match)', color: '#000000', border: 'none', borderRadius: '8px', fontWeight: '800', cursor: 'pointer' }}
+              >
+                Return to Match
+              </button>
+              <button
+                onClick={() => { setExitMatchGuardModal(false); setMatchMode('live'); }}
+                style={{ minHeight: '44px', padding: '10px', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                Leave Match Running
+              </button>
+              <button
+                onClick={handleConfirmEndMatch}
+                style={{ minHeight: '44px', padding: '10px', backgroundColor: 'rgba(230,57,70,0.2)', color: '#e63946', border: '1px solid #e63946', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                End & Save Match
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* POSITION PICKER BOTTOM SHEET (Items 50-51) */}
+      {positionPickerModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+          <div style={{ backgroundColor: '#161922', borderTopLeftRadius: '20px', borderTopRightRadius: '20px', padding: '20px 16px 30px', maxHeight: '70vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' }}>
+              <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.1rem', fontWeight: '800' }}>
+                Assign {positionPickerModal.name} ({positionPickerModal.code})
+              </h3>
+              <button onClick={() => setPositionPickerModal(null)} style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {activePlayers.map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => {
+                    setFieldAssignments({ ...fieldAssignments, [positionPickerModal.id]: p.id });
+                    setPositionPickerModal(null);
+                  }}
+                  style={{
+                    minHeight: '44px',
+                    padding: '10px 14px',
+                    backgroundColor: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '8px',
+                    color: '#ffffff',
+                    fontSize: '0.9rem',
+                    fontWeight: '700',
+                    textAlign: 'left',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {p.number ? `#${p.number} ` : ''}{p.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* OCCUPIED SLOT ACTIONS BOTTOM SHEET (Item 51) */}
+      {occupiedSlotModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+          <div style={{ backgroundColor: '#161922', borderTopLeftRadius: '20px', borderTopRightRadius: '20px', padding: '20px 16px 30px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' }}>
+              <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.1rem', fontWeight: '800' }}>
+                {occupiedSlotModal.position.code}: {occupiedSlotModal.player.name}
+              </h3>
+              <button onClick={() => setOccupiedSlotModal(null)} style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button
+                onClick={() => {
+                  const pos = occupiedSlotModal.position;
+                  setOccupiedSlotModal(null);
+                  setPositionPickerModal(pos);
+                }}
+                style={{ minHeight: '44px', padding: '10px', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                Replace Player
+              </button>
+
+              <button
+                onClick={() => {
+                  const next = { ...fieldAssignments };
+                  delete next[occupiedSlotModal.position.id];
+                  setFieldAssignments(next);
+                  setOccupiedSlotModal(null);
+                }}
+                style={{ minHeight: '44px', padding: '10px', backgroundColor: 'rgba(255,183,3,0.15)', color: '#ffb703', border: '1px solid rgba(255,183,3,0.3)', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                Send to Bench
+              </button>
+
+              <button
+                onClick={() => {
+                  const pId = occupiedSlotModal.player.id;
+                  const nextField = { ...fieldAssignments };
+                  delete nextField[occupiedSlotModal.position.id];
+                  setFieldAssignments(nextField);
+                  setAvailability({ ...availability, [pId]: false });
+                  setOccupiedSlotModal(null);
+                }}
+                style={{ minHeight: '44px', padding: '10px', backgroundColor: 'rgba(230,57,70,0.15)', color: '#e63946', border: '1px solid rgba(230,57,70,0.3)', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                Mark Unavailable
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VIDEO TAGGING MODAL */}
+      {taggingModalOpen && pendingClip && (
+        <ContextualTaggingModal
+          isOpen={taggingModalOpen}
+          videoUrl={pendingClip.videoUrl}
+          fileName={pendingClip.fileName}
+          squad={squad}
+          initialDrillName={pendingClip.drillName}
+          onClose={() => { setTaggingModalOpen(false); setPendingClip(null); }}
+          onSave={handleSaveTaggedClip}
+        />
+      )}
 
     </div>
   );

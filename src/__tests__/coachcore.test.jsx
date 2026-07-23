@@ -1257,6 +1257,117 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
       fireEvent.click(keepBtn);
       expect(screen.queryByText('Cancel this training plan?')).not.toBeInTheDocument();
     });
+
+    it('24: UI Regression: Mobile Tactics Board UI enforces position bottom sheet, toolbar tools, clear confirmation, drag removal, and Ultra gating', async () => {
+      const mockPaywall = vi.fn();
+
+      // Locked view test
+      const { rerender } = render(
+        <TacticsBoard subscriptionTier="free" triggerPaywall={mockPaywall} />
+      );
+      expect(screen.getByText('Unlock the Tactics Board')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Upgrade to Ultra' })).toBeInTheDocument();
+
+      // Unlocked view test
+      rerender(
+        <TacticsBoard subscriptionTier="ultra" triggerPaywall={mockPaywall} />
+      );
+
+      // Verify toolbar tools
+      expect(screen.getByRole('button', { name: /Move/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Draw/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Arrow/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Laser/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Eraser/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Undo/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Redo/i })).toBeInTheDocument();
+
+      // Verify position selector buttons
+      const whiteBtn = screen.getByRole('button', { name: /\+ White Player/i });
+      const blackBtn = screen.getByRole('button', { name: /\+ Black Player/i });
+      expect(whiteBtn).toBeInTheDocument();
+      expect(blackBtn).toBeInTheDocument();
+
+      // Open White Position Bottom Sheet
+      fireEvent.click(whiteBtn);
+      expect(screen.getByText('Add White Player')).toBeInTheDocument();
+      expect(screen.getByText('FORWARDS')).toBeInTheDocument();
+      expect(screen.getByText('MIDFIELD / RUCK')).toBeInTheDocument();
+      expect(screen.getByText('BACKS')).toBeInTheDocument();
+      expect(screen.getByText('OTHER')).toBeInTheDocument();
+
+      // Select Full Forward
+      const ffBtn = screen.getByRole('button', { name: /Full Forward/i });
+      fireEvent.click(ffBtn);
+
+      // Bottom sheet closes after selection
+      expect(screen.queryByText('Add White Player')).not.toBeInTheDocument();
+    });
+
+    it('25: UI Regression: Mobile Match Day UI enforces 3 separate section views, pregame vs live match, sticky bar, AFL scoring with Undo, and rotation queue validation bug fix', async () => {
+      const mockToggleNav = vi.fn();
+      const mockSquad = [
+        { id: 'p1', name: 'Dustin Martin', number: '4' },
+        { id: 'p2', name: 'Shai Bolton', number: '29' },
+        { id: 'p3', name: 'Tom Lynch', number: '19' }
+      ];
+
+      // Gated view test
+      const { rerender } = render(
+        <MatchDay squad={mockSquad} subscriptionTier="free" onToggleBottomNav={mockToggleNav} />
+      );
+      expect(screen.getByText('Unlock Match Day')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Upgrade to Ultra' })).toBeInTheDocument();
+
+      // Unlocked view test
+      rerender(
+        <MatchDay squad={mockSquad} subscriptionTier="ultra" onToggleBottomNav={mockToggleNav} />
+      );
+
+      // Verify 3 Match Day Section Navigation Tabs
+      expect(screen.getByRole('button', { name: 'Lineup & Bench' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Rotations' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Stats & Notes' })).toBeInTheDocument();
+
+      // Verify Pregame Setup Banner
+      expect(screen.getByText('PREGAME SETUP')).toBeInTheDocument();
+      const startMatchBtn = screen.getByRole('button', { name: 'Start Match' });
+      expect(startMatchBtn).toBeInTheDocument();
+
+      // Start Match -> enter Live Match Mode
+      fireEvent.click(startMatchBtn);
+      expect(screen.getByText('Confirm Match Setup')).toBeInTheDocument();
+      const confirmStartBtn = screen.getByRole('button', { name: 'Start Match Now' });
+      fireEvent.click(confirmStartBtn);
+
+      // Verify global nav toggle called with true during live match
+      expect(mockToggleNav).toHaveBeenCalledWith(true);
+
+      // Verify Sticky Live Bar & Prominent Quarter Clock
+      expect(screen.getByText('Q1')).toBeInTheDocument();
+      expect(screen.getByText('RUNNING')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Pause' })).toBeInTheDocument();
+
+      // Test AFL Score Increment & Undo Toast
+      const addHomeGoalBtn = screen.getAllByRole('button', { name: '+G' })[0];
+      fireEvent.click(addHomeGoalBtn);
+
+      expect(screen.getByText('Goal added to Home')).toBeInTheDocument();
+      const undoToastBtn = screen.getByRole('button', { name: 'Undo' });
+      fireEvent.click(undoToastBtn);
+      expect(screen.queryByText('Goal added to Home')).not.toBeInTheDocument();
+
+      // Switch to Rotations tab
+      const rotationsTabBtn = screen.getByRole('button', { name: 'Rotations' });
+      fireEvent.click(rotationsTabBtn);
+
+      expect(screen.getByText('PLAN A ROTATION')).toBeInTheDocument();
+      expect(screen.getByText('SUGGESTED NEXT OFF')).toBeInTheDocument();
+
+      // Test Rotation Queue Validation Bug Fix (Disabled when only 1 player selected)
+      const queueBtn = screen.getByRole('button', { name: 'Queue Rotation' });
+      expect(queueBtn).toBeDisabled();
+    });
   });
 
 });

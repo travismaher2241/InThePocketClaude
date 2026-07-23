@@ -616,6 +616,7 @@ export default function App() {
               logSyncTransaction={logSyncTransaction} 
               onSaveVideoClip={(clip) => setVideoClips(prev => [clip, ...prev])}
               onEditPlayer={handleEditPlayer}
+              onToggleBottomNav={setHideGlobalNav}
             />
           )}
           {activeTab === 4 && (
