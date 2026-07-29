@@ -1,12 +1,15 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth } from '../firebaseConfig';
-import { 
-  onAuthStateChanged, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  deleteUser
 } from 'firebase/auth';
+import { deleteAllUserFirestoreData } from '../firebaseHelpers';
+import { getVideoClipsFromIDB, deleteVideoClipFromIDB } from '../utils/videoStore';
 
 const AuthContext = createContext();
 
@@ -50,6 +53,33 @@ export function AuthProvider({ children }) {
     return sendPasswordResetEmail(auth, email);
   }
 
+  // Permanently deletes the signed-in user's data and account.
+  // Firebase requires a recent sign-in for account deletion - if this fails with
+  // auth/requires-recent-login, the caller should ask the user to log out, log back
+  // in, and retry immediately.
+  async function deleteAccount() {
+    const user = auth.currentUser;
+    if (!user) throw new Error("No signed-in user to delete.");
+    const uid = user.uid;
+
+    await deleteAllUserFirestoreData(uid);
+
+    try {
+      const clips = await getVideoClipsFromIDB(uid);
+      await Promise.all(clips.map(clip => deleteVideoClipFromIDB(clip.id, uid)));
+    } catch (err) {
+      console.warn("Failed to clear local video clips during account deletion:", err);
+    }
+
+    await deleteUser(user);
+
+    try {
+      localStorage.clear();
+    } catch (err) {
+      console.warn("Failed to clear localStorage after account deletion:", err);
+    }
+  }
+
   // Listen to Auth State Changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -66,6 +96,7 @@ export function AuthProvider({ children }) {
     signup,
     logout,
     resetPassword,
+    deleteAccount,
     loading
   };
 

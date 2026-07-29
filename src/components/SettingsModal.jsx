@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthProvider';
+import PrivacyPolicy from './PrivacyPolicy';
+import TermsOfService from './TermsOfService';
 
 export default function SettingsModal({
   isOpen,
@@ -17,6 +20,30 @@ export default function SettingsModal({
   isOnline,
   setIsOnline
 }) {
+  const { deleteAccount } = useAuth();
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    setDeleteError('');
+    try {
+      await deleteAccount();
+      // On success, AuthProvider's auth-state listener will detect the
+      // signed-out user and return the app to the login screen automatically.
+    } catch (err) {
+      if (err?.code === 'auth/requires-recent-login') {
+        setDeleteError("For security, deleting your account requires a recent sign-in. Please log out, log back in, and try again immediately.");
+      } else {
+        setDeleteError(err?.message || 'Failed to delete account. Please try again.');
+      }
+      setIsDeleting(false);
+    }
+  };
   const [coachName, setCoachName] = useState(userProfile?.name || '');
   const [coachLevel, setCoachLevel] = useState(userProfile?.coachLevel || '3');
   const [squadName, setSquadName] = useState(squadSettings?.squadName || userProfile?.teamName || 'My Squad');
@@ -483,6 +510,92 @@ export default function SettingsModal({
               )}
             </div>
           )}
+
+          {/* Legal Links */}
+          <div style={{ paddingTop: '16px', borderTop: '1px solid var(--border-light)', display: 'flex', gap: '16px', justifyContent: 'center' }}>
+            <button type="button" onClick={() => setShowPrivacy(true)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '0.78rem', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}>
+              Privacy Policy
+            </button>
+            <button type="button" onClick={() => setShowTerms(true)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '0.78rem', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}>
+              Terms of Service
+            </button>
+          </div>
+
+          {/* Danger Zone: Account Deletion */}
+          {currentUser?.uid && (
+            <div style={{ paddingTop: '16px', marginTop: '4px', borderTop: '1px solid rgba(230, 57, 70, 0.2)' }}>
+              <h3 style={{ fontSize: '0.85rem', margin: '0 0 8px 0', color: '#e63946', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
+                Danger Zone
+              </h3>
+              {!isDeleteConfirmOpen ? (
+                <button
+                  type="button"
+                  onClick={() => { setIsDeleteConfirmOpen(true); setDeleteConfirmText(''); setDeleteError(''); }}
+                  style={{
+                    backgroundColor: 'rgba(230, 57, 70, 0.1)',
+                    border: '1px solid rgba(230, 57, 70, 0.3)',
+                    color: '#e63946',
+                    padding: '10px 14px',
+                    borderRadius: '6px',
+                    fontSize: '0.85rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    width: '100%'
+                  }}
+                >
+                  Delete My Account
+                </button>
+              ) : (
+                <div style={{ backgroundColor: 'rgba(230, 57, 70, 0.06)', border: '1px solid rgba(230, 57, 70, 0.25)', borderRadius: '8px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: '#d1d5db', lineHeight: 1.5 }}>
+                    This permanently deletes your account, roster, training history, and locally stored video clips. This cannot be undone.
+                  </p>
+                  <label style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '600' }}>
+                    Type DELETE to confirm
+                  </label>
+                  <input
+                    type="text"
+                    value={deleteConfirmText}
+                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                    disabled={isDeleting}
+                    placeholder="DELETE"
+                  />
+                  {deleteError && (
+                    <div style={{ color: '#e63946', fontSize: '0.78rem' }}>{deleteError}</div>
+                  )}
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => setIsDeleteConfirmOpen(false)}
+                      disabled={isDeleting}
+                      style={{ flex: 1 }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDeleteAccount}
+                      disabled={deleteConfirmText !== 'DELETE' || isDeleting}
+                      style={{
+                        flex: 1,
+                        backgroundColor: '#e63946',
+                        border: 'none',
+                        color: '#ffffff',
+                        padding: '10px',
+                        borderRadius: '6px',
+                        fontWeight: '700',
+                        cursor: (deleteConfirmText !== 'DELETE' || isDeleting) ? 'not-allowed' : 'pointer',
+                        opacity: (deleteConfirmText !== 'DELETE' || isDeleting) ? 0.5 : 1
+                      }}
+                    >
+                      {isDeleting ? 'Deleting…' : 'Permanently Delete'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="modal-footer">
@@ -490,6 +603,9 @@ export default function SettingsModal({
             Save Settings & Return
           </button>
         </div>
+
+        {showPrivacy && <PrivacyPolicy onClose={() => setShowPrivacy(false)} />}
+        {showTerms && <TermsOfService onClose={() => setShowTerms(false)} />}
       </div>
     </div>
   );

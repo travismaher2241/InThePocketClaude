@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthProvider';
 import inThePocketLogo from '../assets/In The Pocket.png';
-import { 
-  authenticateTesterSession, 
-  classifyAuthError, 
-  createStructuredError 
+import {
+  authenticateTesterSession,
+  classifyAuthError,
+  createStructuredError
 } from '../utils/testerAuthService';
+import PrivacyPolicy from './PrivacyPolicy';
+import TermsOfService from './TermsOfService';
 
 export default function Login() {
   const { login, signup, resetPassword, logout } = useAuth();
@@ -19,6 +21,8 @@ export default function Login() {
   const [structuredError, setStructuredError] = useState(null);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const testerInputRef = useRef(null);
 
@@ -414,7 +418,16 @@ export default function Login() {
             </div>
           )
         )}
+
+        <div style={{ textAlign: 'center', fontSize: '0.7rem', color: '#4b5563', marginTop: '8px' }}>
+          <span onClick={() => setShowPrivacy(true)} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Privacy Policy</span>
+          {' · '}
+          <span onClick={() => setShowTerms(true)} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Terms of Service</span>
+        </div>
       </div>
+
+      {showPrivacy && <PrivacyPolicy onClose={() => setShowPrivacy(false)} />}
+      {showTerms && <TermsOfService onClose={() => setShowTerms(false)} />}
     </div>
   );
 }

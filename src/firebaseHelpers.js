@@ -433,3 +433,47 @@ export async function confirmAIGenerationQuota(uid) {
 export async function generateAIPlanSecure(uid, promptText, apiKey) {
   return await fetchRawAIPlan(uid, promptText, apiKey);
 }
+
+/**
+ * Deletes every Firestore document owned by this user (players, archived players,
+ * training sessions, squad settings, and the user profile itself), ahead of the
+ * Firebase Auth account being deleted. Best-effort: a permission or network error
+ * on any one collection is logged and skipped rather than aborting the whole delete,
+ * so account deletion (the more important guarantee) can still proceed.
+ * @param {string} uid
+ */
+export async function deleteAllUserFirestoreData(uid) {
+  if (!uid) return;
+
+  const deleteOwnedDocs = async (collectionName) => {
+    try {
+      const ref = collection(db, collectionName);
+      const q = query(ref, where("ownerId", "==", uid));
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) return;
+      const batch = writeBatch(db);
+      snapshot.forEach((docSnap) => batch.delete(docSnap.ref));
+      await batch.commit();
+    } catch (err) {
+      console.warn(`Failed to delete "${collectionName}" documents during account deletion:`, err);
+    }
+  };
+
+  await Promise.all([
+    deleteOwnedDocs("players"),
+    deleteOwnedDocs("archived_players"),
+    deleteOwnedDocs("training_sessions")
+  ]);
+
+  try {
+    await deleteDoc(doc(db, "squad_settings", uid));
+  } catch (err) {
+    console.warn("Failed to delete squad_settings during account deletion:", err);
+  }
+
+  try {
+    await deleteDoc(doc(db, "users", uid));
+  } catch (err) {
+    console.warn("Failed to delete user profile during account deletion:", err);
+  }
+}
