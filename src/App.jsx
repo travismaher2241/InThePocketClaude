@@ -566,7 +566,7 @@ export default function App() {
             style={{
               background: 'transparent',
               border: '1px solid rgba(255, 255, 255, 0.1)',
-              color: '#8d939e',
+              color: '#a39a8c',
               padding: '4px 10px',
               borderRadius: '4px',
               fontSize: '0.75rem',
@@ -577,11 +577,11 @@ export default function App() {
               transition: 'color 0.2s, border-color 0.2s'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.color = '#e63946';
-              e.currentTarget.style.borderColor = 'rgba(230, 57, 70, 0.2)';
+              e.currentTarget.style.color = '#c1443b';
+              e.currentTarget.style.borderColor = 'rgba(193, 68, 59, 0.2)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = '#8d939e';
+              e.currentTarget.style.color = '#a39a8c';
               e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
             }}
           >
@@ -743,7 +743,7 @@ export default function App() {
                     setPaywallFeature(null);
                     showToast("Simulated Upgrade: Welcome to ULTRA CLUB! You now have access to all of the amazing pro features in In The Pocket!");
                   }}
-                  style={{ width: '100%', padding: '12px', borderColor: 'rgba(255, 183, 3, 0.4)', color: '#ffb703' }}
+                  style={{ width: '100%', padding: '12px', borderColor: 'rgba(217, 138, 50, 0.4)', color: '#d98a32' }}
                 >
                   Activate ULTRA CLUB Tier (Whole-of-Club License)
                 </button>

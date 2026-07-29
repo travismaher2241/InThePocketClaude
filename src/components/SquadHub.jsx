@@ -660,7 +660,7 @@ export default function SquadHub({
               fontFamily: 'var(--font-family-locker)',
               fontSize: '0.85rem',
               fontWeight: '700',
-              color: isManageMode ? 'var(--color-match)' : '#8d939e',
+              color: isManageMode ? 'var(--color-match)' : '#a39a8c',
               cursor: 'pointer',
               textTransform: 'uppercase',
               transition: 'color 0.2s ease',
@@ -670,7 +670,7 @@ export default function SquadHub({
               padding: 0
             }}
             onMouseEnter={(e) => { if (!isManageMode) e.currentTarget.style.color = '#ffffff'; }}
-            onMouseLeave={(e) => { if (!isManageMode) e.currentTarget.style.color = '#8d939e'; }}
+            onMouseLeave={(e) => { if (!isManageMode) e.currentTarget.style.color = '#a39a8c'; }}
           >
             {isManageMode ? 'Cancel' : 'Manage Team'}
           </button>
@@ -681,7 +681,7 @@ export default function SquadHub({
               fontFamily: 'var(--font-family-locker)',
               fontSize: '0.85rem',
               fontWeight: '700',
-              color: '#8d939e',
+              color: '#a39a8c',
               cursor: 'pointer',
               textTransform: 'uppercase',
               transition: 'color 0.2s ease',
@@ -691,7 +691,7 @@ export default function SquadHub({
               padding: 0
             }}
             onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
-            onMouseLeave={(e) => e.currentTarget.style.color = '#8d939e'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#a39a8c'}
           >
             Import Players
           </button>
@@ -704,7 +704,7 @@ export default function SquadHub({
           position: 'sticky',
           top: 0,
           zIndex: 40,
-          backgroundColor: '#0a0b0e',
+          backgroundColor: '#0c0b08',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
           paddingTop: '12px',
@@ -739,7 +739,7 @@ export default function SquadHub({
               left: '12px',
               top: '50%',
               transform: 'translateY(-50%)',
-              color: '#8d939e',
+              color: '#a39a8c',
               pointerEvents: 'none'
             }}
           >
@@ -756,7 +756,7 @@ export default function SquadHub({
                 transform: 'translateY(-50%)',
                 background: 'none',
                 border: 'none',
-                color: '#8d939e',
+                color: '#a39a8c',
                 cursor: 'pointer',
                 padding: '4px',
                 display: 'flex',
@@ -773,7 +773,7 @@ export default function SquadHub({
 
         {/* Sort Controls */}
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600', letterSpacing: '0.05em' }}>Sort By:</span>
+          <span style={{ fontSize: '0.7rem', color: '#a39a8c', textTransform: 'uppercase', fontWeight: '600', letterSpacing: '0.05em' }}>Sort By:</span>
           <button
             type="button"
             className={`sort-btn ${sortBy === 'name' ? 'active' : ''}`}
@@ -801,7 +801,7 @@ export default function SquadHub({
         }}
       >
         {filteredAndSortedSquad.length === 0 ? (
-          <div style={{ border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '6px', padding: '40px 16px', textAlign: 'center', color: '#8d939e', fontSize: '0.9rem' }}>
+          <div style={{ border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '6px', padding: '40px 16px', textAlign: 'center', color: '#a39a8c', fontSize: '0.9rem' }}>
             {squad.length === 0 
               ? 'No players added yet. Tap the "+" button at the bottom or "Import Players" in the header to register your squad roster.'
               : 'No players match your search criteria.'}
@@ -829,8 +829,8 @@ export default function SquadHub({
                   }
                 }}
                 style={{
-                  backgroundColor: isSelected ? 'rgba(58, 134, 255, 0.08)' : 'transparent',
-                  borderColor: isSelected ? 'rgba(58, 134, 255, 0.2)' : 'transparent',
+                  backgroundColor: isSelected ? 'rgba(201, 162, 75, 0.08)' : 'transparent',
+                  borderColor: isSelected ? 'rgba(201, 162, 75, 0.2)' : 'transparent',
                   padding: '14px 12px',
                   display: 'flex',
                   alignItems: 'center',
@@ -876,10 +876,10 @@ export default function SquadHub({
                       color: 'var(--color-squad)', 
                       minWidth: '36px',
                       textAlign: 'center',
-                      backgroundColor: 'rgba(58, 134, 255, 0.08)',
+                      backgroundColor: 'rgba(201, 162, 75, 0.08)',
                       padding: '4px 6px',
                       borderRadius: '4px',
-                      border: '1px solid rgba(58, 134, 255, 0.15)',
+                      border: '1px solid rgba(201, 162, 75, 0.15)',
                       fontWeight: '700',
                       flexShrink: 0
                     }}
@@ -903,8 +903,8 @@ export default function SquadHub({
                         width: '20px',
                         height: '20px',
                         borderRadius: '50%',
-                        backgroundColor: 'rgba(230, 57, 70, 0.15)',
-                        color: '#e63946',
+                        backgroundColor: 'rgba(193, 68, 59, 0.15)',
+                        color: '#c1443b',
                         flexShrink: 0
                       }}
                     >
@@ -924,7 +924,7 @@ export default function SquadHub({
                     stroke="currentColor" 
                     strokeWidth="2.5" 
                     viewBox="0 0 24 24"
-                    style={{ color: '#8d939e' }}
+                    style={{ color: '#a39a8c' }}
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
                   </svg>
@@ -942,7 +942,7 @@ export default function SquadHub({
           bottom: '64px', // fits perfectly above our bottom navigation bar
           left: '0',
           right: '0',
-          backgroundColor: 'rgba(14, 14, 18, 0.98)',
+          backgroundColor: 'rgba(16, 15, 11, 0.98)',
           borderTop: '1px solid rgba(255, 255, 255, 0.08)',
           padding: '14px 20px',
           display: 'flex',
@@ -978,9 +978,9 @@ export default function SquadHub({
                 fontSize: '0.75rem', 
                 fontWeight: '700', 
                 padding: '6px 12px',
-                backgroundColor: selectedPlayerIds.size > 0 ? 'rgba(230, 57, 70, 0.15)' : 'transparent',
-                borderColor: selectedPlayerIds.size > 0 ? '#e63946' : 'rgba(255,255,255,0.05)',
-                color: selectedPlayerIds.size > 0 ? '#e63946' : 'var(--text-muted)'
+                backgroundColor: selectedPlayerIds.size > 0 ? 'rgba(193, 68, 59, 0.15)' : 'transparent',
+                borderColor: selectedPlayerIds.size > 0 ? '#c1443b' : 'rgba(255,255,255,0.05)',
+                color: selectedPlayerIds.size > 0 ? '#c1443b' : 'var(--text-muted)'
               }}
             >
               Delete Selected
@@ -994,13 +994,13 @@ export default function SquadHub({
         <div className="overlay-backdrop" style={{ zIndex: 1000 }}>
           <div className="modal-content" style={{ maxWidth: '340px', textAlign: 'center' }}>
             <div className="modal-body" style={{ padding: '24px' }}>
-              <h4 className="scoreboard-font" style={{ color: '#e63946', margin: '0 0 10px 0', fontSize: '1.1rem' }}>CONFIRM DELETION</h4>
+              <h4 className="scoreboard-font" style={{ color: '#c1443b', margin: '0 0 10px 0', fontSize: '1.1rem' }}>CONFIRM DELETION</h4>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: '0 0 20px 0' }}>
                 Are you sure you want to delete the **{selectedPlayerIds.size}** selected players? This action cannot be undone.
               </p>
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                 <button className="btn" onClick={() => setIsBulkDeleteConfirmOpen(false)}>Cancel</button>
-                <button className="btn" onClick={() => handleDelete(Array.from(selectedPlayerIds))} style={{ backgroundColor: '#e63946', color: '#ffffff', borderColor: '#e63946' }}>Delete {selectedPlayerIds.size}</button>
+                <button className="btn" onClick={() => handleDelete(Array.from(selectedPlayerIds))} style={{ backgroundColor: '#c1443b', color: '#ffffff', borderColor: '#c1443b' }}>Delete {selectedPlayerIds.size}</button>
               </div>
             </div>
           </div>
@@ -1016,7 +1016,7 @@ export default function SquadHub({
         >
           <div 
             className="player-info-modal" 
-            style={{ maxWidth: '440px', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px', backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.1)' }} 
+            style={{ maxWidth: '440px', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px', backgroundColor: '#1c1913', border: '1px solid rgba(255, 255, 255, 0.1)' }} 
             onClick={(e) => e.stopPropagation()}
           >
             
@@ -1039,7 +1039,7 @@ export default function SquadHub({
                     onClick={() => setIsOverflowOpen(!isOverflowOpen)}
                     title="More actions"
                     aria-label="More options"
-                    style={{ padding: '4px 8px', fontSize: '1.2rem', color: '#8d939e' }}
+                    style={{ padding: '4px 8px', fontSize: '1.2rem', color: '#a39a8c' }}
                   >
                     &#8285;
                   </button>
@@ -1050,7 +1050,7 @@ export default function SquadHub({
                       right: 0,
                       top: '100%',
                       marginTop: '4px',
-                      backgroundColor: '#1c202c',
+                      backgroundColor: '#211d16',
                       border: '1px solid rgba(255, 255, 255, 0.12)',
                       borderRadius: '8px',
                       boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
@@ -1093,13 +1093,13 @@ export default function SquadHub({
                           padding: '8px 12px',
                           background: 'none',
                           border: 'none',
-                          color: '#e63946',
+                          color: '#c1443b',
                           fontSize: '0.85rem',
                           fontWeight: '600',
                           cursor: 'pointer',
                           borderRadius: '4px'
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(230,57,70,0.1)'}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(193,68,59,0.1)'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                       >
                         Delete Player
@@ -1126,19 +1126,19 @@ export default function SquadHub({
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Position</div>
+                      <div style={{ fontSize: '0.65rem', color: '#a39a8c', textTransform: 'uppercase', fontWeight: '600' }}>Position</div>
                       <div style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: '600', marginTop: '2px' }}>{detailPlayer.position}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Medical Notes</div>
-                      <div style={{ fontSize: '0.9rem', color: (detailPlayer.medical && detailPlayer.medical !== 'None' && detailPlayer.medical.trim() !== '') ? '#e63946' : '#ffffff', fontWeight: '600', marginTop: '2px' }}>
+                      <div style={{ fontSize: '0.65rem', color: '#a39a8c', textTransform: 'uppercase', fontWeight: '600' }}>Medical Notes</div>
+                      <div style={{ fontSize: '0.9rem', color: (detailPlayer.medical && detailPlayer.medical !== 'None' && detailPlayer.medical.trim() !== '') ? '#c1443b' : '#ffffff', fontWeight: '600', marginTop: '2px' }}>
                         {detailPlayer.medical || 'None'}
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <div style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600' }}>Match Play Time</div>
+                    <div style={{ fontSize: '0.65rem', color: '#a39a8c', textTransform: 'uppercase', fontWeight: '600' }}>Match Play Time</div>
                     <div style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: '600', marginTop: '2px' }}>
                       TOG: {detailPlayer.stats?.togMinutes || detailPlayer.stats?.totalTime || 0}m | Bench: {detailPlayer.stats?.benchMinutes || 0}m
                     </div>
@@ -1146,7 +1146,7 @@ export default function SquadHub({
 
                   {/* Highlights section inside modal */}
                   <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '12px' }}>
-                    <span style={{ fontSize: '0.65rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '0.65rem', color: '#a39a8c', textTransform: 'uppercase', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
                       Video Analysis Clips
                     </span>
                     {videoClips.filter(c => c.playerIds.includes(detailPlayer.id)).length === 0 ? (
@@ -1174,7 +1174,7 @@ export default function SquadHub({
                             }}
                           >
                             <span style={{ fontSize: '0.8rem', color: '#ffffff', fontWeight: '600' }}>{clip.drillName}</span>
-                            <span style={{ fontSize: '0.7rem', color: '#8d939e' }}>{clip.date}</span>
+                            <span style={{ fontSize: '0.7rem', color: '#a39a8c' }}>{clip.date}</span>
                           </div>
                         ))}
                       </div>
@@ -1197,7 +1197,7 @@ export default function SquadHub({
                 <form noValidate onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div className="form-group">
-                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Full Name</label>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d9d2c4', display: 'block', marginBottom: '4px' }}>Full Name</label>
                       <input 
                         type="text" 
                         value={editName} 
@@ -1207,13 +1207,13 @@ export default function SquadHub({
                         }} 
                       />
                       {editNameError && (
-                        <span style={{ fontSize: '0.7rem', color: '#e63946', marginTop: '4px', display: 'block', fontWeight: '600' }}>
+                        <span style={{ fontSize: '0.7rem', color: '#c1443b', marginTop: '4px', display: 'block', fontWeight: '600' }}>
                           {editNameError}
                         </span>
                       )}
                     </div>
                     <div className="form-group">
-                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Jersey #</label>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d9d2c4', display: 'block', marginBottom: '4px' }}>Jersey #</label>
                       <input 
                         type="number" 
                         value={editJersey} 
@@ -1224,7 +1224,7 @@ export default function SquadHub({
                         }} 
                       />
                       {editJerseyError && (
-                        <span style={{ fontSize: '0.7rem', color: '#e63946', marginTop: '4px', display: 'block', fontWeight: '600' }}>
+                        <span style={{ fontSize: '0.7rem', color: '#c1443b', marginTop: '4px', display: 'block', fontWeight: '600' }}>
                           {editJerseyError}
                         </span>
                       )}
@@ -1232,7 +1232,7 @@ export default function SquadHub({
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div className="form-group">
-                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Primary Position</label>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d9d2c4', display: 'block', marginBottom: '4px' }}>Primary Position</label>
                       <select value={editPosition} onChange={(e) => setEditPosition(e.target.value)}>
                         <option value="Forward">Forward</option>
                         <option value="Midfield">Midfield</option>
@@ -1241,7 +1241,7 @@ export default function SquadHub({
                       </select>
                     </div>
                     <div className="form-group">
-                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Medical Profile</label>
+                      <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d9d2c4', display: 'block', marginBottom: '4px' }}>Medical Profile</label>
                       <input type="text" value={editMedical} onChange={(e) => setEditMedical(e.target.value)} placeholder="Asthma, allergy..." />
                     </div>
                   </div>
@@ -1250,7 +1250,7 @@ export default function SquadHub({
                       type="button" 
                       className="btn" 
                       onClick={() => setIsDeleteConfirmOpen(true)}
-                      style={{ color: '#e63946', borderColor: 'rgba(230, 57, 70, 0.3)', backgroundColor: 'rgba(230, 57, 70, 0.08)', fontSize: '0.8rem', fontWeight: '600' }}
+                      style={{ color: '#c1443b', borderColor: 'rgba(193, 68, 59, 0.3)', backgroundColor: 'rgba(193, 68, 59, 0.08)', fontSize: '0.8rem', fontWeight: '600' }}
                     >
                       Delete Player
                     </button>
@@ -1276,13 +1276,13 @@ export default function SquadHub({
         >
           <div 
             className="modal-content" 
-            style={{ maxWidth: '360px', width: '100%', borderRadius: '12px', padding: '24px', backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}
+            style={{ maxWidth: '360px', width: '100%', borderRadius: '12px', padding: '24px', backgroundColor: '#1c1913', border: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}
             onClick={(e) => e.stopPropagation()}
           >
             <h4 style={{ color: '#ffffff', fontSize: '1.15rem', fontWeight: '700', margin: '0 0 10px 0' }}>
               Delete {detailPlayer.name}?
             </h4>
-            <p style={{ fontSize: '0.85rem', color: '#8d939e', lineHeight: '1.5', margin: '0 0 20px 0' }}>
+            <p style={{ fontSize: '0.85rem', color: '#a39a8c', lineHeight: '1.5', margin: '0 0 20px 0' }}>
               This will permanently remove {detailPlayer.name} from the team. This action cannot be undone.
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
@@ -1305,9 +1305,9 @@ export default function SquadHub({
                   flex: 1, 
                   padding: '10px', 
                   fontSize: '0.85rem', 
-                  backgroundColor: '#e63946', 
+                  backgroundColor: '#c1443b', 
                   color: '#ffffff', 
-                  borderColor: '#e63946',
+                  borderColor: '#c1443b',
                   fontWeight: '700' 
                 }}
               >
@@ -1331,7 +1331,7 @@ export default function SquadHub({
         >
           <div 
             className="modal-content" 
-            style={{ maxWidth: '500px', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px', backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+            style={{ maxWidth: '500px', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px', backgroundColor: '#1c1913', border: '1px solid rgba(255, 255, 255, 0.1)' }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Sticky Modal Header */}
@@ -1359,39 +1359,39 @@ export default function SquadHub({
               {importStep === 'RESULT' ? (
                 /* RESULT CONFIRMATION SUMMARY */
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center', padding: '10px 0' }}>
-                  <div style={{ backgroundColor: 'rgba(56, 176, 0, 0.12)', border: '1px solid rgba(56, 176, 0, 0.3)', borderRadius: '8px', padding: '16px', color: '#38b000' }}>
+                  <div style={{ backgroundColor: 'rgba(107, 142, 78, 0.12)', border: '1px solid rgba(107, 142, 78, 0.3)', borderRadius: '8px', padding: '16px', color: '#6b8e4e' }}>
                     <svg width="36" height="36" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ margin: '0 auto 8px auto', display: 'block' }}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <h4 style={{ margin: '0 0 4px 0', fontSize: '1.1rem', fontWeight: '700', color: '#ffffff' }}>
                       Player roster imported
                     </h4>
-                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#8d939e' }}>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#a39a8c' }}>
                       Your team roster has been updated successfully.
                     </p>
                   </div>
 
                   <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.25)', borderRadius: '8px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                      <span style={{ color: '#8d939e' }}>Players added:</span>
-                      <strong style={{ color: '#38b000' }}>{importResult.addedCount} players added</strong>
+                      <span style={{ color: '#a39a8c' }}>Players added:</span>
+                      <strong style={{ color: '#6b8e4e' }}>{importResult.addedCount} players added</strong>
                     </div>
                     {importResult.updatedCount > 0 && (
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                        <span style={{ color: '#8d939e' }}>Players updated:</span>
-                        <strong style={{ color: '#3a86ff' }}>{importResult.updatedCount} players updated</strong>
+                        <span style={{ color: '#a39a8c' }}>Players updated:</span>
+                        <strong style={{ color: '#c9a24b' }}>{importResult.updatedCount} players updated</strong>
                       </div>
                     )}
                     {importResult.skippedCount > 0 && (
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                        <span style={{ color: '#8d939e' }}>Existing players skipped:</span>
-                        <strong style={{ color: '#ffb703' }}>{importResult.skippedCount} existing players skipped</strong>
+                        <span style={{ color: '#a39a8c' }}>Existing players skipped:</span>
+                        <strong style={{ color: '#d98a32' }}>{importResult.skippedCount} existing players skipped</strong>
                       </div>
                     )}
                     {importResult.failedCount > 0 && (
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                        <span style={{ color: '#8d939e' }}>Rows not imported:</span>
-                        <strong style={{ color: '#e63946' }}>{importResult.failedCount} row not imported</strong>
+                        <span style={{ color: '#a39a8c' }}>Rows not imported:</span>
+                        <strong style={{ color: '#c1443b' }}>{importResult.failedCount} row not imported</strong>
                       </div>
                     )}
                   </div>
@@ -1400,19 +1400,19 @@ export default function SquadHub({
                 /* SELECT AND PREVIEW STEPS */
                 <>
                   {/* Instructions */}
-                  <p style={{ fontSize: '0.85rem', color: '#d1d5db', lineHeight: '1.5', margin: 0 }}>
+                  <p style={{ fontSize: '0.85rem', color: '#d9d2c4', lineHeight: '1.5', margin: 0 }}>
                     Upload an Excel spreadsheet containing a <strong style={{ color: '#ffffff' }}>Player Name</strong> and <strong style={{ color: '#ffffff' }}>Player Number</strong> column. Position and medical details can be added later.
                   </p>
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                    <span style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '500' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#a39a8c', fontWeight: '500' }}>
                       Supported formats: .xlsx and .xls
                     </span>
                     <button 
                       type="button" 
                       className="btn" 
                       onClick={handleDownloadTemplate}
-                      style={{ fontSize: '0.75rem', fontWeight: '700', padding: '6px 12px', color: 'var(--color-squad)', borderColor: 'rgba(58, 134, 255, 0.3)', backgroundColor: 'rgba(58, 134, 255, 0.08)' }}
+                      style={{ fontSize: '0.75rem', fontWeight: '700', padding: '6px 12px', color: 'var(--color-squad)', borderColor: 'rgba(201, 162, 75, 0.3)', backgroundColor: 'rgba(201, 162, 75, 0.08)' }}
                     >
                       Download Excel Template
                     </button>
@@ -1439,7 +1439,7 @@ export default function SquadHub({
                         <div style={{ fontSize: '0.95rem', color: '#ffffff', fontWeight: '700', marginBottom: '2px' }}>
                           Choose Excel File
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: '#8d939e' }}>
+                        <div style={{ fontSize: '0.75rem', color: '#a39a8c' }}>
                           or drag & drop spreadsheet file here
                         </div>
                       </div>
@@ -1476,7 +1476,7 @@ export default function SquadHub({
                           type="button" 
                           className="btn" 
                           onClick={handleResetImport}
-                          style={{ fontSize: '0.75rem', padding: '4px 10px', color: '#8d939e' }}
+                          style={{ fontSize: '0.75rem', padding: '4px 10px', color: '#a39a8c' }}
                         >
                           Choose Different File
                         </button>
@@ -1484,7 +1484,7 @@ export default function SquadHub({
 
                       {/* Blocking Error Alert */}
                       {importAnalysis.blockingError && (
-                        <div style={{ backgroundColor: 'rgba(230, 57, 70, 0.12)', border: '1px solid rgba(230, 57, 70, 0.3)', borderRadius: '8px', padding: '12px 14px', color: '#e63946', fontSize: '0.8rem', lineHeight: '1.4' }}>
+                        <div style={{ backgroundColor: 'rgba(193, 68, 59, 0.12)', border: '1px solid rgba(193, 68, 59, 0.3)', borderRadius: '8px', padding: '12px 14px', color: '#c1443b', fontSize: '0.8rem', lineHeight: '1.4' }}>
                           <strong style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem' }}>Cannot Import File</strong>
                           {importAnalysis.blockingError}
                         </div>
@@ -1493,16 +1493,16 @@ export default function SquadHub({
                       {/* Summary Metrics Pills */}
                       {!importAnalysis.blockingError && (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                          <span style={{ backgroundColor: 'rgba(56, 176, 0, 0.12)', border: '1px solid rgba(56, 176, 0, 0.3)', color: '#38b000', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: '700' }}>
+                          <span style={{ backgroundColor: 'rgba(107, 142, 78, 0.12)', border: '1px solid rgba(107, 142, 78, 0.3)', color: '#6b8e4e', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: '700' }}>
                             {importAnalysis.validPlayers.length} players ready to import
                           </span>
                           {importAnalysis.warnings.length > 0 && (
-                            <span style={{ backgroundColor: 'rgba(255, 183, 3, 0.12)', border: '1px solid rgba(255, 183, 3, 0.3)', color: '#ffb703', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: '700' }}>
+                            <span style={{ backgroundColor: 'rgba(217, 138, 50, 0.12)', border: '1px solid rgba(217, 138, 50, 0.3)', color: '#d98a32', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: '700' }}>
                               {importAnalysis.warnings.length} warning{importAnalysis.warnings.length === 1 ? '' : 's'}
                             </span>
                           )}
                           {importAnalysis.errors.length > 0 && (
-                            <span style={{ backgroundColor: 'rgba(230, 57, 70, 0.12)', border: '1px solid rgba(230, 57, 70, 0.3)', color: '#e63946', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: '700' }}>
+                            <span style={{ backgroundColor: 'rgba(193, 68, 59, 0.12)', border: '1px solid rgba(193, 68, 59, 0.3)', color: '#c1443b', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: '700' }}>
                               {importAnalysis.errors.length} row{importAnalysis.errors.length === 1 ? '' : 's'} cannot be imported
                             </span>
                           )}
@@ -1511,14 +1511,14 @@ export default function SquadHub({
 
                       {/* Duplicate Strategy Selector (if existing team matches found) */}
                       {importAnalysis.validPlayers.some(p => p.isDuplicate) && (
-                        <div style={{ backgroundColor: 'rgba(255, 183, 3, 0.06)', border: '1px solid rgba(255, 183, 3, 0.2)', borderRadius: '8px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <label style={{ fontSize: '0.75rem', fontWeight: '700', color: '#ffb703', textTransform: 'uppercase' }}>
+                        <div style={{ backgroundColor: 'rgba(217, 138, 50, 0.06)', border: '1px solid rgba(217, 138, 50, 0.2)', borderRadius: '8px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <label style={{ fontSize: '0.75rem', fontWeight: '700', color: '#d98a32', textTransform: 'uppercase' }}>
                             Existing Team Duplicates Action:
                           </label>
                           <select 
                             value={duplicateStrategy}
                             onChange={(e) => setDuplicateStrategy(e.target.value)}
-                            style={{ width: '100%', backgroundColor: '#0a0b0e', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#ffffff', padding: '8px 10px', borderRadius: '6px', fontSize: '0.8rem', outline: 'none' }}
+                            style={{ width: '100%', backgroundColor: '#0c0b08', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#ffffff', padding: '8px 10px', borderRadius: '6px', fontSize: '0.8rem', outline: 'none' }}
                           >
                             <option value="skip">Skip existing player (Recommended)</option>
                             <option value="update">Update existing player</option>
@@ -1530,16 +1530,16 @@ export default function SquadHub({
                       {/* Validation Log Items */}
                       {(importAnalysis.errors.length > 0 || importAnalysis.warnings.length > 0) && (
                         <div style={{ maxHeight: '160px', overflowY: 'auto', backgroundColor: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                          <span style={{ fontSize: '0.7rem', color: '#8d939e', fontWeight: '700', textTransform: 'uppercase' }}>
+                          <span style={{ fontSize: '0.7rem', color: '#a39a8c', fontWeight: '700', textTransform: 'uppercase' }}>
                             Validation Notes:
                           </span>
                           {importAnalysis.errors.map((errItem, idx) => (
-                            <div key={`err_${idx}`} style={{ fontSize: '0.75rem', color: '#e63946', lineHeight: '1.4' }}>
+                            <div key={`err_${idx}`} style={{ fontSize: '0.75rem', color: '#c1443b', lineHeight: '1.4' }}>
                               ⚠️ {errItem.message}
                             </div>
                           ))}
                           {importAnalysis.warnings.map((warnItem, idx) => (
-                            <div key={`warn_${idx}`} style={{ fontSize: '0.75rem', color: '#ffb703', lineHeight: '1.4' }}>
+                            <div key={`warn_${idx}`} style={{ fontSize: '0.75rem', color: '#d98a32', lineHeight: '1.4' }}>
                               ℹ️ {warnItem.message}
                             </div>
                           ))}
@@ -1549,26 +1549,26 @@ export default function SquadHub({
                       {/* Parsed Players Table Preview */}
                       {importAnalysis.validPlayers.length > 0 && (
                         <div>
-                          <span style={{ fontSize: '0.7rem', color: '#8d939e', display: 'block', marginBottom: '6px', fontWeight: '700', textTransform: 'uppercase' }}>
+                          <span style={{ fontSize: '0.7rem', color: '#a39a8c', display: 'block', marginBottom: '6px', fontWeight: '700', textTransform: 'uppercase' }}>
                             Valid Roster Preview ({importAnalysis.validPlayers.length}):
                           </span>
                           <div style={{ maxHeight: '150px', overflowY: 'auto', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)', padding: '6px' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', color: '#ffffff' }}>
                               <thead>
                                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>
-                                  <th style={{ padding: '4px', color: '#8d939e', fontWeight: '600' }}>Row</th>
-                                  <th style={{ padding: '4px', color: '#8d939e', fontWeight: '600' }}>Name</th>
-                                  <th style={{ padding: '4px', color: '#8d939e', fontWeight: '600', textAlign: 'right' }}>Number</th>
+                                  <th style={{ padding: '4px', color: '#a39a8c', fontWeight: '600' }}>Row</th>
+                                  <th style={{ padding: '4px', color: '#a39a8c', fontWeight: '600' }}>Name</th>
+                                  <th style={{ padding: '4px', color: '#a39a8c', fontWeight: '600', textAlign: 'right' }}>Number</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 {importAnalysis.validPlayers.map((p) => (
                                   <tr key={p.tempId} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                                    <td style={{ padding: '4px', color: '#8d939e', fontSize: '0.75rem' }}>#{p.rowNum}</td>
+                                    <td style={{ padding: '4px', color: '#a39a8c', fontSize: '0.75rem' }}>#{p.rowNum}</td>
                                     <td style={{ padding: '4px', fontWeight: '500' }}>
                                       {p.name}
                                       {p.isDuplicate && (
-                                        <span style={{ fontSize: '0.65rem', color: '#ffb703', marginLeft: '6px' }}>
+                                        <span style={{ fontSize: '0.65rem', color: '#d98a32', marginLeft: '6px' }}>
                                           ({duplicateStrategy})
                                         </span>
                                       )}
@@ -1645,7 +1645,7 @@ export default function SquadHub({
       {/* Add Player Modal overlay with Custom Inline Validation & Virtual Keyboard Handling */}
       {isAddOpen && (
         <div className="overlay-backdrop" style={{ zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div className="modal-content" style={{ maxWidth: '420px', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px', backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+          <div className="modal-content" style={{ maxWidth: '420px', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px', backgroundColor: '#1c1913', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
             <div className="modal-header" style={{ flexShrink: 0, padding: '16px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 className="scoreboard-font" style={{ color: 'var(--color-squad)', margin: 0, fontSize: '1.1rem' }}>Add Roster Member</h3>
               <button className="icon-btn" onClick={() => { setIsAddOpen(false); setNewNameError(''); setNewJerseyError(''); }}>
@@ -1657,7 +1657,7 @@ export default function SquadHub({
             <form noValidate onSubmit={handleAddSubmit} style={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', overflow: 'hidden' }}>
               <div className="modal-body" style={{ flex: '1 1 auto', overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px', WebkitOverflowScrolling: 'touch' }}>
                 <div className="form-group">
-                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Full Name</label>
+                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d9d2c4', display: 'block', marginBottom: '4px' }}>Full Name</label>
                   <input 
                     type="text" 
                     value={newName} 
@@ -1668,13 +1668,13 @@ export default function SquadHub({
                     placeholder="e.g., Dustin Martin" 
                   />
                   {newNameError && (
-                    <span style={{ fontSize: '0.7rem', color: '#e63946', marginTop: '4px', display: 'block', fontWeight: '600' }}>
+                    <span style={{ fontSize: '0.7rem', color: '#c1443b', marginTop: '4px', display: 'block', fontWeight: '600' }}>
                       {newNameError}
                     </span>
                   )}
                 </div>
                 <div className="form-group">
-                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Jersey Number</label>
+                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d9d2c4', display: 'block', marginBottom: '4px' }}>Jersey Number</label>
                   <input 
                     type="number" 
                     value={newJersey} 
@@ -1686,13 +1686,13 @@ export default function SquadHub({
                     placeholder="e.g., 4" 
                   />
                   {newJerseyError && (
-                    <span style={{ fontSize: '0.7rem', color: '#e63946', marginTop: '4px', display: 'block', fontWeight: '600' }}>
+                    <span style={{ fontSize: '0.7rem', color: '#c1443b', marginTop: '4px', display: 'block', fontWeight: '600' }}>
                       {newJerseyError}
                     </span>
                   )}
                 </div>
                 <div className="form-group">
-                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Position</label>
+                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d9d2c4', display: 'block', marginBottom: '4px' }}>Position</label>
                   <select value={newPosition} onChange={(e) => setNewPosition(e.target.value)}>
                     <option value="Forward">Forward</option>
                     <option value="Midfield">Midfield</option>
@@ -1701,7 +1701,7 @@ export default function SquadHub({
                   </select>
                 </div>
                 <div className="form-group">
-                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d1d5db', display: 'block', marginBottom: '4px' }}>Medical Profile / Notes</label>
+                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d9d2c4', display: 'block', marginBottom: '4px' }}>Medical Profile / Notes</label>
                   <input type="text" value={newMedical} onChange={(e) => setNewMedical(e.target.value)} placeholder="Asthma, shoulder tape, allergy..." />
                 </div>
               </div>
@@ -1749,13 +1749,13 @@ export default function SquadHub({
         .search-input-field:focus {
           border-color: var(--color-squad);
           background-color: rgba(255, 255, 255, 0.06);
-          box-shadow: 0 0 0 2px rgba(58, 134, 255, 0.15);
+          box-shadow: 0 0 0 2px rgba(201, 162, 75, 0.15);
         }
         .sort-btn {
           background-color: rgba(255, 255, 255, 0.02);
           border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 6px;
-          color: #8d939e;
+          color: #a39a8c;
           padding: 6px 12px;
           font-size: 0.75rem;
           font-weight: 600;
@@ -1771,7 +1771,7 @@ export default function SquadHub({
           border-color: rgba(255, 255, 255, 0.15);
         }
         .sort-btn.active {
-          background-color: rgba(58, 134, 255, 0.12);
+          background-color: rgba(201, 162, 75, 0.12);
           border-color: var(--color-squad);
           color: #ffffff;
         }

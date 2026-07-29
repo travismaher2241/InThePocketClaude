@@ -235,7 +235,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
         inset: 0,
         width: '100vw',
         height: '100vh',
-        backgroundColor: 'rgba(10, 12, 18, 0.96)',
+        backgroundColor: 'rgba(12, 11, 8, 0.96)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         zIndex: 99999,
@@ -249,7 +249,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
       <div 
         style={{
           padding: '12px 16px',
-          backgroundColor: '#161922',
+          backgroundColor: '#1c1913',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex',
           justifyContent: 'space-between',
@@ -280,9 +280,9 @@ export default function DrillDetailsModal({ drill, onClose }) {
                 style={{
                   fontSize: '0.75rem',
                   fontWeight: '700',
-                  color: '#ffb703',
-                  backgroundColor: 'rgba(255, 183, 3, 0.12)',
-                  border: '1px solid rgba(255, 183, 3, 0.3)',
+                  color: '#d98a32',
+                  backgroundColor: 'rgba(217, 138, 50, 0.12)',
+                  border: '1px solid rgba(217, 138, 50, 0.3)',
                   padding: '3px 8px',
                   borderRadius: '4px',
                   textTransform: 'uppercase'
@@ -296,9 +296,9 @@ export default function DrillDetailsModal({ drill, onClose }) {
                 style={{
                   fontSize: '0.75rem',
                   fontWeight: '700',
-                  color: '#38bdf8',
-                  backgroundColor: 'rgba(56, 189, 248, 0.12)',
-                  border: '1px solid rgba(56, 189, 248, 0.3)',
+                  color: '#c9a24b',
+                  backgroundColor: 'rgba(201, 162, 75, 0.12)',
+                  border: '1px solid rgba(201, 162, 75, 0.3)',
                   padding: '3px 8px',
                   borderRadius: '4px'
                 }}
@@ -356,7 +356,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
       <div 
         style={{
           display: 'flex',
-          backgroundColor: '#12141c',
+          backgroundColor: '#14120f',
           borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
           overflowX: 'auto',
           WebkitOverflowScrolling: 'touch',
@@ -377,7 +377,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
               fontWeight: '700',
               textTransform: 'uppercase',
               letterSpacing: '0.02em',
-              color: activeTab === tab.id ? 'var(--color-training)' : '#8d939e',
+              color: activeTab === tab.id ? 'var(--color-training)' : '#a39a8c',
               border: 'none',
               borderBottom: activeTab === tab.id ? '3px solid var(--color-training)' : '3px solid transparent',
               backgroundColor: 'transparent',
@@ -415,13 +415,13 @@ export default function DrillDetailsModal({ drill, onClose }) {
             {objective && (
               <div 
                 style={{
-                  backgroundColor: '#1c1f26',
+                  backgroundColor: '#211d16',
                   borderLeft: '4px solid var(--color-training)',
                   borderRadius: '8px',
                   padding: '14px 16px'
                 }}
               >
-                <span style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', display: 'block', marginBottom: '4px' }}>
+                <span style={{ fontSize: '0.7rem', color: '#a39a8c', textTransform: 'uppercase', fontWeight: '700', display: 'block', marginBottom: '4px' }}>
                   Learning Objective
                 </span>
                 <p style={{ fontSize: '0.925rem', color: '#ffffff', margin: 0, lineHeight: '1.5', fontWeight: '500' }}>
@@ -431,38 +431,38 @@ export default function DrillDetailsModal({ drill, onClose }) {
             )}
 
             {/* 2. At-a-Glance Summary */}
-            <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <span style={{ fontSize: '0.75rem', color: '#ffb703', textTransform: 'uppercase', fontWeight: '800', display: 'block', marginBottom: '10px', fontFamily: 'var(--font-family-locker)' }}>
+            <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <span style={{ fontSize: '0.75rem', color: '#d98a32', textTransform: 'uppercase', fontWeight: '800', display: 'block', marginBottom: '10px', fontFamily: 'var(--font-family-locker)' }}>
                 ⚡ At-a-Glance Summary
               </span>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
-                <div style={{ backgroundColor: '#1c1f26', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <span style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', display: 'block', fontWeight: '700' }}>Duration</span>
-                  <span style={{ fontSize: '0.95rem', color: '#ffb703', fontWeight: '800' }}>{durationText}</span>
+                <div style={{ backgroundColor: '#211d16', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#a39a8c', textTransform: 'uppercase', display: 'block', fontWeight: '700' }}>Duration</span>
+                  <span style={{ fontSize: '0.95rem', color: '#d98a32', fontWeight: '800' }}>{durationText}</span>
                 </div>
-                <div style={{ backgroundColor: '#1c1f26', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <span style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', display: 'block', fontWeight: '700' }}>Players</span>
+                <div style={{ backgroundColor: '#211d16', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#a39a8c', textTransform: 'uppercase', display: 'block', fontWeight: '700' }}>Players</span>
                   <span style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '600' }}>{playersText}</span>
                 </div>
-                <div style={{ backgroundColor: '#1c1f26', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <span style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', display: 'block', fontWeight: '700' }}>Group Size</span>
+                <div style={{ backgroundColor: '#211d16', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#a39a8c', textTransform: 'uppercase', display: 'block', fontWeight: '700' }}>Group Size</span>
                   <span style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '600' }}>{groupSizeText}</span>
                 </div>
-                <div style={{ backgroundColor: '#1c1f26', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <span style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', display: 'block', fontWeight: '700' }}>Ground Size</span>
+                <div style={{ backgroundColor: '#211d16', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#a39a8c', textTransform: 'uppercase', display: 'block', fontWeight: '700' }}>Ground Size</span>
                   <span style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '600' }}>{groundSizeText}</span>
                 </div>
               </div>
-              <div style={{ backgroundColor: '#1c1f26', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', marginTop: '10px' }}>
-                <span style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', display: 'block', fontWeight: '700' }}>Primary Skill</span>
-                <span style={{ fontSize: '0.875rem', color: '#38bdf8', fontWeight: '700' }}>{primarySkill}</span>
+              <div style={{ backgroundColor: '#211d16', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', marginTop: '10px' }}>
+                <span style={{ fontSize: '0.7rem', color: '#a39a8c', textTransform: 'uppercase', display: 'block', fontWeight: '700' }}>Primary Skill</span>
+                <span style={{ fontSize: '0.875rem', color: '#c9a24b', fontWeight: '700' }}>{primarySkill}</span>
               </div>
             </div>
 
             {/* 3. Setup Diagram Preview */}
-            <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <span style={{ fontSize: '0.75rem', color: '#38bdf8', textTransform: 'uppercase', fontWeight: '800', fontFamily: 'var(--font-family-locker)' }}>
+                <span style={{ fontSize: '0.75rem', color: '#c9a24b', textTransform: 'uppercase', fontWeight: '800', fontFamily: 'var(--font-family-locker)' }}>
                   📐 Setup Diagram Preview
                 </span>
                 <button 
@@ -477,13 +477,13 @@ export default function DrillDetailsModal({ drill, onClose }) {
 
             {/* 4. Primary and Secondary Skills */}
             {secondarySkills.length > 0 && (
-              <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', display: 'block', marginBottom: '8px' }}>
+              <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <span style={{ fontSize: '0.75rem', color: '#a39a8c', textTransform: 'uppercase', fontWeight: '700', display: 'block', marginBottom: '8px' }}>
                   Secondary Skills Developed
                 </span>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                   {secondarySkills.map((sk, idx) => (
-                    <span key={idx} style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.1)', color: '#d1d5db', fontSize: '0.75rem', padding: '5px 12px', borderRadius: '14px', fontWeight: '600' }}>
+                    <span key={idx} style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.1)', color: '#d9d2c4', fontSize: '0.75rem', padding: '5px 12px', borderRadius: '14px', fontWeight: '600' }}>
                       {sk}
                     </span>
                   ))}
@@ -492,25 +492,25 @@ export default function DrillDetailsModal({ drill, onClose }) {
             )}
 
             {/* 5. Load and Difficulty Ratings */}
-            <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
               <h4 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', color: '#ffffff', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                 Controlled Scale Ratings
               </h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', fontSize: '0.8rem' }}>
-                <div style={{ backgroundColor: '#1c1f26', padding: '8px 10px', borderRadius: '6px' }}>
-                  <span style={{ color: '#8d939e', display: 'block', fontSize: '0.7rem' }}>Physical Load</span>
-                  <strong style={{ color: '#e63946' }}>{physicalLoad}</strong>
+                <div style={{ backgroundColor: '#211d16', padding: '8px 10px', borderRadius: '6px' }}>
+                  <span style={{ color: '#a39a8c', display: 'block', fontSize: '0.7rem' }}>Physical Load</span>
+                  <strong style={{ color: '#c1443b' }}>{physicalLoad}</strong>
                 </div>
-                <div style={{ backgroundColor: '#1c1f26', padding: '8px 10px', borderRadius: '6px' }}>
-                  <span style={{ color: '#8d939e', display: 'block', fontSize: '0.7rem' }}>Mental Load</span>
-                  <strong style={{ color: '#ffb703' }}>{mentalLoad}</strong>
+                <div style={{ backgroundColor: '#211d16', padding: '8px 10px', borderRadius: '6px' }}>
+                  <span style={{ color: '#a39a8c', display: 'block', fontSize: '0.7rem' }}>Mental Load</span>
+                  <strong style={{ color: '#d98a32' }}>{mentalLoad}</strong>
                 </div>
-                <div style={{ backgroundColor: '#1c1f26', padding: '8px 10px', borderRadius: '6px' }}>
-                  <span style={{ color: '#8d939e', display: 'block', fontSize: '0.7rem' }}>Contact Rating</span>
-                  <strong style={{ color: '#38bdf8' }}>{contact}</strong>
+                <div style={{ backgroundColor: '#211d16', padding: '8px 10px', borderRadius: '6px' }}>
+                  <span style={{ color: '#a39a8c', display: 'block', fontSize: '0.7rem' }}>Contact Rating</span>
+                  <strong style={{ color: '#c9a24b' }}>{contact}</strong>
                 </div>
-                <div style={{ backgroundColor: '#1c1f26', padding: '8px 10px', borderRadius: '6px' }}>
-                  <span style={{ color: '#8d939e', display: 'block', fontSize: '0.7rem' }}>Coaching Difficulty</span>
+                <div style={{ backgroundColor: '#211d16', padding: '8px 10px', borderRadius: '6px' }}>
+                  <span style={{ color: '#a39a8c', display: 'block', fontSize: '0.7rem' }}>Coaching Difficulty</span>
                   <strong style={{ color: '#ffffff' }}>{coachingDifficulty}</strong>
                 </div>
               </div>
@@ -518,7 +518,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
               {/* Age Suitability Matrix */}
               {Object.keys(ageGroups).length > 0 && (
                 <div style={{ marginTop: '12px' }}>
-                  <span style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', display: 'block', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#a39a8c', textTransform: 'uppercase', fontWeight: '700', display: 'block', marginBottom: '6px' }}>
                     Age Group Suitability
                   </span>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
@@ -526,7 +526,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
                       <div 
                         key={group}
                         style={{
-                          backgroundColor: '#1c1f26',
+                          backgroundColor: '#211d16',
                           padding: '6px 8px',
                           borderRadius: '6px',
                           display: 'flex',
@@ -535,11 +535,11 @@ export default function DrillDetailsModal({ drill, onClose }) {
                           fontSize: '0.75rem'
                         }}
                       >
-                        <span style={{ color: '#d1d5db' }}>{group}</span>
+                        <span style={{ color: '#d9d2c4' }}>{group}</span>
                         <span 
                           style={{
                             fontWeight: '800',
-                            color: symbol === '✓' ? '#38b000' : symbol === '○' ? '#ffb703' : '#e63946'
+                            color: symbol === '✓' ? '#6b8e4e' : symbol === '○' ? '#d98a32' : '#c1443b'
                           }}
                         >
                           {symbol}
@@ -553,11 +553,11 @@ export default function DrillDetailsModal({ drill, onClose }) {
 
             {/* 6. Equipment Needed */}
             {equipment.length > 0 && (
-              <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', display: 'block', marginBottom: '6px' }}>
+              <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <span style={{ fontSize: '0.75rem', color: '#a39a8c', textTransform: 'uppercase', fontWeight: '700', display: 'block', marginBottom: '6px' }}>
                   Equipment Needed
                 </span>
-                <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.875rem', color: '#d1d5db', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.875rem', color: '#d9d2c4', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   {equipment.map((eq, idx) => (
                     <li key={idx}>{eq}</li>
                   ))}
@@ -571,7 +571,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
         {activeTab === 'setup' && (
           <>
             {/* 1. Setup Diagram */}
-            <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
               <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: 'var(--color-training)', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                 1. Setup Diagram
               </h4>
@@ -580,8 +580,8 @@ export default function DrillDetailsModal({ drill, onClose }) {
 
             {/* 2. Field Setup */}
             {setupText && (
-              <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: '#ffb703', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
+              <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: '#d98a32', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                   2. Field Setup & Grid Layout
                 </h4>
                 <p style={{ fontSize: '0.875rem', color: '#ffffff', lineHeight: '1.6', margin: 0, whiteSpace: 'pre-wrap' }}>
@@ -591,8 +591,8 @@ export default function DrillDetailsModal({ drill, onClose }) {
             )}
 
             {/* 3. Player Setup */}
-            <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: '#38bdf8', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
+            <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: '#c9a24b', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                 3. Player Setup & Lines
               </h4>
               <p style={{ fontSize: '0.875rem', color: '#ffffff', lineHeight: '1.6', margin: 0 }}>
@@ -602,7 +602,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
 
             {/* 4. How the Drill Works */}
             {howItWorksSteps.length > 0 && (
-              <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#ffffff', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                   4. How the Drill Works
                 </h4>
@@ -615,8 +615,8 @@ export default function DrillDetailsModal({ drill, onClose }) {
             )}
 
             {/* 5. Rotation Pattern */}
-            <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)', borderLeft: '4px solid #38bdf8' }}>
-              <h4 style={{ margin: '0 0 6px 0', fontSize: '0.9rem', color: '#38bdf8', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
+            <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)', borderLeft: '4px solid #c9a24b' }}>
+              <h4 style={{ margin: '0 0 6px 0', fontSize: '0.9rem', color: '#c9a24b', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                 5. Rotation Pattern
               </h4>
               <p style={{ fontSize: '0.875rem', color: '#ffffff', lineHeight: '1.5', margin: 0 }}>
@@ -625,8 +625,8 @@ export default function DrillDetailsModal({ drill, onClose }) {
             </div>
 
             {/* 6. Safety and Spacing */}
-            <div style={{ backgroundColor: 'rgba(255, 183, 3, 0.1)', border: '1px solid rgba(255, 183, 3, 0.3)', borderRadius: '10px', padding: '16px' }}>
-              <h4 style={{ margin: '0 0 6px 0', fontSize: '0.9rem', color: '#ffb703', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
+            <div style={{ backgroundColor: 'rgba(217, 138, 50, 0.1)', border: '1px solid rgba(217, 138, 50, 0.3)', borderRadius: '10px', padding: '16px' }}>
+              <h4 style={{ margin: '0 0 6px 0', fontSize: '0.9rem', color: '#d98a32', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                 6. Safety, Spacing & Timing
               </h4>
               <p style={{ fontSize: '0.875rem', color: '#ffffff', lineHeight: '1.5', margin: 0, fontWeight: '600' }}>
@@ -636,11 +636,11 @@ export default function DrillDetailsModal({ drill, onClose }) {
 
             {/* 7. Equipment */}
             {equipment.length > 0 && (
-              <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: '#8d939e', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
+              <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: '#a39a8c', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                   7. Equipment Checklist
                 </h4>
-                <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.875rem', color: '#d1d5db', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.875rem', color: '#d9d2c4', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   {equipment.map((eq, idx) => (
                     <li key={idx}>{eq}</li>
                   ))}
@@ -655,8 +655,8 @@ export default function DrillDetailsModal({ drill, onClose }) {
           <>
             {/* 1. Quick Coaching Cues */}
             {coachingCues.length > 0 && (
-              <div style={{ backgroundColor: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '10px', padding: '16px' }}>
-                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#38bdf8', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
+              <div style={{ backgroundColor: 'rgba(201, 162, 75, 0.1)', border: '1px solid rgba(201, 162, 75, 0.3)', borderRadius: '10px', padding: '16px' }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#c9a24b', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                   1. Quick Coaching Cues
                 </h4>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -667,7 +667,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
                       <span 
                         key={idx} 
                         style={{ 
-                          backgroundColor: '#38bdf8', 
+                          backgroundColor: '#c9a24b', 
                           color: '#000000', 
                           fontSize: '0.825rem', 
                           fontWeight: '800', 
@@ -685,7 +685,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
             )}
 
             {/* 2. Key Coaching Points */}
-            <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
               <h4 style={{ margin: '0 0 12px 0', fontSize: '0.9rem', color: '#ffffff', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                 2. Key Coaching Points
               </h4>
@@ -693,8 +693,8 @@ export default function DrillDetailsModal({ drill, onClose }) {
                 {Object.entries(groupedPoints).map(([catName, pts]) => {
                   if (pts.length === 0) return null;
                   return (
-                    <div key={catName} style={{ backgroundColor: '#1c1f26', padding: '12px', borderRadius: '8px' }}>
-                      <span style={{ fontSize: '0.75rem', color: '#ffb703', fontWeight: '800', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
+                    <div key={catName} style={{ backgroundColor: '#211d16', padding: '12px', borderRadius: '8px' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#d98a32', fontWeight: '800', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
                         {catName}
                       </span>
                       <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.875rem', color: '#ffffff', display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -710,14 +710,14 @@ export default function DrillDetailsModal({ drill, onClose }) {
 
             {/* 3. What to Observe */}
             {observations.length > 0 && (
-              <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#38b000', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
+              <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#6b8e4e', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                   3. What the Coach Should Observe
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {observations.map((obs, idx) => (
-                    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.875rem', color: '#d1d5db' }}>
-                      <span style={{ color: '#38b000', fontWeight: '800' }}>☑</span>
+                    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.875rem', color: '#d9d2c4' }}>
+                      <span style={{ color: '#6b8e4e', fontWeight: '800' }}>☑</span>
                       <span>{obs}</span>
                     </div>
                   ))}
@@ -727,17 +727,17 @@ export default function DrillDetailsModal({ drill, onClose }) {
 
             {/* 4. Common Errors and Corrections */}
             {commonErrors.length > 0 && (
-              <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#e63946', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
+              <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#c1443b', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                   4. Common Errors & Direct Corrections
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {commonErrors.map((errObj, idx) => (
-                    <div key={idx} style={{ backgroundColor: '#1c1f26', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #e63946' }}>
-                      <div style={{ color: '#e63946', fontSize: '0.85rem', fontWeight: '800', marginBottom: '4px' }}>
+                    <div key={idx} style={{ backgroundColor: '#211d16', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #c1443b' }}>
+                      <div style={{ color: '#c1443b', fontSize: '0.85rem', fontWeight: '800', marginBottom: '4px' }}>
                         ❌ ERROR: {errObj.error}
                       </div>
-                      <div style={{ color: '#38b000', fontSize: '0.85rem', fontWeight: '700' }}>
+                      <div style={{ color: '#6b8e4e', fontSize: '0.85rem', fontWeight: '700' }}>
                         ✓ CORRECTION: {errObj.correction}
                       </div>
                     </div>
@@ -748,11 +748,11 @@ export default function DrillDetailsModal({ drill, onClose }) {
 
             {/* 5. AFL Match Application */}
             {matchApplication && (
-              <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: '#ffffff', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                   5. AFL Match Application
                 </h4>
-                <p style={{ fontSize: '0.875rem', color: '#d1d5db', margin: 0, lineHeight: '1.5' }}>
+                <p style={{ fontSize: '0.875rem', color: '#d9d2c4', margin: 0, lineHeight: '1.5' }}>
                   {matchApplication}
                 </p>
               </div>
@@ -765,17 +765,17 @@ export default function DrillDetailsModal({ drill, onClose }) {
           <>
             {/* 1. Common Errors and Corrections */}
             {commonErrors.length > 0 && (
-              <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#e63946', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
+              <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#c1443b', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                   Common Errors & Direct Corrections
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {commonErrors.map((errObj, idx) => (
-                    <div key={idx} style={{ backgroundColor: '#1c1f26', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #e63946' }}>
-                      <div style={{ color: '#e63946', fontSize: '0.85rem', fontWeight: '800', marginBottom: '4px' }}>
+                    <div key={idx} style={{ backgroundColor: '#211d16', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #c1443b' }}>
+                      <div style={{ color: '#c1443b', fontSize: '0.85rem', fontWeight: '800', marginBottom: '4px' }}>
                         ❌ ERROR: {errObj.error}
                       </div>
-                      <div style={{ color: '#38b000', fontSize: '0.85rem', fontWeight: '700' }}>
+                      <div style={{ color: '#6b8e4e', fontSize: '0.85rem', fontWeight: '700' }}>
                         ✓ CORRECTION: {errObj.correction}
                       </div>
                     </div>
@@ -786,8 +786,8 @@ export default function DrillDetailsModal({ drill, onClose }) {
 
             {/* 2. Progressions (Make It Harder) */}
             {progressions.length > 0 && (
-              <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#38b000', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
+              <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#6b8e4e', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                   Progressions (Make It Harder)
                 </h4>
                 <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.875rem', color: '#ffffff', display: 'flex', flexDirection: 'column', gap: '6px', lineHeight: '1.5' }}>
@@ -800,8 +800,8 @@ export default function DrillDetailsModal({ drill, onClose }) {
 
             {/* 3. Regressions (Make It Easier) */}
             {regressions.length > 0 && (
-              <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#ffb703', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
+              <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#d98a32', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                   Regressions (Make It Easier)
                 </h4>
                 <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.875rem', color: '#ffffff', display: 'flex', flexDirection: 'column', gap: '6px', lineHeight: '1.5' }}>
@@ -814,11 +814,11 @@ export default function DrillDetailsModal({ drill, onClose }) {
 
             {/* 4. AFL Match Application */}
             {matchApplication && (
-              <div style={{ backgroundColor: '#161922', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: '#ffffff', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                   AFL Match Application
                 </h4>
-                <p style={{ fontSize: '0.875rem', color: '#d1d5db', margin: 0, lineHeight: '1.5' }}>
+                <p style={{ fontSize: '0.875rem', color: '#d9d2c4', margin: 0, lineHeight: '1.5' }}>
                   {matchApplication}
                 </p>
               </div>
@@ -834,7 +834,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
           bottom: 0,
           left: 0,
           right: 0,
-          backgroundColor: '#161922',
+          backgroundColor: '#1c1913',
           borderTop: '1px solid rgba(255, 255, 255, 0.08)',
           padding: '10px 16px max(10px, env(safe-area-inset-bottom, 10px)) 16px',
           display: 'flex',
@@ -849,7 +849,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
           disabled={currentTabIdx === 0}
           style={{
             backgroundColor: currentTabIdx === 0 ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.08)',
-            color: currentTabIdx === 0 ? '#4b5563' : '#ffffff',
+            color: currentTabIdx === 0 ? '#6b6255' : '#ffffff',
             border: 'none',
             borderRadius: '6px',
             padding: '10px 14px',
@@ -869,9 +869,9 @@ export default function DrillDetailsModal({ drill, onClose }) {
         <button
           onClick={handleShare}
           style={{
-            backgroundColor: 'rgba(56, 189, 248, 0.15)',
-            color: '#38bdf8',
-            border: '1px solid rgba(56, 189, 248, 0.3)',
+            backgroundColor: 'rgba(201, 162, 75, 0.15)',
+            color: '#c9a24b',
+            border: '1px solid rgba(201, 162, 75, 0.3)',
             borderRadius: '6px',
             padding: '10px 14px',
             fontSize: '0.8rem',
@@ -892,7 +892,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
           disabled={currentTabIdx === tabs.length - 1}
           style={{
             backgroundColor: currentTabIdx === tabs.length - 1 ? 'rgba(255,255,255,0.04)' : 'var(--color-training)',
-            color: currentTabIdx === tabs.length - 1 ? '#4b5563' : '#ffffff',
+            color: currentTabIdx === tabs.length - 1 ? '#6b6255' : '#ffffff',
             border: 'none',
             borderRadius: '6px',
             padding: '10px 14px',

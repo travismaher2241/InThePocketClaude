@@ -83,14 +83,14 @@ export default function SetupWizard({
         width: '100vw',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#050507',
+        backgroundColor: '#100e0b',
         padding: '24px 16px',
         boxSizing: 'border-box'
       }}
     >
       <div 
         style={{
-          backgroundColor: '#12141c',
+          backgroundColor: '#14120f',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: '16px',
           width: '100%',
@@ -142,7 +142,7 @@ export default function SetupWizard({
           >
             Welcome to CoachCore
           </h1>
-          <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '6px', marginBotton: 0 }}>
+          <p style={{ fontSize: '0.875rem', color: '#a69c8c', marginTop: '6px', marginBotton: 0 }}>
             Calibrate your coaching profile and squad settings to unlock your personalized AFL training lab.
           </p>
         </div>
@@ -150,9 +150,9 @@ export default function SetupWizard({
         {error && (
           <div 
             style={{
-              backgroundColor: 'rgba(230, 57, 70, 0.15)',
-              border: '1px solid rgba(230, 57, 70, 0.4)',
-              color: '#ff6b6b',
+              backgroundColor: 'rgba(193, 68, 59, 0.15)',
+              border: '1px solid rgba(193, 68, 59, 0.4)',
+              color: '#c1443b',
               padding: '12px 14px',
               borderRadius: '8px',
               fontSize: '0.85rem',
@@ -178,7 +178,7 @@ export default function SetupWizard({
               onChange={(e) => setName(e.target.value)}
               required
               style={{
-                backgroundColor: '#1a1d26',
+                backgroundColor: '#1f1b15',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
                 borderRadius: '8px',
                 padding: '12px 14px',
@@ -203,7 +203,7 @@ export default function SetupWizard({
               onChange={(e) => setTeamName(e.target.value)}
               required
               style={{
-                backgroundColor: '#1a1d26',
+                backgroundColor: '#1f1b15',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
                 borderRadius: '8px',
                 padding: '12px 14px',
@@ -223,7 +223,7 @@ export default function SetupWizard({
                 {isB2B ? 'Managed Squad Age Groups (B2B Multi-Select)' : 'Primary Team Age Group'}
               </label>
               {isB2B && (
-                <span style={{ fontSize: '0.7rem', fontWeight: '800', backgroundColor: '#38bdf8', color: '#000000', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>
+                <span style={{ fontSize: '0.7rem', fontWeight: '800', backgroundColor: '#c9a24b', color: '#000000', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>
                   B2B LICENSE
                 </span>
               )}
@@ -241,9 +241,9 @@ export default function SetupWizard({
                       style={{
                         padding: '8px 14px',
                         borderRadius: '20px',
-                        border: isSelected ? '2px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.12)',
-                        backgroundColor: isSelected ? 'rgba(56, 189, 248, 0.2)' : '#1a1d26',
-                        color: isSelected ? '#ffffff' : '#9ca3af',
+                        border: isSelected ? '2px solid #c9a24b' : '1px solid rgba(255, 255, 255, 0.12)',
+                        backgroundColor: isSelected ? 'rgba(201, 162, 75, 0.2)' : '#1f1b15',
+                        color: isSelected ? '#ffffff' : '#a69c8c',
                         fontSize: '0.85rem',
                         fontWeight: isSelected ? '700' : '500',
                         cursor: 'pointer',
@@ -268,8 +268,8 @@ export default function SetupWizard({
                         padding: '8px 14px',
                         borderRadius: '20px',
                         border: isSelected ? '2px solid var(--color-training)' : '1px solid rgba(255, 255, 255, 0.12)',
-                        backgroundColor: isSelected ? 'var(--color-training)' : '#1a1d26',
-                        color: isSelected ? '#ffffff' : '#9ca3af',
+                        backgroundColor: isSelected ? 'var(--color-training)' : '#1f1b15',
+                        color: isSelected ? '#ffffff' : '#a69c8c',
                         fontSize: '0.85rem',
                         fontWeight: isSelected ? '700' : '500',
                         cursor: 'pointer',
@@ -289,7 +289,7 @@ export default function SetupWizard({
             <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600', color: '#ffffff', fontSize: '0.9rem' }}>
               Coach Knowledge & Experience Level
             </label>
-            <p style={{ fontSize: '0.75rem', color: '#9ca3af', margin: '0 0 4px 0' }}>
+            <p style={{ fontSize: '0.75rem', color: '#a69c8c', margin: '0 0 4px 0' }}>
               Calibrates drill complexity across all training plan generators based on the official AFCRL 5-tier Coaching Difficulty scale.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -306,7 +306,7 @@ export default function SetupWizard({
                       padding: '10px 14px',
                       borderRadius: '8px',
                       border: isSelected ? '2px solid var(--color-training)' : '1px solid rgba(255, 255, 255, 0.08)',
-                      backgroundColor: isSelected ? 'rgba(230, 57, 70, 0.15)' : '#1a1d26',
+                      backgroundColor: isSelected ? 'rgba(193, 68, 59, 0.15)' : '#1f1b15',
                       cursor: 'pointer',
                       transition: 'all 0.15s ease'
                     }}
@@ -321,7 +321,7 @@ export default function SetupWizard({
                         </span>
                       )}
                     </div>
-                    <span style={{ fontSize: '0.75rem', color: '#9ca3af', lineHeight: '1.3' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#a69c8c', lineHeight: '1.3' }}>
                       {item.desc}
                     </span>
                   </div>
@@ -349,7 +349,7 @@ export default function SetupWizard({
               textTransform: 'uppercase',
               cursor: isSubmitting ? 'not-allowed' : 'pointer',
               opacity: isSubmitting ? 0.7 : 1,
-              boxShadow: '0 4px 16px rgba(230, 57, 70, 0.4)',
+              boxShadow: '0 4px 16px rgba(193, 68, 59, 0.4)',
               transition: 'all 0.2s ease'
             }}
           >

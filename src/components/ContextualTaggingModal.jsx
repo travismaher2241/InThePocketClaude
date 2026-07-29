@@ -97,7 +97,7 @@ export default function ContextualTaggingModal({
     >
       <div 
         className="modal-content" 
-        style={{ maxWidth: '420px', width: '100%', maxHeight: 'calc(100vh - 32px)', backgroundColor: '#1c1f26', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', overflow: 'hidden' }} 
+        style={{ maxWidth: '420px', width: '100%', maxHeight: 'calc(100vh - 32px)', backgroundColor: '#211d16', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', overflow: 'hidden' }} 
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
@@ -116,14 +116,14 @@ export default function ContextualTaggingModal({
             
             {/* Session Date */}
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#8d939e' }}>Session Date</label>
+              <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#a39a8c' }}>Session Date</label>
               <input 
                 type="date" 
                 value={date} 
                 onChange={(e) => setDate(e.target.value)} 
                 required 
                 style={{ 
-                  backgroundColor: '#12141c', 
+                  backgroundColor: '#14120f', 
                   border: '1px solid rgba(255, 255, 255, 0.08)',
                   borderRadius: '6px',
                   color: '#ffffff',
@@ -135,7 +135,7 @@ export default function ContextualTaggingModal({
 
             {/* Drill / Event name */}
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#8d939e' }}>Drill / Segment Category</label>
+              <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#a39a8c' }}>Drill / Segment Category</label>
               <input 
                 type="text" 
                 value={customDrillName} 
@@ -143,7 +143,7 @@ export default function ContextualTaggingModal({
                 placeholder="e.g. Center Clearance Kickin" 
                 required
                 style={{ 
-                  backgroundColor: '#12141c', 
+                  backgroundColor: '#14120f', 
                   border: '1px solid rgba(255, 255, 255, 0.08)',
                   borderRadius: '6px',
                   color: '#ffffff',
@@ -156,7 +156,7 @@ export default function ContextualTaggingModal({
             {/* Players Tagging Checklist */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#8d939e', margin: 0 }}>
+                <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#a39a8c', margin: 0 }}>
                   Involved Players ({selectedPlayerIds.length})
                 </label>
                 <button 
@@ -177,7 +177,7 @@ export default function ContextualTaggingModal({
               </div>
 
               <div style={{ 
-                backgroundColor: '#12141c', 
+                backgroundColor: '#14120f', 
                 border: '1px solid rgba(255, 255, 255, 0.08)', 
                 borderRadius: '6px', 
                 maxHeight: '180px', 
@@ -202,7 +202,7 @@ export default function ContextualTaggingModal({
                           padding: '6px 8px',
                           borderRadius: '4px',
                           cursor: 'pointer',
-                          backgroundColor: isChecked ? 'rgba(255, 122, 0, 0.05)' : 'transparent',
+                          backgroundColor: isChecked ? 'rgba(181, 96, 46, 0.05)' : 'transparent',
                           transition: 'background-color 0.15s'
                         }}
                       >
@@ -215,7 +215,7 @@ export default function ContextualTaggingModal({
                         <span className="scoreboard-font" style={{ fontSize: '0.75rem', color: isChecked ? 'var(--color-video)' : 'var(--text-secondary)', minWidth: '24px' }}>
                           #{player.jersey}
                         </span>
-                        <span style={{ fontSize: '0.8rem', fontWeight: isChecked ? '600' : '500', color: isChecked ? '#ffffff' : '#8d939e' }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: isChecked ? '600' : '500', color: isChecked ? '#ffffff' : '#a39a8c' }}>
                           {player.name}
                         </span>
                       </div>

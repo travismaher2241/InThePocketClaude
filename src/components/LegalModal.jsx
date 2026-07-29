@@ -18,7 +18,7 @@ export default function LegalModal({ title, lastUpdated, onClose, children }) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          backgroundColor: '#12141c',
+          backgroundColor: '#14120f',
           border: '1px solid rgba(255,255,255,0.08)',
           borderRadius: '12px',
           width: '100%',
@@ -41,20 +41,20 @@ export default function LegalModal({ title, lastUpdated, onClose, children }) {
           <div>
             <h2 className="scoreboard-font" style={{ margin: 0, fontSize: '1.2rem', color: '#ffffff' }}>{title}</h2>
             {lastUpdated && (
-              <span style={{ fontSize: '0.72rem', color: '#8d939e' }}>Last updated {lastUpdated}</span>
+              <span style={{ fontSize: '0.72rem', color: '#a39a8c' }}>Last updated {lastUpdated}</span>
             )}
           </div>
           <button
             type="button"
             onClick={onClose}
-            style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '1.4rem', cursor: 'pointer', lineHeight: 1, padding: '4px' }}
+            style={{ background: 'none', border: 'none', color: '#a39a8c', fontSize: '1.4rem', cursor: 'pointer', lineHeight: 1, padding: '4px' }}
             aria-label="Close"
           >
             ✕
           </button>
         </div>
 
-        <div style={{ padding: '20px', overflowY: 'auto', color: '#d1d5db', fontSize: '0.88rem', lineHeight: 1.6 }}>
+        <div style={{ padding: '20px', overflowY: 'auto', color: '#d9d2c4', fontSize: '0.88rem', lineHeight: 1.6 }}>
           {children}
         </div>
       </div>
@@ -74,11 +74,11 @@ export function LegalSection({ title, children }) {
 export function DraftNotice() {
   return (
     <div style={{
-      backgroundColor: 'rgba(255, 183, 3, 0.1)',
-      border: '1px solid rgba(255, 183, 3, 0.3)',
+      backgroundColor: 'rgba(217, 138, 50, 0.1)',
+      border: '1px solid rgba(217, 138, 50, 0.3)',
       borderRadius: '8px',
       padding: '10px 12px',
-      color: '#ffb703',
+      color: '#d98a32',
       fontSize: '0.78rem',
       marginBottom: '18px',
       lineHeight: 1.5

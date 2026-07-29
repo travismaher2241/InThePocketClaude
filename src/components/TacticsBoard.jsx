@@ -303,7 +303,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
         ctx.moveTo(p1.x, p1.y);
         ctx.lineTo(p2.x, p2.y);
         ctx.lineWidth = 5;
-        ctx.strokeStyle = `rgba(230, 57, 70, ${alpha * 0.9})`;
+        ctx.strokeStyle = `rgba(193, 68, 59, ${alpha * 0.9})`;
         ctx.lineCap = 'round';
         ctx.stroke();
       }
@@ -317,7 +317,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
     ctx.moveTo(fromX, fromY);
     ctx.lineTo(toX, toY);
     ctx.lineWidth = 3;
-    ctx.strokeStyle = color || 'rgba(255, 183, 3, 0.85)';
+    ctx.strokeStyle = color || 'rgba(217, 138, 50, 0.85)';
     ctx.stroke();
 
     const angle = Math.atan2(toY - fromY, toX - fromX);
@@ -391,7 +391,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
       const ctx = canvas.getContext('2d');
       ctx.save();
       ctx.scale(canvas.width / 1000, canvas.height / 600);
-      drawArrow(ctx, startPos.current.x, startPos.current.y, x, y, 'rgba(255, 183, 3, 0.85)');
+      drawArrow(ctx, startPos.current.x, startPos.current.y, x, y, 'rgba(217, 138, 50, 0.85)');
       ctx.restore();
     }
 
@@ -413,7 +413,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
       drawings.current.push({
         type: 'arrow',
         points: [startPos.current, { x, y }],
-        color: 'rgba(255, 183, 3, 0.85)',
+        color: 'rgba(217, 138, 50, 0.85)',
         width: 3
       });
       drawCanvas();
@@ -800,11 +800,11 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
         <h2 className="scoreboard-font" style={{ color: 'var(--color-tactics)', margin: 0, fontSize: '1.4rem' }}>
           Unlock the Tactics Board
         </h2>
-        <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '16px', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
-          <span style={{ backgroundColor: 'rgba(58, 134, 255, 0.15)', color: '#3a84ff', border: '1px solid rgba(58, 134, 255, 0.3)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700', letterSpacing: '0.05em' }}>
+        <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '16px', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+          <span style={{ backgroundColor: 'rgba(201, 162, 75, 0.15)', color: '#c9a24b', border: '1px solid rgba(201, 162, 75, 0.3)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700', letterSpacing: '0.05em' }}>
             ULTRA TIER REQUIRED
           </span>
-          <p style={{ color: '#d1d5db', fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>
+          <p style={{ color: '#d9d2c4', fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>
             Build and save interactive AFL tactics using player magnets, drawing tools, arrows and laser guides.
           </p>
           
@@ -819,14 +819,14 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
               <button
                 onClick={() => triggerPaywall && triggerPaywall('Restore')}
-                style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
+                style={{ background: 'none', border: 'none', color: '#a39a8c', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
               >
                 Restore Purchases
               </button>
-              <span style={{ color: '#4b5563' }}>•</span>
+              <span style={{ color: '#6b6255' }}>•</span>
               <button
                 onClick={() => triggerPaywall && triggerPaywall('Details')}
-                style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
+                style={{ background: 'none', border: 'none', color: '#a39a8c', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
               >
                 View Plan Details
               </button>
@@ -847,7 +847,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
             {currentBoardName}
           </h2>
           {hasUnsavedChanges && (
-            <span style={{ fontSize: '0.7rem', color: '#ffb703', backgroundColor: 'rgba(255,183,3,0.15)', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>
+            <span style={{ fontSize: '0.7rem', color: '#d98a32', backgroundColor: 'rgba(217,138,50,0.15)', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>
               UNSAVED
             </span>
           )}
@@ -856,7 +856,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
         <div style={{ display: 'flex', gap: '6px' }}>
           <button
             onClick={handleOpenSaveBoardModal}
-            style={{ padding: '5px 10px', fontSize: '0.75rem', fontWeight: '700', backgroundColor: 'rgba(58, 134, 255, 0.15)', color: '#3a84ff', border: '1px solid rgba(58, 134, 255, 0.3)', borderRadius: '8px', cursor: 'pointer' }}
+            style={{ padding: '5px 10px', fontSize: '0.75rem', fontWeight: '700', backgroundColor: 'rgba(201, 162, 75, 0.15)', color: '#c9a24b', border: '1px solid rgba(201, 162, 75, 0.3)', borderRadius: '8px', cursor: 'pointer' }}
           >
             Save Board
           </button>
@@ -875,7 +875,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
           display: 'flex',
           alignItems: 'center',
           gap: '4px',
-          backgroundColor: '#1c1f26',
+          backgroundColor: '#211d16',
           padding: '6px 8px',
           borderRadius: '12px',
           border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -894,7 +894,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
             fontSize: '0.75rem',
             fontWeight: '700',
             backgroundColor: tool === 'select' ? 'var(--color-tactics)' : 'transparent',
-            color: tool === 'select' ? '#ffffff' : '#8d939e',
+            color: tool === 'select' ? '#ffffff' : '#a39a8c',
             border: 'none',
             borderRadius: '8px',
             cursor: 'pointer',
@@ -920,7 +920,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
             fontSize: '0.75rem',
             fontWeight: '700',
             backgroundColor: tool === 'brush' ? 'var(--color-tactics)' : 'transparent',
-            color: tool === 'brush' ? '#ffffff' : '#8d939e',
+            color: tool === 'brush' ? '#ffffff' : '#a39a8c',
             border: 'none',
             borderRadius: '8px',
             cursor: 'pointer',
@@ -946,7 +946,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
             fontSize: '0.75rem',
             fontWeight: '700',
             backgroundColor: tool === 'arrow' ? 'var(--color-tactics)' : 'transparent',
-            color: tool === 'arrow' ? '#ffffff' : '#8d939e',
+            color: tool === 'arrow' ? '#ffffff' : '#a39a8c',
             border: 'none',
             borderRadius: '8px',
             cursor: 'pointer',
@@ -972,7 +972,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
             fontSize: '0.75rem',
             fontWeight: '700',
             backgroundColor: tool === 'laser' ? 'var(--color-tactics)' : 'transparent',
-            color: tool === 'laser' ? '#ffffff' : '#8d939e',
+            color: tool === 'laser' ? '#ffffff' : '#a39a8c',
             border: 'none',
             borderRadius: '8px',
             cursor: 'pointer',
@@ -997,8 +997,8 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
             padding: '6px 10px',
             fontSize: '0.75rem',
             fontWeight: '700',
-            backgroundColor: tokens.some(t => t.id === 'ball') ? 'rgba(230, 92, 0, 0.25)' : 'transparent',
-            color: tokens.some(t => t.id === 'ball') ? '#ff7a00' : '#8d939e',
+            backgroundColor: tokens.some(t => t.id === 'ball') ? 'rgba(181, 96, 46, 0.25)' : 'transparent',
+            color: tokens.some(t => t.id === 'ball') ? '#b5602e' : '#a39a8c',
             border: 'none',
             borderRadius: '8px',
             cursor: 'pointer',
@@ -1021,7 +1021,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
             fontSize: '0.75rem',
             fontWeight: '700',
             backgroundColor: tool === 'eraser' ? 'var(--color-tactics)' : 'transparent',
-            color: tool === 'eraser' ? '#ffffff' : '#8d939e',
+            color: tool === 'eraser' ? '#ffffff' : '#a39a8c',
             border: 'none',
             borderRadius: '8px',
             cursor: 'pointer',
@@ -1048,7 +1048,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
             fontSize: '0.75rem',
             fontWeight: '700',
             backgroundColor: 'transparent',
-            color: historyStack.length > 0 ? '#ffffff' : '#4b5563',
+            color: historyStack.length > 0 ? '#ffffff' : '#6b6255',
             border: 'none',
             borderRadius: '8px',
             cursor: historyStack.length > 0 ? 'pointer' : 'not-allowed',
@@ -1072,7 +1072,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
             fontSize: '0.75rem',
             fontWeight: '700',
             backgroundColor: 'transparent',
-            color: redoStack.length > 0 ? '#ffffff' : '#4b5563',
+            color: redoStack.length > 0 ? '#ffffff' : '#6b6255',
             border: 'none',
             borderRadius: '8px',
             cursor: redoStack.length > 0 ? 'pointer' : 'not-allowed',
@@ -1108,14 +1108,14 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
 
       {/* More Options Dropdown */}
       {isMoreMenuOpen && (
-        <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '8px', display: 'flex', flexWrap: 'wrap', gap: '8px', zIndex: 80 }}>
+        <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '8px', display: 'flex', flexWrap: 'wrap', gap: '8px', zIndex: 80 }}>
           <button onClick={() => { setIsMoreMenuOpen(false); handleResetLayout(); }} style={{ flex: 1, minHeight: '44px', padding: '8px', fontSize: '0.8rem', fontWeight: '700', backgroundColor: 'rgba(255,255,255,0.06)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', cursor: 'pointer' }}>
             Reset Layout
           </button>
-          <button onClick={() => { setIsMoreMenuOpen(false); handleClearDrawings(); }} style={{ flex: 1, minHeight: '44px', padding: '8px', fontSize: '0.8rem', fontWeight: '700', backgroundColor: 'rgba(230,57,70,0.15)', color: '#e63946', border: '1px solid rgba(230,57,70,0.3)', borderRadius: '8px', cursor: 'pointer' }}>
+          <button onClick={() => { setIsMoreMenuOpen(false); handleClearDrawings(); }} style={{ flex: 1, minHeight: '44px', padding: '8px', fontSize: '0.8rem', fontWeight: '700', backgroundColor: 'rgba(193,68,59,0.15)', color: '#c1443b', border: '1px solid rgba(193,68,59,0.3)', borderRadius: '8px', cursor: 'pointer' }}>
             Clear Drawings
           </button>
-          <button onClick={() => { setIsMoreMenuOpen(false); handleClearEntireBoard(); }} style={{ flex: 1, minHeight: '44px', padding: '8px', fontSize: '0.8rem', fontWeight: '700', backgroundColor: 'rgba(230,57,70,0.25)', color: '#ffffff', border: '1px solid #e63946', borderRadius: '8px', cursor: 'pointer' }}>
+          <button onClick={() => { setIsMoreMenuOpen(false); handleClearEntireBoard(); }} style={{ flex: 1, minHeight: '44px', padding: '8px', fontSize: '0.8rem', fontWeight: '700', backgroundColor: 'rgba(193,68,59,0.25)', color: '#ffffff', border: '1px solid #c1443b', borderRadius: '8px', cursor: 'pointer' }}>
             Clear Entire Board
           </button>
         </div>
@@ -1258,7 +1258,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
               left: 0,
               right: 0,
               height: '46px',
-              backgroundColor: isOverRemoveZone ? 'rgba(230, 57, 70, 0.9)' : 'rgba(230, 57, 70, 0.4)',
+              backgroundColor: isOverRemoveZone ? 'rgba(193, 68, 59, 0.9)' : 'rgba(193, 68, 59, 0.4)',
               borderTop: '2px dashed #ffffff',
               display: 'flex',
               alignItems: 'center',
@@ -1326,26 +1326,26 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
       </div>
 
       {/* Instruction footer (Items 81-82) */}
-      <p style={{ fontSize: '0.75rem', color: '#8d939e', textAlign: 'center', margin: '4px 0 0', lineHeight: 1.4 }}>
+      <p style={{ fontSize: '0.75rem', color: '#a39a8c', textAlign: 'center', margin: '4px 0 0', lineHeight: 1.4 }}>
         💡 Drag players to move them. Long-press to edit. Drag to Remove Player to delete.
       </p>
 
       {/* POSITION SELECTOR MOBILE BOTTOM SHEET (Items 2-9) */}
       {positionSheetTeam && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-          <div style={{ backgroundColor: '#161922', borderTopLeftRadius: '20px', borderTopRightRadius: '20px', borderTop: '1px solid rgba(255,255,255,0.12)', padding: '20px 16px 30px', maxHeight: '80vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ backgroundColor: '#1c1913', borderTopLeftRadius: '20px', borderTopRightRadius: '20px', borderTop: '1px solid rgba(255,255,255,0.12)', padding: '20px 16px 30px', maxHeight: '80vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '12px' }}>
               <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.1rem', fontWeight: '800' }}>
                 Add {positionSheetTeam === 'white' ? 'White' : 'Black'} Player
               </h3>
-              <button onClick={() => setPositionSheetTeam(null)} style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '1.2rem', cursor: 'pointer', padding: '4px 8px' }}>
+              <button onClick={() => setPositionSheetTeam(null)} style={{ background: 'none', border: 'none', color: '#a39a8c', fontSize: '1.2rem', cursor: 'pointer', padding: '4px 8px' }}>
                 ✕
               </button>
             </div>
 
             {Object.entries(POSITIONS_BY_GROUP).map(([grpKey, grp]) => (
               <div key={grpKey} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '800', letterSpacing: '0.05em' }}>
+                <div style={{ fontSize: '0.75rem', color: '#a39a8c', fontWeight: '800', letterSpacing: '0.05em' }}>
                   {grp.title}
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
@@ -1383,19 +1383,19 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
       {/* EDIT PLAYER MOBILE BOTTOM SHEET (Items 37-45) */}
       {editingToken && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-          <div style={{ backgroundColor: '#161922', borderTopLeftRadius: '20px', borderTopRightRadius: '20px', borderTop: '1px solid rgba(255,255,255,0.12)', padding: '20px 16px 30px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ backgroundColor: '#1c1913', borderTopLeftRadius: '20px', borderTopRightRadius: '20px', borderTop: '1px solid rgba(255,255,255,0.12)', padding: '20px 16px 30px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '12px' }}>
               <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.1rem', fontWeight: '800' }}>
                 Edit Player Magnet
               </h3>
-              <button onClick={() => setEditingToken(null)} style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '1.2rem', cursor: 'pointer' }}>
+              <button onClick={() => setEditingToken(null)} style={{ background: 'none', border: 'none', color: '#a39a8c', fontSize: '1.2rem', cursor: 'pointer' }}>
                 ✕
               </button>
             </div>
 
             {squad.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '700' }}>Fill From Roster (Optional)</label>
+                <label style={{ fontSize: '0.75rem', color: '#a39a8c', fontWeight: '700' }}>Fill From Roster (Optional)</label>
                 <select
                   value=""
                   onChange={(e) => {
@@ -1416,7 +1416,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
 
             <div style={{ display: 'flex', gap: '10px' }}>
               <div style={{ flex: 2, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '700' }}>Player Name (Optional)</label>
+                <label style={{ fontSize: '0.75rem', color: '#a39a8c', fontWeight: '700' }}>Player Name (Optional)</label>
                 <input
                   type="text"
                   placeholder="e.g. Dustin Martin"
@@ -1426,7 +1426,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
                 />
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '700' }}>Jersey #</label>
+                <label style={{ fontSize: '0.75rem', color: '#a39a8c', fontWeight: '700' }}>Jersey #</label>
                 <input
                   type="text"
                   placeholder="e.g. 4"
@@ -1440,7 +1440,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
 
             <div style={{ display: 'flex', gap: '10px' }}>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '700' }}>Position Code</label>
+                <label style={{ fontSize: '0.75rem', color: '#a39a8c', fontWeight: '700' }}>Position Code</label>
                 <input
                   type="text"
                   maxLength={4}
@@ -1451,7 +1451,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
                 />
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '700' }}>Team Colour</label>
+                <label style={{ fontSize: '0.75rem', color: '#a39a8c', fontWeight: '700' }}>Team Colour</label>
                 <div style={{ display: 'flex', gap: '6px', height: '40px' }}>
                   <button
                     type="button"
@@ -1474,7 +1474,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
             <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
               <button
                 onClick={handleRemovePlayerFromSheet}
-                style={{ minHeight: '44px', padding: '12px', backgroundColor: 'rgba(230, 57, 70, 0.15)', color: '#e63946', border: '1px solid rgba(230, 57, 70, 0.3)', borderRadius: '10px', fontWeight: '700', flex: 1, cursor: 'pointer' }}
+                style={{ minHeight: '44px', padding: '12px', backgroundColor: 'rgba(193, 68, 59, 0.15)', color: '#c1443b', border: '1px solid rgba(193, 68, 59, 0.3)', borderRadius: '10px', fontWeight: '700', flex: 1, cursor: 'pointer' }}
               >
                 Remove Player
               </button>
@@ -1492,11 +1492,11 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
       {/* CONFIRMATION DIALOG MODAL (Items 22, 23, 42, 55) */}
       {confirmModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '20px', maxWidth: '380px', width: '100%', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '20px', maxWidth: '380px', width: '100%', display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.15rem', fontWeight: '800' }}>
               {confirmModal.title}
             </h3>
-            <p style={{ margin: 0, color: '#d1d5db', fontSize: '0.9rem', lineHeight: 1.4 }}>
+            <p style={{ margin: 0, color: '#d9d2c4', fontSize: '0.9rem', lineHeight: 1.4 }}>
               {confirmModal.message}
             </p>
             <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
@@ -1508,7 +1508,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
               </button>
               <button
                 onClick={confirmModal.onConfirm}
-                style={{ flex: 1, minHeight: '44px', padding: '10px', backgroundColor: '#e63946', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
+                style={{ flex: 1, minHeight: '44px', padding: '10px', backgroundColor: '#c1443b', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
               >
                 {confirmModal.primaryText || 'Confirm'}
               </button>
@@ -1520,12 +1520,12 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
       {/* SAVE BOARD MODAL (Items 50-53) */}
       {saveBoardModalOpen && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '20px', maxWidth: '400px', width: '100%', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '20px', maxWidth: '400px', width: '100%', display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.15rem', fontWeight: '800' }}>
               Save Tactics Board
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <label style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '700' }}>Board Name</label>
+              <label style={{ fontSize: '0.75rem', color: '#a39a8c', fontWeight: '700' }}>Board Name</label>
               <input
                 type="text"
                 placeholder="e.g. Stoppage Setup Q3"
@@ -1551,7 +1551,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
               )}
               <button
                 onClick={() => setSaveBoardModalOpen(false)}
-                style={{ minHeight: '44px', padding: '10px', backgroundColor: 'transparent', color: '#8d939e', border: 'none', fontWeight: '600', cursor: 'pointer' }}
+                style={{ minHeight: '44px', padding: '10px', backgroundColor: 'transparent', color: '#a39a8c', border: 'none', fontWeight: '600', cursor: 'pointer' }}
               >
                 Cancel
               </button>
@@ -1563,26 +1563,26 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
       {/* SAVED BOARDS MODAL (Item 54) */}
       {isSavedBoardsModalOpen && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '20px', maxWidth: '440px', width: '100%', maxHeight: '80vh', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '20px', maxWidth: '440px', width: '100%', maxHeight: '80vh', display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' }}>
               <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.15rem', fontWeight: '800' }}>
                 Saved Tactics Boards
               </h3>
-              <button onClick={() => setIsSavedBoardsModalOpen(false)} style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '1.2rem', cursor: 'pointer' }}>
+              <button onClick={() => setIsSavedBoardsModalOpen(false)} style={{ background: 'none', border: 'none', color: '#a39a8c', fontSize: '1.2rem', cursor: 'pointer' }}>
                 ✕
               </button>
             </div>
 
             <button
               onClick={handleNewBlankBoard}
-              style={{ minHeight: '44px', padding: '12px', backgroundColor: 'rgba(46, 196, 182, 0.15)', color: '#2ec4b6', border: '1px solid #2ec4b6', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' }}
+              style={{ minHeight: '44px', padding: '12px', backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', border: '1px solid #6b8e4e', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' }}
             >
               + Start New Blank Board
             </button>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto' }}>
               {savedBoards.length === 0 ? (
-                <div style={{ textAlign: 'center', color: '#8d939e', padding: '20px 0', fontSize: '0.9rem' }}>
+                <div style={{ textAlign: 'center', color: '#a39a8c', padding: '20px 0', fontSize: '0.9rem' }}>
                   No saved tactics boards yet.
                 </div>
               ) : (
@@ -1590,7 +1590,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
                   <div key={board.id} style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                       <span style={{ color: '#ffffff', fontWeight: '700', fontSize: '0.95rem' }}>{board.name}</span>
-                      <span style={{ color: '#8d939e', fontSize: '0.75rem' }}>
+                      <span style={{ color: '#a39a8c', fontSize: '0.75rem' }}>
                         Modified: {new Date(board.lastModified).toLocaleDateString()}
                       </span>
                     </div>
@@ -1609,7 +1609,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
                       </button>
                       <button
                         onClick={() => handleDeleteSavedBoard(board.id, board.name)}
-                        style={{ padding: '6px 10px', fontSize: '0.75rem', fontWeight: '700', backgroundColor: 'rgba(230,57,70,0.15)', color: '#e63946', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                        style={{ padding: '6px 10px', fontSize: '0.75rem', fontWeight: '700', backgroundColor: 'rgba(193,68,59,0.15)', color: '#c1443b', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
                       >
                         Delete
                       </button>

@@ -159,7 +159,7 @@ export default function SettingsModal({
                   type="button"
                   onClick={onReRunSetup}
                   style={{
-                    backgroundColor: 'rgba(230, 57, 70, 0.15)',
+                    backgroundColor: 'rgba(193, 68, 59, 0.15)',
                     border: '1px solid var(--color-training)',
                     color: '#ffffff',
                     padding: '4px 10px',
@@ -176,7 +176,7 @@ export default function SettingsModal({
             </div>
 
             <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)', marginBottom: '14px' }}>
-              <div style={{ fontSize: '0.75rem', color: '#9ca3af', textTransform: 'uppercase', fontWeight: '700', marginBottom: '4px' }}>
+              <div style={{ fontSize: '0.75rem', color: '#a69c8c', textTransform: 'uppercase', fontWeight: '700', marginBottom: '4px' }}>
                 Authenticated Account Email
               </div>
               <div style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: '600' }}>
@@ -216,7 +216,7 @@ export default function SettingsModal({
                         padding: '10px 14px',
                         borderRadius: '8px',
                         border: isSelected ? '2px solid var(--color-training)' : '1px solid rgba(255, 255, 255, 0.08)',
-                        backgroundColor: isSelected ? 'rgba(230, 57, 70, 0.2)' : 'rgba(0, 0, 0, 0.25)',
+                        backgroundColor: isSelected ? 'rgba(193, 68, 59, 0.2)' : 'rgba(0, 0, 0, 0.25)',
                         cursor: 'pointer',
                         transition: 'all 0.15s ease'
                       }}
@@ -231,7 +231,7 @@ export default function SettingsModal({
                           </span>
                         )}
                       </div>
-                      <span style={{ fontSize: '0.75rem', color: '#9ca3af', lineHeight: '1.3' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#a69c8c', lineHeight: '1.3' }}>
                         {item.desc}
                       </span>
                     </div>
@@ -424,7 +424,7 @@ export default function SettingsModal({
                     <select 
                       value={isOnline ? "Online" : "Offline"} 
                       onChange={(e) => setIsOnline(e.target.value === "Online")}
-                      style={{ fontWeight: '600', color: isOnline ? '#2ecc71' : '#e63946' }}
+                      style={{ fontWeight: '600', color: isOnline ? '#6b8e4e' : '#c1443b' }}
                     >
                       <option value="Online">Online</option>
                       <option value="Offline">Offline (Simulate Disconnection)</option>
@@ -443,7 +443,7 @@ export default function SettingsModal({
                           <button 
                             className="btn" 
                             onClick={clearSyncQueue} 
-                            style={{ padding: '2px 8px', fontSize: '0.7rem', border: '1px solid rgba(230, 57, 70, 0.3)', color: '#e63946' }}
+                            style={{ padding: '2px 8px', fontSize: '0.7rem', border: '1px solid rgba(193, 68, 59, 0.3)', color: '#c1443b' }}
                           >
                             Clear Queue
                           </button>
@@ -477,7 +477,7 @@ export default function SettingsModal({
                         </div>
                       ) : (
                         syncQueue.map((item, idx) => {
-                          const statusColor = item.status === 'failed' ? '#e63946' : item.status === 'syncing' ? '#f1c40f' : '#3a86ff';
+                          const statusColor = item.status === 'failed' ? '#c1443b' : item.status === 'syncing' ? '#d98a32' : '#c9a24b';
                           return (
                             <div key={item.id || idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '6px', marginBottom: '6px' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -492,7 +492,7 @@ export default function SettingsModal({
                                 Payload: {JSON.stringify(item.payload)}
                               </div>
                               {item.lastError && (
-                                <div style={{ color: '#e63946', fontSize: '0.7rem', marginTop: '2px', fontStyle: 'italic' }}>
+                                <div style={{ color: '#c1443b', fontSize: '0.7rem', marginTop: '2px', fontStyle: 'italic' }}>
                                   Error: {item.lastError}
                                 </div>
                               )}
@@ -523,8 +523,8 @@ export default function SettingsModal({
 
           {/* Danger Zone: Account Deletion */}
           {currentUser?.uid && (
-            <div style={{ paddingTop: '16px', marginTop: '4px', borderTop: '1px solid rgba(230, 57, 70, 0.2)' }}>
-              <h3 style={{ fontSize: '0.85rem', margin: '0 0 8px 0', color: '#e63946', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
+            <div style={{ paddingTop: '16px', marginTop: '4px', borderTop: '1px solid rgba(193, 68, 59, 0.2)' }}>
+              <h3 style={{ fontSize: '0.85rem', margin: '0 0 8px 0', color: '#c1443b', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
                 Danger Zone
               </h3>
               {!isDeleteConfirmOpen ? (
@@ -532,9 +532,9 @@ export default function SettingsModal({
                   type="button"
                   onClick={() => { setIsDeleteConfirmOpen(true); setDeleteConfirmText(''); setDeleteError(''); }}
                   style={{
-                    backgroundColor: 'rgba(230, 57, 70, 0.1)',
-                    border: '1px solid rgba(230, 57, 70, 0.3)',
-                    color: '#e63946',
+                    backgroundColor: 'rgba(193, 68, 59, 0.1)',
+                    border: '1px solid rgba(193, 68, 59, 0.3)',
+                    color: '#c1443b',
                     padding: '10px 14px',
                     borderRadius: '6px',
                     fontSize: '0.85rem',
@@ -546,11 +546,11 @@ export default function SettingsModal({
                   Delete My Account
                 </button>
               ) : (
-                <div style={{ backgroundColor: 'rgba(230, 57, 70, 0.06)', border: '1px solid rgba(230, 57, 70, 0.25)', borderRadius: '8px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <p style={{ margin: 0, fontSize: '0.8rem', color: '#d1d5db', lineHeight: 1.5 }}>
+                <div style={{ backgroundColor: 'rgba(193, 68, 59, 0.06)', border: '1px solid rgba(193, 68, 59, 0.25)', borderRadius: '8px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: '#d9d2c4', lineHeight: 1.5 }}>
                     This permanently deletes your account, roster, training history, and locally stored video clips. This cannot be undone.
                   </p>
-                  <label style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '600' }}>
+                  <label style={{ fontSize: '0.75rem', color: '#a39a8c', fontWeight: '600' }}>
                     Type DELETE to confirm
                   </label>
                   <input
@@ -561,7 +561,7 @@ export default function SettingsModal({
                     placeholder="DELETE"
                   />
                   {deleteError && (
-                    <div style={{ color: '#e63946', fontSize: '0.78rem' }}>{deleteError}</div>
+                    <div style={{ color: '#c1443b', fontSize: '0.78rem' }}>{deleteError}</div>
                   )}
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button
@@ -579,7 +579,7 @@ export default function SettingsModal({
                       disabled={deleteConfirmText !== 'DELETE' || isDeleting}
                       style={{
                         flex: 1,
-                        backgroundColor: '#e63946',
+                        backgroundColor: '#c1443b',
                         border: 'none',
                         color: '#ffffff',
                         padding: '10px',

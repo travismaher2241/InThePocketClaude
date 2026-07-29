@@ -114,11 +114,11 @@ export default function Login() {
       width: '100vw',
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: '#050507',
+      backgroundColor: '#100e0b',
       padding: '20px'
     }}>
       <div style={{
-        backgroundColor: '#12141c',
+        backgroundColor: '#14120f',
         border: '1px solid rgba(255, 255, 255, 0.05)',
         borderRadius: '12px',
         width: '100%',
@@ -160,7 +160,7 @@ export default function Login() {
               backgroundColor: 'transparent',
               border: 'none',
               borderBottom: !isTesterMode ? '2px solid var(--color-squad)' : '2px solid transparent',
-              color: !isTesterMode ? '#ffffff' : '#8d939e',
+              color: !isTesterMode ? '#ffffff' : '#a39a8c',
               padding: '10px',
               fontSize: '0.75rem',
               fontWeight: '600',
@@ -181,7 +181,7 @@ export default function Login() {
                 backgroundColor: 'transparent',
                 border: 'none',
                 borderBottom: isTesterMode ? '2px solid var(--color-squad)' : '2px solid transparent',
-                color: isTesterMode ? '#ffffff' : '#8d939e',
+                color: isTesterMode ? '#ffffff' : '#a39a8c',
                 padding: '10px',
                 fontSize: '0.75rem',
                 fontWeight: '600',
@@ -200,8 +200,8 @@ export default function Login() {
         {structuredError && isTesterMode ? (
           <div 
             style={{
-              backgroundColor: '#1c1f26',
-              border: '1px solid rgba(230, 57, 70, 0.35)',
+              backgroundColor: '#211d16',
+              border: '1px solid rgba(193, 68, 59, 0.35)',
               borderRadius: '8px',
               padding: '14px',
               display: 'flex',
@@ -211,23 +211,23 @@ export default function Login() {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '1rem' }}>⚠️</span>
-              <h4 style={{ margin: 0, color: '#e63946', fontSize: '0.875rem', fontWeight: '800' }}>
+              <h4 style={{ margin: 0, color: '#c1443b', fontSize: '0.875rem', fontWeight: '800' }}>
                 {structuredError.title}
               </h4>
             </div>
 
             {structuredError.reassurance && (
-              <div style={{ fontSize: '0.75rem', color: '#2ec4b6', fontWeight: '700', backgroundColor: 'rgba(46, 196, 182, 0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(46, 196, 182, 0.2)' }}>
+              <div style={{ fontSize: '0.75rem', color: '#6b8e4e', fontWeight: '700', backgroundColor: 'rgba(107, 142, 78, 0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(107, 142, 78, 0.2)' }}>
                 ✓ {structuredError.reassurance}
               </div>
             )}
 
-            <p style={{ margin: 0, color: '#d1d5db', fontSize: '0.8rem', lineHeight: '1.4' }}>
+            <p style={{ margin: 0, color: '#d9d2c4', fontSize: '0.8rem', lineHeight: '1.4' }}>
               {structuredError.userMessage}
             </p>
 
             {structuredError.requestId && (
-              <div style={{ fontSize: '0.7rem', color: '#8d939e', fontFamily: 'monospace' }}>
+              <div style={{ fontSize: '0.7rem', color: '#a39a8c', fontFamily: 'monospace' }}>
                 Reference: {structuredError.requestId}
               </div>
             )}
@@ -256,9 +256,9 @@ export default function Login() {
           </div>
         ) : error ? (
           <div style={{
-            backgroundColor: 'rgba(230, 57, 70, 0.08)',
-            border: '1px solid rgba(230, 57, 70, 0.15)',
-            color: '#e63946',
+            backgroundColor: 'rgba(193, 68, 59, 0.08)',
+            border: '1px solid rgba(193, 68, 59, 0.15)',
+            color: '#c1443b',
             borderRadius: '6px',
             padding: '10px',
             fontSize: '0.75rem',
@@ -271,8 +271,8 @@ export default function Login() {
 
         {message && (
           <div style={{
-            backgroundColor: 'rgba(42, 157, 143, 0.08)',
-            border: '1px solid rgba(42, 157, 143, 0.15)',
+            backgroundColor: 'rgba(107, 142, 78, 0.08)',
+            border: '1px solid rgba(107, 142, 78, 0.15)',
             color: 'var(--color-tactics)',
             borderRadius: '6px',
             padding: '10px',
@@ -287,7 +287,7 @@ export default function Login() {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {isTesterMode ? (
             <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '600', textTransform: 'uppercase' }}>Tester Nickname / Code</label>
+              <label style={{ fontSize: '0.75rem', color: '#a39a8c', fontWeight: '600', textTransform: 'uppercase' }}>Tester Nickname / Code</label>
               <input 
                 ref={testerInputRef}
                 type="text" 
@@ -305,14 +305,14 @@ export default function Login() {
                   opacity: loading ? 0.6 : 1
                 }}
               />
-              <span style={{ fontSize: '0.7rem', color: '#8d939e', lineHeight: '1.4', marginTop: '4px' }}>
+              <span style={{ fontSize: '0.7rem', color: '#a39a8c', lineHeight: '1.4', marginTop: '4px' }}>
                 No email or password needed. Simply enter a code of your choice to create or re-access your sandbox.
               </span>
             </div>
           ) : (
             <>
               <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '600', textTransform: 'uppercase' }}>Email Address</label>
+                <label style={{ fontSize: '0.75rem', color: '#a39a8c', fontWeight: '600', textTransform: 'uppercase' }}>Email Address</label>
                 <input 
                   type="email" 
                   value={email} 
@@ -333,7 +333,7 @@ export default function Login() {
               {!isForgotPassword && (
                 <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <label style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '600', textTransform: 'uppercase', marginBottom: 0 }}>Password</label>
+                    <label style={{ fontSize: '0.75rem', color: '#a39a8c', fontWeight: '600', textTransform: 'uppercase', marginBottom: 0 }}>Password</label>
                     {!isSignUp && (
                       <span 
                         onClick={() => { setError(''); setMessage(''); setIsForgotPassword(true); }}
@@ -398,7 +398,7 @@ export default function Login() {
 
         {!isTesterMode && (
           isForgotPassword ? (
-            <div style={{ textAlign: 'center', fontSize: '0.8rem', color: '#8d939e', marginTop: '4px' }}>
+            <div style={{ textAlign: 'center', fontSize: '0.8rem', color: '#a39a8c', marginTop: '4px' }}>
               <span 
                 onClick={() => { setError(''); setMessage(''); setIsForgotPassword(false); }}
                 style={{ color: 'var(--color-squad)', cursor: 'pointer', fontWeight: '600' }}
@@ -407,7 +407,7 @@ export default function Login() {
               </span>
             </div>
           ) : (
-            <div style={{ textAlign: 'center', fontSize: '0.8rem', color: '#8d939e', marginTop: '4px' }}>
+            <div style={{ textAlign: 'center', fontSize: '0.8rem', color: '#a39a8c', marginTop: '4px' }}>
               {isSignUp ? 'Already have an account?' : 'New to In The Pocket?'}{' '}
               <span 
                 onClick={() => { setError(''); setIsSignUp(!isSignUp); }}
@@ -419,7 +419,7 @@ export default function Login() {
           )
         )}
 
-        <div style={{ textAlign: 'center', fontSize: '0.7rem', color: '#4b5563', marginTop: '8px' }}>
+        <div style={{ textAlign: 'center', fontSize: '0.7rem', color: '#6b6255', marginTop: '8px' }}>
           <span onClick={() => setShowPrivacy(true)} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Privacy Policy</span>
           {' · '}
           <span onClick={() => setShowTerms(true)} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Terms of Service</span>

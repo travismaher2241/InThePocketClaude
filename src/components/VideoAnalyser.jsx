@@ -40,7 +40,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
   const [isFrozen, setIsFrozen] = useState(false);
   const [drawTool, setDrawTool] = useState('brush'); // 'move', 'brush', 'arrow', 'line', 'shape', 'text', 'eraser'
   const [activeShapeType, setActiveShapeType] = useState('rect'); // 'rect' or 'circle'
-  const [activeColor, setActiveColor] = useState('#ff7a00');
+  const [activeColor, setActiveColor] = useState('#b5602e');
   const [strokeWidth, setStrokeWidth] = useState(4);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -638,10 +638,10 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                 fontWeight: '700', 
                 padding: '4px 10px', 
                 borderRadius: '12px',
-                backgroundColor: saveStatus === 'saved' ? 'rgba(46, 196, 182, 0.15)' : saveStatus === 'unsaved' ? 'rgba(255, 183, 3, 0.15)' : 'rgba(230, 57, 70, 0.15)',
-                color: saveStatus === 'saved' ? '#2ec4b6' : saveStatus === 'unsaved' ? '#ffb703' : '#e63946',
+                backgroundColor: saveStatus === 'saved' ? 'rgba(107, 142, 78, 0.15)' : saveStatus === 'unsaved' ? 'rgba(217, 138, 50, 0.15)' : 'rgba(193, 68, 59, 0.15)',
+                color: saveStatus === 'saved' ? '#6b8e4e' : saveStatus === 'unsaved' ? '#d98a32' : '#c1443b',
                 border: '1px solid',
-                borderColor: saveStatus === 'saved' ? 'rgba(46, 196, 182, 0.3)' : saveStatus === 'unsaved' ? 'rgba(255, 183, 3, 0.3)' : 'rgba(230, 57, 70, 0.3)'
+                borderColor: saveStatus === 'saved' ? 'rgba(107, 142, 78, 0.3)' : saveStatus === 'unsaved' ? 'rgba(217, 138, 50, 0.3)' : 'rgba(193, 68, 59, 0.3)'
               }}
             >
               {saveStatus === 'saved' ? 'Saved ✓' : saveStatus === 'unsaved' ? 'Unsaved Changes' : 'Save Failed'}
@@ -664,7 +664,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
           
           {/* Top Import Action Card */}
           <div style={{
-            backgroundColor: '#12141c',
+            backgroundColor: '#14120f',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '12px',
             padding: '16px 20px',
@@ -678,7 +678,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
               <h3 className="scoreboard-font" style={{ color: '#ffffff', margin: 0, fontSize: '1.1rem' }}>
                 Import Match or Training Video
               </h3>
-              <p style={{ fontSize: '0.78rem', color: '#8d939e', margin: 0 }}>
+              <p style={{ fontSize: '0.78rem', color: '#a39a8c', margin: 0 }}>
                 Select MP4, MOV, or WebM clips from Android device storage or Google Photos.
               </p>
             </div>
@@ -728,7 +728,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                   placeholder="Search title, opponent, date, or tagged player..."
                   style={{
                     width: '100%',
-                    backgroundColor: '#1c1f26',
+                    backgroundColor: '#211d16',
                     border: '1px solid rgba(255, 255, 255, 0.08)',
                     borderRadius: '8px',
                     color: '#ffffff',
@@ -737,14 +737,14 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                     boxSizing: 'border-box'
                   }}
                 />
-                <svg width="16" height="16" fill="none" stroke="#8d939e" strokeWidth="2" viewBox="0 0 24 24" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }}>
+                <svg width="16" height="16" fill="none" stroke="#a39a8c" strokeWidth="2" viewBox="0 0 24 24" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
               </div>
 
               {/* Video Library Count Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
+                <span style={{ fontSize: '0.75rem', color: '#a39a8c', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
                   Video Library ({filteredClips.length})
                 </span>
               </div>
@@ -767,8 +767,8 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                       borderRadius: '20px',
                       border: '1px solid',
                       borderColor: activeCategory === chip.id ? 'var(--color-video)' : 'rgba(255, 255, 255, 0.08)',
-                      backgroundColor: activeCategory === chip.id ? 'rgba(255, 122, 0, 0.15)' : 'rgba(255, 255, 255, 0.02)',
-                      color: activeCategory === chip.id ? 'var(--color-video)' : '#8d939e',
+                      backgroundColor: activeCategory === chip.id ? 'rgba(181, 96, 46, 0.15)' : 'rgba(255, 255, 255, 0.02)',
+                      color: activeCategory === chip.id ? 'var(--color-video)' : '#a39a8c',
                       cursor: 'pointer',
                       whiteSpace: 'nowrap',
                       minHeight: '44px'
@@ -807,7 +807,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
               if (filtered.length === 0) {
                 return (
                   <div style={{
-                    backgroundColor: '#1c1f26',
+                    backgroundColor: '#211d16',
                     border: '1px solid rgba(255, 255, 255, 0.06)',
                     borderRadius: '12px',
                     padding: '36px 20px',
@@ -821,7 +821,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                     </svg>
                     <h4 style={{ color: '#ffffff', margin: 0, fontSize: '1rem' }}>No Clips Found</h4>
-                    <p style={{ color: '#8d939e', fontSize: '0.8rem', margin: 0, maxWidth: '360px', lineHeight: '1.4' }}>
+                    <p style={{ color: '#a39a8c', fontSize: '0.8rem', margin: 0, maxWidth: '360px', lineHeight: '1.4' }}>
                       {searchQuery ? 'No video clips match your search query.' : 'Tap "Import Match Vision" above to add match clips or training recordings.'}
                     </p>
                   </div>
@@ -841,7 +841,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                         key={clip.id}
                         onClick={() => setActiveClip(clip)}
                         style={{
-                          backgroundColor: '#1c1f26',
+                          backgroundColor: '#211d16',
                           border: '1px solid rgba(255, 255, 255, 0.06)',
                           borderRadius: '10px',
                           overflow: 'hidden',
@@ -858,7 +858,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                           {clip.thumbnail ? (
                             <img src={clip.thumbnail} alt={clip.drillName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           ) : (
-                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8d939e' }}>
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a39a8c' }}>
                               <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -889,7 +889,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                             position: 'absolute',
                             top: '6px',
                             left: '6px',
-                            backgroundColor: clip.sessionType === 'Match Day' ? 'rgba(230, 57, 70, 0.85)' : 'rgba(255, 122, 0, 0.85)',
+                            backgroundColor: clip.sessionType === 'Match Day' ? 'rgba(193, 68, 59, 0.85)' : 'rgba(181, 96, 46, 0.85)',
                             color: '#ffffff',
                             fontSize: '0.65rem',
                             fontWeight: '800',
@@ -916,7 +916,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                                 style={{
                                   background: 'transparent',
                                   border: 'none',
-                                  color: '#8d939e',
+                                  color: '#a39a8c',
                                   cursor: 'pointer',
                                   padding: '4px'
                                 }}
@@ -927,12 +927,12 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                             </div>
 
                             {clip.opponent && (
-                              <div style={{ fontSize: '0.75rem', color: '#ffb703', marginTop: '2px' }}>
+                              <div style={{ fontSize: '0.75rem', color: '#d98a32', marginTop: '2px' }}>
                                 vs {clip.opponent}
                               </div>
                             )}
 
-                            <div style={{ fontSize: '0.72rem', color: '#8d939e', marginTop: '4px' }}>
+                            <div style={{ fontSize: '0.72rem', color: '#a39a8c', marginTop: '4px' }}>
                               {clip.date}
                             </div>
                           </div>
@@ -947,8 +947,8 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                                   style={{
                                     fontSize: '0.65rem',
                                     color: 'var(--color-video)',
-                                    backgroundColor: 'rgba(255, 122, 0, 0.1)',
-                                    border: '1px solid rgba(255, 122, 0, 0.2)',
+                                    backgroundColor: 'rgba(181, 96, 46, 0.1)',
+                                    border: '1px solid rgba(181, 96, 46, 0.2)',
                                     borderRadius: '10px',
                                     padding: '1px 6px'
                                   }}
@@ -957,7 +957,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                                 </span>
                               ))}
                               {taggedPlayers.length > 4 && (
-                                <span style={{ fontSize: '0.68rem', color: '#8d939e' }}>
+                                <span style={{ fontSize: '0.68rem', color: '#a39a8c' }}>
                                   +{taggedPlayers.length - 4}
                                 </span>
                               )}
@@ -986,7 +986,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                 backgroundColor: 'transparent',
                 border: 'none',
                 borderBottom: analyserSubTab === 'video' ? '2px solid var(--color-video)' : '2px solid transparent',
-                color: analyserSubTab === 'video' ? '#ffffff' : '#8d939e',
+                color: analyserSubTab === 'video' ? '#ffffff' : '#a39a8c',
                 fontSize: '0.8rem',
                 fontWeight: '700',
                 textTransform: 'uppercase',
@@ -1004,7 +1004,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                 backgroundColor: 'transparent',
                 border: 'none',
                 borderBottom: analyserSubTab === 'tactics' ? '2px solid var(--color-video)' : '2px solid transparent',
-                color: analyserSubTab === 'tactics' ? '#ffffff' : '#8d939e',
+                color: analyserSubTab === 'tactics' ? '#ffffff' : '#a39a8c',
                 fontSize: '0.8rem',
                 fontWeight: '700',
                 textTransform: 'uppercase',
@@ -1025,12 +1025,12 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                   style={{ 
                     fontSize: '0.75rem', 
                     fontWeight: '800', 
-                    color: isFrozen ? '#e63946' : 'var(--color-video)', 
-                    backgroundColor: isFrozen ? 'rgba(230, 57, 70, 0.15)' : 'rgba(255, 122, 0, 0.15)',
+                    color: isFrozen ? '#c1443b' : 'var(--color-video)', 
+                    backgroundColor: isFrozen ? 'rgba(193, 68, 59, 0.15)' : 'rgba(181, 96, 46, 0.15)',
                     padding: '4px 10px',
                     borderRadius: '4px',
                     border: '1px solid',
-                    borderColor: isFrozen ? 'rgba(230, 57, 70, 0.3)' : 'rgba(255, 122, 0, 0.3)'
+                    borderColor: isFrozen ? 'rgba(193, 68, 59, 0.3)' : 'rgba(181, 96, 46, 0.3)'
                   }}
                 >
                   {isFrozen ? `FREEZE-FRAME — ${formatTime(currentTime)}` : 'PLAYBACK MODE'}
@@ -1041,7 +1041,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                   <button 
                     onClick={handleToggleFreeze}
                     style={{
-                      backgroundColor: isFrozen ? 'rgba(46, 196, 182, 0.15)' : 'var(--color-video)',
+                      backgroundColor: isFrozen ? 'rgba(107, 142, 78, 0.15)' : 'var(--color-video)',
                       color: '#ffffff',
                       border: 'none',
                       borderRadius: '8px',
@@ -1128,7 +1128,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
 
               {/* Mobile Video Playback Control Bar */}
               <div style={{
-                backgroundColor: '#12141c',
+                backgroundColor: '#14120f',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: '10px',
                 padding: '10px 14px',
@@ -1138,7 +1138,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
               }}>
                 {/* Timeline Scrubber */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#8d939e', fontFamily: 'monospace', minWidth: '60px' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#a39a8c', fontFamily: 'monospace', minWidth: '60px' }}>
                     {formatTime(currentTime)}
                   </span>
                   <input 
@@ -1154,7 +1154,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                     }}
                     style={{ flex: 1, accentColor: 'var(--color-video)', cursor: 'pointer' }}
                   />
-                  <span style={{ fontSize: '0.75rem', color: '#8d939e', fontFamily: 'monospace', minWidth: '60px', textAlign: 'right' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#a39a8c', fontFamily: 'monospace', minWidth: '60px', textAlign: 'right' }}>
                     {formatTime(duration)}
                   </span>
                 </div>
@@ -1178,7 +1178,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
 
                   {/* Speed Selector Pills */}
                   <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.68rem', color: '#8d939e', marginRight: '4px' }}>Speed:</span>
+                    <span style={{ fontSize: '0.68rem', color: '#a39a8c', marginRight: '4px' }}>Speed:</span>
                     {[0.25, 0.5, 0.75, 1, 1.5, 2].map(spd => (
                       <button
                         key={spd}
@@ -1188,8 +1188,8 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                           fontSize: '0.68rem',
                           borderRadius: '4px',
                           border: 'none',
-                          backgroundColor: playbackSpeed === spd ? 'rgba(255, 122, 0, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                          color: playbackSpeed === spd ? 'var(--color-video)' : '#8d939e',
+                          backgroundColor: playbackSpeed === spd ? 'rgba(181, 96, 46, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                          color: playbackSpeed === spd ? 'var(--color-video)' : '#a39a8c',
                           cursor: 'pointer',
                           fontWeight: '700'
                         }}
@@ -1203,7 +1203,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
 
               {/* Mobile Annotation Toolbar (Scrollable) */}
               <div style={{
-                backgroundColor: '#12141c',
+                backgroundColor: '#14120f',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: '10px',
                 padding: '8px 12px',
@@ -1213,7 +1213,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                 overflowX: 'auto',
                 scrollbarWidth: 'none'
               }}>
-                <span style={{ fontSize: '0.68rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: '0.68rem', color: '#a39a8c', textTransform: 'uppercase', fontWeight: '700', whiteSpace: 'nowrap' }}>
                   Tools:
                 </span>
 
@@ -1241,8 +1241,8 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                       fontWeight: '700',
                       borderRadius: '6px',
                       border: 'none',
-                      backgroundColor: drawTool === tool.id ? 'rgba(255, 122, 0, 0.2)' : 'transparent',
-                      color: drawTool === tool.id ? 'var(--color-video)' : '#8d939e',
+                      backgroundColor: drawTool === tool.id ? 'rgba(181, 96, 46, 0.2)' : 'transparent',
+                      color: drawTool === tool.id ? 'var(--color-video)' : '#a39a8c',
                       cursor: 'pointer',
                       whiteSpace: 'nowrap',
                       minHeight: '44px'
@@ -1255,14 +1255,14 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                 <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)', flexShrink: 0 }} />
 
                 {/* Color Selector */}
-                <span style={{ fontSize: '0.68rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: '0.68rem', color: '#a39a8c', textTransform: 'uppercase', fontWeight: '700', whiteSpace: 'nowrap' }}>
                   Colour:
                 </span>
                 {[
-                  { name: 'Orange', value: '#ff7a00' },
+                  { name: 'Orange', value: '#b5602e' },
                   { name: 'White', value: '#ffffff' },
                   { name: 'Yellow', value: '#ffeb3b' },
-                  { name: 'Red', value: '#e63946' },
+                  { name: 'Red', value: '#c1443b' },
                   { name: 'Cyan', value: '#00d2ff' },
                   { name: 'Neon Green', value: '#39ff14' }
                 ].map(c => (
@@ -1299,7 +1299,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                     fontSize: '0.75rem',
                     fontFamily: 'var(--font-family-locker)',
                     fontWeight: '700',
-                    color: '#e63946',
+                    color: '#c1443b',
                     backgroundColor: 'transparent',
                     border: 'none',
                     cursor: 'pointer',
@@ -1316,10 +1316,10 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
             /* TACTICAL ALIGNMENT SUB-TAB */
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.75rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700' }}>
+                <span style={{ fontSize: '0.75rem', color: '#a39a8c', textTransform: 'uppercase', fontWeight: '700' }}>
                   Tactical Structural Alignment
                 </span>
-                <span style={{ fontSize: '0.7rem', color: '#8d939e' }}>
+                <span style={{ fontSize: '0.7rem', color: '#a39a8c' }}>
                   Review spatial positioning on pitch
                 </span>
               </div>
@@ -1353,14 +1353,14 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
       {/* DELETE CONFIRMATION MODAL */}
       {deleteModalClip && createPortal(
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '24px', maxWidth: '380px', width: '100%', textAlign: 'center' }}>
-            <h3 style={{ margin: '0 0 10px 0', color: '#e63946', fontSize: '1.1rem' }}>Delete this video?</h3>
-            <p style={{ color: '#d1d5db', fontSize: '0.85rem', lineHeight: '1.4', margin: '0 0 20px 0' }}>
+          <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '24px', maxWidth: '380px', width: '100%', textAlign: 'center' }}>
+            <h3 style={{ margin: '0 0 10px 0', color: '#c1443b', fontSize: '1.1rem' }}>Delete this video?</h3>
+            <p style={{ color: '#d9d2c4', fontSize: '0.85rem', lineHeight: '1.4', margin: '0 0 20px 0' }}>
               This will remove <strong>{deleteModalClip.drillName}</strong> and its saved annotations from your Video Library.
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
               <button className="btn" onClick={() => setDeleteModalClip(null)} style={{ padding: '8px 16px', minHeight: '44px' }}>Keep Video</button>
-              <button className="btn" onClick={executeDeleteClip} style={{ backgroundColor: '#e63946', color: '#ffffff', border: 'none', padding: '8px 16px', minHeight: '44px' }}>Delete Video</button>
+              <button className="btn" onClick={executeDeleteClip} style={{ backgroundColor: '#c1443b', color: '#ffffff', border: 'none', padding: '8px 16px', minHeight: '44px' }}>Delete Video</button>
             </div>
           </div>
         </div>,
@@ -1370,14 +1370,14 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
       {/* CLEAR ANNOTATIONS CONFIRMATION MODAL */}
       {clearAnnotationsModalOpen && createPortal(
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '24px', maxWidth: '380px', width: '100%', textAlign: 'center' }}>
-            <h3 style={{ margin: '0 0 10px 0', color: '#ff7a00', fontSize: '1.1rem' }}>Clear all annotations?</h3>
-            <p style={{ color: '#d1d5db', fontSize: '0.85rem', lineHeight: '1.4', margin: '0 0 20px 0' }}>
+          <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '24px', maxWidth: '380px', width: '100%', textAlign: 'center' }}>
+            <h3 style={{ margin: '0 0 10px 0', color: '#b5602e', fontSize: '1.1rem' }}>Clear all annotations?</h3>
+            <p style={{ color: '#d9d2c4', fontSize: '0.85rem', lineHeight: '1.4', margin: '0 0 20px 0' }}>
               Are you sure you want to remove all drawings on this frame? The video will not be deleted.
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
               <button className="btn" onClick={() => setClearAnnotationsModalOpen(false)} style={{ padding: '8px 16px', minHeight: '44px' }}>Cancel</button>
-              <button className="btn" onClick={handleClearAllAnnotations} style={{ backgroundColor: '#e63946', color: '#ffffff', border: 'none', padding: '8px 16px', minHeight: '44px' }}>Clear Annotations</button>
+              <button className="btn" onClick={handleClearAllAnnotations} style={{ backgroundColor: '#c1443b', color: '#ffffff', border: 'none', padding: '8px 16px', minHeight: '44px' }}>Clear Annotations</button>
             </div>
           </div>
         </div>,
@@ -1387,7 +1387,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
       {/* TEXT ENTRY MODAL / BOTTOM SHEET */}
       {textModalOpen && createPortal(
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '20px', maxWidth: '360px', width: '100%', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '20px', maxWidth: '360px', width: '100%', display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <h4 style={{ margin: 0, color: 'var(--color-video)', fontSize: '1rem' }}>Add Text Annotation</h4>
             <input 
               type="text"
@@ -1397,7 +1397,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
               placeholder="Enter text notes..."
               onKeyDown={(e) => { if (e.key === 'Enter') saveTextAnnotation(); }}
               style={{
-                backgroundColor: '#12141c',
+                backgroundColor: '#14120f',
                 border: '1px solid rgba(255,255,255,0.15)',
                 borderRadius: '6px',
                 color: activeColor,
@@ -1418,13 +1418,13 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
       {/* IMPORT PROGRESS MODAL */}
       {importProgress && createPortal(
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ backgroundColor: '#12141c', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '24px', maxWidth: '360px', width: '100%', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ backgroundColor: '#14120f', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '24px', maxWidth: '360px', width: '100%', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <h4 style={{ margin: 0, color: 'var(--color-video)', fontSize: '1rem' }}>{importProgress.stageLabel}</h4>
-            <div style={{ height: '8px', width: '100%', backgroundColor: '#1c1f26', borderRadius: '4px', overflow: 'hidden' }}>
+            <div style={{ height: '8px', width: '100%', backgroundColor: '#211d16', borderRadius: '4px', overflow: 'hidden' }}>
               <div style={{ height: '100%', width: `${importProgress.progress}%`, backgroundColor: 'var(--color-video)', transition: 'width 0.2s' }} />
             </div>
-            <p style={{ fontSize: '0.78rem', color: '#8d939e', margin: 0 }}>{importProgress.message}</p>
-            <button className="btn" onClick={handleCancelImport} style={{ backgroundColor: 'rgba(230,57,70,0.15)', color: '#e63946', border: '1px solid #e63946', minHeight: '44px', marginTop: '6px' }}>
+            <p style={{ fontSize: '0.78rem', color: '#a39a8c', margin: 0 }}>{importProgress.message}</p>
+            <button className="btn" onClick={handleCancelImport} style={{ backgroundColor: 'rgba(193,68,59,0.15)', color: '#c1443b', border: '1px solid #c1443b', minHeight: '44px', marginTop: '6px' }}>
               Cancel Import
             </button>
           </div>
@@ -1435,14 +1435,14 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
       {/* IMPORT ERROR DIALOG */}
       {importError && createPortal(
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(230, 57, 70, 0.4)', borderRadius: '12px', padding: '24px', maxWidth: '400px', width: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(193, 68, 59, 0.4)', borderRadius: '12px', padding: '24px', maxWidth: '400px', width: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '1.2rem' }}>⚠️</span>
-              <h4 style={{ margin: 0, color: '#e63946', fontSize: '1rem', fontWeight: '800' }}>{importError.title}</h4>
+              <h4 style={{ margin: 0, color: '#c1443b', fontSize: '1rem', fontWeight: '800' }}>{importError.title}</h4>
             </div>
-            <p style={{ margin: 0, color: '#d1d5db', fontSize: '0.85rem', lineHeight: '1.4' }}>{importError.message}</p>
+            <p style={{ margin: 0, color: '#d9d2c4', fontSize: '0.85rem', lineHeight: '1.4' }}>{importError.message}</p>
             {importError.requestId && (
-              <span style={{ fontSize: '0.7rem', color: '#8d939e', fontFamily: 'monospace' }}>Reference: {importError.requestId}</span>
+              <span style={{ fontSize: '0.7rem', color: '#a39a8c', fontFamily: 'monospace' }}>Reference: {importError.requestId}</span>
             )}
             <div style={{ display: 'flex', gap: '10px', marginTop: '8px', justifyContent: 'flex-end' }}>
               <button className="btn" onClick={() => setImportError(null)} style={{ padding: '8px 14px', minHeight: '44px' }}>Close</button>

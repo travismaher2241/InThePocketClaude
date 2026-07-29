@@ -37,7 +37,7 @@ export function lazyWithRetry(componentImportFn) {
               padding: '32px 16px',
               textAlign: 'center',
               color: '#ffffff',
-              backgroundColor: '#1c1f26',
+              backgroundColor: '#211d16',
               borderRadius: '12px',
               margin: '24px auto',
               maxWidth: '480px',
@@ -45,10 +45,10 @@ export function lazyWithRetry(componentImportFn) {
               boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
             }}
           >
-            <h3 style={{ fontFamily: 'var(--font-family-locker, sans-serif)', fontSize: '1.5rem', marginBottom: '8px', color: '#ffb703' }}>
+            <h3 style={{ fontFamily: 'var(--font-family-locker, sans-serif)', fontSize: '1.5rem', marginBottom: '8px', color: '#d98a32' }}>
               NEW VERSION AVAILABLE
             </h3>
-            <p style={{ fontSize: '0.9rem', color: '#d1d5db', marginBottom: '16px', lineHeight: '1.4' }}>
+            <p style={{ fontSize: '0.9rem', color: '#d9d2c4', marginBottom: '16px', lineHeight: '1.4' }}>
               CoachCore has been updated with new features and performance enhancements. Please refresh to load the latest version.
             </p>
             <button
@@ -57,7 +57,7 @@ export function lazyWithRetry(componentImportFn) {
                 window.location.reload();
               }}
               style={{
-                backgroundColor: 'var(--color-training, #e63946)',
+                backgroundColor: 'var(--color-training, #c1443b)',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: '6px',

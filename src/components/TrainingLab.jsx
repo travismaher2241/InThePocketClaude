@@ -268,7 +268,7 @@ const renderFormattedList = (text) => {
     return (
       <ul className="list-disc pl-4 space-y-1" style={{ margin: '4px 0 0 0', paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
         {items.map((item, idx) => (
-          <li key={idx} style={{ color: '#d1d5db', lineHeight: '1.4', fontSize: '0.85rem' }}>
+          <li key={idx} style={{ color: '#d9d2c4', lineHeight: '1.4', fontSize: '0.85rem' }}>
             {item}
           </li>
         ))}
@@ -276,7 +276,7 @@ const renderFormattedList = (text) => {
     );
   }
 
-  return <span style={{ color: '#d1d5db', lineHeight: '1.4' }}>{text}</span>;
+  return <span style={{ color: '#d9d2c4', lineHeight: '1.4' }}>{text}</span>;
 };
 
 const renderDrillTextFramework = (card) => {
@@ -311,10 +311,10 @@ const renderDrillTextFramework = (card) => {
   const isConcurrent = card.isConcurrent === true || (card.slotName && card.slotName.startsWith('Station'));
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.875rem', fontFamily: 'var(--font-family-body)', color: '#d1d5db', lineHeight: '1.5', marginTop: '4px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.875rem', fontFamily: 'var(--font-family-body)', color: '#d9d2c4', lineHeight: '1.5', marginTop: '4px' }}>
       {isConcurrent && (
-        <div style={{ backgroundColor: 'rgba(58, 134, 255, 0.08)', padding: '8px 12px', borderRadius: '6px', borderLeft: '3px solid #3a86ff', fontSize: '0.82rem' }}>
-          <strong style={{ color: '#3a86ff', textTransform: 'uppercase', fontSize: '0.72rem', display: 'block', marginBottom: '2px', letterSpacing: '0.04em' }}>
+        <div style={{ backgroundColor: 'rgba(201, 162, 75, 0.08)', padding: '8px 12px', borderRadius: '6px', borderLeft: '3px solid #c9a24b', fontSize: '0.82rem' }}>
+          <strong style={{ color: '#c9a24b', textTransform: 'uppercase', fontSize: '0.72rem', display: 'block', marginBottom: '2px', letterSpacing: '0.04em' }}>
             Concurrent Station Rotation ({card.blockMinutes || 15} Min Block Total)
           </strong>
           <span style={{ color: '#e0e7ff', fontWeight: '500' }}>
@@ -324,15 +324,15 @@ const renderDrillTextFramework = (card) => {
       )}
 
       {objectiveText && (
-        <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', padding: '10px 12px', borderRadius: '6px', borderLeft: '3px solid #ffb703' }}>
-          <strong style={{ color: '#ffb703', fontSize: '0.75rem', textTransform: 'uppercase', display: 'block', marginBottom: '2px', letterSpacing: '0.04em' }}>Objective</strong>
+        <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', padding: '10px 12px', borderRadius: '6px', borderLeft: '3px solid #d98a32' }}>
+          <strong style={{ color: '#d98a32', fontSize: '0.75rem', textTransform: 'uppercase', display: 'block', marginBottom: '2px', letterSpacing: '0.04em' }}>Objective</strong>
           <span style={{ color: '#ffffff', fontWeight: '500', lineHeight: '1.4' }}>{objectiveText}</span>
         </div>
       )}
 
       {setupText && (
         <div style={{ fontSize: '0.85rem' }}>
-          <strong style={{ color: '#8d939e', textTransform: 'uppercase', fontSize: '0.75rem', display: 'block', marginBottom: '2px', letterSpacing: '0.04em' }}>Setup & Grid</strong>
+          <strong style={{ color: '#a39a8c', textTransform: 'uppercase', fontSize: '0.75rem', display: 'block', marginBottom: '2px', letterSpacing: '0.04em' }}>Setup & Grid</strong>
           {renderFormattedList(setupText)}
         </div>
       )}
@@ -1217,9 +1217,9 @@ export default function TrainingLab({
     return (
       <div className="run-sheet-block" style={{
         position: 'relative',
-        backgroundColor: isCurrentActive ? '#1a2030' : '#141720',
-        border: isCurrentActive ? '2px solid #00e676' : '1px solid rgba(255, 255, 255, 0.08)',
-        borderLeft: '4px solid #ffb703',
+        backgroundColor: isCurrentActive ? '#1e1a12' : '#16130f',
+        border: isCurrentActive ? '2px solid #6b8e4e' : '1px solid rgba(255, 255, 255, 0.08)',
+        borderLeft: '4px solid #d98a32',
         borderRadius: '6px',
         overflow: 'hidden'
       }}>
@@ -1231,7 +1231,7 @@ export default function TrainingLab({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            backgroundColor: isCurrentActive ? 'rgba(0, 230, 118, 0.1)' : 'rgba(255, 255, 255, 0.02)',
+            backgroundColor: isCurrentActive ? 'rgba(107, 142, 78, 0.1)' : 'rgba(255, 255, 255, 0.02)',
             borderBottom: isExpanded ? '1px solid rgba(255, 255, 255, 0.08)' : 'none',
             cursor: 'pointer',
             minHeight: '44px',
@@ -1243,9 +1243,9 @@ export default function TrainingLab({
               fontFamily: 'var(--font-family-board)',
               fontSize: '0.75rem',
               fontWeight: '800',
-              color: '#ffb703',
-              backgroundColor: 'rgba(255, 183, 3, 0.12)',
-              border: '1px solid rgba(255, 183, 3, 0.3)',
+              color: '#d98a32',
+              backgroundColor: 'rgba(217, 138, 50, 0.12)',
+              border: '1px solid rgba(217, 138, 50, 0.3)',
               padding: '2px 6px',
               borderRadius: '3px',
               flexShrink: 0
@@ -1257,11 +1257,11 @@ export default function TrainingLab({
                 <h4 style={{ margin: 0, color: '#ffffff', fontSize: '0.92rem', fontWeight: '800' }}>
                   {blockTitle}
                 </h4>
-                <span style={{ fontSize: '0.7rem', color: '#ffb703', fontWeight: '700', backgroundColor: 'rgba(255, 183, 3, 0.15)', padding: '2px 6px', borderRadius: '3px' }}>
+                <span style={{ fontSize: '0.7rem', color: '#d98a32', fontWeight: '700', backgroundColor: 'rgba(217, 138, 50, 0.15)', padding: '2px 6px', borderRadius: '3px' }}>
                   {totalDuration} MIN TOTAL ({halfMins} MIN/ROTATION)
                 </span>
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#8d939e', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div style={{ fontSize: '0.75rem', color: '#a39a8c', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 Group 1 ({group1Count} players) @ {labelA} · Group 2 ({group2Count} players) @ {labelB}
               </div>
             </div>
@@ -1276,7 +1276,7 @@ export default function TrainingLab({
               strokeWidth="2.5" 
               viewBox="0 0 24 24"
               style={{ 
-                color: '#8d939e',
+                color: '#a39a8c',
                 transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
                 transition: 'transform 0.2s ease'
               }}
@@ -1290,7 +1290,7 @@ export default function TrainingLab({
         {isExpanded && (
           <div style={{ padding: '12px' }}>
             {/* FIRST ROTATION LANES */}
-            <div style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.06em', color: '#ffb703', marginBottom: '8px', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.06em', color: '#d98a32', marginBottom: '8px', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}>
               <span>FIRST ROTATION ({startTimeStr} - {switchTimeStr})</span>
               <span>{halfMins} MINS</span>
             </div>
@@ -1337,7 +1337,7 @@ export default function TrainingLab({
             </div>
 
             {/* SECOND ROTATION LANES */}
-            <div style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.06em', color: '#ffb703', marginTop: '10px', marginBottom: '8px', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.06em', color: '#d98a32', marginTop: '10px', marginBottom: '8px', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}>
               <span>SECOND ROTATION ({switchTimeStr} - {endTimeStr})</span>
               <span>{halfMins} MINS</span>
             </div>
@@ -1365,8 +1365,8 @@ export default function TrainingLab({
             {/* FULL DRILL DETAILS */}
             <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {/* Station A Details */}
-              <div className="expanded-station-details" style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '4px', borderLeft: '3px solid #ffb703' }}>
-                <h5 style={{ margin: '0 0 8px 0', color: '#ffb703', fontSize: '0.9rem', fontWeight: '700' }}>
+              <div className="expanded-station-details" style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '4px', borderLeft: '3px solid #d98a32' }}>
+                <h5 style={{ margin: '0 0 8px 0', color: '#d98a32', fontSize: '0.9rem', fontWeight: '700' }}>
                   {labelA}: {titleA}
                 </h5>
                 {renderDrillTextFramework(cardA)}
@@ -1398,8 +1398,8 @@ export default function TrainingLab({
               </div>
 
               {/* Station B Details */}
-              <div className="expanded-station-details" style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '4px', borderLeft: '3px solid #fb8500' }}>
-                <h5 style={{ margin: '0 0 8px 0', color: '#fb8500', fontSize: '0.9rem', fontWeight: '700' }}>
+              <div className="expanded-station-details" style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '4px', borderLeft: '3px solid #b5602e' }}>
+                <h5 style={{ margin: '0 0 8px 0', color: '#b5602e', fontSize: '0.9rem', fontWeight: '700' }}>
                   {labelB}: {titleB}
                 </h5>
                 {renderDrillTextFramework(cardB)}
@@ -1508,10 +1508,10 @@ export default function TrainingLab({
         {/* 0:00 SESSION START MARKER */}
         <div style={{ position: 'relative', marginBottom: '-6px' }}>
           <div className="timeline-node">
-            <span className="timeline-time-badge" style={{ color: '#00e676' }}>0:00</span>
+            <span className="timeline-time-badge" style={{ color: '#6b8e4e' }}>0:00</span>
             <div className="timeline-marker-start">▶</div>
           </div>
-          <div style={{ paddingLeft: '4px', fontSize: '0.72rem', fontWeight: '800', letterSpacing: '0.06em', color: '#00e676', textTransform: 'uppercase' }}>
+          <div style={{ paddingLeft: '4px', fontSize: '0.72rem', fontWeight: '800', letterSpacing: '0.06em', color: '#6b8e4e', textTransform: 'uppercase' }}>
             SESSION START
           </div>
         </div>
@@ -1524,9 +1524,9 @@ export default function TrainingLab({
           </div>
 
           <div style={{
-            backgroundColor: isSessionActive && activeStageIndex === 0 ? '#1a2030' : '#141720',
-            border: isSessionActive && activeStageIndex === 0 ? '2px solid #00e676' : '1px solid rgba(255, 255, 255, 0.08)',
-            borderLeft: '4px solid #00e676',
+            backgroundColor: isSessionActive && activeStageIndex === 0 ? '#1e1a12' : '#16130f',
+            border: isSessionActive && activeStageIndex === 0 ? '2px solid #6b8e4e' : '1px solid rgba(255, 255, 255, 0.08)',
+            borderLeft: '4px solid #6b8e4e',
             borderRadius: '4px',
             overflow: 'hidden'
           }}>
@@ -1540,11 +1540,11 @@ export default function TrainingLab({
                 cursor: 'pointer',
                 minHeight: '44px',
                 userSelect: 'none',
-                backgroundColor: isSessionActive && activeStageIndex === 0 ? 'rgba(0, 230, 118, 0.1)' : 'transparent'
+                backgroundColor: isSessionActive && activeStageIndex === 0 ? 'rgba(107, 142, 78, 0.1)' : 'transparent'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
-                <span className="scoreboard-font" style={{ color: '#00e676', fontSize: '0.8rem', fontWeight: '800', flexShrink: 0 }}>
+                <span className="scoreboard-font" style={{ color: '#6b8e4e', fontSize: '0.8rem', fontWeight: '800', flexShrink: 0 }}>
                   BLOCK 1
                 </span>
                 <div style={{ overflow: 'hidden', flex: 1 }}>
@@ -1552,18 +1552,18 @@ export default function TrainingLab({
                     <h4 style={{ margin: 0, color: '#ffffff', fontSize: '0.92rem', fontWeight: '800', lineHeight: '1.3' }}>
                       WARM-UP: {titleWu}
                     </h4>
-                    <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(0, 230, 118, 0.12)', color: '#00e676', padding: '2px 6px', borderRadius: '3px', fontWeight: '700' }}>
+                    <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(107, 142, 78, 0.12)', color: '#6b8e4e', padding: '2px 6px', borderRadius: '3px', fontWeight: '700' }}>
                       {wuMins} MIN
                     </span>
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#8d939e', marginTop: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#a39a8c', marginTop: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     All Players ({totalP} players) · Whole Group Activity
                   </div>
                 </div>
               </div>
 
               <div style={{ marginLeft: '8px', flexShrink: 0 }}>
-                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ color: '#8d939e', transform: expandedCards.has('stage_1') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ color: '#a39a8c', transform: expandedCards.has('stage_1') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
                 </svg>
               </div>
@@ -1592,7 +1592,7 @@ export default function TrainingLab({
         {/* BLOCK 2: STATION BLOCK 1 (STATIONS A & B) */}
         <div style={{ position: 'relative' }}>
           <div className="timeline-node">
-            <span className="timeline-time-badge" style={{ color: '#ffb703' }}>{formatTimeStr(t1)}</span>
+            <span className="timeline-time-badge" style={{ color: '#d98a32' }}>{formatTimeStr(t1)}</span>
             <div className="timeline-marker-diamond" />
           </div>
 
@@ -1621,7 +1621,7 @@ export default function TrainingLab({
         {/* BLOCK 3: STATION BLOCK 2 (STATIONS C & D) */}
         <div style={{ position: 'relative' }}>
           <div className="timeline-node">
-            <span className="timeline-time-badge" style={{ color: '#ffb703' }}>{formatTimeStr(t2)}</span>
+            <span className="timeline-time-badge" style={{ color: '#d98a32' }}>{formatTimeStr(t2)}</span>
             <div className="timeline-marker-diamond" />
           </div>
 
@@ -1650,14 +1650,14 @@ export default function TrainingLab({
         {/* BLOCK 4: MATCH SIMULATION / SSG */}
         <div style={{ position: 'relative' }}>
           <div className="timeline-node">
-            <span className="timeline-time-badge" style={{ color: '#ff4d4d' }}>{formatTimeStr(t3)}</span>
+            <span className="timeline-time-badge" style={{ color: '#c1443b' }}>{formatTimeStr(t3)}</span>
             <div className="timeline-marker-square" />
           </div>
 
           <div style={{
-            backgroundColor: isSessionActive && activeStageIndex === 3 ? '#1a2030' : '#141720',
-            border: isSessionActive && activeStageIndex === 3 ? '2px solid #ff4d4d' : '1px solid rgba(255, 255, 255, 0.08)',
-            borderLeft: '4px solid #ff4d4d',
+            backgroundColor: isSessionActive && activeStageIndex === 3 ? '#1e1a12' : '#16130f',
+            border: isSessionActive && activeStageIndex === 3 ? '2px solid #c1443b' : '1px solid rgba(255, 255, 255, 0.08)',
+            borderLeft: '4px solid #c1443b',
             borderRadius: '4px',
             overflow: 'hidden'
           }}>
@@ -1671,11 +1671,11 @@ export default function TrainingLab({
                 cursor: 'pointer',
                 minHeight: '44px',
                 userSelect: 'none',
-                backgroundColor: isSessionActive && activeStageIndex === 3 ? 'rgba(255, 77, 77, 0.1)' : 'transparent'
+                backgroundColor: isSessionActive && activeStageIndex === 3 ? 'rgba(193, 68, 59, 0.1)' : 'transparent'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
-                <span className="scoreboard-font" style={{ color: '#ff4d4d', fontSize: '0.8rem', fontWeight: '800', flexShrink: 0 }}>
+                <span className="scoreboard-font" style={{ color: '#c1443b', fontSize: '0.8rem', fontWeight: '800', flexShrink: 0 }}>
                   BLOCK 4
                 </span>
                 <div style={{ overflow: 'hidden', flex: 1 }}>
@@ -1683,18 +1683,18 @@ export default function TrainingLab({
                     <h4 style={{ margin: 0, color: '#ffffff', fontSize: '0.92rem', fontWeight: '800', lineHeight: '1.3' }}>
                       FINAL: {titleFn}
                     </h4>
-                    <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(255, 77, 77, 0.15)', color: '#ff4d4d', padding: '2px 6px', borderRadius: '3px', fontWeight: '700' }}>
+                    <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(193, 68, 59, 0.15)', color: '#c1443b', padding: '2px 6px', borderRadius: '3px', fontWeight: '700' }}>
                       {fnMins} MIN
                     </span>
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#8d939e', marginTop: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#a39a8c', marginTop: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     All Players ({totalP} players) · Match Scrimmage / Game Application
                   </div>
                 </div>
               </div>
 
               <div style={{ marginLeft: '8px', flexShrink: 0 }}>
-                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ color: '#8d939e', transform: expandedCards.has('stage_4') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ color: '#a39a8c', transform: expandedCards.has('stage_4') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
                 </svg>
               </div>
@@ -1723,19 +1723,19 @@ export default function TrainingLab({
         {/* SESSION COMPLETE MARKER */}
         <div style={{ position: 'relative', marginTop: '4px' }}>
           <div className="timeline-node">
-            <span className="timeline-time-badge" style={{ color: '#00e676' }}>{formatTimeStr(t4)}</span>
+            <span className="timeline-time-badge" style={{ color: '#6b8e4e' }}>{formatTimeStr(t4)}</span>
             <div className="timeline-marker-finish">✓</div>
           </div>
           <div style={{
             padding: '10px 14px',
-            backgroundColor: 'rgba(0, 230, 118, 0.05)',
-            border: '1px dashed rgba(0, 230, 118, 0.3)',
+            backgroundColor: 'rgba(107, 142, 78, 0.05)',
+            border: '1px dashed rgba(107, 142, 78, 0.3)',
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between'
           }}>
-            <span className="scoreboard-font" style={{ fontSize: '0.8rem', color: '#00e676', letterSpacing: '0.04em' }}>
+            <span className="scoreboard-font" style={{ fontSize: '0.8rem', color: '#6b8e4e', letterSpacing: '0.04em' }}>
               🏁 SESSION COMPLETE
             </span>
             <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#ffffff' }}>
@@ -1753,7 +1753,7 @@ export default function TrainingLab({
       flexDirection: 'column', 
       height: '100%', 
       minHeight: 'calc(100vh - 150px)',
-      backgroundColor: '#12141c',
+      backgroundColor: '#14120f',
       padding: '40px 16px 120px 16px', // bottom buffer space for sticky buttons
       position: 'relative'
     }}>
@@ -1806,7 +1806,7 @@ export default function TrainingLab({
                 width: '24px',
                 height: '24px',
                 borderRadius: '50%',
-                border: '3px solid rgba(230, 57, 70, 0.1)',
+                border: '3px solid rgba(193, 68, 59, 0.1)',
                 borderTopColor: 'var(--color-training)',
                 animation: 'spin 0.8s linear infinite',
                 margin: '0 auto 12px auto'
@@ -1852,7 +1852,7 @@ export default function TrainingLab({
                         style={{
                           background: 'transparent',
                           border: 'none',
-                          color: '#e63946',
+                          color: '#c1443b',
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
@@ -1860,7 +1860,7 @@ export default function TrainingLab({
                           borderRadius: '4px',
                           transition: 'background-color 0.2s',
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(230, 57, 70, 0.1)'}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(193, 68, 59, 0.1)'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                         title="Delete this completed session"
                       >
@@ -1873,14 +1873,14 @@ export default function TrainingLab({
                   
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                     {session.focusAreas?.map((f, idx) => (
-                      <span key={idx} style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '12px', backgroundColor: 'rgba(230,57,70,0.1)', color: '#ffffff', border: '1px solid rgba(230,57,70,0.2)' }}>
+                      <span key={idx} style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '12px', backgroundColor: 'rgba(193,68,59,0.1)', color: '#ffffff', border: '1px solid rgba(193,68,59,0.2)' }}>
                         {f}
                       </span>
                     ))}
                   </div>
                   
                   {session.notes && (
-                    <p style={{ fontSize: '0.8rem', color: '#8d939e', margin: '4px 0 0 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: '1.4' }}>
+                    <p style={{ fontSize: '0.8rem', color: '#a39a8c', margin: '4px 0 0 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: '1.4' }}>
                       <strong>Notes:</strong> {session.notes}
                     </p>
                   )}
@@ -1899,50 +1899,50 @@ export default function TrainingLab({
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px' }}>
-            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
               <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>Mark</strong>
-              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>Catching the football cleanly from a kick. Emphasize to players: "Hands out in front like a basket, keep your eyes on the ball."</span>
+              <span style={{ fontSize: '0.875rem', color: '#d9d2c4', lineHeight: '1.4' }}>Catching the football cleanly from a kick. Emphasize to players: "Hands out in front like a basket, keep your eyes on the ball."</span>
             </div>
 
-            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
               <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>Handball / Handpass</strong>
-              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>Holding the ball in one hand and punching it out with the other fist. *Rule*: Never throw the ball. Teach players to strike it cleanly.</span>
+              <span style={{ fontSize: '0.875rem', color: '#d9d2c4', lineHeight: '1.4' }}>Holding the ball in one hand and punching it out with the other fist. *Rule*: Never throw the ball. Teach players to strike it cleanly.</span>
             </div>
 
-            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
               <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>Lead</strong>
-              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>Sprinting away from an opponent into open space to receive a pass from a teammate.</span>
+              <span style={{ fontSize: '0.875rem', color: '#d9d2c4', lineHeight: '1.4' }}>Sprinting away from an opponent into open space to receive a pass from a teammate.</span>
             </div>
 
-            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
               <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>Grid / Channel / Lane</strong>
-              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>A marked-out area using plastic cones. Keeps players spaced out and organized.</span>
+              <span style={{ fontSize: '0.875rem', color: '#d9d2c4', lineHeight: '1.4' }}>A marked-out area using plastic cones. Keeps players spaced out and organized.</span>
             </div>
 
-            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
               <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>Drop Punt</strong>
-              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>The standard AFL kick where the player drops the ball end-over-end, kicking it with the laces of their boot.</span>
+              <span style={{ fontSize: '0.875rem', color: '#d9d2c4', lineHeight: '1.4' }}>The standard AFL kick where the player drops the ball end-over-end, kicking it with the laces of their boot.</span>
             </div>
 
-            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
               <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>Stab Pass</strong>
-              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>A low, fast, direct kick to a teammate. Great for quick passing.</span>
+              <span style={{ fontSize: '0.875rem', color: '#d9d2c4', lineHeight: '1.4' }}>A low, fast, direct kick to a teammate. Great for quick passing.</span>
             </div>
 
-            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
               <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>SSG (Small-Sided Game)</strong>
-              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>A mini-match played on a smaller field grid (e.g. 5v5 or 6v6). Ensures every player gets lots of turns and touches.</span>
+              <span style={{ fontSize: '0.875rem', color: '#d9d2c4', lineHeight: '1.4' }}>A mini-match played on a smaller field grid (e.g. 5v5 or 6v6). Ensures every player gets lots of turns and touches.</span>
             </div>
 
-            <div style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '14px' }}>
               <strong style={{ color: 'var(--color-training)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>Pivot</strong>
-              <span style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.4' }}>Stopping, planting one foot, and spinning around to find an open teammate.</span>
+              <span style={{ fontSize: '0.875rem', color: '#d9d2c4', lineHeight: '1.4' }}>Stopping, planting one foot, and spinning around to find an open teammate.</span>
             </div>
           </div>
 
-          <div style={{ backgroundColor: 'rgba(58, 134, 255, 0.08)', border: '1px solid rgba(58, 134, 255, 0.2)', borderRadius: '8px', padding: '16px', marginTop: '12px' }}>
-            <h4 style={{ margin: '0 0 6px 0', fontSize: '0.95rem', color: '#3a86ff' }}>Three Golden Rules for Volunteers:</h4>
-            <ol style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: '#d1d5db', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ backgroundColor: 'rgba(201, 162, 75, 0.08)', border: '1px solid rgba(201, 162, 75, 0.2)', borderRadius: '8px', padding: '16px', marginTop: '12px' }}>
+            <h4 style={{ margin: '0 0 6px 0', fontSize: '0.95rem', color: '#c9a24b' }}>Three Golden Rules for Volunteers:</h4>
+            <ol style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: '#d9d2c4', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <li><strong>Focus on effort, not results:</strong> Praise players for trying a skill (like a difficult kick), even if the ball goes out of bounds.</li>
               <li><strong>Keep it active:</strong> If you see kids standing in line waiting, add more balls or split them into smaller groups.</li>
               <li><strong>Keep instructions short:</strong> Explain a drill in under 60 seconds. Volunteers can demonstrate the movement physically rather than talking!</li>
@@ -1979,8 +1979,8 @@ export default function TrainingLab({
             >
               Training Lab
             </h2>
-            <div style={{ backgroundColor: 'rgba(58, 134, 255, 0.08)', border: '1px solid rgba(58, 134, 255, 0.15)', borderRadius: '8px', padding: '12px', marginTop: '16px' }}>
-              <span style={{ fontSize: '0.825rem', color: '#d1d5db', lineHeight: '1.4' }}>
+            <div style={{ backgroundColor: 'rgba(201, 162, 75, 0.08)', border: '1px solid rgba(201, 162, 75, 0.15)', borderRadius: '8px', padding: '12px', marginTop: '16px' }}>
+              <span style={{ fontSize: '0.825rem', color: '#d9d2c4', lineHeight: '1.4' }}>
                 💡 <strong>Volunteers & Parents:</strong> You don't need any prior AFL knowledge to coach! We've made these drills simple to run. Tap the <strong>Volunteer Glossary</strong> tab at the top of the screen anytime to look up AFL terms.
               </span>
             </div>
@@ -2024,7 +2024,7 @@ export default function TrainingLab({
               style={{ 
                 fontFamily: 'var(--font-family-body)',
                 fontSize: '0.9rem', 
-                color: '#8d939e', 
+                color: '#a39a8c', 
                 lineHeight: '1.4',
                 fontWeight: '500'
               }}
@@ -2055,7 +2055,7 @@ export default function TrainingLab({
                 fontWeight: '700',
                 textTransform: 'uppercase',
                 fontStyle: 'italic',
-                color: '#8d939e',
+                color: '#a39a8c',
                 letterSpacing: '0.02em'
               }}
             >
@@ -2270,7 +2270,7 @@ export default function TrainingLab({
               left: 0,
               right: 0,
               padding: '16px',
-              backgroundColor: 'rgba(18, 20, 28, 0.95)',
+              backgroundColor: 'rgba(20, 18, 15, 0.95)',
               backdropFilter: 'blur(8px)',
               borderTop: '1px solid rgba(255, 255, 255, 0.05)',
               zIndex: 90
@@ -2293,7 +2293,7 @@ export default function TrainingLab({
                   letterSpacing: '0.05em',
                   textTransform: 'uppercase',
                   cursor: presentIds.length === 0 ? 'not-allowed' : 'pointer',
-                  boxShadow: presentIds.length === 0 ? 'none' : '0 4px 12px rgba(230, 57, 70, 0.3)',
+                  boxShadow: presentIds.length === 0 ? 'none' : '0 4px 12px rgba(193, 68, 59, 0.3)',
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -2371,8 +2371,8 @@ export default function TrainingLab({
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '8px',
-                    backgroundColor: 'rgba(230, 57, 70, 0.12)', 
-                    border: '1px solid rgba(230, 57, 70, 0.35)',
+                    backgroundColor: 'rgba(193, 68, 59, 0.12)', 
+                    border: '1px solid rgba(193, 68, 59, 0.35)',
                     color: '#ffffff',
                     padding: '8px 16px',
                     borderRadius: '20px',
@@ -2380,7 +2380,7 @@ export default function TrainingLab({
                     fontSize: '0.95rem',
                     fontWeight: '700',
                     letterSpacing: '0.03em',
-                    boxShadow: '0 2px 8px rgba(230, 57, 70, 0.15)'
+                    boxShadow: '0 2px 8px rgba(193, 68, 59, 0.15)'
                   }}
                 >
                   <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--color-training)', display: 'inline-block' }} />
@@ -2445,7 +2445,7 @@ export default function TrainingLab({
                               borderRadius: '20px',
                               border: isSelected ? '2px solid var(--color-training)' : '1px solid rgba(255, 255, 255, 0.12)',
                               backgroundColor: isSelected ? 'var(--color-training)' : 'rgba(0,0,0,0.4)',
-                              color: isSelected ? '#ffffff' : '#9ca3af',
+                              color: isSelected ? '#ffffff' : '#a69c8c',
                               fontSize: '0.85rem',
                               fontWeight: isSelected ? '700' : '500',
                               cursor: 'pointer',
@@ -2454,7 +2454,7 @@ export default function TrainingLab({
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: '6px',
-                              boxShadow: isSelected ? '0 2px 8px rgba(230, 57, 70, 0.4)' : 'none'
+                              boxShadow: isSelected ? '0 2px 8px rgba(193, 68, 59, 0.4)' : 'none'
                             }}
                           >
                             {isSelected && <span style={{ fontWeight: '900', fontSize: '0.9rem' }}>✓</span>}
@@ -2496,7 +2496,7 @@ export default function TrainingLab({
               left: 0,
               right: 0,
               padding: '16px',
-              backgroundColor: 'rgba(18, 20, 28, 0.95)',
+              backgroundColor: 'rgba(20, 18, 15, 0.95)',
               backdropFilter: 'blur(8px)',
               borderTop: '1px solid rgba(255, 255, 255, 0.05)',
               zIndex: 90
@@ -2518,7 +2518,7 @@ export default function TrainingLab({
                   letterSpacing: '0.05em',
                   textTransform: 'uppercase',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(230, 57, 70, 0.3)'
+                  boxShadow: '0 4px 12px rgba(193, 68, 59, 0.3)'
                 }}
               >
                 Generate Training Plan
@@ -2564,7 +2564,7 @@ export default function TrainingLab({
                 type="button"
                 className="icon-btn"
                 onClick={() => setIsPlanOverflowOpen(!isPlanOverflowOpen)}
-                style={{ width: '44px', height: '44px', padding: 0, fontSize: '1.2rem', color: '#8d939e', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{ width: '44px', height: '44px', padding: 0, fontSize: '1.2rem', color: '#a39a8c', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 aria-label="More options"
               >
                 &#8285;
@@ -2576,7 +2576,7 @@ export default function TrainingLab({
                   right: 0,
                   top: '100%',
                   marginTop: '4px',
-                  backgroundColor: '#1c202c',
+                  backgroundColor: '#211d16',
                   border: '1px solid rgba(255, 255, 255, 0.12)',
                   borderRadius: '8px',
                   boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
@@ -2590,7 +2590,7 @@ export default function TrainingLab({
                       setIsPlanOverflowOpen(false);
                       handleGenerateVariation();
                     }}
-                    style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', color: '#ffbe0b', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer', borderRadius: '4px' }}
+                    style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', color: '#d98a32', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer', borderRadius: '4px' }}
                   >
                     Remix Plan
                   </button>
@@ -2600,7 +2600,7 @@ export default function TrainingLab({
                       setIsPlanOverflowOpen(false);
                       setIsCancelPlanConfirmOpen(true);
                     }}
-                    style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', color: '#e63946', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer', borderRadius: '4px' }}
+                    style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', color: '#c1443b', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer', borderRadius: '4px' }}
                   >
                     Cancel Plan
                   </button>
@@ -2611,8 +2611,8 @@ export default function TrainingLab({
 
           {/* Loading / Error / Plan Content */}
           {isGenerating ? (
-            <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', padding: '60px 20px', backgroundColor: '#161922', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', border: '3px solid rgba(230, 57, 70, 0.15)', borderTopColor: 'var(--color-training)', animation: 'spin 0.8s linear infinite' }} />
+            <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', padding: '60px 20px', backgroundColor: '#1c1913', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', border: '3px solid rgba(193, 68, 59, 0.15)', borderTopColor: 'var(--color-training)', animation: 'spin 0.8s linear infinite' }} />
               <div style={{ fontSize: '1rem', color: '#ffffff', fontWeight: '700' }}>
                 Preparing your training plan…
               </div>
@@ -2623,11 +2623,11 @@ export default function TrainingLab({
               </div>
             </div>
           ) : generationError ? (
-            <div style={{ textAlign: 'center', padding: '40px 20px', backgroundColor: '#161922', borderRadius: '12px', border: '1px solid rgba(230, 57, 70, 0.3)', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
-              <div style={{ fontSize: '1.05rem', color: '#e63946', fontWeight: '700' }}>
+            <div style={{ textAlign: 'center', padding: '40px 20px', backgroundColor: '#1c1913', borderRadius: '12px', border: '1px solid rgba(193, 68, 59, 0.3)', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+              <div style={{ fontSize: '1.05rem', color: '#c1443b', fontWeight: '700' }}>
                 We couldn’t load this training plan.
               </div>
-              <div style={{ fontSize: '0.85rem', color: '#8d939e' }}>
+              <div style={{ fontSize: '0.85rem', color: '#a39a8c' }}>
                 {generationError}
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
@@ -2658,10 +2658,10 @@ export default function TrainingLab({
 
               {/* ACTIVE COACHING MODE BANNER (When Session is Active) */}
               {isSessionActive && (
-                <div style={{ backgroundColor: 'rgba(58, 134, 255, 0.1)', border: '1px solid rgba(58, 134, 255, 0.3)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ backgroundColor: 'rgba(201, 162, 75, 0.1)', border: '1px solid rgba(201, 162, 75, 0.3)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <span style={{ fontSize: '0.7rem', color: '#3a86ff', textTransform: 'uppercase', fontWeight: '700' }}>
+                      <span style={{ fontSize: '0.7rem', color: '#c9a24b', textTransform: 'uppercase', fontWeight: '700' }}>
                         ACTIVE COACHING MODE — STAGE {activeStageIndex + 1} OF 4
                       </span>
                       <h4 style={{ margin: '2px 0 0 0', color: '#ffffff', fontSize: '1.1rem', fontWeight: '700' }}>
@@ -2688,7 +2688,7 @@ export default function TrainingLab({
 
                   {/* Active Station Rotation Prompts */}
                   {(activeStageIndex === 1 || activeStageIndex === 2) && (
-                    <div style={{ backgroundColor: 'rgba(255, 183, 3, 0.08)', border: '1px dashed rgba(255, 183, 3, 0.3)', borderRadius: '8px', padding: '10px 12px', fontSize: '0.8rem', color: '#ffb703', lineHeight: '1.4' }}>
+                    <div style={{ backgroundColor: 'rgba(217, 138, 50, 0.08)', border: '1px dashed rgba(217, 138, 50, 0.3)', borderRadius: '8px', padding: '10px 12px', fontSize: '0.8rem', color: '#d98a32', lineHeight: '1.4' }}>
                       <strong>🔄 Station Rotation Notice:</strong> Groups switch at the halfway mark.
                       <div style={{ color: '#ffffff', marginTop: '4px', fontSize: '0.78rem' }}>
                         {activeStageIndex === 1 
@@ -2757,7 +2757,7 @@ export default function TrainingLab({
               left: 0,
               right: 0,
               padding: '12px 16px max(12px, env(safe-area-inset-bottom)) 16px',
-              backgroundColor: 'rgba(10, 11, 14, 0.95)',
+              backgroundColor: 'rgba(12, 11, 8, 0.95)',
               backdropFilter: 'blur(12px)',
               borderTop: '1px solid rgba(255, 255, 255, 0.08)',
               zIndex: 90
@@ -2771,7 +2771,7 @@ export default function TrainingLab({
                     className="btn"
                     onClick={() => handleGenerateVariation()}
                     disabled={isGenerating}
-                    style={{ flex: 1, minHeight: '44px', fontWeight: '700', color: '#ffbe0b', borderColor: 'rgba(255, 190, 11, 0.3)' }}
+                    style={{ flex: 1, minHeight: '44px', fontWeight: '700', color: '#d98a32', borderColor: 'rgba(217, 138, 50, 0.3)' }}
                   >
                     Remix
                   </button>
@@ -2836,7 +2836,7 @@ export default function TrainingLab({
             backgroundColor: 'var(--color-training)',
             color: '#ffffff',
             border: 'none',
-            boxShadow: '0 4px 15px rgba(230, 57, 70, 0.4)',
+            boxShadow: '0 4px 15px rgba(193, 68, 59, 0.4)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -2864,10 +2864,10 @@ export default function TrainingLab({
             maxWidth: '480px',
             margin: '0 auto',
             backgroundColor: '#1c2a1f',
-            border: '1px solid rgba(0, 230, 118, 0.4)',
+            border: '1px solid rgba(107, 142, 78, 0.4)',
             borderRadius: '10px',
             padding: '12px 14px',
-            color: '#d1d5db',
+            color: '#d9d2c4',
             fontSize: '0.82rem',
             lineHeight: 1.4,
             zIndex: 100,
@@ -2881,7 +2881,7 @@ export default function TrainingLab({
           <span>{lateArrivalMessage}</span>
           <button
             onClick={() => setLateArrivalMessage('')}
-            style={{ background: 'none', border: 'none', color: '#8d939e', cursor: 'pointer', flexShrink: 0, fontSize: '1rem', lineHeight: 1 }}
+            style={{ background: 'none', border: 'none', color: '#a39a8c', cursor: 'pointer', flexShrink: 0, fontSize: '1rem', lineHeight: 1 }}
             aria-label="Dismiss"
           >
             ✕
@@ -2972,7 +2972,7 @@ export default function TrainingLab({
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', textTransform: 'uppercase', marginBottom: '8px' }}>Focus Areas</span>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                   {selectedSession.focusAreas?.map((f, idx) => (
-                    <span key={idx} style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: '14px', backgroundColor: 'rgba(230,57,70,0.15)', color: '#ffffff', border: '1px solid rgba(230,57,70,0.25)' }}>
+                    <span key={idx} style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: '14px', backgroundColor: 'rgba(193,68,59,0.15)', color: '#ffffff', border: '1px solid rgba(193,68,59,0.25)' }}>
                       {f}
                     </span>
                   ))}
@@ -2982,7 +2982,7 @@ export default function TrainingLab({
               {selectedSession.notes && (
                 <div style={{ backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '6px', padding: '12px' }}>
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', textTransform: 'uppercase', marginBottom: '6px', fontWeight: '600' }}>Coach's Notes</span>
-                  <p style={{ fontSize: '0.85rem', color: '#d1d5db', margin: 0, whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{selectedSession.notes}</p>
+                  <p style={{ fontSize: '0.85rem', color: '#d9d2c4', margin: 0, whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{selectedSession.notes}</p>
                 </div>
               )}
 
@@ -2990,23 +2990,23 @@ export default function TrainingLab({
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', textTransform: 'uppercase', marginBottom: '12px', fontWeight: '600' }}>Drills Executed</span>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {sanitizePlanCards(selectedSession.drills || [], squadSettings?.groundName || "home ground", selectedSession.playerCount || 18, selectedSession.ageGroup || ageGroup).map((drill, idx) => (
-                    <div key={idx} style={{ backgroundColor: '#1c1f26', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '16px' }}>
+                    <div key={idx} style={{ backgroundColor: '#211d16', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '16px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                         <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#ffffff', fontFamily: 'var(--font-family-locker)', textTransform: 'uppercase' }}>{drill.title}</h4>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           {drill.phase && (
                             <span style={{
                               fontSize: '0.65rem',
-                              backgroundColor: drill.phase.toUpperCase() === 'ATTACK' ? 'rgba(58, 134, 255, 0.15)' : 
-                                               drill.phase.toUpperCase() === 'DEFENCE' ? 'rgba(230, 57, 70, 0.15)' : 
-                                               'rgba(255, 183, 3, 0.15)',
-                              color: drill.phase.toUpperCase() === 'ATTACK' ? '#3a86ff' : 
-                                     drill.phase.toUpperCase() === 'DEFENCE' ? '#e63946' : 
-                                     '#ffb703',
+                              backgroundColor: drill.phase.toUpperCase() === 'ATTACK' ? 'rgba(201, 162, 75, 0.15)' : 
+                                               drill.phase.toUpperCase() === 'DEFENCE' ? 'rgba(193, 68, 59, 0.15)' : 
+                                               'rgba(217, 138, 50, 0.15)',
+                              color: drill.phase.toUpperCase() === 'ATTACK' ? '#c9a24b' : 
+                                     drill.phase.toUpperCase() === 'DEFENCE' ? '#c1443b' : 
+                                     '#d98a32',
                               border: `1px solid ${
-                                drill.phase.toUpperCase() === 'ATTACK' ? 'rgba(58, 134, 255, 0.3)' : 
-                                drill.phase.toUpperCase() === 'DEFENCE' ? 'rgba(230, 57, 70, 0.3)' : 
-                                'rgba(255, 183, 3, 0.3)'
+                                drill.phase.toUpperCase() === 'ATTACK' ? 'rgba(201, 162, 75, 0.3)' : 
+                                drill.phase.toUpperCase() === 'DEFENCE' ? 'rgba(193, 68, 59, 0.3)' : 
+                                'rgba(217, 138, 50, 0.3)'
                               }`,
                               padding: '1px 6px',
                               borderRadius: '3px',
@@ -3021,14 +3021,14 @@ export default function TrainingLab({
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.05)', flexWrap: 'wrap', gap: '8px' }}>
                         <div style={{ fontSize: '0.75rem', color: 'var(--color-training)', fontWeight: '600' }}>
-                          Goal: <span style={{ color: '#d1d5db' }}>{drill.goal}</span>
+                          Goal: <span style={{ color: '#d9d2c4' }}>{drill.goal}</span>
                         </div>
                         <button
                           onClick={() => setActiveInspectDrill(resolveFullDrillRecord(drill))}
                           style={{
-                            backgroundColor: 'rgba(58, 134, 255, 0.12)',
-                            border: '1px solid rgba(58, 134, 255, 0.3)',
-                            color: '#3a86ff',
+                            backgroundColor: 'rgba(201, 162, 75, 0.12)',
+                            border: '1px solid rgba(201, 162, 75, 0.3)',
+                            color: '#c9a24b',
                             borderRadius: '6px',
                             padding: '4px 10px',
                             fontFamily: 'var(--font-family-locker)',
@@ -3070,18 +3070,18 @@ export default function TrainingLab({
                 width: '60px',
                 height: '60px',
                 borderRadius: '50%',
-                backgroundColor: 'rgba(230, 57, 70, 0.1)',
-                border: '2.5px solid #e63946',
+                backgroundColor: 'rgba(193, 68, 59, 0.1)',
+                border: '2.5px solid #c1443b',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#e63946',
+                color: '#c1443b',
                 fontSize: '1.8rem',
                 marginBottom: '10px'
               }}>
                 🔒
               </div>
-              <h3 className="scoreboard-font" style={{ fontSize: '1.4rem', color: '#e63946', margin: 0 }}>
+              <h3 className="scoreboard-font" style={{ fontSize: '1.4rem', color: '#c1443b', margin: 0 }}>
                 UPGRADE REQUIRED
               </h3>
               <p style={{ fontSize: '0.9rem', color: '#ffffff', lineHeight: '1.5' }}>
@@ -3102,8 +3102,8 @@ export default function TrainingLab({
                     padding: '12px',
                     fontWeight: '700',
                     textTransform: 'uppercase',
-                    backgroundColor: '#e63946',
-                    borderColor: '#e63946'
+                    backgroundColor: '#c1443b',
+                    borderColor: '#c1443b'
                   }}
                 >
                   View Subscription Options
@@ -3135,13 +3135,13 @@ export default function TrainingLab({
         >
           <div 
             className="modal-content" 
-            style={{ maxWidth: '360px', width: '100%', borderRadius: '12px', padding: '24px', backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}
+            style={{ maxWidth: '360px', width: '100%', borderRadius: '12px', padding: '24px', backgroundColor: '#1c1913', border: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}
             onClick={(e) => e.stopPropagation()}
           >
             <h4 style={{ color: '#ffffff', fontSize: '1.15rem', fontWeight: '700', margin: '0 0 10px 0' }}>
               Cancel this training plan?
             </h4>
-            <p style={{ fontSize: '0.85rem', color: '#8d939e', lineHeight: '1.5', margin: '0 0 20px 0' }}>
+            <p style={{ fontSize: '0.85rem', color: '#a39a8c', lineHeight: '1.5', margin: '0 0 20px 0' }}>
               Your current generated training plan will be discarded.
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
@@ -3165,9 +3165,9 @@ export default function TrainingLab({
                   flex: 1, 
                   padding: '10px', 
                   fontSize: '0.85rem', 
-                  backgroundColor: '#e63946', 
+                  backgroundColor: '#c1443b', 
                   color: '#ffffff', 
-                  borderColor: '#e63946',
+                  borderColor: '#c1443b',
                   fontWeight: '700' 
                 }}
               >
@@ -3188,13 +3188,13 @@ export default function TrainingLab({
         >
           <div 
             className="modal-content" 
-            style={{ maxWidth: '360px', width: '100%', borderRadius: '12px', padding: '24px', backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}
+            style={{ maxWidth: '360px', width: '100%', borderRadius: '12px', padding: '24px', backgroundColor: '#1c1913', border: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}
             onClick={(e) => e.stopPropagation()}
           >
             <h4 style={{ color: '#ffffff', fontSize: '1.15rem', fontWeight: '700', margin: '0 0 10px 0' }}>
               Replace this drill?
             </h4>
-            <p style={{ fontSize: '0.85rem', color: '#8d939e', lineHeight: '1.5', margin: '0 0 20px 0' }}>
+            <p style={{ fontSize: '0.85rem', color: '#a39a8c', lineHeight: '1.5', margin: '0 0 20px 0' }}>
               This will select a new suitable drill matching your session duration and focus.
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
@@ -3233,17 +3233,17 @@ export default function TrainingLab({
         >
           <div 
             className="modal-content" 
-            style={{ maxWidth: '360px', width: '100%', borderRadius: '12px', padding: '24px', backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}
+            style={{ maxWidth: '360px', width: '100%', borderRadius: '12px', padding: '24px', backgroundColor: '#1c1913', border: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}
             onClick={(e) => e.stopPropagation()}
           >
             <h4 style={{ color: '#ffffff', fontSize: '1.15rem', fontWeight: '700', margin: '0 0 10px 0' }}>
               End training session?
             </h4>
-            <p style={{ fontSize: '0.85rem', color: '#8d939e', lineHeight: '1.5', margin: '0 0 14px 0' }}>
+            <p style={{ fontSize: '0.85rem', color: '#a39a8c', lineHeight: '1.5', margin: '0 0 14px 0' }}>
               This will complete the current session and save it to Session History.
             </p>
             <div style={{ textAlign: 'left', marginBottom: '18px' }}>
-              <label style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '700', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '0.75rem', color: '#a39a8c', fontWeight: '700', display: 'block', marginBottom: '4px' }}>
                 Coach's Notes (Optional)
               </label>
               <textarea

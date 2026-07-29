@@ -13,7 +13,7 @@ export default function ProtectedRoute({ children }) {
         width: '100vw',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#050507',
+        backgroundColor: '#100e0b',
         color: '#ffffff'
       }}>
         <div className="scoreboard-font" style={{ fontSize: '1.25rem', letterSpacing: '0.05em' }}>
