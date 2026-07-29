@@ -6,7 +6,7 @@ export default function SetupWizard({
   subscriptionTier = 'Ultra',
   onCompleteSetup
 }) {
-  const isB2B = (subscriptionTier || '').toLowerCase() === 'b2b' || (subscriptionTier || '').toLowerCase() === 'club';
+  const isB2B = (subscriptionTier || '').toLowerCase().includes('b2b') || (subscriptionTier || '').toLowerCase().includes('club');
 
   // Initialize form state
   const [name, setName] = useState('');

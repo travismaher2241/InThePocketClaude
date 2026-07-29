@@ -301,13 +301,12 @@ export async function getUserProfile(uid) {
     return defaultProfile;
   } catch (err) {
     if (err?.code === 'permission-denied' || err?.message?.includes('permissions') || err?.message?.includes('Missing or insufficient')) {
-      console.warn("Firestore permission restricted for getUserProfile; using local profile.");
-      return {
-        subscriptionTier: "free",
-        isActive: true,
-        aiGensCount: 0,
-        createdAt: new Date().toISOString()
-      };
+      // We couldn't actually read the profile, so we don't know the real subscription
+      // tier - returning a fabricated "free" profile here previously caused App.jsx to
+      // silently downgrade an active session's tier every time this read failed. Return
+      // null so callers fall back to whatever tier they already have locally instead.
+      console.warn("Firestore permission restricted for getUserProfile; profile unavailable this session.");
+      return null;
     }
     throw err;
   }

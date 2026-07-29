@@ -89,13 +89,12 @@ const getDefaultTokens = () => {
   return [...whiteTeam, ...blackTeam];
 };
 
-export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPaywall, onHasUnsavedChangesChange }) {
+export default function TacticsBoard({ squad = [], subscriptionTier, triggerPaywall, onHasUnsavedChangesChange }) {
   const { currentUser } = useAuth();
   const getScoped = (key) => getScopedKey(key, currentUser?.uid || currentUser?.email || 'guest');
 
   // Ultra Tier Entitlement check
   const isGated = !hasAccess(subscriptionTier, 'ultra');
-  const [unlockedSuccess, setUnlockedSuccess] = useState(false);
 
   // Active Tool Mode: 'select' (default for moving tokens), 'brush', 'arrow', 'laser', 'eraser'
   const [tool, setTool] = useState('select');
@@ -802,43 +801,30 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
             Build and save interactive AFL tactics using player magnets, drawing tools, arrows and laser guides.
           </p>
           
-          {unlockedSuccess ? (
-            <div style={{ backgroundColor: 'rgba(46, 196, 182, 0.15)', border: '1px solid #2ec4b6', padding: '14px', borderRadius: '10px', color: '#2ec4b6', width: '100%' }}>
-              <div style={{ fontWeight: '800', fontSize: '1.1rem' }}>Ultra unlocked</div>
-              <div style={{ fontSize: '0.85rem', marginTop: '4px' }}>You now have access to the Interactive Tactics Board.</div>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', marginTop: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', marginTop: '8px' }}>
+            <button
+              className="btn btn-squad"
+              onClick={() => triggerPaywall && triggerPaywall('Tactics Board access')}
+              style={{ width: '100%', padding: '14px', fontSize: '1rem', fontWeight: '700' }}
+            >
+              Upgrade to Ultra
+            </button>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
               <button
-                className="btn btn-squad"
-                onClick={() => {
-                  if (triggerPaywall) {
-                    triggerPaywall('Tactics Board access');
-                  } else {
-                    setUnlockedSuccess(true);
-                  }
-                }}
-                style={{ width: '100%', padding: '14px', fontSize: '1rem', fontWeight: '700' }}
+                onClick={() => triggerPaywall && triggerPaywall('Restore')}
+                style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
               >
-                Upgrade to Ultra
+                Restore Purchases
               </button>
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                <button
-                  onClick={() => triggerPaywall && triggerPaywall('Restore')}
-                  style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
-                >
-                  Restore Purchases
-                </button>
-                <span style={{ color: '#4b5563' }}>•</span>
-                <button
-                  onClick={() => triggerPaywall && triggerPaywall('Details')}
-                  style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
-                >
-                  View Plan Details
-                </button>
-              </div>
+              <span style={{ color: '#4b5563' }}>•</span>
+              <button
+                onClick={() => triggerPaywall && triggerPaywall('Details')}
+                style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                View Plan Details
+              </button>
             </div>
-          )}
+          </div>
         </div>
       </div>
     );
@@ -1399,6 +1385,27 @@ export default function TacticsBoard({ _squad = [], subscriptionTier, triggerPay
                 ✕
               </button>
             </div>
+
+            {squad.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '700' }}>Fill From Roster (Optional)</label>
+                <select
+                  value=""
+                  onChange={(e) => {
+                    const chosen = squad.find(p => p.id === e.target.value);
+                    if (chosen) {
+                      setEditForm({ ...editForm, name: chosen.name || '', number: chosen.jersey != null ? String(chosen.jersey) : '' });
+                    }
+                  }}
+                  style={{ width: '100%', padding: '10px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', color: '#ffffff', fontSize: '0.9rem' }}
+                >
+                  <option value="">Select a player…</option>
+                  {squad.map(p => (
+                    <option key={p.id} value={p.id}>{p.jersey != null ? `#${p.jersey} ` : ''}{p.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div style={{ display: 'flex', gap: '10px' }}>
               <div style={{ flex: 2, display: 'flex', flexDirection: 'column', gap: '4px' }}>

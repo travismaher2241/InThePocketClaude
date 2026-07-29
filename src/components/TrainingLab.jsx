@@ -2,359 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import ContextualTaggingModal from './ContextualTaggingModal';
 import DrillDetailsModal from './DrillDetailsModal';
-import { saveTrainingSession, getTrainingSessions, deleteSession, hasAccess, fetchRawAIPlan, confirmAIGenerationQuota, getUserProfile } from '../firebaseHelpers';
+import { saveTrainingSession, getTrainingSessions, deleteSession, hasAccess } from '../firebaseHelpers';
 import { saveVideoClipToIDB } from '../utils/videoStore';
 import { generateLocalPlan } from '../training/planEngine';
 import { enhancePlanWithAI } from '../training/aiPlanEnhancer';
 import { useAuth } from '../context/AuthProvider';
-import { getCurriculumConfig, SMALL_SIDED_GAMES, PRESCRIBED_DRILLS, LOCAL_DRILLS, ADULT_LOCAL_DRILLS, AFL_PRE_GAME_WARMUPS, SYLLABUS_DRILLS, loadDrillsDatabase } from '../data/curriculumKnowledge';
-import aflGroundImage from '../assets/AFL GROUND.png';
-
-function DrillSetupVisualizer({ instructions, title, groundName = "home ground" }) {
-  if (!instructions) return null;
-
-  // Extract target kicking type
-  const kickingMatch = instructions.match(/TARGET\s+KICKING\s+TYPE:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i);
-  const kickingType = kickingMatch ? kickingMatch[1].trim() : "";
-
-  // Extract distances
-  const distanceMatches = [...instructions.matchAll(/(\d+)\s*(?:m|meter|meters|metre|metres)/gi)];
-  const distances = distanceMatches.map(m => m[0]);
-  
-  const distVal1 = distances[0] || "15m";
-  const distVal2 = distances[1] || "15m";
-
-  // Determine geometry type
-  const titleLower = (title || '').toLowerCase();
-  const instLower = instructions.toLowerCase();
-  const combText = titleLower + " " + instLower;
-
-  let layoutType = "straight";
-  if (combText.includes("circle") || combText.includes("round") || combText.includes("wheel") || combText.includes("loop")) {
-    layoutType = "circle";
-  } else if (combText.includes("diamond")) {
-    layoutType = "diamond";
-  } else if (combText.includes("zig-zag") || combText.includes("zigzag") || combText.includes("45-degree")) {
-    layoutType = "zigzag";
-  } else if (combText.includes("funnel")) {
-    layoutType = "funnel";
-  } else if (combText.includes("matrix") || combText.includes("cross-oval") || combText.includes("switch")) {
-    layoutType = "matrix";
-  }
-
-  // Determine kicking trajectory curve
-  let isLowTrajectory = true;
-  if (kickingType.toLowerCase().includes('looping') || kickingType.toLowerCase().includes('high') || kickingType.toLowerCase().includes('launch')) {
-    isLowTrajectory = false;
-  }
-
-  // SVG Render Helper Components
-  const renderGrass = () => (
-    <>
-      <defs>
-        <radialGradient id="grassGrad" cx="50%" cy="50%" r="70%">
-          <stop offset="0%" stopColor="#1a4d2e" />
-          <stop offset="100%" stopColor="#0f301b" />
-        </radialGradient>
-        <marker id="arrowHead" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-          <path d="M 0 1 L 10 5 L 0 9 z" fill="#ffb703" />
-        </marker>
-        <filter id="coneShadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="1" dy="2" stdDeviation="1.5" floodColor="#000000" floodOpacity="0.9" />
-        </filter>
-      </defs>
-      {/* Dynamic Field Turf */}
-      <rect width="400" height="225" fill="url(#grassGrad)" rx="8" />
-      {/* Programmatic White Lines (AFL Oval boundary) */}
-      <ellipse cx="200" cy="112.5" rx="185" ry="98" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.75" />
-      <ellipse cx="200" cy="112.5" rx="183" ry="96" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="0.75" />
-      
-      {/* 50m arcs */}
-      <path d="M 80 112.5 A 120 120 0 0 1 320 112.5" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="3,3" />
-      <path d="M 80 112.5 A 120 120 0 0 0 320 112.5" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="3,3" />
-
-      {/* Center Square */}
-      <rect x="150" y="62.5" width="100" height="100" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.25" />
-      <circle cx="200" cy="112.5" r="20" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.25" />
-    </>
-  );
-
-  const renderCone = (x, y, label) => (
-    <g transform={`translate(${x}, ${y})`} filter="url(#coneShadow)">
-      {/* Base */}
-      <ellipse cx="0" cy="5" rx="5" ry="2.2" fill="#d03e00" />
-      {/* Body */}
-      <path d="M -4 4 L 4 4 L 1.2 -5 L -1.2 -5 Z" fill="#fb8500" />
-      {/* Tip */}
-      <path d="M -1.2 -5 L 1.2 -5 L 0 -8 Z" fill="#ffb703" />
-      {/* Label */}
-      <text x="8" y="2" fill="#ffffff" fontSize="7.5" fontWeight="800" filter="url(#coneShadow)" fontFamily="monospace">{label}</text>
-    </g>
-  );
-
-  const renderQueue = (x, y) => (
-    <g transform={`translate(${x}, ${y})`}>
-      <circle cx="-10" cy="0" r="3.5" fill="#3a86ff" filter="url(#coneShadow)" />
-      <circle cx="-16" cy="4" r="3.5" fill="#3a86ff" opacity="0.75" />
-      <circle cx="-14" cy="-4" r="3.5" fill="#3a86ff" opacity="0.6" />
-    </g>
-  );
-
-  const renderVisualizerLayout = () => {
-    switch (layoutType) {
-      case "circle": {
-        const c1 = { x: 200, y: 55 }, c2 = { x: 265, y: 83.75 }, c3 = { x: 265, y: 141.25 },
-              c4 = { x: 200, y: 170 }, c5 = { x: 135, y: 141.25 }, c6 = { x: 135, y: 83.75 };
-        return (
-          <>
-            {/* Circular dashed boundary line */}
-            <circle cx="200" cy="112.5" r="62" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="4,4" />
-            
-            {/* Passing Vectors */}
-            <path d={`M ${c1.x} ${c1.y + 4} Q 240 70, ${c2.x - 4} ${c2.y - 2}`} fill="none" stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-            <path d={`M ${c2.x} ${c2.y + 4} Q 265 112.5, ${c3.x - 2} ${c3.y - 4}`} fill="none" stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-            <path d={`M ${c3.x - 4} ${c3.y + 2} Q 240 155, ${c4.x} ${c4.y - 4}`} fill="none" stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-            <path d={`M ${c4.x} ${c4.y - 4} Q 160 155, ${c5.x + 4} ${c5.y + 2}`} fill="none" stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-            <path d={`M ${c5.x + 2} ${c5.y - 4} Q 135 112.5, ${c6.x} ${c6.y + 4}`} fill="none" stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-            <path d={`M ${c6.x} ${c6.y - 2} Q 160 70, ${c1.x} ${c1.y + 4}`} fill="none" stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-
-            {/* Cone Markers */}
-            {renderCone(c1.x, c1.y, "Cone A")}
-            {renderCone(c2.x, c2.y, "Cone B")}
-            {renderCone(c3.x, c3.y, "Cone C")}
-            {renderCone(c4.x, c4.y, "Cone D")}
-            {renderCone(c5.x, c5.y, "Cone E")}
-            {renderCone(c6.x, c6.y, "Cone F")}
-
-            {/* Player queues */}
-            {renderQueue(c1.x, c1.y)}
-            {renderQueue(c4.x, c4.y)}
-
-            {/* Layout labels */}
-            <text x="200" y="116" fill="rgba(255,255,255,0.4)" fontSize="8.5" fontWeight="bold" textAnchor="middle">CIRCLE WEAVE</text>
-            <text x="200" y="125" fill="#ffb703" fontSize="8" fontWeight="bold" textAnchor="middle">{distVal1} DIA</text>
-          </>
-        );
-      }
-      case "diamond": {
-        const cA = { x: 200, y: 170 }, cB = { x: 275, y: 112.5 }, cC = { x: 200, y: 55 }, cD = { x: 125, y: 112.5 };
-        return (
-          <>
-            {/* Diamond shape boundary */}
-            <polygon points="200,45 285,112.5 200,180 115,112.5" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="4,4" />
-
-            {/* Passing Vectors */}
-            <line x1={cA.x + 8} y1={cA.y - 8} x2={cB.x - 8} y2={cB.y + 8} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-            <line x1={cB.x - 8} y1={cB.y - 8} x2={cC.x + 8} y2={cC.y + 8} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-            <line x1={cC.x - 8} y1={cC.y + 8} x2={cD.x + 8} y2={cD.y - 8} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-            <line x1={cD.x + 8} y1={cD.y + 8} x2={cA.x - 8} y2={cA.y - 8} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-
-            {/* Cones */}
-            {renderCone(cA.x, cA.y, "Cone A")}
-            {renderCone(cB.x, cB.y, "Cone B")}
-            {renderCone(cC.x, cC.y, "Cone C")}
-            {renderCone(cD.x, cD.y, "Cone D")}
-
-            {/* Queues */}
-            {renderQueue(cA.x, cA.y)}
-            {renderQueue(cC.x, cC.y)}
-
-            {/* Dimension text */}
-            <text x="238" y="150" fill="#ffb703" fontSize="8" fontWeight="bold">{distVal1}</text>
-            <text x="238" y="85" fill="#ffb703" fontSize="8" fontWeight="bold">{distVal2}</text>
-            <text x="200" y="116" fill="rgba(255,255,255,0.4)" fontSize="8.5" fontWeight="bold" textAnchor="middle">DIAMOND GRID</text>
-          </>
-        );
-      }
-      case "zigzag": {
-        const cA = { x: 120, y: 170 }, cB = { x: 280, y: 130 }, cC = { x: 120, y: 90 }, cD = { x: 280, y: 50 };
-        return (
-          <>
-            {/* Passing Vectors */}
-            <line x1={cA.x + 12} y1={cA.y - 4} x2={cB.x - 12} y2={cB.y + 4} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-            <line x1={cB.x - 12} y1={cB.y - 4} x2={cC.x + 12} y2={cC.y + 4} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-            <line x1={cC.x + 12} y1={cC.y - 4} x2={cD.x - 12} y2={cD.y + 4} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-
-            {/* Cones */}
-            {renderCone(cA.x, cA.y, "Cone A")}
-            {renderCone(cB.x, cB.y, "Cone B")}
-            {renderCone(cC.x, cC.y, "Cone C")}
-            {renderCone(cD.x, cD.y, "Cone D")}
-
-            {/* Queues */}
-            {renderQueue(cA.x, cA.y)}
-
-            {/* Dimensions */}
-            <text x="200" y="160" fill="#ffb703" fontSize="8" fontWeight="bold" textAnchor="middle">{distVal1}</text>
-            <text x="200" y="105" fill="#ffb703" fontSize="8" fontWeight="bold" textAnchor="middle">{distVal2}</text>
-            <text x="200" y="210" fill="rgba(255,255,255,0.4)" fontSize="8.5" fontWeight="bold" textAnchor="middle">45-DEGREE ZIG-ZAG</text>
-          </>
-        );
-      }
-      case "funnel": {
-        const cA = { x: 120, y: 170 }, cB = { x: 280, y: 170 }, cC = { x: 170, y: 55 }, cD = { x: 230, y: 55 };
-        return (
-          <>
-            {/* Funnel bounds */}
-            <line x1={cA.x} y1={cA.y} x2={cC.x} y2={cC.y} stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeDasharray="3,3" />
-            <line x1={cB.x} y1={cB.y} x2={cD.x} y2={cD.y} stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeDasharray="3,3" />
-
-            {/* Passing Vector */}
-            <line x1="200" y1="165" x2="200" y2="65" stroke="#ffb703" strokeWidth="2" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-
-            {/* Cones */}
-            {renderCone(cA.x, cA.y, "Cone A")}
-            {renderCone(cB.x, cB.y, "Cone B")}
-            {renderCone(cC.x, cC.y, "Cone C")}
-            {renderCone(cD.x, cD.y, "Cone D")}
-
-            {/* Queues */}
-            {renderQueue(cA.x, cA.y)}
-            {renderQueue(cB.x, cB.y)}
-
-            {/* Dimension Text */}
-            <text x="200" y="182" fill="#ffb703" fontSize="8" fontWeight="bold" textAnchor="middle">{distVal1} MOUTH</text>
-            <text x="200" y="47" fill="#ffb703" fontSize="8" fontWeight="bold" textAnchor="middle">{distVal2} GATE</text>
-            <text x="200" y="116" fill="rgba(255,255,255,0.4)" fontSize="8.5" fontWeight="bold" textAnchor="middle">FUNNEL ZONE</text>
-          </>
-        );
-      }
-      case "matrix": {
-        const c1 = { x: 110, y: 55 }, c2 = { x: 290, y: 55 }, c3 = { x: 110, y: 170 }, c4 = { x: 290, y: 170 }, c5 = { x: 200, y: 112.5 };
-        return (
-          <>
-            {/* Grid boundary */}
-            <rect x="110" y="55" width="180" height="115" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="4,4" />
-
-            {/* Passing Vectors */}
-            <line x1={c3.x + 8} y1={c3.y - 8} x2={c2.x - 8} y2={c2.y + 8} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-            <line x1={c4.x - 8} y1={c4.y - 8} x2={c1.x + 8} y2={c1.y + 8} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-
-            {/* Cones */}
-            {renderCone(c1.x, c1.y, "Cone A")}
-            {renderCone(c2.x, c2.y, "Cone B")}
-            {renderCone(c3.x, c3.y, "Cone C")}
-            {renderCone(c4.x, c4.y, "Cone D")}
-            {renderCone(c5.x, c5.y, "Cone E (Pivot)")}
-
-            {/* Queues */}
-            {renderQueue(c3.x, c3.y)}
-            {renderQueue(c4.x, c4.y)}
-
-            {/* Labels */}
-            <text x="200" y="210" fill="rgba(255,255,255,0.4)" fontSize="8.5" fontWeight="bold" textAnchor="middle">CROSS-OVAL SWITCH MATRIX</text>
-            <text x="200" y="160" fill="#ffb703" fontSize="8" fontWeight="bold" textAnchor="middle">{distVal1} x {distVal2}</text>
-          </>
-        );
-      }
-      default: {
-        // Straight Lane
-        const cA = { x: 140, y: 170 }, cB = { x: 140, y: 55 }, cC = { x: 260, y: 170 }, cD = { x: 260, y: 55 };
-        return (
-          <>
-            {/* Lane dividers */}
-            <line x1="200" y1="40" x2="200" y2="185" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeDasharray="4,4" />
-
-            {/* Passing Vectors */}
-            <line x1={cA.x} y1={cA.y - 12} x2={cB.x} y2={cB.y + 12} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-            <line x1={cC.x} y1={cC.y - 12} x2={cD.x} y2={cD.y + 12} stroke="#ffb703" strokeWidth="1.75" strokeDasharray="3,2" markerEnd="url(#arrowHead)" />
-
-            {/* Cones */}
-            {renderCone(cA.x, cA.y, "Cone A")}
-            {renderCone(cB.x, cB.y, "Cone B")}
-            {renderCone(cC.x, cC.y, "Cone C")}
-            {renderCone(cD.x, cD.y, "Cone D")}
-
-            {/* Queues */}
-            {renderQueue(cA.x, cA.y)}
-            {renderQueue(cC.x, cC.y)}
-
-            {/* Dimensions */}
-            <text x="120" y="116" fill="#ffb703" fontSize="8" fontWeight="bold">{distVal1}</text>
-            <text x="280" y="116" fill="#ffb703" fontSize="8" fontWeight="bold">{distVal2}</text>
-            <text x="200" y="210" fill="rgba(255,255,255,0.4)" fontSize="8.5" fontWeight="bold" textAnchor="middle">LINEAR RUNNING LANES</text>
-          </>
-        );
-      }
-    }
-  };
-
-  return (
-    <div style={{
-      width: '100%',
-      aspectRatio: '16/9',
-      position: 'relative',
-      borderRadius: '8px',
-      overflow: 'hidden',
-      border: '1px solid rgba(255,255,255,0.1)',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-      marginTop: '16px',
-      marginBottom: '16px'
-    }}>
-      {/* SVG Canvas Drawing Engine */}
-      <svg viewBox="0 0 400 225" style={{ width: '100%', height: '100%', display: 'block' }}>
-        {/* Render Ground turf and boundary lines */}
-        {renderGrass()}
-        
-        {/* Render the programmatically plotted layout */}
-        {renderVisualizerLayout()}
-      </svg>
-
-      {/* Upper Right Corner: Technical Data Panel Overlay */}
-      {kickingType && (
-        <div style={{
-          position: 'absolute',
-          top: '12px',
-          right: '12px',
-          width: '160px',
-          backgroundColor: 'rgba(28, 31, 38, 0.9)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: '6px',
-          padding: '8px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '4px',
-          boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
-        }}>
-          <span style={{ fontSize: '0.6rem', color: '#ffb703', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>TARGET KICKING TYPE</span>
-          <span style={{ fontSize: '0.7rem', color: '#ffffff', fontWeight: '600', lineHeight: '1.2' }}>{kickingType}</span>
-          
-          {/* Mini-graphic of flight trajectory */}
-          <div style={{ height: '30px', position: 'relative', borderTop: '1px solid rgba(255,255,255,0.05)', marginTop: '4px', paddingTop: '4px' }}>
-            <svg viewBox="0 0 100 20" style={{ width: '100%', height: '100%' }}>
-              {/* Kicker node */}
-              <circle cx="10" cy="15" r="2" fill="#3a86ff" />
-              {/* Target receiver node */}
-              <circle cx="90" cy="15" r="2" fill="#fb8500" />
-              
-              {/* Trajectory line */}
-              {isLowTrajectory ? (
-                <path d="M 10 15 Q 50 8, 90 15" fill="none" stroke="#3a86ff" strokeWidth="1.5" strokeDasharray="2,2" />
-              ) : (
-                <path d="M 10 15 Q 50 1, 90 15" fill="none" stroke="#fb8500" strokeWidth="1.5" strokeDasharray="2,2" />
-              )}
-              <text x="35" y="18" fill="#d1d5db" fontSize="5">{isLowTrajectory ? "Low & Penetrating" : "High & Looping"}</text>
-            </svg>
-          </div>
-        </div>
-      )}
-
-      {/* Upper Left Corner: Boundary Info Overlay */}
-      <div style={{
-        position: 'absolute',
-        top: '12px',
-        left: '12px',
-        backgroundColor: 'rgba(28, 31, 38, 0.8)',
-        border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: '4px',
-        padding: '4px 8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
-      }}>
-        <span style={{ fontSize: '0.65rem', color: '#ffffff', fontWeight: 'bold', textTransform: 'uppercase' }}>{groundName}</span>
-      </div>
-    </div>
-  );
-}
+import { SYLLABUS_DRILLS, loadDrillsDatabase } from '../data/curriculumKnowledge';
 
 const AFL_FOCUS_AREAS_CATEGORIES = {
   'Foundational Fundamentals (Vol 1 & 2)': [
@@ -389,160 +42,6 @@ function sanitizeFocusAreas(rawList) {
   if (!Array.isArray(rawList)) return ['Kicking'];
   const valid = rawList.filter(item => ALL_VALID_FOCUS_AREAS.includes(item));
   return valid.length > 0 ? valid : ['Kicking'];
-}
-
-function getPrefixFromFocus(focusName) {
-  if (!focusName) return '';
-  const f = focusName.toLowerCase();
-  if (f.includes('kicking') || f.includes('chapter 1')) return 'KK';
-  if (f.includes('handballing') || f.includes('chapter 2')) return 'HB';
-  if (f.includes('marking') || f.includes('chapter 3')) return 'MK';
-  if (f.includes('ground ball') || f.includes('chapter 4')) return 'GB';
-  if (f.includes('tackling') || f.includes('chapter 5')) return 'TK';
-  if (f.includes('spoiling') || f.includes('aerial') || f.includes('chapter 6')) return 'SP';
-  if (f.includes('ruck') || f.includes('stoppage') || f.includes('chapter 7')) return 'RK';
-  if (f.includes('evasion') || f.includes('agility') || f.includes('movement') || f.includes('chapter 8')) return 'EA';
-  if (f.includes('decision') || f.includes('chapter 9')) return 'DM';
-  if (f.includes('offence') || f.includes('chapter 10')) return 'TO';
-  if (f.includes('defence') || f.includes('chapter 11')) return 'TD';
-  if (f.includes('transition') || f.includes('chapter 12')) return 'TR';
-  if (f.includes('conditioning') || f.includes('chapter 13')) return 'CF';
-  if (f.includes('small-sided') || f.includes('ssg') || f.includes('chapter 14')) return 'SG';
-  if (f.includes('match sim') || f.includes('chapter 15')) return 'MS';
-  if (f.includes('testing') || f.includes('assessment') || f.includes('chapter 16')) return 'TA';
-  return '';
-}
-
-function getLocalDrillKey(focusArea) {
-  const map = {
-    'Contested Possessions': 'Contested Possessions',
-    'Tackling Technique': 'Contested Possessions',
-    'Clearances': 'Stoppage Defensive Spacing',
-    'Forward Entries': 'Corridor Transitions',
-    'Man-on-Man Defense': 'Kick-In Strategies',
-    'Ball Movement and Switch': 'Corridor Transitions',
-    'Zone Defense and Press': 'Stoppage Defensive Spacing',
-    'Stoppage Structures': 'Stoppage Defensive Spacing',
-    'Transition and Rebound': 'Corridor Transitions',
-    'Skills and Ball Handling': 'Corridor Transitions',
-    'Fitness and Conditioning': 'Contested Possessions'
-  };
-  return map[focusArea] || focusArea;
-}
-
-function getLocalDrillSetup(drillName, groupSize) {
-  const nameLower = (drillName || '').toLowerCase();
-  
-  if (nameLower.includes('3-man weave') || nameLower.includes('three-man weave')) {
-    return `Set up 3 cones at the center line 5m apart. Position the ${groupSize} players into 3 lines. Players run a continuous handpass weave toward the 50m arc and execute a deep entry kick.`;
-  }
-
-  if (nameLower.includes('stoppage clearance')) {
-    const activeContestants = Math.min(8, Math.floor(groupSize / 2) * 2);
-    const outsideRunners = groupSize - activeContestants;
-    return `Set up a stoppage zone around the 50m arc. Position ${activeContestants} players in a contested ${activeContestants/2}v${activeContestants/2} clearance drill, with ${outsideRunners} outside outlet runners.`;
-  }
-
-  if (nameLower.includes('rebound 50')) {
-    const defenders = Math.ceil(groupSize * 0.6);
-    const attackers = groupSize - defenders;
-    return `Set up a D50 zone. Position ${defenders} rebound defenders against a ${attackers} player press, focusing on shifting the point of attack to the fat side.`;
-  }
-
-  if (nameLower.includes('keeps') || nameLower.includes('6v6') || nameLower.includes('6 vs. 6')) {
-    const teams = Math.floor(groupSize / 2);
-    const floaters = groupSize % 2 === 0 ? 0 : 1;
-    return `Set up a 45m x 45m zone. Split the ${groupSize} players into a high-intensity ${teams}v${teams} possession game with ${floaters} floater(s).`;
-  }
-
-  if (nameLower.includes('kick and mark')) {
-    if (groupSize % 2 === 0) {
-      return `Set up 2 lines of cones 20m apart. Split the ${groupSize} players into ${groupSize / 2} pairs. Players kick and mark continuously.`;
-    } else {
-      const half = Math.floor(groupSize / 2);
-      return `Set up 2 lines of cones 20m apart. Split the ${groupSize} players into ${half} pairs with 1 active floater passing the ball.`;
-    }
-  }
-  
-  if (nameLower.includes('inside 50 entry')) {
-    const attackers = Math.floor(groupSize / 2);
-    const defenders = groupSize - attackers - 1;
-    return `Set up a 50m entry zone. Split the ${groupSize} players into ${attackers} attackers, ${defenders} defenders, and 1 designated kicker starting at the 50m line.`;
-  }
-  
-  if (nameLower.includes('keepings off')) {
-    const playersPerSide = Math.floor((groupSize - 2) / 2);
-    const floaters = groupSize - (playersPerSide * 2);
-    return `Set up a 40m x 15m grid divided into 3 zones. Split the ${groupSize} players into a ${playersPerSide}v${playersPerSide} match in the center zone, with ${floaters} target players in the end zones.`;
-  }
-  
-  if (nameLower.includes('clean hands')) {
-    return `Set up a 5m x 5m grid. Split the ${groupSize} players into 1 center player and ${groupSize - 1} corner/outside players who receive and return handballs rapidly.`;
-  }
-  
-  if (nameLower.includes('midfield transition')) {
-    const teams = Math.floor(groupSize / 2);
-    const floaters = groupSize % 2 === 0 ? 0 : 1;
-    return `Set up a 40m x 60m field with goals. Split the ${groupSize} players into ${teams}v${teams} with ${floaters} floater midfielder(s) supporting transitions.`;
-  }
-  
-  if (nameLower.includes('exit strategy')) {
-    const playersPerSide = Math.floor((groupSize - 2) / 2);
-    const targetCount = groupSize - (playersPerSide * 2);
-    return `Set up a 20m x 20m central square. Split the ${groupSize} players into ${playersPerSide}v${playersPerSide} in the square, with ${targetCount} target players outside on the wings.`;
-  }
-  
-  if (nameLower.includes('lead and chip')) {
-    const half = Math.floor(groupSize / 2);
-    return `Set up goal square and boundary zones. Split the ${groupSize} players into ${half} kickers and ${groupSize - half} runners leading to the boundary.`;
-  }
-  
-  if (nameLower.includes('clog breakout')) {
-    const defenders = Math.floor(groupSize / 2);
-    const attackers = groupSize - defenders;
-    return `Set up 15m defensive wall. Split the ${groupSize} players into ${defenders} defenders forming the zone wall and ${attackers} fullbacks attempting to break out.`;
-  }
-  
-  if (nameLower.includes('4-gate transition') || nameLower.includes('switch 4-gate')) {
-    const teams = Math.floor(groupSize / 2);
-    const floaters = groupSize % 2 === 0 ? 0 : 1;
-    return `Set up a 50m x 40m grid with gates. Split the ${groupSize} players into ${teams}v${teams} (with ${floaters} floater) focused on switching wings.`;
-  }
-  
-  if (nameLower.includes('essential afl') || nameLower.includes('fundamentals')) {
-    const pairs = Math.floor(groupSize / 2);
-    const floaters = groupSize % 2 === 0 ? 0 : 1;
-    return `Set up 20m x 20m grids. Split the ${groupSize} players into ${pairs} pairs (with ${floaters} floater) working on disposal and ground ball gathers.`;
-  }
-  
-  if (nameLower.includes('lateral movement') || nameLower.includes('evade')) {
-    const groupsOfThree = Math.floor(groupSize / 3);
-    const floaters = groupSize - (groupsOfThree * 3);
-    return `Set up cones 5m apart. Split the ${groupSize} players into ${groupsOfThree} groups of 3 (1 attacker, 1 defender, 1 receiver) with ${floaters} floater(s).`;
-  }
-  
-  if (nameLower.includes('goal-face pressure') || nameLower.includes('quick shot')) {
-    const attackers = Math.floor(groupSize / 2);
-    const defenders = groupSize - attackers;
-    return `Set up goal corridor. Split the ${groupSize} players into ${attackers} attackers starting at 50m and ${defenders} defenders defending the goal face.`;
-  }
-  
-  if (nameLower.includes('ground ball & transition') || nameLower.includes('chaser')) {
-    const half = Math.floor(groupSize / 2);
-    return `Set up two cones 10m apart. Split the ${groupSize} players into ${half} attackers and ${groupSize - half} chasers competing for ground balls.`;
-  }
-  
-  if (nameLower.includes('handball grid')) {
-    return `Set up 5m x 5m grid. Split the ${groupSize} players into ${groupSize - 2} attackers keeping possession against 2 defenders.`;
-  }
-  
-  if (nameLower.includes('box battle') || nameLower.includes('scrimmage')) {
-    const teams = Math.floor(groupSize / 2);
-    const floaters = groupSize % 2 === 0 ? 0 : 1;
-    return `Set up a 25m x 25m grid. Split the ${groupSize} players into ${teams}v${teams} (with ${floaters} floater) scrimmage.`;
-  }
-  
-  return `Split players into a group size of ${groupSize} players. Custom design drill setup for this sub-group.`;
 }
 
 function parseStationCards(card, group1, group2) {
@@ -643,208 +142,6 @@ const getTacticalKickingType = (card) => {
     return "Low drop punt to the heavy advantage side of a contested marking option";
   }
   return "High, looping kick out into open space (giving the ball air) for a runner to break underneath";
-};
-
-const getFieldSetupDiagram = (card) => {
-  const title = (card.title || '').toLowerCase();
-  const inst = (card.instructions || card.execution || '').toLowerCase();
-  const text = title + ' ' + inst;
-  
-  if (text.includes('weave') || text.includes('lane') || text.includes('sprint') || text.includes('run')) {
-    return `FIELD SETUP DIAGRAM:
-[Starting Line / Baseline] ---> (Cone A)
-|
-| 20 Meters (Linear Running Lane)
-v
-[Mid-Point Target Marker] ---> (Cone B)
-|
-| 20 Meters (Linear Transition Phase)
-v
-[Deep Disposal Station] ------> (Cone C)`;
-  }
-  if (text.includes('circle') || text.includes('round') || text.includes('wheel') || text.includes('loop')) {
-    return `FIELD SETUP DIAGRAM:
-   (Cone A) --- 15m --- (Cone B)
-      |                    |
-     15m   [Circle Wave]  15m
-      |                    |
-   (Cone C) --- 15m --- (Cone D)`;
-  }
-  // Default zig-zag or generic diagram
-  return `FIELD SETUP DIAGRAM:
-[Starting Line / Baseline] ---> (Cone A)
-|
-| 15 Meters (Linear Running Lane)
-v
-[Mid-Point Target Marker] ---> (Cone B)
-|
-| 15 Meters (45-Degree Angled Lead Zone)
-v
-[Deep Disposal Station] ------> (Cone C)`;
-};
-
-const getMatchPlayDiagram = (groundName, length, width) => {
-  return `FIELD SETUP DIAGRAM:
-[Goal Face] --- (6-6-6 Setup Area)
-|
-| ~50 Meters
-v
-[Center Bounce Grid] ---> (Midfielders)
-|
-| ~50 Meters
-v
-[Goal Face] (Calibrated to ${groundName} footprint: ${length} x ${width})`;
-};
-
-const validateDrillClosedLoopAndCues = (card) => {
-  const titleLower = (card.title || '').toLowerCase();
-  const goalLower = (card.goal || '').toLowerCase();
-  const instLower = (card.instructions || '').toLowerCase();
-
-  // Extract execution and cues sections
-  const execMatch = instLower.match(/execution\s+&\s+rules:\s*([\s\S]*?)(?=\n\n[a-z]|$)/i);
-  const cuesMatch = instLower.match(/elite\s+coaching\s+cues:\s*([\s\S]*?)(?=\n\n[a-z]|$)/i);
-
-  const execText = execMatch ? execMatch[1] : '';
-  const cuesText = cuesMatch ? cuesMatch[1] : '';
-
-  // 1. Biomechanical Cue Mismatches Check
-  const isGroundBallDrill = 
-    titleLower.includes('ground ball') || 
-    titleLower.includes('gather') || 
-    titleLower.includes('pickup') || 
-    titleLower.includes('scoop') || 
-    goalLower.includes('ground ball') || 
-    goalLower.includes('gather') || 
-    goalLower.includes('pickup') ||
-    execText.includes('ground ball') ||
-    execText.includes('gather') ||
-    execText.includes('pickup') ||
-    execText.includes('scoop');
-
-  const hasLinearSpeedCues = 
-    cuesText.includes('upright posture') || 
-    cuesText.includes('high chest') || 
-    cuesText.includes('drive the knees') || 
-    cuesText.includes('knee height') || 
-    cuesText.includes('running form');
-
-  // Ground Ball Gathers + Upright Posture / Knee height cues mismatch
-  if (isGroundBallDrill && hasLinearSpeedCues) {
-    console.warn("Schema Validation Failed: Ground ball drill contains linear speed cues.", card);
-    return false;
-  }
-
-  const isLinearSpeedSprint = 
-    titleLower.includes('sprint') || 
-    titleLower.includes('speed') || 
-    titleLower.includes('acceleration') || 
-    titleLower.includes('top-up') ||
-    goalLower.includes('sprint') || 
-    goalLower.includes('speed') || 
-    goalLower.includes('acceleration') || 
-    goalLower.includes('top-up');
-
-  const hasGroundBallCues = 
-    cuesText.includes('knuckles scraping') || 
-    cuesText.includes('scrape your knuckles') || 
-    cuesText.includes('knuckles') || 
-    cuesText.includes('scrape') || 
-    cuesText.includes('get low') || 
-    cuesText.includes('bend the knees to get low') || 
-    cuesText.includes('step over the footy');
-
-  // Linear Speed + Ground Ball cues mismatch
-  if (isLinearSpeedSprint && !isGroundBallDrill && hasGroundBallCues) {
-    console.warn("Schema Validation Failed: Linear speed drill contains ground ball cues.", card);
-    return false;
-  }
-
-  // 2. Closed Loop Execution Check (Only for non-match play segments 1-4)
-  const isMatchPlaySegment = 
-    titleLower.includes('match play') || 
-    titleLower.includes('ssg') || 
-    titleLower.includes('scrimmage') || 
-    titleLower.includes('game') || 
-    goalLower.includes('match play') || 
-    goalLower.includes('ssg') || 
-    goalLower.includes('scrimmage') || 
-    goalLower.includes('game');
-
-  if (!isMatchPlaySegment && execText) {
-    // Check for Start Boundary indicators
-    const hasStart = 
-      execText.includes('line up') || 
-      execText.includes('start') || 
-      execText.includes('behind') || 
-      execText.includes('whistle') || 
-      execText.includes('position') ||
-      execText.includes('group');
-
-    // Check for Interaction Mechanics indicators
-    const hasInteraction = 
-      execText.includes('run') || 
-      execText.includes('sprint') || 
-      execText.includes('gather') || 
-      execText.includes('pick') || 
-      execText.includes('receive') || 
-      execText.includes('evade') || 
-      execText.includes('collect') || 
-      execText.includes('lead') || 
-      execText.includes('mark') ||
-      execText.includes('chase') ||
-      execText.includes('tackle');
-
-    // Check for Disposal Target indicators
-    const hasDisposal = 
-      execText.includes('handball') || 
-      execText.includes('kick') || 
-      execText.includes('pass') || 
-      execText.includes('dispose') || 
-      execText.includes('give') || 
-      execText.includes('target') || 
-      execText.includes('partner') || 
-      execText.includes('waiting') ||
-      execText.includes('return') ||
-      execText.includes('placement');
-
-    // Check for Return Point Boundary indicators
-    const hasReturn = 
-      execText.includes('return') || 
-      execText.includes('back of the') || 
-      execText.includes('tag') || 
-      execText.includes('high-five') || 
-      execText.includes('rotate') || 
-      execText.includes('interchange') || 
-      execText.includes('starts again') ||
-      execText.includes('loop');
-
-    if (!hasStart || !hasInteraction || !hasDisposal || !hasReturn) {
-      console.warn(`Schema Validation Failed: Execution block does not represent a closed loop (Start: ${hasStart}, Interaction: ${hasInteraction}, Disposal: ${hasDisposal}, Return: ${hasReturn}).`, card);
-      return false;
-    }
-  }
-
-  // 3. TARGET KICKING TYPE and Metric Distance validations
-  const kickingMatch = instLower.match(/target\s+kicking\s+type:\s*([\s\S]*?)(?=\n\n[a-z]|$)/i);
-  if (!kickingMatch || kickingMatch[1].trim() === "") {
-    console.warn("Schema Validation Failed: TARGET KICKING TYPE is missing or blank.", card);
-    return false;
-  }
-
-  const setupMatch = instLower.match(/setup\s+&\s+grid\s+dimensions:\s*([\s\S]*?)(?=\n\n[a-z]|$)/i);
-  if (!setupMatch) {
-    console.warn("Schema Validation Failed: SETUP & GRID DIMENSIONS is missing.", card);
-    return false;
-  }
-  const setupText = setupMatch[2] || setupMatch[1] || '';
-  const hasMetricDistances = /\d+\s*(?:m|meter|meters|metre|metres)/i.test(setupText);
-  if (!hasMetricDistances) {
-    console.warn("Schema Validation Failed: SETUP & GRID DIMENSIONS lacks defined metric distances.", card);
-    return false;
-  }
-
-  return true;
 };
 
 const numberToWords = (num) => {
@@ -958,51 +255,6 @@ const parseInstructions = (text) => {
   return result;
 };
 
-const getVerbatimDrillText = (card) => {
-  if (!card) return '';
-  const titleLower = (card.title || card.name || '').toLowerCase();
-  
-  // Try to find in SYLLABUS_DRILLS
-  const matchedSyllabus = SYLLABUS_DRILLS.find(d => 
-    titleLower.includes((d.name || '').toLowerCase()) || 
-    (d.name || '').toLowerCase().includes(titleLower)
-  );
-  if (matchedSyllabus) {
-    return `DRILL NAME & OBJECTIVE: ${matchedSyllabus.name} - ${matchedSyllabus.objective || 'Skill practice'}
-    
-TARGET KICKING TYPE: ${getTacticalKickingType(matchedSyllabus)}
-
-SETUP & GRID DIMENSIONS: ${matchedSyllabus.setup}
-
-EXECUTION & RULES: ${matchedSyllabus.execution}
-
-ELITE COACHING CUES: ${matchedSyllabus.cues}
-
-PROGRESSIONS & REGRESSIONS: ${matchedSyllabus.progressions}`;
-  }
-
-  // Try to find in AFL_PRE_GAME_WARMUPS
-  const matchedWarmup = AFL_PRE_GAME_WARMUPS.find(w => 
-    titleLower.includes((w.name || '').toLowerCase()) || 
-    (w.name || '').toLowerCase().includes(titleLower)
-  );
-  if (matchedWarmup) {
-    return `DRILL NAME & OBJECTIVE: ${matchedWarmup.name} - ${matchedWarmup.goal}
-    
-TARGET KICKING TYPE: Low, penetrating stab pass directly to a leading target's chest
-
-SETUP & GRID DIMENSIONS: 15m x 15m grid.
-
-EXECUTION & RULES: ${matchedWarmup.desc}
-
-ELITE COACHING CUES: ${matchedWarmup.cues || 'Keep eyes on ball, Move into space, Clean hands'}
-
-PROGRESSIONS & REGRESSIONS: CHANGE IT Coaching Tip: ${matchedWarmup.coachingTip}`;
-  }
-
-  return card.instructions || '';
-};
-
 const renderFormattedList = (text) => {
   if (!text) return null;
   let items = [];
@@ -1105,17 +357,6 @@ const sanitizePlanCards = (cards, groundName = "home ground", playerCount = 0, a
     };
 
     let title = card.title || '';
-    if (title.toUpperCase().startsWith('PRE-GAME')) {
-      title = title.replace(/^PRE-GAME/i, 'WARM-UP & ACTIVATION');
-    } else if (title.toUpperCase().startsWith('QUARTER 1 WARM-UP')) {
-      title = title.replace(/^QUARTER 1 WARM-UP/i, 'SKILL ACQUISITION');
-    } else if (title.toUpperCase().startsWith('QUARTER 2 SKILL ROTATIONS')) {
-      title = title.replace(/^QUARTER 2 SKILL ROTATIONS/i, 'DECISION ROTATIONS');
-    } else if (title.toUpperCase().startsWith('QUARTER 3 TEAM TASK')) {
-      title = title.replace(/^QUARTER 3 TEAM TASK/i, 'TEAM TACTICAL');
-    } else if (title.toUpperCase().startsWith('QUARTER 4 GAME')) {
-      title = title.replace(/^QUARTER 4 GAME/i, 'MATCH PLAY / SSG');
-    }
 
     let instructions = scrub(card.instructions || '');
 
@@ -1139,32 +380,6 @@ const sanitizePlanCards = (cards, groundName = "home ground", playerCount = 0, a
       }
     }
 
-    // 2. Auto-heal FIELD SETUP DIAGRAM if missing in instructions
-    if (!instructions.includes('FIELD SETUP DIAGRAM:')) {
-      const isMatchPlaySegment = 
-        title.toLowerCase().includes('match play') || 
-        title.toLowerCase().includes('ssg') || 
-        title.toLowerCase().includes('scrimmage') || 
-        title.toLowerCase().includes('game') || 
-        (card.goal || '').toLowerCase().includes('match play') || 
-        (card.goal || '').toLowerCase().includes('ssg') || 
-        (card.goal || '').toLowerCase().includes('scrimmage') || 
-        (card.goal || '').toLowerCase().includes('game');
-
-      const diagram = isMatchPlaySegment 
-        ? getMatchPlayDiagram(groundName, "160m", "130m") 
-        : getFieldSetupDiagram(card);
-
-      // Insert FIELD SETUP DIAGRAM immediately below SETUP & GRID DIMENSIONS
-      const setupRegexMatch = instructions.match(/(SETUP\s+&\s+GRID\s+DIMENSIONS:\s*[\s\S]*?)(?=\n\n[A-Z]|$)/i);
-      if (setupRegexMatch) {
-        instructions = instructions.replace(
-          setupRegexMatch[0],
-          `${setupRegexMatch[0].trim()}\n\n${diagram}`
-        );
-      }
-    }
-    
     // Parse out Setup & Grid Dimensions section from instructions
     const setupRegex = /(SETUP\s+&\s+GRID\s+DIMENSIONS:\s*)([\s\S]*?)(?=\n\n[A-Z]|$)/i;
     const setupMatch = instructions.match(setupRegex);
@@ -1295,7 +510,6 @@ export default function TrainingLab({
   const [historySessions, setHistorySessions] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
-  const [showEndSessionModal, setShowEndSessionModal] = useState(false);
   const [coachNotes, setCoachNotes] = useState('');
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [activeInspectDrill, setActiveInspectDrill] = useState(null);
@@ -1557,24 +771,6 @@ export default function TrainingLab({
   // Generation status
   const [isGenerating, setIsGenerating] = useState(false);
   const [planCards, setPlanCards] = useState(() => sanitizePlanCards(draft?.planCards || [], squadSettings?.groundName || "home ground", draft?.presentIds?.length || squad?.players?.length || 0)); // Array of structured drill card objects
-  const [isFallback, setIsFallback] = useState(false);
-  const [aiGensUsed, setAiGensUsed] = useState(0);
-
-  useEffect(() => {
-    const fetchGensCount = async () => {
-      if (currentUser?.uid) {
-        try {
-          const profile = await getUserProfile(currentUser.uid);
-          if (profile) {
-            setAiGensUsed(profile.aiGensCount || 0);
-          }
-        } catch (err) {
-          console.error("Failed to fetch generations count: ", err);
-        }
-      }
-    };
-    fetchGensCount();
-  }, [currentUser]);
 
   // Toggle Bottom Navigation Visibility based on Plan step
   useEffect(() => {
@@ -1757,7 +953,6 @@ export default function TrainingLab({
       const localPlan = await generateLocalPlan(engineInput);
       if (requestId === currentRequestIdRef.current && isMountedRef.current) {
         setPlanCards(sanitizePlanCards(localPlan.segments || [], squadSettings?.groundName || "home ground", playerCount));
-        setIsFallback(false);
       }
 
       // 2. Non-blocking optional AI enhancement if configured
@@ -1783,22 +978,6 @@ export default function TrainingLab({
         setIsGenerating(false);
       }
     }
-  };
-
-  const handleGeneratePlan = () => {
-    const userTierClean = (subscriptionTier || 'Free').toLowerCase();
-    if (userTierClean === 'free' || userTierClean === 'default') {
-      if (aiGensUsed >= 2) {
-        setIsUpgradeModalOpen(true);
-        return;
-      }
-    } else {
-      if (!hasAccess(subscriptionTier, 'Pro')) {
-        setIsUpgradeModalOpen(true);
-        return;
-      }
-    }
-    runPlanGeneration();
   };
 
   const handleGenerateVariation = () => {
@@ -1871,7 +1050,6 @@ export default function TrainingLab({
       await saveTrainingSession(sessionData, currentUser.uid);
       logSyncTransaction('TRAINING_SESSION_COMPLETED', { focus: focusAreas.join(", "), duration, equipment: getGlobalEquipment() });
       clearDraft();
-      setShowEndSessionModal(false);
       setCoachNotes('');
       setActiveSubTab('history'); // switch to history view to see completed session!
     } catch (err) {
@@ -2025,8 +1203,8 @@ export default function TrainingLab({
     const blockId = `stage_${blockIndex + 1}`;
     const isExpanded = expandedCards.has(blockId);
 
-    const titleA = (cardA?.title || labelA).replace(/[#*`[\]]/g, '');
-    const titleB = (cardB?.title || labelB).replace(/[#*`[\]]/g, '');
+    const titleA = (cardA?.title || labelA).replace(/[#*`[\]]/g, '').replace(/^station\s*[a-d]\s*:?\s*/i, '').trim();
+    const titleB = (cardB?.title || labelB).replace(/[#*`[\]]/g, '').replace(/^station\s*[a-d]\s*:?\s*/i, '').trim();
 
     return (
       <div className="run-sheet-block" style={{
@@ -2312,7 +1490,7 @@ export default function TrainingLab({
     const g2Count = Math.floor(totalP / 2);
 
     const titleWu = (cardWu?.title || 'Warm-Up & Activation').replace(/[#*`[\]]/g, '').replace(/^warm[\s-]?up[\s:&-]*(and|&)?\s*activation\s*:?\s*/i, '').replace(/^warm[\s-]?up\s*:?\s*/i, '').trim();
-    const titleFn = (cardFn?.title || 'Match Simulation / SSG').replace(/[#*`[\]]/g, '').replace(/^final\s*:?\s*/i, '').trim();
+    const titleFn = (cardFn?.title || 'Match Simulation / SSG').replace(/[#*`[\]]/g, '').replace(/^final\s*:?\s*/i, '').replace(/^small-sided game\s*\(ssg\)\s*:?\s*/i, '').replace(/^match simulation\s*:?\s*/i, '').trim();
 
     return (
       <div className="run-sheet-timeline-container">
@@ -3199,11 +2377,11 @@ export default function TrainingLab({
             <div className="form-group">
               <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>Duration (Minutes)</label>
               <select value={duration} onChange={(e) => setDuration(Number(e.target.value))}>
+                <option value="30">30 Minutes</option>
                 <option value="45">45 Minutes</option>
                 <option value="60">60 Minutes</option>
                 <option value="75">75 Minutes</option>
                 <option value="90">90 Minutes</option>
-                <option value="120">120 Minutes</option>
               </select>
             </div>
 
@@ -3694,43 +2872,6 @@ export default function TrainingLab({
         squad={squad}
         onSave={handleSaveTaggedClip}
       />
-      {/* End Session Modal */}
-      {showEndSessionModal && (
-        <div className="overlay-backdrop" style={{ zIndex: 999 }}>
-          <div className="modal-content" style={{ maxWidth: '500px' }}>
-            <div className="modal-header">
-              <h3 className="scoreboard-font" style={{ color: 'var(--color-training)' }}>End Training Session</h3>
-              <button className="icon-btn" onClick={() => setShowEndSessionModal(false)}>
-                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-              </button>
-            </div>
-            <form onSubmit={handleEndSessionSubmit}>
-              <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  This will log this training session to Firestore. Review the stats and jot down any notes or tweaks for future sessions.
-                </p>
-                <div className="form-group">
-                  <label>Coach's Notes (Optional)</label>
-                  <textarea 
-                    value={coachNotes} 
-                    onChange={(e) => setCoachNotes(e.target.value)} 
-                    placeholder="e.g. Kick-in drills worked well, but marking drills need more physical contact next time..."
-                    rows="4"
-                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-light)', backgroundColor: 'var(--bg-floor)', color: '#ffffff', resize: 'vertical' }}
-                  />
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn" onClick={() => setShowEndSessionModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-training">Complete & Log Session</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* Session Detail Modal */}
       {selectedSession && (
         <div className="overlay-backdrop" style={{ zIndex: 999 }}>

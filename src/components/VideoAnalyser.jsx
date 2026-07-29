@@ -1271,14 +1271,13 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                     onClick={() => setActiveColor(c.value)}
                     title={c.name}
                     style={{
-                      width: '24px',
-                      height: '24px',
+                      width: '44px',
+                      height: '44px',
                       borderRadius: '50%',
                       backgroundColor: c.value,
                       border: activeColor === c.value ? '2px solid #ffffff' : '1px solid rgba(255,255,255,0.3)',
                       cursor: 'pointer',
-                      flexShrink: 0,
-                      minHeight: '44px'
+                      flexShrink: 0
                     }}
                   />
                 ))}

@@ -288,9 +288,21 @@ export default function App() {
 
   const handleUpdateSubscriptionTier = async (newTier) => {
     setSubscriptionTier(newTier);
+    const dbTier = newTier.toLowerCase();
+
+    // Keep the cached userProfile (and its localStorage copy) in sync with subscriptionTier.
+    // Without this, the next load's Firestore/local-profile merge would read the stale
+    // cached tier and silently overwrite the tier we just set here.
+    setUserProfile(prev => {
+      const updated = { ...(prev || {}), subscriptionTier: dbTier, isActive: true };
+      if (currentUser) {
+        localStorage.setItem(getAppScopedKey('inthepocket_user_profile'), JSON.stringify(updated));
+      }
+      return updated;
+    });
+
     if (currentUser?.uid) {
       try {
-        const dbTier = newTier.toLowerCase();
         await updateUserProfile(currentUser.uid, {
           subscriptionTier: dbTier,
           isActive: true

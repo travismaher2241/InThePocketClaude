@@ -175,7 +175,6 @@ export default function MatchDay({
 
   // Ultra Tier Entitlement Gating Check
   const isGated = !hasAccess(subscriptionTier, 'ultra');
-  const [unlockedSuccess, setUnlockedSuccess] = useState(false);
 
   // Loading and Error states (Items 126-129)
   const [isLoading, setIsLoading] = useState(false);
@@ -660,43 +659,30 @@ export default function MatchDay({
             Manage your lineup, interchange rotations, time on ground, scores and live match statistics in one place.
           </p>
           
-          {unlockedSuccess ? (
-            <div style={{ backgroundColor: 'rgba(46, 196, 182, 0.15)', border: '1px solid #2ec4b6', padding: '14px', borderRadius: '10px', color: '#2ec4b6', width: '100%' }}>
-              <div style={{ fontWeight: '800', fontSize: '1.1rem' }}>Ultra unlocked</div>
-              <div style={{ fontSize: '0.85rem', marginTop: '4px' }}>You now have full access to Match Day.</div>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', marginTop: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', marginTop: '8px' }}>
+            <button
+              className="btn btn-match"
+              onClick={() => triggerPaywall && triggerPaywall('Match Day access')}
+              style={{ width: '100%', padding: '14px', fontSize: '1rem', fontWeight: '700' }}
+            >
+              Upgrade to Ultra
+            </button>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
               <button
-                className="btn btn-match"
-                onClick={() => {
-                  if (triggerPaywall) {
-                    triggerPaywall('Match Day access');
-                  } else {
-                    setUnlockedSuccess(true);
-                  }
-                }}
-                style={{ width: '100%', padding: '14px', fontSize: '1rem', fontWeight: '700' }}
+                onClick={() => triggerPaywall && triggerPaywall('Restore')}
+                style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
               >
-                Upgrade to Ultra
+                Restore Purchases
               </button>
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                <button
-                  onClick={() => triggerPaywall && triggerPaywall('Restore')}
-                  style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
-                >
-                  Restore Purchases
-                </button>
-                <span style={{ color: '#4b5563' }}>•</span>
-                <button
-                  onClick={() => triggerPaywall && triggerPaywall('Details')}
-                  style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
-                >
-                  View Plan Details
-                </button>
-              </div>
+              <span style={{ color: '#4b5563' }}>•</span>
+              <button
+                onClick={() => triggerPaywall && triggerPaywall('Details')}
+                style={{ background: 'none', border: 'none', color: '#8d939e', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                View Plan Details
+              </button>
             </div>
-          )}
+          </div>
         </div>
       </div>
     );
@@ -931,7 +917,7 @@ export default function MatchDay({
                 .filter(p => {
                   if (!availabilitySearch.trim()) return true;
                   const q = availabilitySearch.toLowerCase().replace('#', '');
-                  return p.name.toLowerCase().includes(q) || (p.number && p.number.toString().includes(q));
+                  return p.name.toLowerCase().includes(q) || (p.jersey && p.jersey.toString().includes(q));
                 })
                 .map(p => {
                   const isAvail = availability[p.id] !== false;
@@ -958,7 +944,7 @@ export default function MatchDay({
                           style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                         />
                         <span style={{ color: '#ffffff', fontWeight: '700', fontSize: '0.9rem' }}>
-                          {p.number ? `#${p.number} ` : ''}{p.name}
+                          {p.jersey ? `#${p.jersey} ` : ''}{p.name}
                         </span>
                       </div>
                       <span style={{ fontSize: '0.75rem', fontWeight: '800', color: statusColor, backgroundColor: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '4px' }}>
@@ -1010,7 +996,7 @@ export default function MatchDay({
                   >
                     <span style={{ fontSize: '0.65rem', color: '#8d939e', fontWeight: '800' }}>{pos.code}</span>
                     <span style={{ fontSize: '0.8rem', color: assignedPlayer ? '#ffffff' : '#4b5563', fontWeight: '700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
-                      {assignedPlayer ? (assignedPlayer.number ? `#${assignedPlayer.number} ${assignedPlayer.name}` : assignedPlayer.name) : 'Vacant'}
+                      {assignedPlayer ? (assignedPlayer.jersey ? `#${assignedPlayer.jersey} ${assignedPlayer.name}` : assignedPlayer.name) : 'Vacant'}
                     </span>
                   </button>
                 );
@@ -1029,7 +1015,7 @@ export default function MatchDay({
               ) : (
                 benchPlayers.map(p => (
                   <span key={p.id} style={{ backgroundColor: 'rgba(255,183,3,0.15)', color: '#ffb703', border: '1px solid rgba(255,183,3,0.3)', padding: '6px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700' }}>
-                    {p.number ? `#${p.number} ` : ''}{p.name}
+                    {p.jersey ? `#${p.jersey} ` : ''}{p.name}
                   </span>
                 ))
               )}
@@ -1078,7 +1064,7 @@ export default function MatchDay({
                 >
                   <option value="">Select Bench Player ON…</option>
                   {benchPlayers.map(p => (
-                    <option key={p.id} value={p.id}>{p.number ? `#${p.number} ` : ''}{p.name}</option>
+                    <option key={p.id} value={p.id}>{p.jersey ? `#${p.jersey} ` : ''}{p.name}</option>
                   ))}
                 </select>
               </div>
@@ -1095,7 +1081,7 @@ export default function MatchDay({
                   {squad
                     .filter(p => onFieldPlayerIds.includes(p.id))
                     .map(p => (
-                      <option key={p.id} value={p.id}>{p.number ? `#${p.number} ` : ''}{p.name}</option>
+                      <option key={p.id} value={p.id}>{p.jersey ? `#${p.jersey} ` : ''}{p.name}</option>
                     ))}
                 </select>
               </div>
@@ -1189,7 +1175,7 @@ export default function MatchDay({
                   >
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                       <div style={{ color: '#ffffff', fontWeight: '800', fontSize: '0.9rem' }}>
-                        {p.number ? `#${p.number} ` : ''}{p.name}
+                        {p.jersey ? `#${p.jersey} ` : ''}{p.name}
                       </div>
                       <div style={{ fontSize: '0.72rem', color: '#8d939e' }}>
                         Bench: {formatDuration(timerData.bench)} · TOG: {formatDuration(timerData.tog)}
@@ -1230,7 +1216,7 @@ export default function MatchDay({
             >
               <option value="">Select Player to Record Stat…</option>
               {squad.map(p => (
-                <option key={p.id} value={p.id}>{p.number ? `#${p.number} ` : ''}{p.name}</option>
+                <option key={p.id} value={p.id}>{p.jersey ? `#${p.jersey} ` : ''}{p.name}</option>
               ))}
             </select>
 
@@ -1409,7 +1395,7 @@ export default function MatchDay({
               Confirm Substitution
             </h3>
             <p style={{ margin: 0, color: '#d1d5db', fontSize: '0.9rem', lineHeight: 1.4 }}>
-              Substitute <strong style={{ color: '#2ec4b6' }}>{pendingSubstitution.incoming.number ? `#${pendingSubstitution.incoming.number} ` : ''}{pendingSubstitution.incoming.name} ON</strong> for <strong style={{ color: '#ffb703' }}>{pendingSubstitution.outgoing.number ? `#${pendingSubstitution.outgoing.number} ` : ''}{pendingSubstitution.outgoing.name} OFF</strong>?
+              Substitute <strong style={{ color: '#2ec4b6' }}>{pendingSubstitution.incoming.jersey ? `#${pendingSubstitution.incoming.jersey} ` : ''}{pendingSubstitution.incoming.name} ON</strong> for <strong style={{ color: '#ffb703' }}>{pendingSubstitution.outgoing.jersey ? `#${pendingSubstitution.outgoing.jersey} ` : ''}{pendingSubstitution.outgoing.name} OFF</strong>?
             </p>
             <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
               <button
@@ -1479,7 +1465,7 @@ export default function MatchDay({
                     cursor: 'pointer'
                   }}
                 >
-                  {p.number ? `#${p.number} ` : ''}{p.name}
+                  {p.jersey ? `#${p.jersey} ` : ''}{p.name}
                 </button>
               ))}
             </div>
