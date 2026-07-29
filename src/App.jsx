@@ -52,7 +52,11 @@ export default function App() {
     return getScopedKey(baseKey, userIdentifier);
   };
 
-  const [userProfile, setUserProfile] = useState(null);
+  const [userProfile, setUserProfile] = useState(() => {
+    const key = currentUser?.uid || currentUser?.email ? `inthepocket_user_profile_${(currentUser?.uid || currentUser?.email).toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'inthepocket_user_profile_guest';
+    const saved = localStorage.getItem(key) || localStorage.getItem('inthepocket_user_profile');
+    return safeJsonParse(saved, null);
+  });
 
   const [squad, setSquad] = useState(() => {
     const key = currentUser?.uid || currentUser?.email ? `inthepocket_squad_${(currentUser?.uid || currentUser?.email).toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'inthepocket_squad_guest';
@@ -431,6 +435,9 @@ export default function App() {
   };
 
   const handleReRunSetup = () => {
+    try {
+      localStorage.removeItem('inthepocket_setup_completed');
+    } catch (e) {}
     setUserProfile(prev => ({
       ...(prev || {}),
       hasCompletedSetup: false
@@ -459,6 +466,9 @@ export default function App() {
 
     // 2. Client-side Local Storage persistence (Mandatory)
     try {
+      localStorage.setItem('inthepocket_setup_completed', 'true');
+      localStorage.setItem('inthepocket_user_profile', JSON.stringify(updatedProfile));
+      localStorage.setItem('inthepocket_squad_settings', JSON.stringify(newSettings));
       if (currentUser) {
         localStorage.setItem(getAppScopedKey('inthepocket_user_profile'), JSON.stringify(updatedProfile));
         localStorage.setItem(getAppScopedKey('inthepocket_squad_settings'), JSON.stringify(newSettings));
@@ -487,7 +497,11 @@ export default function App() {
     showToast(`Setup complete! App calibrated for ${setupData.teamName}`);
   };
 
-  const hasCompletedSetup = userProfile?.hasCompletedSetup === true;
+  const hasCompletedSetup = (userProfile?.hasCompletedSetup === true) || 
+    (typeof localStorage !== 'undefined' && (
+      localStorage.getItem('inthepocket_setup_completed') === 'true' ||
+      localStorage.getItem('inthepocket_user_profile')?.includes('"hasCompletedSetup":true')
+    ));
 
   // ROUTING & AUTH FLOW GUARD: If authenticated user has not completed setup, intercept with SetupWizard
   if (currentUser && !hasCompletedSetup) {

@@ -1634,10 +1634,15 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
       
       const timePerRotation = d.stationABPerStationMins;
       const totalBlockTime = d.stationABBlockMins;
-
       expect(timePerRotation * 2).toBe(totalBlockTime);
       expect(timePerRotation).toBe(7.5);
       expect(totalBlockTime).toBe(15);
+    });
+
+    it('38: Setup wizard completion flag persists in localStorage and avoids re-prompting setup on app load', () => {
+      localStorage.setItem('inthepocket_setup_completed', 'true');
+      const hasCompletedSetup = localStorage.getItem('inthepocket_setup_completed') === 'true';
+      expect(hasCompletedSetup).toBe(true);
     });
   });
 

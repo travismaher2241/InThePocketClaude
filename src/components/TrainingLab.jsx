@@ -1239,67 +1239,38 @@ const sanitizePlanCards = (cards, groundName = "home ground", playerCount = 0, a
 };
 
 function RunSheetHeader({ activityCount = 6, blockCount = 4, totalDuration, playerCount, focusAreas, equipmentSummary }) {
+  const focusText = Array.isArray(focusAreas) && focusAreas.length > 0
+    ? focusAreas.join(' · ')
+    : (typeof focusAreas === 'string' && focusAreas ? focusAreas : 'Kicking · Handballing · Marking · Ground Balls');
+  const equipText = equipmentSummary || 'Footballs · Cones · Tackle Mats';
+
   return (
-    <div className="run-sheet-header-strip" style={{
-      backgroundColor: '#141720',
-      border: '1px solid rgba(0, 230, 118, 0.25)',
-      borderLeft: '4px solid #00e676',
-      borderRadius: '4px',
-      padding: '12px 14px',
-      marginBottom: '16px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '8px'
-    }}>
+    <div className="run-sheet-header-strip">
       {/* Top Banner Row */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{
-            fontSize: '0.65rem',
-            fontWeight: '800',
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            color: '#00e676',
-            backgroundColor: 'rgba(0, 230, 118, 0.1)',
-            padding: '2px 6px',
-            borderRadius: '3px'
-          }}>
-            TRAINING RUN SHEET
-          </span>
-          <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#f0f2f5' }}>
-            {activityCount} ACTIVITIES · {blockCount} BLOCKS
-          </span>
-        </div>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '0.85rem' }}>
-          <span style={{ fontFamily: 'var(--font-family-board)', fontWeight: '800', color: '#00e676' }}>
-            {totalDuration} MIN
-          </span>
-          <span style={{ color: 'rgba(255, 255, 255, 0.2)' }}>|</span>
-          <span style={{ fontFamily: 'var(--font-family-board)', fontWeight: '800', color: '#ffffff' }}>
-            {playerCount} PLAYERS
-          </span>
+      <div className="header-top-row">
+        <div className="header-title-badge">TRAINING RUN SHEET</div>
+        <div className="header-stats-group">
+          <span className="stat-value text-green">{totalDuration} MIN</span>
+          <span className="stat-divider">·</span>
+          <span className="stat-value text-white">{playerCount} PLAYERS</span>
         </div>
       </div>
 
+      {/* Subtitle Row */}
+      <div className="header-subtitle-row">
+        <span>{activityCount} ACTIVITIES · {blockCount} BLOCKS</span>
+      </div>
+
       {/* Focus & Equipment Strip */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-        gap: '6px 16px',
-        paddingTop: '6px',
-        borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-        fontSize: '0.78rem'
-      }}>
-        <div style={{ color: '#8d939e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          <strong style={{ color: '#00e676', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.04em', marginRight: '6px' }}>FOCUS:</strong>
-          <span style={{ color: '#f0f2f5' }}>{Array.isArray(focusAreas) ? focusAreas.join(' · ') : (focusAreas || 'AFL Fundamental Skills')}</span>
+      <div className="header-meta-grid">
+        <div className="meta-item">
+          <strong className="meta-label text-green">FOCUS:</strong>
+          <span className="meta-value">{focusText}</span>
         </div>
-        {equipmentSummary && (
-          <div style={{ color: '#8d939e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            <strong style={{ color: '#3b82f6', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.04em', marginRight: '6px' }}>EQUIPMENT:</strong>
-            <span style={{ color: '#f0f2f5' }}>{equipmentSummary}</span>
-          </div>
-        )}
+        <div className="meta-item">
+          <strong className="meta-label text-blue">EQUIPMENT:</strong>
+          <span className="meta-value">{equipText}</span>
+        </div>
       </div>
     </div>
   );
@@ -2129,83 +2100,83 @@ export default function TrainingLab({
           </div>
         </div>
 
-        {/* Paired Station Content */}
-        <div style={{ padding: '12px' }}>
-          {/* FIRST ROTATION LANES */}
-          <div style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.06em', color: '#ffb703', marginBottom: '8px', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}>
-            <span>FIRST ROTATION ({startTimeStr} - {switchTimeStr})</span>
-            <span>{halfMins} MINS</span>
-          </div>
-
-          <div className="paired-stations-grid">
-            {/* Station A / C Lane */}
-            <div className="station-lane station-a-lane">
-              <div className="station-lane-header">
-                <span className="station-badge station-badge-a">{labelA}</span>
-                <span className="group-badge">Group 1 ({group1Count} players)</span>
-              </div>
-              <h5 className="drill-title">{titleA}</h5>
-              <p className="drill-objective-one-line">{cardA?.goal || 'Technical execution & skill drill'}</p>
+        {/* Paired Station Content — only rendered once the block is expanded, to keep the collapsed run sheet scannable */}
+        {isExpanded && (
+          <div style={{ padding: '12px' }}>
+            {/* FIRST ROTATION LANES */}
+            <div style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.06em', color: '#ffb703', marginBottom: '8px', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}>
+              <span>FIRST ROTATION ({startTimeStr} - {switchTimeStr})</span>
+              <span>{halfMins} MINS</span>
             </div>
 
-            {/* Station B / D Lane */}
-            <div className="station-lane station-b-lane">
-              <div className="station-lane-header">
-                <span className="station-badge station-badge-b">{labelB}</span>
-                <span className="group-badge">Group 2 ({group2Count} players)</span>
+            <div className="paired-stations-grid">
+              {/* Station A / C Lane */}
+              <div className="station-lane station-a-lane">
+                <div className="station-lane-header">
+                  <span className="station-badge station-badge-a">{labelA}</span>
+                  <span className="group-badge">Group 1 ({group1Count} players)</span>
+                </div>
+                <h5 className="drill-title">{titleA}</h5>
+                <p className="drill-objective-one-line">{cardA?.goal || 'Technical execution & skill drill'}</p>
               </div>
-              <h5 className="drill-title">{titleB}</h5>
-              <p className="drill-objective-one-line">{cardB?.goal || 'Decision making & pressure drill'}</p>
-            </div>
-          </div>
 
-          {/* PROMINENT STATION SWITCH GRAPHIC */}
-          <div className="station-switch-banner">
-            <div className="switch-time-badge">
-              <span className="switch-icon">↻</span>
-              <span>STATION SWITCH AT {switchTimeStr} ({halfMins} MIN MARK)</span>
-            </div>
-            <div className="switch-vectors">
-              <div className="vector-item">
-                <span className="vector-group">Group 1:</span>
-                <span className="vector-arrow">{labelA} → {labelB}</span>
-              </div>
-              <div className="vector-divider">|</div>
-              <div className="vector-item">
-                <span className="vector-group">Group 2:</span>
-                <span className="vector-arrow">{labelB} → {labelA}</span>
+              {/* Station B / D Lane */}
+              <div className="station-lane station-b-lane">
+                <div className="station-lane-header">
+                  <span className="station-badge station-badge-b">{labelB}</span>
+                  <span className="group-badge">Group 2 ({group2Count} players)</span>
+                </div>
+                <h5 className="drill-title">{titleB}</h5>
+                <p className="drill-objective-one-line">{cardB?.goal || 'Decision making & pressure drill'}</p>
               </div>
             </div>
-          </div>
 
-          {/* SECOND ROTATION LANES */}
-          <div style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.06em', color: '#ffb703', marginTop: '10px', marginBottom: '8px', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}>
-            <span>SECOND ROTATION ({switchTimeStr} - {endTimeStr})</span>
-            <span>{halfMins} MINS</span>
-          </div>
-
-          <div className="paired-stations-grid">
-            {/* Station A / C Lane (Group 2 now) */}
-            <div className="station-lane station-a-lane">
-              <div className="station-lane-header">
-                <span className="station-badge station-badge-a">{labelA}</span>
-                <span className="group-badge">Group 2 ({group2Count} players)</span>
+            {/* PROMINENT STATION SWITCH GRAPHIC */}
+            <div className="station-switch-banner">
+              <div className="switch-time-badge">
+                <span className="switch-icon">↻</span>
+                <span>STATION SWITCH AT {switchTimeStr} ({halfMins} MIN MARK)</span>
               </div>
-              <h5 className="drill-title">{titleA}</h5>
+              <div className="switch-vectors">
+                <div className="vector-item">
+                  <span className="vector-group">Group 1:</span>
+                  <span className="vector-arrow">{labelA} → {labelB}</span>
+                </div>
+                <div className="vector-divider">|</div>
+                <div className="vector-item">
+                  <span className="vector-group">Group 2:</span>
+                  <span className="vector-arrow">{labelB} → {labelA}</span>
+                </div>
+              </div>
             </div>
 
-            {/* Station B / D Lane (Group 1 now) */}
-            <div className="station-lane station-b-lane">
-              <div className="station-lane-header">
-                <span className="station-badge station-badge-b">{labelB}</span>
-                <span className="group-badge">Group 1 ({group1Count} players)</span>
-              </div>
-              <h5 className="drill-title">{titleB}</h5>
+            {/* SECOND ROTATION LANES */}
+            <div style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.06em', color: '#ffb703', marginTop: '10px', marginBottom: '8px', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}>
+              <span>SECOND ROTATION ({switchTimeStr} - {endTimeStr})</span>
+              <span>{halfMins} MINS</span>
             </div>
-          </div>
 
-          {/* EXPANDED DETAILS (When block is expanded) */}
-          {isExpanded && (
+            <div className="paired-stations-grid">
+              {/* Station A / C Lane (Group 2 now) */}
+              <div className="station-lane station-a-lane">
+                <div className="station-lane-header">
+                  <span className="station-badge station-badge-a">{labelA}</span>
+                  <span className="group-badge">Group 2 ({group2Count} players)</span>
+                </div>
+                <h5 className="drill-title">{titleA}</h5>
+              </div>
+
+              {/* Station B / D Lane (Group 1 now) */}
+              <div className="station-lane station-b-lane">
+                <div className="station-lane-header">
+                  <span className="station-badge station-badge-b">{labelB}</span>
+                  <span className="group-badge">Group 1 ({group1Count} players)</span>
+                </div>
+                <h5 className="drill-title">{titleB}</h5>
+              </div>
+            </div>
+
+            {/* FULL DRILL DETAILS */}
             <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {/* Station A Details */}
               <div className="expanded-station-details" style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '4px', borderLeft: '3px solid #ffb703' }}>
@@ -2230,11 +2201,11 @@ export default function TrainingLab({
                   </button>
                   <label className="btn-action btn-video">
                     Record or Upload Video
-                    <input 
-                      type="file" 
-                      accept="video/*" 
+                    <input
+                      type="file"
+                      accept="video/*"
                       onChange={(e) => handleDrillVideoUpload(e, titleA)}
-                      style={{ display: 'none' }} 
+                      style={{ display: 'none' }}
                     />
                   </label>
                 </div>
@@ -2263,18 +2234,18 @@ export default function TrainingLab({
                   </button>
                   <label className="btn-action btn-video">
                     Record or Upload Video
-                    <input 
-                      type="file" 
-                      accept="video/*" 
+                    <input
+                      type="file"
+                      accept="video/*"
                       onChange={(e) => handleDrillVideoUpload(e, titleB)}
-                      style={{ display: 'none' }} 
+                      style={{ display: 'none' }}
                     />
                   </label>
                 </div>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -2340,13 +2311,24 @@ export default function TrainingLab({
     const g1Count = Math.ceil(totalP / 2);
     const g2Count = Math.floor(totalP / 2);
 
-    const titleWu = (cardWu?.title || 'Warm-Up & Activation').replace(/[#*`[\]]/g, '');
-    const titleFn = (cardFn?.title || 'Match Simulation / SSG').replace(/[#*`[\]]/g, '');
+    const titleWu = (cardWu?.title || 'Warm-Up & Activation').replace(/[#*`[\]]/g, '').replace(/^warm[\s-]?up[\s:&-]*(and|&)?\s*activation\s*:?\s*/i, '').replace(/^warm[\s-]?up\s*:?\s*/i, '').trim();
+    const titleFn = (cardFn?.title || 'Match Simulation / SSG').replace(/[#*`[\]]/g, '').replace(/^final\s*:?\s*/i, '').trim();
 
     return (
-      <div className="run-sheet-timeline-container" style={{ position: 'relative' }}>
+      <div className="run-sheet-timeline-container">
         {/* Continuous Time Rail Line */}
         <div className="run-sheet-time-line" />
+
+        {/* 0:00 SESSION START MARKER */}
+        <div style={{ position: 'relative', marginBottom: '-6px' }}>
+          <div className="timeline-node">
+            <span className="timeline-time-badge" style={{ color: '#00e676' }}>0:00</span>
+            <div className="timeline-marker-start">▶</div>
+          </div>
+          <div style={{ paddingLeft: '4px', fontSize: '0.72rem', fontWeight: '800', letterSpacing: '0.06em', color: '#00e676', textTransform: 'uppercase' }}>
+            SESSION START
+          </div>
+        </div>
 
         {/* BLOCK 1: WARM-UP */}
         <div style={{ position: 'relative' }}>
@@ -2359,7 +2341,7 @@ export default function TrainingLab({
             backgroundColor: isSessionActive && activeStageIndex === 0 ? '#1a2030' : '#141720',
             border: isSessionActive && activeStageIndex === 0 ? '2px solid #00e676' : '1px solid rgba(255, 255, 255, 0.08)',
             borderLeft: '4px solid #00e676',
-            borderRadius: '6px',
+            borderRadius: '4px',
             overflow: 'hidden'
           }}>
             <div 
@@ -2381,14 +2363,14 @@ export default function TrainingLab({
                 </span>
                 <div style={{ overflow: 'hidden', flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <h4 style={{ margin: 0, color: '#ffffff', fontSize: '0.92rem', fontWeight: '800' }}>
+                    <h4 style={{ margin: 0, color: '#ffffff', fontSize: '0.92rem', fontWeight: '800', lineHeight: '1.3' }}>
                       WARM-UP: {titleWu}
                     </h4>
                     <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(0, 230, 118, 0.12)', color: '#00e676', padding: '2px 6px', borderRadius: '3px', fontWeight: '700' }}>
                       {wuMins} MIN
                     </span>
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#8d939e', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#8d939e', marginTop: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     All Players ({totalP} players) · Whole Group Activity
                   </div>
                 </div>
@@ -2490,7 +2472,7 @@ export default function TrainingLab({
             backgroundColor: isSessionActive && activeStageIndex === 3 ? '#1a2030' : '#141720',
             border: isSessionActive && activeStageIndex === 3 ? '2px solid #ff4d4d' : '1px solid rgba(255, 255, 255, 0.08)',
             borderLeft: '4px solid #ff4d4d',
-            borderRadius: '6px',
+            borderRadius: '4px',
             overflow: 'hidden'
           }}>
             <div 
@@ -2512,14 +2494,14 @@ export default function TrainingLab({
                 </span>
                 <div style={{ overflow: 'hidden', flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <h4 style={{ margin: 0, color: '#ffffff', fontSize: '0.92rem', fontWeight: '800' }}>
+                    <h4 style={{ margin: 0, color: '#ffffff', fontSize: '0.92rem', fontWeight: '800', lineHeight: '1.3' }}>
                       FINAL: {titleFn}
                     </h4>
                     <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(255, 77, 77, 0.15)', color: '#ff4d4d', padding: '2px 6px', borderRadius: '3px', fontWeight: '700' }}>
                       {fnMins} MIN
                     </span>
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#8d939e', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#8d939e', marginTop: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     All Players ({totalP} players) · Match Scrimmage / Game Application
                   </div>
                 </div>
@@ -2553,7 +2535,7 @@ export default function TrainingLab({
         </div>
 
         {/* SESSION COMPLETE MARKER */}
-        <div style={{ position: 'relative', marginTop: '8px' }}>
+        <div style={{ position: 'relative', marginTop: '4px' }}>
           <div className="timeline-node">
             <span className="timeline-time-badge" style={{ color: '#00e676' }}>{formatTimeStr(t4)}</span>
             <div className="timeline-marker-finish">✓</div>
@@ -2565,7 +2547,7 @@ export default function TrainingLab({
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
-            justify: 'space-between'
+            justifyContent: 'space-between'
           }}>
             <span className="scoreboard-font" style={{ fontSize: '0.8rem', color: '#00e676', letterSpacing: '0.04em' }}>
               🏁 SESSION COMPLETE
@@ -2590,85 +2572,41 @@ export default function TrainingLab({
       position: 'relative'
     }}>
       
-      {/* Sub-tab Navigation */}
-      <div className="run-sheet-subnav" style={{
-        display: 'flex',
-        backgroundColor: 'rgba(255, 255, 255, 0.04)',
-        borderRadius: '6px',
-        padding: '3px',
-        marginBottom: '20px',
-        border: '1px solid rgba(255, 255, 255, 0.08)'
-      }}>
-        <button
-          type="button"
-          onClick={() => {
-            setActiveSubTab('plan-builder');
-            setSelectedSession(null);
-          }}
-          style={{
-            flex: 1,
-            padding: '8px 12px',
-            fontSize: '0.8rem',
-            fontWeight: '700',
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em',
-            borderRadius: '4px',
-            border: 'none',
-            backgroundColor: activeSubTab === 'plan-builder' ? '#00e676' : 'transparent',
-            color: activeSubTab === 'plan-builder' ? '#0b0d12' : '#8d939e',
-            cursor: 'pointer',
-            transition: 'all 0.15s ease'
-          }}
-        >
-          Generator
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setActiveSubTab('history');
-            setSelectedSession(null);
-          }}
-          style={{
-            flex: 1,
-            padding: '8px 12px',
-            fontSize: '0.8rem',
-            fontWeight: '700',
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em',
-            borderRadius: '4px',
-            border: 'none',
-            backgroundColor: activeSubTab === 'history' ? '#00e676' : 'transparent',
-            color: activeSubTab === 'history' ? '#0b0d12' : '#8d939e',
-            cursor: 'pointer',
-            transition: 'all 0.15s ease'
-          }}
-        >
-          Session History
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setActiveSubTab('glossary');
-            setSelectedSession(null);
-          }}
-          style={{
-            flex: 1,
-            padding: '8px 12px',
-            fontSize: '0.8rem',
-            fontWeight: '700',
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em',
-            borderRadius: '4px',
-            border: 'none',
-            backgroundColor: activeSubTab === 'glossary' ? '#00e676' : 'transparent',
-            color: activeSubTab === 'glossary' ? '#0b0d12' : '#8d939e',
-            cursor: 'pointer',
-            transition: 'all 0.15s ease'
-          }}
-        >
-          Volunteer Glossary
-        </button>
-      </div>
+      {/* Training Lab Sub-Navigation Bar (hidden during the focused full-screen Training Plan view) */}
+      {!(activeSubTab === 'plan-builder' && step === 'plan') && (
+        <div className="segmented-subnav">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveSubTab('plan-builder');
+              setSelectedSession(null);
+            }}
+            className={`subnav-btn ${activeSubTab === 'plan-builder' ? 'active' : ''}`}
+          >
+            Generator
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveSubTab('history');
+              setSelectedSession(null);
+            }}
+            className={`subnav-btn ${activeSubTab === 'history' ? 'active' : ''}`}
+          >
+            Session History
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveSubTab('glossary');
+              setSelectedSession(null);
+            }}
+            className={`subnav-btn ${activeSubTab === 'glossary' ? 'active' : ''}`}
+          >
+            Volunteer Glossary
+          </button>
+        </div>
+      )}
 
       {activeSubTab === 'history' ? (
         <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
@@ -3397,42 +3335,28 @@ export default function TrainingLab({
           }}
         >
           {/* Sticky Mobile Header */}
-          <div 
-            style={{
-              position: 'sticky',
-              top: 0,
-              zIndex: 95,
-              backgroundColor: 'rgba(10, 11, 14, 0.95)',
-              backdropFilter: 'blur(12px)',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-              margin: '-40px -16px 0 -16px',
-              padding: '12px 16px',
-              display: 'flex',
-              justify: 'space-between',
-              alignItems: 'center'
-            }}
-          >
+          <div className="run-sheet-sticky-header">
             <div 
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: '#8d939e' }}
+              className="run-sheet-back-btn"
               onClick={() => setStep('parameters')}
             >
               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
               </svg>
-              <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>Back</span>
+              <span>Back</span>
             </div>
 
-            <h3 className="scoreboard-font" style={{ color: '#ffffff', margin: 0, fontSize: '1.1rem', fontWeight: '700' }}>
+            <h3 className="run-sheet-title">
               Training Plan
             </h3>
 
             {/* Overflow 3-Dot Menu */}
-            <div style={{ position: 'relative' }}>
+            <div className="run-sheet-menu-wrapper" style={{ position: 'relative' }}>
               <button
                 type="button"
                 className="icon-btn"
                 onClick={() => setIsPlanOverflowOpen(!isPlanOverflowOpen)}
-                style={{ padding: '4px 8px', fontSize: '1.2rem', color: '#8d939e', background: 'none', border: 'none', cursor: 'pointer' }}
+                style={{ width: '44px', height: '44px', padding: 0, fontSize: '1.2rem', color: '#8d939e', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 aria-label="More options"
               >
                 &#8285;
