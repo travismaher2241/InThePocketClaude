@@ -775,7 +775,7 @@ export default function MatchDay({
               <span style={{ fontSize: '1.4rem', fontWeight: '800', fontFamily: 'monospace', color: '#ffffff' }}>
                 {formatDuration(quarterSeconds)}
               </span>
-              <span style={{ fontSize: '0.7rem', fontWeight: '800', color: isClockRunning ? '#6b8e4e' : '#d98a32', backgroundColor: isClockRunning ? 'rgba(107,142,78,0.15)' : 'rgba(217,138,50,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: '800', color: isClockRunning ? '#7fa65c' : '#d98a32', backgroundColor: isClockRunning ? 'rgba(127,166,92,0.15)' : 'rgba(217,138,50,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
                 {isClockRunning ? 'RUNNING' : 'PAUSED'}
               </span>
             </div>
@@ -784,7 +784,7 @@ export default function MatchDay({
             <div style={{ display: 'flex', gap: '6px' }}>
               <button
                 onClick={handleToggleClock}
-                style={{ padding: '6px 12px', fontSize: '0.8rem', fontWeight: '800', backgroundColor: isClockRunning ? 'rgba(217,138,50,0.2)' : 'rgba(107,142,78,0.2)', color: isClockRunning ? '#d98a32' : '#6b8e4e', border: '1px solid currentColor', borderRadius: '8px', cursor: 'pointer' }}
+                style={{ padding: '6px 12px', fontSize: '0.8rem', fontWeight: '800', backgroundColor: isClockRunning ? 'rgba(217,138,50,0.2)' : 'rgba(127,166,92,0.2)', color: isClockRunning ? '#d98a32' : '#7fa65c', border: '1px solid currentColor', borderRadius: '8px', cursor: 'pointer' }}
               >
                 {isClockRunning ? 'Pause' : 'Resume'}
               </button>
@@ -936,7 +936,7 @@ export default function MatchDay({
 
             <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', fontWeight: '700', flexWrap: 'wrap' }}>
               <span style={{ color: '#ffffff' }}>Active: {activePlayers.length}</span>
-              <span style={{ color: '#6b8e4e' }}>On Field: {onFieldCount}</span>
+              <span style={{ color: '#7fa65c' }}>On Field: {onFieldCount}</span>
               <span style={{ color: '#d98a32' }}>Bench: {benchCount}</span>
               <span style={{ color: '#a39a8c' }}>Unavailable: {squad.length - activePlayers.length}</span>
             </div>
@@ -966,7 +966,7 @@ export default function MatchDay({
                   if (isAvail) {
                     if (isOnField) {
                       statusText = 'On Field';
-                      statusColor = '#6b8e4e';
+                      statusColor = '#7fa65c';
                     } else {
                       statusText = 'Bench';
                       statusColor = '#d98a32';
@@ -1021,8 +1021,8 @@ export default function MatchDay({
                     style={{
                       minHeight: '52px',
                       padding: '8px 6px',
-                      backgroundColor: assignedPlayer ? 'rgba(107, 142, 78, 0.15)' : 'rgba(255,255,255,0.04)',
-                      border: assignedPlayer ? '1px solid #6b8e4e' : '1px dashed rgba(255,255,255,0.2)',
+                      backgroundColor: assignedPlayer ? 'rgba(127, 166, 92, 0.15)' : 'rgba(255,255,255,0.04)',
+                      border: assignedPlayer ? '1px solid #7fa65c' : '1px dashed rgba(255,255,255,0.2)',
                       borderRadius: '8px',
                       display: 'flex',
                       flexDirection: 'column',
@@ -1079,7 +1079,7 @@ export default function MatchDay({
 
             <div style={{ backgroundColor: '#1c1913', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <span style={{ fontSize: '0.68rem', color: '#a39a8c', fontWeight: '800', textTransform: 'uppercase' }}>SUGGESTED NEXT ON</span>
-              <span style={{ fontSize: '0.95rem', color: '#6b8e4e', fontWeight: '800' }}>
+              <span style={{ fontSize: '0.95rem', color: '#7fa65c', fontWeight: '800' }}>
                 {suggestedNextOn ? suggestedNextOn.name : 'None'}
               </span>
               <span style={{ fontSize: '0.68rem', color: '#a39a8c' }}>Longest time on bench</span>
@@ -1098,7 +1098,7 @@ export default function MatchDay({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {/* Select Incoming Bench Player */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ fontSize: '0.75rem', color: '#6b8e4e', fontWeight: '700' }}>Incoming Player (Bench)</label>
+                <label style={{ fontSize: '0.75rem', color: '#7fa65c', fontWeight: '700' }}>Incoming Player (Bench)</label>
                 <select
                   value={queueIncomingId}
                   onChange={(e) => setQueueIncomingId(e.target.value)}
@@ -1159,7 +1159,7 @@ export default function MatchDay({
                 <div key={rot.id} style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '10px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                     <span style={{ color: '#ffffff', fontWeight: '800', fontSize: '0.88rem' }}>
-                      <span style={{ color: '#6b8e4e' }}>{rot.incomingName} ON</span> · <span style={{ color: '#d98a32' }}>{rot.outgoingName} OFF</span>
+                      <span style={{ color: '#7fa65c' }}>{rot.incomingName} ON</span> · <span style={{ color: '#d98a32' }}>{rot.outgoingName} OFF</span>
                     </span>
                     <span style={{ color: '#a39a8c', fontSize: '0.72rem' }}>Q{rot.quarter} · {rot.matchTime}</span>
                   </div>
@@ -1168,7 +1168,7 @@ export default function MatchDay({
                     {rot.status !== 'executed' && (
                       <button
                         onClick={() => handleExecuteRotation(rot)}
-                        style={{ padding: '6px 12px', fontSize: '0.75rem', fontWeight: '800', backgroundColor: '#6b8e4e', color: '#000000', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                        style={{ padding: '6px 12px', fontSize: '0.75rem', fontWeight: '800', backgroundColor: '#7fa65c', color: '#000000', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
                       >
                         Execute
                       </button>
@@ -1210,8 +1210,8 @@ export default function MatchDay({
                     }}
                     style={{
                       padding: '10px 12px',
-                      backgroundColor: isSelectedBench ? 'rgba(107, 142, 78, 0.15)' : (isOverStint ? 'rgba(193, 68, 59, 0.1)' : 'rgba(255,255,255,0.03)'),
-                      border: isSelectedBench ? '1.5px solid #6b8e4e' : (isOverStint ? '1.5px solid #c1443b' : '1px solid rgba(255,255,255,0.06)'),
+                      backgroundColor: isSelectedBench ? 'rgba(127, 166, 92, 0.15)' : (isOverStint ? 'rgba(193, 68, 59, 0.1)' : 'rgba(255,255,255,0.03)'),
+                      border: isSelectedBench ? '1.5px solid #7fa65c' : (isOverStint ? '1.5px solid #c1443b' : '1px solid rgba(255,255,255,0.06)'),
                       borderRadius: '8px',
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -1229,7 +1229,7 @@ export default function MatchDay({
                       </div>
                     </div>
 
-                    <span style={{ fontSize: '0.75rem', fontWeight: '800', color: isOverStint ? '#c1443b' : (isOnField ? '#6b8e4e' : '#d98a32'), backgroundColor: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '4px' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: '800', color: isOverStint ? '#c1443b' : (isOnField ? '#7fa65c' : '#d98a32'), backgroundColor: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '4px' }}>
                       {isOverStint ? 'ROTATE NOW' : (isOnField ? 'ON FIELD' : (isSelectedBench ? 'INCOMING' : 'BENCH'))}
                     </span>
                   </div>
@@ -1279,7 +1279,7 @@ export default function MatchDay({
                 <button onClick={() => handleLogStat('marks')} style={{ minHeight: '44px', padding: '8px', backgroundColor: 'rgba(201,162,75,0.15)', color: '#c9a24b', border: '1px solid rgba(201,162,75,0.3)', borderRadius: '8px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>
                   + Mark ({playerStats[selectedStatPlayerId]?.marks || 0})
                 </button>
-                <button onClick={() => handleLogStat('tackles')} style={{ minHeight: '44px', padding: '8px', backgroundColor: 'rgba(107,142,78,0.15)', color: '#6b8e4e', border: '1px solid rgba(107,142,78,0.3)', borderRadius: '8px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>
+                <button onClick={() => handleLogStat('tackles')} style={{ minHeight: '44px', padding: '8px', backgroundColor: 'rgba(127,166,92,0.15)', color: '#7fa65c', border: '1px solid rgba(127,166,92,0.3)', borderRadius: '8px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>
                   + Tackle ({playerStats[selectedStatPlayerId]?.tackles || 0})
                 </button>
                 <button onClick={() => handleLogStat('goals')} style={{ minHeight: '44px', padding: '8px', backgroundColor: 'rgba(217,138,50,0.15)', color: '#d98a32', border: '1px solid rgba(217,138,50,0.3)', borderRadius: '8px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>
@@ -1298,7 +1298,7 @@ export default function MatchDay({
               <div style={{ fontSize: '0.75rem', color: '#a39a8c', fontWeight: '800', textTransform: 'uppercase' }}>
                 STRATEGIC MATCH NOTES
               </div>
-              <span style={{ fontSize: '0.72rem', color: notesSaveStatus === 'Saved' ? '#6b8e4e' : '#d98a32', fontWeight: '700' }}>
+              <span style={{ fontSize: '0.72rem', color: notesSaveStatus === 'Saved' ? '#7fa65c' : '#d98a32', fontWeight: '700' }}>
                 {notesSaveStatus}
               </span>
             </div>
@@ -1368,7 +1368,7 @@ export default function MatchDay({
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', backgroundColor: 'rgba(255,255,255,0.04)', padding: '12px', borderRadius: '8px', fontSize: '0.88rem' }}>
           <div style={{ color: '#ffffff' }}>• Active Players: <strong>{activePlayers.length}</strong></div>
-          <div style={{ color: '#6b8e4e' }}>• On Field: <strong>{onFieldCount}/18</strong></div>
+          <div style={{ color: '#7fa65c' }}>• On Field: <strong>{onFieldCount}/18</strong></div>
           <div style={{ color: '#d98a32' }}>• Bench: <strong>{benchCount}</strong></div>
           <div style={{ color: unfilledSlotsCount > 0 ? '#d98a32' : '#a39a8c' }}>• Unfilled Positions: <strong>{unfilledSlotsCount}</strong></div>
           <div style={{ color: '#ffffff' }}>• Starting Quarter: <strong>Q{period}</strong></div>
@@ -1442,7 +1442,7 @@ export default function MatchDay({
               Confirm Substitution
             </h3>
             <p style={{ margin: 0, color: '#d9d2c4', fontSize: '0.9rem', lineHeight: 1.4 }}>
-              Substitute <strong style={{ color: '#6b8e4e' }}>{pendingSubstitution.incoming.jersey ? `#${pendingSubstitution.incoming.jersey} ` : ''}{pendingSubstitution.incoming.name} ON</strong> for <strong style={{ color: '#d98a32' }}>{pendingSubstitution.outgoing.jersey ? `#${pendingSubstitution.outgoing.jersey} ` : ''}{pendingSubstitution.outgoing.name} OFF</strong>?
+              Substitute <strong style={{ color: '#7fa65c' }}>{pendingSubstitution.incoming.jersey ? `#${pendingSubstitution.incoming.jersey} ` : ''}{pendingSubstitution.incoming.name} ON</strong> for <strong style={{ color: '#d98a32' }}>{pendingSubstitution.outgoing.jersey ? `#${pendingSubstitution.outgoing.jersey} ` : ''}{pendingSubstitution.outgoing.name} OFF</strong>?
             </p>
             <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
               <button
@@ -1465,7 +1465,7 @@ export default function MatchDay({
                   });
                   setPendingSubstitution(null);
                 }}
-                style={{ flex: 1, minHeight: '44px', padding: '10px', backgroundColor: '#6b8e4e', color: '#000000', border: 'none', borderRadius: '8px', fontWeight: '800', cursor: 'pointer' }}
+                style={{ flex: 1, minHeight: '44px', padding: '10px', backgroundColor: '#7fa65c', color: '#000000', border: 'none', borderRadius: '8px', fontWeight: '800', cursor: 'pointer' }}
               >
                 Confirm Sub
               </button>

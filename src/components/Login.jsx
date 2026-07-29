@@ -217,7 +217,7 @@ export default function Login() {
             </div>
 
             {structuredError.reassurance && (
-              <div style={{ fontSize: '0.75rem', color: '#6b8e4e', fontWeight: '700', backgroundColor: 'rgba(107, 142, 78, 0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(107, 142, 78, 0.2)' }}>
+              <div style={{ fontSize: '0.75rem', color: '#7fa65c', fontWeight: '700', backgroundColor: 'rgba(127, 166, 92, 0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(127, 166, 92, 0.2)' }}>
                 ✓ {structuredError.reassurance}
               </div>
             )}
@@ -271,8 +271,8 @@ export default function Login() {
 
         {message && (
           <div style={{
-            backgroundColor: 'rgba(107, 142, 78, 0.08)',
-            border: '1px solid rgba(107, 142, 78, 0.15)',
+            backgroundColor: 'rgba(127, 166, 92, 0.08)',
+            border: '1px solid rgba(127, 166, 92, 0.15)',
             color: 'var(--color-tactics)',
             borderRadius: '6px',
             padding: '10px',

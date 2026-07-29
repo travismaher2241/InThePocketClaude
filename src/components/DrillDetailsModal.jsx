@@ -539,7 +539,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
                         <span 
                           style={{
                             fontWeight: '800',
-                            color: symbol === '✓' ? '#6b8e4e' : symbol === '○' ? '#d98a32' : '#c1443b'
+                            color: symbol === '✓' ? '#7fa65c' : symbol === '○' ? '#d98a32' : '#c1443b'
                           }}
                         >
                           {symbol}
@@ -711,13 +711,13 @@ export default function DrillDetailsModal({ drill, onClose }) {
             {/* 3. What to Observe */}
             {observations.length > 0 && (
               <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#6b8e4e', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#7fa65c', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                   3. What the Coach Should Observe
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {observations.map((obs, idx) => (
                     <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.875rem', color: '#d9d2c4' }}>
-                      <span style={{ color: '#6b8e4e', fontWeight: '800' }}>☑</span>
+                      <span style={{ color: '#7fa65c', fontWeight: '800' }}>☑</span>
                       <span>{obs}</span>
                     </div>
                   ))}
@@ -737,7 +737,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
                       <div style={{ color: '#c1443b', fontSize: '0.85rem', fontWeight: '800', marginBottom: '4px' }}>
                         ❌ ERROR: {errObj.error}
                       </div>
-                      <div style={{ color: '#6b8e4e', fontSize: '0.85rem', fontWeight: '700' }}>
+                      <div style={{ color: '#7fa65c', fontSize: '0.85rem', fontWeight: '700' }}>
                         ✓ CORRECTION: {errObj.correction}
                       </div>
                     </div>
@@ -775,7 +775,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
                       <div style={{ color: '#c1443b', fontSize: '0.85rem', fontWeight: '800', marginBottom: '4px' }}>
                         ❌ ERROR: {errObj.error}
                       </div>
-                      <div style={{ color: '#6b8e4e', fontSize: '0.85rem', fontWeight: '700' }}>
+                      <div style={{ color: '#7fa65c', fontSize: '0.85rem', fontWeight: '700' }}>
                         ✓ CORRECTION: {errObj.correction}
                       </div>
                     </div>
@@ -787,7 +787,7 @@ export default function DrillDetailsModal({ drill, onClose }) {
             {/* 2. Progressions (Make It Harder) */}
             {progressions.length > 0 && (
               <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#6b8e4e', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#7fa65c', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
                   Progressions (Make It Harder)
                 </h4>
                 <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.875rem', color: '#ffffff', display: 'flex', flexDirection: 'column', gap: '6px', lineHeight: '1.5' }}>

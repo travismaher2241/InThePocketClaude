@@ -145,7 +145,7 @@ export default function DrillSetupDiagram({ drill }) {
             <circle cx="120" cy="180" r="12" fill="#241d15" stroke="#a39a8c" strokeWidth="1.5" />
             <text x="120" y="184" fill="#a39a8c" fontSize="9" fontWeight="700" textAnchor="middle">P2</text>
 
-            <circle cx="360" cy="180" r="14" fill="#241d15" stroke="#6b8e4e" strokeWidth="2" />
+            <circle cx="360" cy="180" r="14" fill="#241d15" stroke="#7fa65c" strokeWidth="2" />
             <text x="360" y="184" fill="#ffffff" fontSize="10" fontWeight="800" textAnchor="middle">T1</text>
 
             {/* Football */}

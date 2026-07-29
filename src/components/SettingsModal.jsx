@@ -424,7 +424,7 @@ export default function SettingsModal({
                     <select 
                       value={isOnline ? "Online" : "Offline"} 
                       onChange={(e) => setIsOnline(e.target.value === "Online")}
-                      style={{ fontWeight: '600', color: isOnline ? '#6b8e4e' : '#c1443b' }}
+                      style={{ fontWeight: '600', color: isOnline ? '#7fa65c' : '#c1443b' }}
                     >
                       <option value="Online">Online</option>
                       <option value="Offline">Offline (Simulate Disconnection)</option>

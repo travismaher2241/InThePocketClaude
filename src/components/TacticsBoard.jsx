@@ -1575,7 +1575,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
 
             <button
               onClick={handleNewBlankBoard}
-              style={{ minHeight: '44px', padding: '12px', backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', border: '1px solid #6b8e4e', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' }}
+              style={{ minHeight: '44px', padding: '12px', backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', border: '1px solid #7fa65c', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' }}
             >
               + Start New Blank Board
             </button>

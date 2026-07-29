@@ -638,10 +638,10 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                 fontWeight: '700', 
                 padding: '4px 10px', 
                 borderRadius: '12px',
-                backgroundColor: saveStatus === 'saved' ? 'rgba(107, 142, 78, 0.15)' : saveStatus === 'unsaved' ? 'rgba(217, 138, 50, 0.15)' : 'rgba(193, 68, 59, 0.15)',
-                color: saveStatus === 'saved' ? '#6b8e4e' : saveStatus === 'unsaved' ? '#d98a32' : '#c1443b',
+                backgroundColor: saveStatus === 'saved' ? 'rgba(127, 166, 92, 0.15)' : saveStatus === 'unsaved' ? 'rgba(217, 138, 50, 0.15)' : 'rgba(193, 68, 59, 0.15)',
+                color: saveStatus === 'saved' ? '#7fa65c' : saveStatus === 'unsaved' ? '#d98a32' : '#c1443b',
                 border: '1px solid',
-                borderColor: saveStatus === 'saved' ? 'rgba(107, 142, 78, 0.3)' : saveStatus === 'unsaved' ? 'rgba(217, 138, 50, 0.3)' : 'rgba(193, 68, 59, 0.3)'
+                borderColor: saveStatus === 'saved' ? 'rgba(127, 166, 92, 0.3)' : saveStatus === 'unsaved' ? 'rgba(217, 138, 50, 0.3)' : 'rgba(193, 68, 59, 0.3)'
               }}
             >
               {saveStatus === 'saved' ? 'Saved ✓' : saveStatus === 'unsaved' ? 'Unsaved Changes' : 'Save Failed'}
@@ -1041,7 +1041,7 @@ export default function VideoAnalyser({ squad, videoClips, setVideoClips, select
                   <button 
                     onClick={handleToggleFreeze}
                     style={{
-                      backgroundColor: isFrozen ? 'rgba(107, 142, 78, 0.15)' : 'var(--color-video)',
+                      backgroundColor: isFrozen ? 'rgba(127, 166, 92, 0.15)' : 'var(--color-video)',
                       color: '#ffffff',
                       border: 'none',
                       borderRadius: '8px',

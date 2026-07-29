@@ -107,14 +107,14 @@ export default function SubscriptionPage({
 
             {/* Included Features */}
             <div style={{ marginBottom: '16px' }}>
-              <span style={{ fontSize: '0.68rem', fontWeight: '800', color: '#6b8e4e', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
+              <span style={{ fontSize: '0.68rem', fontWeight: '800', color: '#7fa65c', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
                 INCLUDED FEATURES:
               </span>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.83rem', color: '#ffffff', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Master Team Hub</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Roster Import</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Basic Match Lineups</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> 2 Free AI Generations (Lifetime)</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Master Team Hub</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Roster Import</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Basic Match Lineups</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> 2 Free AI Generations (Lifetime)</li>
               </ul>
             </div>
 
@@ -134,11 +134,11 @@ export default function SubscriptionPage({
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(193, 68, 59, 0.08)', border: '1px solid rgba(193, 68, 59, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#c1443b' }}>
                   <span>❌ Tactics Board Canvas</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(107, 142, 78, 0.3)', color: '#ffffff' }}>ULTRA</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(127, 166, 92, 0.3)', color: '#ffffff' }}>ULTRA</span>
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(193, 68, 59, 0.08)', border: '1px solid rgba(193, 68, 59, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#c1443b' }}>
                   <span>❌ Live FootyFlow Clock</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(107, 142, 78, 0.3)', color: '#ffffff' }}>ULTRA</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(127, 166, 92, 0.3)', color: '#ffffff' }}>ULTRA</span>
                 </li>
               </ul>
             </div>
@@ -209,15 +209,15 @@ export default function SubscriptionPage({
 
             {/* Included Features */}
             <div style={{ marginBottom: '16px' }}>
-              <span style={{ fontSize: '0.68rem', fontWeight: '800', color: '#6b8e4e', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
+              <span style={{ fontSize: '0.68rem', fontWeight: '800', color: '#7fa65c', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
                 INCLUDED FEATURES:
               </span>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.83rem', color: '#ffffff', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Full AI Training Suite</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Unlimited AI Sessions</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Late-Arrival Calculations</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Upload Custom Club Playbook</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Master Team Hub & Roster</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Full AI Training Suite</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Unlimited AI Sessions</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Late-Arrival Calculations</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Upload Custom Club Playbook</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Master Team Hub & Roster</li>
               </ul>
             </div>
 
@@ -229,15 +229,15 @@ export default function SubscriptionPage({
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(193, 68, 59, 0.08)', border: '1px solid rgba(193, 68, 59, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#c1443b' }}>
                   <span>❌ Tactics Board Canvas</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(107, 142, 78, 0.3)', color: '#ffffff' }}>ULTRA</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(127, 166, 92, 0.3)', color: '#ffffff' }}>ULTRA</span>
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(193, 68, 59, 0.08)', border: '1px solid rgba(193, 68, 59, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#c1443b' }}>
                   <span>❌ Live FootyFlow Clock</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(107, 142, 78, 0.3)', color: '#ffffff' }}>ULTRA</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(127, 166, 92, 0.3)', color: '#ffffff' }}>ULTRA</span>
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(193, 68, 59, 0.08)', border: '1px solid rgba(193, 68, 59, 0.2)', borderRadius: '6px', padding: '6px 8px', fontSize: '0.78rem', color: '#c1443b' }}>
                   <span>❌ Playbook Multi-Export</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(107, 142, 78, 0.3)', color: '#ffffff' }}>ULTRA</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(127, 166, 92, 0.3)', color: '#ffffff' }}>ULTRA</span>
                 </li>
               </ul>
             </div>
@@ -279,15 +279,15 @@ export default function SubscriptionPage({
 
             {/* Included Features */}
             <div style={{ marginBottom: '16px' }}>
-              <span style={{ fontSize: '0.68rem', fontWeight: '800', color: '#6b8e4e', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
+              <span style={{ fontSize: '0.68rem', fontWeight: '800', color: '#7fa65c', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
                 INCLUDED FEATURES:
               </span>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.83rem', color: '#ffffff', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Full Tactics Board Canvas</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Multi-frame Playbook Export</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Live FootyFlow Rotation Clock</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> High-res Lineup Downloads</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Unlimited AI & Playbook Generator</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Full Tactics Board Canvas</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Multi-frame Playbook Export</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Live FootyFlow Rotation Clock</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> High-res Lineup Downloads</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Unlimited AI & Playbook Generator</li>
               </ul>
             </div>
 
@@ -373,15 +373,15 @@ export default function SubscriptionPage({
 
             {/* Included Features */}
             <div style={{ marginBottom: '16px' }}>
-              <span style={{ fontSize: '0.68rem', fontWeight: '800', color: '#6b8e4e', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
+              <span style={{ fontSize: '0.68rem', fontWeight: '800', color: '#7fa65c', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
                 INCLUDED FEATURES:
               </span>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.83rem', color: '#ffffff', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Bulk License for Committees</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Covers Junior Divisions U8-U18</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Ultra Pass for All Coaches</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Centralized Roster Imports</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#6b8e4e' }}>✔️</span> Tactics Board, Playbooks & Clock</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Bulk License for Committees</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Covers Junior Divisions U8-U18</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Ultra Pass for All Coaches</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Centralized Roster Imports</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#7fa65c' }}>✔️</span> Tactics Board, Playbooks & Clock</li>
               </ul>
             </div>
 
@@ -449,45 +449,45 @@ export default function SubscriptionPage({
             <tbody>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                 <td style={{ padding: '14px 12px', fontWeight: '600' }}>Master Team Hub & Roster Import</td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
               </tr>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                 <td style={{ padding: '14px 12px', fontWeight: '600' }}>AI Training Generations & Sessions</td>
                 <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(193, 68, 59, 0.15)', color: '#c1443b', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>🔒 Max 2 Generations</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Unlimited</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Unlimited</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Unlimited</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Unlimited</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Unlimited</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Unlimited</span></td>
               </tr>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                 <td style={{ padding: '14px 12px', fontWeight: '600' }}>Late-Arrival Calculations</td>
                 <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(193, 68, 59, 0.15)', color: '#c1443b', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>❌ Locked (Needs Pro)</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
               </tr>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                 <td style={{ padding: '14px 12px', fontWeight: '600' }}>Custom Playbook Upload</td>
                 <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(193, 68, 59, 0.15)', color: '#c1443b', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>❌ Locked (Needs Pro)</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
               </tr>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                 <td style={{ padding: '14px 12px', fontWeight: '600' }}>Interactive Tactics Board Canvas</td>
                 <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(193, 68, 59, 0.15)', color: '#c1443b', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>❌ Locked (Needs Ultra)</span></td>
                 <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(193, 68, 59, 0.15)', color: '#c1443b', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>❌ Locked (Needs Ultra)</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
               </tr>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                 <td style={{ padding: '14px 12px', fontWeight: '600' }}>Live FootyFlow Rotation Clock</td>
                 <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(193, 68, 59, 0.15)', color: '#c1443b', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>❌ Locked (Needs Ultra)</span></td>
                 <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(193, 68, 59, 0.15)', color: '#c1443b', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>❌ Locked (Needs Ultra)</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
-                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(107, 142, 78, 0.15)', color: '#6b8e4e', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
+                <td style={{ padding: '14px 12px', textAlign: 'center' }}><span style={{ backgroundColor: 'rgba(127, 166, 92, 0.15)', color: '#7fa65c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>✔️ Included</span></td>
               </tr>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                 <td style={{ padding: '14px 12px', fontWeight: '600' }}>Junior Committee Multi-Coach Pass</td>
@@ -578,19 +578,19 @@ export default function SubscriptionPage({
                 width: '60px',
                 height: '60px',
                 borderRadius: '50%',
-                backgroundColor: 'rgba(107, 142, 78, 0.1)',
-                border: '2.5px solid #6b8e4e',
+                backgroundColor: 'rgba(127, 166, 92, 0.1)',
+                border: '2.5px solid #7fa65c',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#6b8e4e',
+                color: '#7fa65c',
                 fontSize: '1.8rem',
                 marginBottom: '10px'
               }}>
                 🎉
               </div>
 
-              <h3 className="scoreboard-font" style={{ fontSize: '1.5rem', color: '#6b8e4e', margin: 0 }}>
+              <h3 className="scoreboard-font" style={{ fontSize: '1.5rem', color: '#7fa65c', margin: 0 }}>
                 UPGRADE SUCCESSFUL
               </h3>
               

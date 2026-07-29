@@ -1218,7 +1218,7 @@ export default function TrainingLab({
       <div className="run-sheet-block" style={{
         position: 'relative',
         backgroundColor: isCurrentActive ? '#1e1a12' : '#16130f',
-        border: isCurrentActive ? '2px solid #6b8e4e' : '1px solid rgba(255, 255, 255, 0.08)',
+        border: isCurrentActive ? '2px solid #7fa65c' : '1px solid rgba(255, 255, 255, 0.08)',
         borderLeft: '4px solid #d98a32',
         borderRadius: '6px',
         overflow: 'hidden'
@@ -1231,7 +1231,7 @@ export default function TrainingLab({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            backgroundColor: isCurrentActive ? 'rgba(107, 142, 78, 0.1)' : 'rgba(255, 255, 255, 0.02)',
+            backgroundColor: isCurrentActive ? 'rgba(127, 166, 92, 0.1)' : 'rgba(255, 255, 255, 0.02)',
             borderBottom: isExpanded ? '1px solid rgba(255, 255, 255, 0.08)' : 'none',
             cursor: 'pointer',
             minHeight: '44px',
@@ -1508,10 +1508,10 @@ export default function TrainingLab({
         {/* 0:00 SESSION START MARKER */}
         <div style={{ position: 'relative', marginBottom: '-6px' }}>
           <div className="timeline-node">
-            <span className="timeline-time-badge" style={{ color: '#6b8e4e' }}>0:00</span>
+            <span className="timeline-time-badge" style={{ color: '#7fa65c' }}>0:00</span>
             <div className="timeline-marker-start">▶</div>
           </div>
-          <div style={{ paddingLeft: '4px', fontSize: '0.72rem', fontWeight: '800', letterSpacing: '0.06em', color: '#6b8e4e', textTransform: 'uppercase' }}>
+          <div style={{ paddingLeft: '4px', fontSize: '0.72rem', fontWeight: '800', letterSpacing: '0.06em', color: '#7fa65c', textTransform: 'uppercase' }}>
             SESSION START
           </div>
         </div>
@@ -1525,8 +1525,8 @@ export default function TrainingLab({
 
           <div style={{
             backgroundColor: isSessionActive && activeStageIndex === 0 ? '#1e1a12' : '#16130f',
-            border: isSessionActive && activeStageIndex === 0 ? '2px solid #6b8e4e' : '1px solid rgba(255, 255, 255, 0.08)',
-            borderLeft: '4px solid #6b8e4e',
+            border: isSessionActive && activeStageIndex === 0 ? '2px solid #7fa65c' : '1px solid rgba(255, 255, 255, 0.08)',
+            borderLeft: '4px solid #7fa65c',
             borderRadius: '4px',
             overflow: 'hidden'
           }}>
@@ -1540,11 +1540,11 @@ export default function TrainingLab({
                 cursor: 'pointer',
                 minHeight: '44px',
                 userSelect: 'none',
-                backgroundColor: isSessionActive && activeStageIndex === 0 ? 'rgba(107, 142, 78, 0.1)' : 'transparent'
+                backgroundColor: isSessionActive && activeStageIndex === 0 ? 'rgba(127, 166, 92, 0.1)' : 'transparent'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
-                <span className="scoreboard-font" style={{ color: '#6b8e4e', fontSize: '0.8rem', fontWeight: '800', flexShrink: 0 }}>
+                <span className="scoreboard-font" style={{ color: '#7fa65c', fontSize: '0.8rem', fontWeight: '800', flexShrink: 0 }}>
                   BLOCK 1
                 </span>
                 <div style={{ overflow: 'hidden', flex: 1 }}>
@@ -1552,7 +1552,7 @@ export default function TrainingLab({
                     <h4 style={{ margin: 0, color: '#ffffff', fontSize: '0.92rem', fontWeight: '800', lineHeight: '1.3' }}>
                       WARM-UP: {titleWu}
                     </h4>
-                    <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(107, 142, 78, 0.12)', color: '#6b8e4e', padding: '2px 6px', borderRadius: '3px', fontWeight: '700' }}>
+                    <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(127, 166, 92, 0.12)', color: '#7fa65c', padding: '2px 6px', borderRadius: '3px', fontWeight: '700' }}>
                       {wuMins} MIN
                     </span>
                   </div>
@@ -1723,19 +1723,19 @@ export default function TrainingLab({
         {/* SESSION COMPLETE MARKER */}
         <div style={{ position: 'relative', marginTop: '4px' }}>
           <div className="timeline-node">
-            <span className="timeline-time-badge" style={{ color: '#6b8e4e' }}>{formatTimeStr(t4)}</span>
+            <span className="timeline-time-badge" style={{ color: '#7fa65c' }}>{formatTimeStr(t4)}</span>
             <div className="timeline-marker-finish">✓</div>
           </div>
           <div style={{
             padding: '10px 14px',
-            backgroundColor: 'rgba(107, 142, 78, 0.05)',
-            border: '1px dashed rgba(107, 142, 78, 0.3)',
+            backgroundColor: 'rgba(127, 166, 92, 0.05)',
+            border: '1px dashed rgba(127, 166, 92, 0.3)',
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between'
           }}>
-            <span className="scoreboard-font" style={{ fontSize: '0.8rem', color: '#6b8e4e', letterSpacing: '0.04em' }}>
+            <span className="scoreboard-font" style={{ fontSize: '0.8rem', color: '#7fa65c', letterSpacing: '0.04em' }}>
               🏁 SESSION COMPLETE
             </span>
             <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#ffffff' }}>
@@ -2864,7 +2864,7 @@ export default function TrainingLab({
             maxWidth: '480px',
             margin: '0 auto',
             backgroundColor: '#1c2a1f',
-            border: '1px solid rgba(107, 142, 78, 0.4)',
+            border: '1px solid rgba(127, 166, 92, 0.4)',
             borderRadius: '10px',
             padding: '12px 14px',
             color: '#d9d2c4',

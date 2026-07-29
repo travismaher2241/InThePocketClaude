@@ -1359,7 +1359,7 @@ export default function SquadHub({
               {importStep === 'RESULT' ? (
                 /* RESULT CONFIRMATION SUMMARY */
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center', padding: '10px 0' }}>
-                  <div style={{ backgroundColor: 'rgba(107, 142, 78, 0.12)', border: '1px solid rgba(107, 142, 78, 0.3)', borderRadius: '8px', padding: '16px', color: '#6b8e4e' }}>
+                  <div style={{ backgroundColor: 'rgba(127, 166, 92, 0.12)', border: '1px solid rgba(127, 166, 92, 0.3)', borderRadius: '8px', padding: '16px', color: '#7fa65c' }}>
                     <svg width="36" height="36" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ margin: '0 auto 8px auto', display: 'block' }}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -1374,7 +1374,7 @@ export default function SquadHub({
                   <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.25)', borderRadius: '8px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                       <span style={{ color: '#a39a8c' }}>Players added:</span>
-                      <strong style={{ color: '#6b8e4e' }}>{importResult.addedCount} players added</strong>
+                      <strong style={{ color: '#7fa65c' }}>{importResult.addedCount} players added</strong>
                     </div>
                     {importResult.updatedCount > 0 && (
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
@@ -1493,7 +1493,7 @@ export default function SquadHub({
                       {/* Summary Metrics Pills */}
                       {!importAnalysis.blockingError && (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                          <span style={{ backgroundColor: 'rgba(107, 142, 78, 0.12)', border: '1px solid rgba(107, 142, 78, 0.3)', color: '#6b8e4e', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: '700' }}>
+                          <span style={{ backgroundColor: 'rgba(127, 166, 92, 0.12)', border: '1px solid rgba(127, 166, 92, 0.3)', color: '#7fa65c', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: '700' }}>
                             {importAnalysis.validPlayers.length} players ready to import
                           </span>
                           {importAnalysis.warnings.length > 0 && (
