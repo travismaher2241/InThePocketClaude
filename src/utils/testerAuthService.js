@@ -4,8 +4,9 @@
  * structured error classification, diagnostic logging, and retry handling.
  */
 
-import { auth } from '../firebaseConfig.js';
-import { updatePassword } from 'firebase/auth';
+import { auth, functions } from '../firebaseConfig.js';
+import { signInWithCustomToken } from 'firebase/auth';
+import { httpsCallable } from 'firebase/functions';
 
 export const TESTER_ERROR_CATALOG = {
   EMPTY_CODE: {
@@ -287,59 +288,6 @@ export function classifyAuthError(err, stage = 'unknown') {
   return createStructuredError('UNEXPECTED_ERROR', { requestId });
 }
 
-function computeHash(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash |= 0;
-  }
-  return Math.abs(hash).toString(36);
-}
-
-export function deriveVirtualCredentials(testerCode) {
-  const sanitizedCode = testerCode.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
-  const virtualEmail = `${sanitizedCode}@tester.inthepocket.com.au`;
-  
-  // 1. Primary Salt (v2 deterministic salt across all devices)
-  const primarySeedStr = `ITP_TESTER_V2_DETERMINISTIC_SALT_${sanitizedCode}_${sanitizedCode.length}`;
-  const primaryHash = computeHash(primarySeedStr);
-  const primaryPassword = `ItpTester#${primaryHash}${sanitizedCode.length}!v2`;
-
-  // Candidate Emails to test
-  const candidateEmails = [
-    virtualEmail,
-    `${sanitizedCode}@coachcore.test`,
-    `coach_${sanitizedCode}@tester.inthepocket.com.au`
-  ];
-
-  // Candidate Passwords to test
-  const candidatePasswords = [
-    primaryPassword,
-    'InThePocketTesterAccess2026!', // Static legacy password used in commit 762f8ad
-    `ItpTester#${computeHash(`ITP_TESTER_${sanitizedCode}`)}${sanitizedCode.length}!`, // Pre-v2 unsalted formula
-  ];
-
-  // If local device salt exists, include device-salted candidate
-  const deviceSalt = typeof localStorage !== 'undefined' ? localStorage.getItem('inthepocket_device_salt') : null;
-  if (deviceSalt) {
-    candidatePasswords.push(`ItpTester#${computeHash(`ITP_TESTER_${sanitizedCode}_${deviceSalt}`)}${sanitizedCode.length}!`);
-  }
-
-  // Additional legacy candidate patterns
-  candidatePasswords.push(`ItpTester#${computeHash(sanitizedCode)}${sanitizedCode.length}!`);
-  candidatePasswords.push(`ItpTester#${sanitizedCode}!`);
-  candidatePasswords.push(`ItpTester#${sanitizedCode}123!`);
-
-  return {
-    sanitizedCode,
-    virtualEmail,
-    primaryPassword,
-    candidateEmails,
-    candidatePasswords: Array.from(new Set(candidatePasswords))
-  };
-}
-
 export function logTesterDiagnostic(payload) {
   try {
     const logsKey = 'inthepocket_tester_diagnostics';
@@ -362,7 +310,7 @@ export function logTesterDiagnostic(payload) {
   }
 }
 
-export async function authenticateTesterSession(testerCode, loginFn, signupFn) {
+export async function authenticateTesterSession(testerCode) {
   const requestId = generateRequestId();
   const timestamp = new Date().toISOString();
 
@@ -382,113 +330,60 @@ export async function authenticateTesterSession(testerCode, loginFn, signupFn) {
     throw createStructuredError('NETWORK_OFFLINE', { requestId });
   }
 
-  const { virtualEmail, primaryPassword, candidateEmails, candidatePasswords } = deriveVirtualCredentials(sanitized);
   const safeTesterId = hashString(sanitized);
-
   logTesterDiagnostic({ timestamp, stage: 'auth_started', safeTesterId, requestId, success: true });
 
-  const runWithTimeout = (fn, timeoutMs = 15000) => {
-    return Promise.race([
-      fn(),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('REQUEST_TIMEOUT')), timeoutMs))
-    ]);
-  };
-
-  let loginSuccess = false;
-  let matchedPassword = null;
-  let matchedEmail = null;
-
-  // 3. Exhaustive Candidate Login Search
-  for (const emailCandidate of candidateEmails) {
-    for (const passwordCandidate of candidatePasswords) {
-      try {
-        await runWithTimeout(() => loginFn(emailCandidate, passwordCandidate));
-        loginSuccess = true;
-        matchedPassword = passwordCandidate;
-        matchedEmail = emailCandidate;
-        logTesterDiagnostic({
-          timestamp,
-          stage: 'login_successful',
-          safeTesterId,
-          requestId,
-          success: true,
-          details: `Authenticated with candidate ${emailCandidate === virtualEmail ? 'primary' : 'variant'} email`
-        });
-        break;
-      } catch (loginErr) {
-        if (loginErr.message === 'REQUEST_TIMEOUT') {
-          throw createStructuredError('REQUEST_TIMEOUT', { requestId });
-        }
-        const code = (loginErr?.code || '').toLowerCase();
-        if (code === 'auth/network-request-failed') {
-          throw createStructuredError('SERVER_UNAVAILABLE', { requestId });
-        }
-        if (code === 'auth/user-disabled') {
-          throw createStructuredError('TESTER_ROOM_DISABLED', { requestId });
-        }
-        // Credentials mismatched for this specific candidate, continue searching candidates
-      }
+  // 3. Exchange the nickname for a custom auth token via the testerLogin Cloud
+  // Function. The uid is derived server-side from a secret salt this client
+  // never sees, so (unlike the old client-side deterministic-credential
+  // scheme) reading the bundled JS gives no way to compute another tester's
+  // identity.
+  let token;
+  try {
+    const testerLogin = httpsCallable(functions, 'testerLogin');
+    const result = await testerLogin({ code: sanitized });
+    token = result.data && result.data.token;
+    if (!token) {
+      throw new Error('No token returned');
     }
-    if (loginSuccess) break;
+  } catch (err) {
+    const code = (err?.code || '').toLowerCase();
+    logTesterDiagnostic({
+      timestamp,
+      stage: 'auth_signup_fail',
+      safeTesterId,
+      errorCode: 'SESSION_CREATION_FAILED',
+      requestId,
+      success: false,
+      details: err?.message || String(err)
+    });
+    if (code === 'functions/unavailable' || code.includes('network')) {
+      throw createStructuredError('SERVER_UNAVAILABLE', { requestId });
+    }
+    if (code === 'functions/invalid-argument') {
+      throw createStructuredError('INVALID_CODE_FORMAT', { requestId });
+    }
+    throw createStructuredError('SESSION_CREATION_FAILED', { requestId });
   }
 
-  // 4. Automatic Password Migration to Deterministic v2 Salt
-  if (loginSuccess) {
-    if (matchedPassword !== primaryPassword && auth?.currentUser) {
-      try {
-        await updatePassword(auth.currentUser, primaryPassword);
-        logTesterDiagnostic({
-          timestamp,
-          stage: 'identity_migrated',
-          safeTesterId,
-          requestId,
-          success: true,
-          details: 'Migrated legacy tester identity password to v2 deterministic credentials'
-        });
-      } catch (migErr) {
-        console.warn('[Tester Access] Deferred password migration:', migErr?.message || migErr);
-      }
-    }
-  } else {
-    // 5. If No Candidates Succeeded: Idempotent Signup (New Tester Sandbox Creation)
-    try {
-      logTesterDiagnostic({ timestamp, stage: 'attempting_signup', safeTesterId, requestId, success: true });
-      await runWithTimeout(() => signupFn(virtualEmail, primaryPassword));
-      loginSuccess = true;
-      logTesterDiagnostic({ timestamp, stage: 'sandbox_created', safeTesterId, requestId, success: true });
-    } catch (signupErr) {
-      if (signupErr.message === 'REQUEST_TIMEOUT') {
-        throw createStructuredError('REQUEST_TIMEOUT', { requestId });
-      }
-      const code = (signupErr?.code || '').toLowerCase();
-      if (code === 'auth/email-already-in-use') {
-        // Room exists in auth database but candidate passwords failed to resolve identity
-        logTesterDiagnostic({
-          timestamp,
-          stage: 'auth_signup_fail',
-          safeTesterId,
-          errorCode: 'SESSION_CREATION_FAILED',
-          requestId,
-          success: false
-        });
-        throw createStructuredError('SESSION_CREATION_FAILED', { requestId });
-      } else if (code === 'auth/network-request-failed') {
-        throw createStructuredError('SERVER_UNAVAILABLE', { requestId });
-      } else {
-        logTesterDiagnostic({
-          timestamp,
-          stage: 'auth_signup_fail',
-          safeTesterId,
-          errorCode: 'NEW_SANDBOX_CREATION_FAILED',
-          requestId,
-          success: false
-        });
-        throw createStructuredError('NEW_SANDBOX_CREATION_FAILED', { requestId });
-      }
-    }
+  // 4. Sign in with the custom token
+  try {
+    await signInWithCustomToken(auth, token);
+    logTesterDiagnostic({ timestamp, stage: 'login_successful', safeTesterId, requestId, success: true });
+  } catch (err) {
+    logTesterDiagnostic({
+      timestamp,
+      stage: 'auth_signup_fail',
+      safeTesterId,
+      errorCode: 'SESSION_CREATION_FAILED',
+      requestId,
+      success: false,
+      details: err?.message || String(err)
+    });
+    throw createStructuredError('SESSION_CREATION_FAILED', { requestId });
   }
 
-  // 6. Local Session Storage Verification
+  // 5. Local Session Storage Verification
   try {
     const testKey = `inthepocket_storage_test_${Date.now()}`;
     localStorage.setItem(testKey, '1');
@@ -505,7 +400,7 @@ export async function authenticateTesterSession(testerCode, loginFn, signupFn) {
     throw createStructuredError('LOCAL_SESSION_STORAGE_FAILED', { requestId });
   }
 
-  // 7. Complete Log
+  // 6. Complete Log
   logTesterDiagnostic({
     timestamp,
     stage: 'session_complete',

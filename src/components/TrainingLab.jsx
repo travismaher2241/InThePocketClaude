@@ -494,7 +494,6 @@ function RunSheetHeader({ activityCount = 6, blockCount = 4, totalDuration, play
 export default function TrainingLab({
   squad,
   subscriptionTier,
-  apiKey,
   triggerPaywall,
   logSyncTransaction,
   onSaveVideoClip,
@@ -964,8 +963,8 @@ export default function TrainingLab({
 
       // 2. Non-blocking optional AI enhancement if configured
       const isAIEnabled = import.meta.env.VITE_AI_PLAN_ENHANCEMENT_ENABLED !== 'false';
-      if (isAIEnabled && apiKey && hasAccess(subscriptionTier, 'pro')) {
-        enhancePlanWithAI(localPlan, apiKey).then(enhancedPlan => {
+      if (isAIEnabled && hasAccess(subscriptionTier, 'pro')) {
+        enhancePlanWithAI(localPlan).then(enhancedPlan => {
           if (requestId === currentRequestIdRef.current && isMountedRef.current) {
             if (enhancedPlan && enhancedPlan.aiEnhanced) {
               setPlanCards(sanitizePlanCards(enhancedPlan.segments || [], squadSettings?.groundName || "home ground", playerCount));

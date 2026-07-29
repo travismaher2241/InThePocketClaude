@@ -12,6 +12,8 @@ const VideoAnalyser = lazyWithRetry(() => import('./components/VideoAnalyser'));
 const SubscriptionPage = lazyWithRetry(() => import('./components/SubscriptionPage'));
 import { useAuth } from './context/AuthProvider';
 import { addPlayer, getPlayers, getSquadSettings, updateSquadSettings, getUserProfile, updateUserProfile, updatePlayerInFirestore } from './firebaseHelpers';
+import { functions } from './firebaseConfig';
+import { httpsCallable } from 'firebase/functions';
 import { safeJsonParse, getScopedKey, migrateUnscopedKey } from './utils/storageUtils';
 import inThePocketLogo from './assets/In The Pocket.png';
 
@@ -86,7 +88,6 @@ export default function App() {
   };
 
   // Settings & Integrations states
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
   const [subscriptionTier, setSubscriptionTier] = useState(() => localStorage.getItem('inthepocket_tier') || 'Ultra'); // Default to Ultra for full capability demo
   const [maxStintMinutes, setMaxStintMinutes] = useState(() => Number(localStorage.getItem('inthepocket_stint_limit')) || 5);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -312,12 +313,14 @@ export default function App() {
 
     if (currentUser?.uid) {
       try {
-        await updateUserProfile(currentUser.uid, {
-          subscriptionTier: dbTier,
-          isActive: true
-        });
+        // Routed through a Cloud Function rather than a direct Firestore write:
+        // Firestore rules block clients from writing subscriptionTier directly,
+        // so this is the one controlled path a "simulated upgrade" can take
+        // (and the natural place to swap in real Play Billing verification later).
+        const setSimulatedSubscriptionTier = httpsCallable(functions, 'setSimulatedSubscriptionTier');
+        await setSimulatedSubscriptionTier({ tier: dbTier });
       } catch (err) {
-        console.error("Failed to update user profile in Firestore:", err);
+        console.error("Failed to update subscription tier via Cloud Function:", err);
       }
     }
   };
@@ -622,11 +625,10 @@ export default function App() {
             />
           )}
           {activeTab === 1 && (
-            <TrainingLab 
-              squad={squad} 
-              subscriptionTier={subscriptionTier} 
-              apiKey={apiKey} 
-              triggerPaywall={triggerPaywall} 
+            <TrainingLab
+              squad={squad}
+              subscriptionTier={subscriptionTier}
+              triggerPaywall={triggerPaywall}
               logSyncTransaction={logSyncTransaction} 
               onSaveVideoClip={(clip) => setVideoClips(prev => [clip, ...prev])}
               squadSettings={squadSettings}

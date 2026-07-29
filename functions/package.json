@@ -1,0 +1,19 @@
+{
+  "name": "coachcore-functions",
+  "description": "Server-side Cloud Functions for In The Pocket / CoachCore",
+  "private": true,
+  "type": "commonjs",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "serve": "firebase emulators:start --only functions,firestore,auth",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "dependencies": {
+    "firebase-admin": "^14.2.0",
+    "firebase-functions": "^6.0.1"
+  }
+}

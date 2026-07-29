@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC6hmnm8IFSl6IwvEjUmo2tLDa7PsDKpn8",
@@ -16,6 +17,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
+const functions = getFunctions(app);
 
-// Export the app & auth so other files can use them
-export { app, auth };
+// In local dev, point at the Firebase Emulator Suite instead of production
+// (run `firebase emulators:start` from the CoachCore/functions setup) so
+// tester login, AI generation, and subscription changes can be tested
+// without deploying. Never activates in a production build.
+if (import.meta.env.DEV && import.meta.env.VITE_USE_FIREBASE_EMULATOR === 'true') {
+  connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+  connectFunctionsEmulator(functions, '127.0.0.1', 5001);
+}
+
+// Export the app, auth & functions so other files can use them
+export { app, auth, functions };

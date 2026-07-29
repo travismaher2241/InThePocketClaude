@@ -33,7 +33,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await authenticateTesterSession(testerCode, login, signup);
+      await authenticateTesterSession(testerCode);
     } catch (err) {
       const classified = classifyAuthError(err, 'auth');
       setStructuredError(classified);

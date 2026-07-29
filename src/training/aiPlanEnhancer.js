@@ -3,22 +3,24 @@
  * Refines coaching cues, wording, and tactical tips via Gemini without altering authoritative drill IDs, durations, or safety rules.
  */
 
-import { fetchRawAIPlan, confirmAIGenerationQuota } from '../firebaseHelpers.js';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../firebaseConfig.js';
 import { retrieveKnowledge } from '../knowledge/knowledgeService.js';
 
 /**
- * Enhances a valid local plan using Gemini AI without changing drill identities or durations.
- * @param {object} localPlan 
- * @param {string} apiKey 
+ * Enhances a valid local plan using Gemini AI (via the enhanceTrainingPlan Cloud
+ * Function, so the API key stays server-side) without changing drill identities
+ * or durations.
+ * @param {object} localPlan
  * @returns {Promise<object>} Enhanced plan object
  */
-export async function enhancePlanWithAI(localPlan, apiKey) {
-  if (!localPlan || !Array.isArray(localPlan.segments) || !apiKey) {
+export async function enhancePlanWithAI(localPlan) {
+  if (!localPlan || !Array.isArray(localPlan.segments)) {
     return localPlan;
   }
 
   const { parameters = {} } = localPlan;
-  const { uid, ageGroup = 'U14', coachLevel = 3, focusAreas = [], customPlaybookText = '' } = parameters;
+  const { ageGroup = 'U14', coachLevel = 3, focusAreas = [], customPlaybookText = '' } = parameters;
 
   // Retrieve 5-15 highly relevant coaching passages for AI context
   let knowledgePassages = [];
@@ -67,7 +69,8 @@ Do NOT include source document names, page numbers, or reference labels in the o
 Do NOT change drillId, duration, or core safety rules.`;
 
   try {
-    const rawData = await fetchRawAIPlan(uid, promptText, apiKey);
+    const enhanceTrainingPlan = httpsCallable(functions, 'enhanceTrainingPlan');
+    const { data: rawData } = await enhanceTrainingPlan({ promptText });
     const contentText = rawData?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!contentText) {
       return localPlan;
@@ -113,14 +116,9 @@ Do NOT change drillId, duration, or core safety rules.`;
       };
     });
 
-    // Confirm quota consumption ONLY after successful validation & merge
-    if (uid && uid !== 'guest') {
-      try {
-        await confirmAIGenerationQuota(uid);
-      } catch (err) {
-        console.warn("Quota confirmation failed:", err);
-      }
-    }
+    // Free-tier quota is now incremented server-side inside enhanceTrainingPlan,
+    // tied to the actual successful Gemini call rather than a separate
+    // client-triggered confirmation step.
 
     return {
       ...localPlan,
