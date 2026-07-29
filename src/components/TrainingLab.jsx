@@ -584,12 +584,15 @@ function parseStationCards(card, group1, group2) {
     return defaultLabel;
   };
 
-  const halfMins = Math.max(5, Math.round((card.duration || 20) / 2));
+  const totalBlockMins = card.blockMinutes || (card.duration && card.duration >= 12 ? card.duration : (card.duration || 7.5) * 2);
+  const halfMins = card.perStationMinutes || (totalBlockMins / 2);
   
   const cardA = {
     ...card,
     title: extractName(stationAContent, station1Label),
     duration: halfMins,
+    blockMinutes: totalBlockMins,
+    perStationMinutes: halfMins,
     isSubCard: true,
     stationLabel: station1Label,
     playerLabel: `GROUP 1 (${group1} PLAYERS)`,
@@ -601,6 +604,8 @@ function parseStationCards(card, group1, group2) {
     ...card,
     title: extractName(stationBContent, station2Label),
     duration: halfMins,
+    blockMinutes: totalBlockMins,
+    perStationMinutes: halfMins,
     isSubCard: true,
     stationLabel: station2Label,
     playerLabel: `GROUP 2 (${group2} PLAYERS)`,
@@ -1230,9 +1235,75 @@ const sanitizePlanCards = (cards, groundName = "home ground", playerCount = 0, a
     const subCards = parseStationCards(c, group1, group2);
     finalExpandedCards.push(...subCards);
   });
-
   return finalExpandedCards;
 };
+
+function RunSheetHeader({ activityCount = 6, blockCount = 4, totalDuration, playerCount, focusAreas, equipmentSummary }) {
+  return (
+    <div className="run-sheet-header-strip" style={{
+      backgroundColor: '#141720',
+      border: '1px solid rgba(0, 230, 118, 0.25)',
+      borderLeft: '4px solid #00e676',
+      borderRadius: '4px',
+      padding: '12px 14px',
+      marginBottom: '16px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px'
+    }}>
+      {/* Top Banner Row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{
+            fontSize: '0.65rem',
+            fontWeight: '800',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: '#00e676',
+            backgroundColor: 'rgba(0, 230, 118, 0.1)',
+            padding: '2px 6px',
+            borderRadius: '3px'
+          }}>
+            TRAINING RUN SHEET
+          </span>
+          <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#f0f2f5' }}>
+            {activityCount} ACTIVITIES · {blockCount} BLOCKS
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '0.85rem' }}>
+          <span style={{ fontFamily: 'var(--font-family-board)', fontWeight: '800', color: '#00e676' }}>
+            {totalDuration} MIN
+          </span>
+          <span style={{ color: 'rgba(255, 255, 255, 0.2)' }}>|</span>
+          <span style={{ fontFamily: 'var(--font-family-board)', fontWeight: '800', color: '#ffffff' }}>
+            {playerCount} PLAYERS
+          </span>
+        </div>
+      </div>
+
+      {/* Focus & Equipment Strip */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+        gap: '6px 16px',
+        paddingTop: '6px',
+        borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+        fontSize: '0.78rem'
+      }}>
+        <div style={{ color: '#8d939e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <strong style={{ color: '#00e676', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.04em', marginRight: '6px' }}>FOCUS:</strong>
+          <span style={{ color: '#f0f2f5' }}>{Array.isArray(focusAreas) ? focusAreas.join(' · ') : (focusAreas || 'AFL Fundamental Skills')}</span>
+        </div>
+        {equipmentSummary && (
+          <div style={{ color: '#8d939e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <strong style={{ color: '#3b82f6', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.04em', marginRight: '6px' }}>EQUIPMENT:</strong>
+            <span style={{ color: '#f0f2f5' }}>{equipmentSummary}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function TrainingLab({
   squad,
@@ -1885,6 +1956,329 @@ export default function TrainingLab({
     return `${arr.slice(0, -1).join(', ')} and ${arr[arr.length - 1]}`;
   };
 
+  const calculatePlanMetrics = (cards, group1Size = 9, group2Size = 9) => {
+    if (!cards || !Array.isArray(cards) || cards.length === 0) {
+      return { activityCount: 0, blockCount: 0, totalDurationMinutes: 0, warmUpCards: [], stationCards: [], finalCards: [], topLevelBlocks: [] };
+    }
+
+    let warmUpCards = [];
+    let stationCards = [];
+    let finalCards = [];
+    let topLevelBlocks = [];
+
+    if (cards.length >= 6) {
+      warmUpCards = [cards[0]];
+      stationCards = [cards[1], cards[2], cards[3], cards[4]];
+      finalCards = [cards[5]];
+
+      const wuM = cards[0]?.duration || cards[0]?.blockMinutes || 10;
+      const b1M = cards[1]?.blockMinutes || ((cards[1]?.duration || 7.5) + (cards[2]?.duration || 7.5));
+      const b2M = cards[3]?.blockMinutes || ((cards[3]?.duration || 7.5) + (cards[4]?.duration || 7.5));
+      const fnM = cards[5]?.duration || cards[5]?.blockMinutes || 20;
+
+      topLevelBlocks = [
+        { id: 'stage_1', type: 'warmup', duration: wuM },
+        { id: 'stage_2', type: 'block1', duration: b1M },
+        { id: 'stage_3', type: 'block2', duration: b2M },
+        { id: 'stage_4', type: 'final', duration: fnM }
+      ];
+    } else {
+      warmUpCards = [cards[0]];
+      const b1Subs = parseStationCards(cards[1] || {}, group1Size, group2Size);
+      const b2Subs = parseStationCards(cards[2] || {}, group1Size, group2Size);
+      stationCards = [...b1Subs, ...b2Subs];
+      finalCards = [cards[3] || cards[cards.length - 1]];
+
+      const wuM = cards[0]?.duration || cards[0]?.blockMinutes || 10;
+      const b1M = cards[1]?.blockMinutes || cards[1]?.duration || 15;
+      const b2M = cards[2]?.blockMinutes || cards[2]?.duration || 15;
+      const fnM = cards[3]?.duration || cards[cards.length - 1]?.duration || 20;
+
+      topLevelBlocks = [
+        { id: 'stage_1', type: 'warmup', duration: wuM },
+        { id: 'stage_2', type: 'block1', duration: b1M },
+        { id: 'stage_3', type: 'block2', duration: b2M },
+        { id: 'stage_4', type: 'final', duration: fnM }
+      ];
+    }
+
+    // Rule 11 & 12: Calculate activity count from actual generated plan data:
+    // activityCount = warmUpActivities.length + allIndividualStationActivities.length + finalActivities.length
+    const activityCount = warmUpCards.length + stationCards.length + finalCards.length;
+    const blockCount = topLevelBlocks.length;
+
+    const totalDurationMinutes = topLevelBlocks.reduce((sum, b) => sum + (b.duration || 0), 0);
+
+    return {
+      activityCount,
+      blockCount,
+      totalDurationMinutes,
+      warmUpCards,
+      stationCards,
+      finalCards,
+      topLevelBlocks
+    };
+  };
+
+  const formatTimeStr = (totalMinutes) => {
+    const hrs = Math.floor(totalMinutes / 60);
+    const mins = Math.floor(totalMinutes % 60);
+    const secs = Math.round((totalMinutes % 1) * 60);
+    const secPart = secs > 0 ? `:${String(secs).padStart(2, '0')}` : '';
+    return `${hrs}:${String(mins).padStart(2, '0')}${secPart}`;
+  };
+
+  const PairedStationBlockUI = ({
+    blockIndex,
+    blockTitle,
+    startTimeStr,
+    switchTimeStr,
+    endTimeStr,
+    totalDuration,
+    halfMins,
+    cardA,
+    cardB,
+    group1Count,
+    group2Count,
+    expandedCards,
+    toggleCardExpanded,
+    setActiveInspectDrill,
+    resolveFullDrillRecord,
+    setReplaceConfirmIndex,
+    handleDrillVideoUpload,
+    isCurrentActive
+  }) => {
+    const isBlock1 = blockIndex === 1;
+    const labelA = isBlock1 ? 'STATION A' : 'STATION C';
+    const labelB = isBlock1 ? 'STATION B' : 'STATION D';
+    const blockId = `stage_${blockIndex + 1}`;
+    const isExpanded = expandedCards.has(blockId);
+
+    const titleA = (cardA?.title || labelA).replace(/[#*`[\]]/g, '');
+    const titleB = (cardB?.title || labelB).replace(/[#*`[\]]/g, '');
+
+    return (
+      <div className="run-sheet-block" style={{
+        position: 'relative',
+        backgroundColor: isCurrentActive ? '#1a2030' : '#141720',
+        border: isCurrentActive ? '2px solid #00e676' : '1px solid rgba(255, 255, 255, 0.08)',
+        borderLeft: '4px solid #ffb703',
+        borderRadius: '6px',
+        overflow: 'hidden'
+      }}>
+        {/* Block Header (Tappable min 44px) */}
+        <div 
+          onClick={() => toggleCardExpanded(blockId)}
+          style={{
+            padding: '12px 14px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            backgroundColor: isCurrentActive ? 'rgba(0, 230, 118, 0.1)' : 'rgba(255, 255, 255, 0.02)',
+            borderBottom: isExpanded ? '1px solid rgba(255, 255, 255, 0.08)' : 'none',
+            cursor: 'pointer',
+            minHeight: '44px',
+            userSelect: 'none'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+            <span style={{
+              fontFamily: 'var(--font-family-board)',
+              fontSize: '0.75rem',
+              fontWeight: '800',
+              color: '#ffb703',
+              backgroundColor: 'rgba(255, 183, 3, 0.12)',
+              border: '1px solid rgba(255, 183, 3, 0.3)',
+              padding: '2px 6px',
+              borderRadius: '3px',
+              flexShrink: 0
+            }}>
+              BLOCK {blockIndex + 1}
+            </span>
+            <div style={{ overflow: 'hidden', flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <h4 style={{ margin: 0, color: '#ffffff', fontSize: '0.92rem', fontWeight: '800' }}>
+                  {blockTitle}
+                </h4>
+                <span style={{ fontSize: '0.7rem', color: '#ffb703', fontWeight: '700', backgroundColor: 'rgba(255, 183, 3, 0.15)', padding: '2px 6px', borderRadius: '3px' }}>
+                  {totalDuration} MIN TOTAL ({halfMins} MIN/ROTATION)
+                </span>
+              </div>
+              <div style={{ fontSize: '0.75rem', color: '#8d939e', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                Group 1 ({group1Count} players) @ {labelA} · Group 2 ({group2Count} players) @ {labelB}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '8px', flexShrink: 0 }}>
+            <svg 
+              width="18" 
+              height="18" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              viewBox="0 0 24 24"
+              style={{ 
+                color: '#8d939e',
+                transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.2s ease'
+              }}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </div>
+        </div>
+
+        {/* Paired Station Content */}
+        <div style={{ padding: '12px' }}>
+          {/* FIRST ROTATION LANES */}
+          <div style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.06em', color: '#ffb703', marginBottom: '8px', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}>
+            <span>FIRST ROTATION ({startTimeStr} - {switchTimeStr})</span>
+            <span>{halfMins} MINS</span>
+          </div>
+
+          <div className="paired-stations-grid">
+            {/* Station A / C Lane */}
+            <div className="station-lane station-a-lane">
+              <div className="station-lane-header">
+                <span className="station-badge station-badge-a">{labelA}</span>
+                <span className="group-badge">Group 1 ({group1Count} players)</span>
+              </div>
+              <h5 className="drill-title">{titleA}</h5>
+              <p className="drill-objective-one-line">{cardA?.goal || 'Technical execution & skill drill'}</p>
+            </div>
+
+            {/* Station B / D Lane */}
+            <div className="station-lane station-b-lane">
+              <div className="station-lane-header">
+                <span className="station-badge station-badge-b">{labelB}</span>
+                <span className="group-badge">Group 2 ({group2Count} players)</span>
+              </div>
+              <h5 className="drill-title">{titleB}</h5>
+              <p className="drill-objective-one-line">{cardB?.goal || 'Decision making & pressure drill'}</p>
+            </div>
+          </div>
+
+          {/* PROMINENT STATION SWITCH GRAPHIC */}
+          <div className="station-switch-banner">
+            <div className="switch-time-badge">
+              <span className="switch-icon">↻</span>
+              <span>STATION SWITCH AT {switchTimeStr} ({halfMins} MIN MARK)</span>
+            </div>
+            <div className="switch-vectors">
+              <div className="vector-item">
+                <span className="vector-group">Group 1:</span>
+                <span className="vector-arrow">{labelA} → {labelB}</span>
+              </div>
+              <div className="vector-divider">|</div>
+              <div className="vector-item">
+                <span className="vector-group">Group 2:</span>
+                <span className="vector-arrow">{labelB} → {labelA}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* SECOND ROTATION LANES */}
+          <div style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.06em', color: '#ffb703', marginTop: '10px', marginBottom: '8px', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}>
+            <span>SECOND ROTATION ({switchTimeStr} - {endTimeStr})</span>
+            <span>{halfMins} MINS</span>
+          </div>
+
+          <div className="paired-stations-grid">
+            {/* Station A / C Lane (Group 2 now) */}
+            <div className="station-lane station-a-lane">
+              <div className="station-lane-header">
+                <span className="station-badge station-badge-a">{labelA}</span>
+                <span className="group-badge">Group 2 ({group2Count} players)</span>
+              </div>
+              <h5 className="drill-title">{titleA}</h5>
+            </div>
+
+            {/* Station B / D Lane (Group 1 now) */}
+            <div className="station-lane station-b-lane">
+              <div className="station-lane-header">
+                <span className="station-badge station-badge-b">{labelB}</span>
+                <span className="group-badge">Group 1 ({group1Count} players)</span>
+              </div>
+              <h5 className="drill-title">{titleB}</h5>
+            </div>
+          </div>
+
+          {/* EXPANDED DETAILS (When block is expanded) */}
+          {isExpanded && (
+            <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Station A Details */}
+              <div className="expanded-station-details" style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '4px', borderLeft: '3px solid #ffb703' }}>
+                <h5 style={{ margin: '0 0 8px 0', color: '#ffb703', fontSize: '0.9rem', fontWeight: '700' }}>
+                  {labelA}: {titleA}
+                </h5>
+                {renderDrillTextFramework(cardA)}
+                <div className="action-buttons-strip">
+                  <button
+                    type="button"
+                    className="btn-action btn-manual"
+                    onClick={() => setActiveInspectDrill(resolveFullDrillRecord(cardA))}
+                  >
+                    View Manual
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-action btn-replace"
+                    onClick={() => setReplaceConfirmIndex(isBlock1 ? 1 : 3)}
+                  >
+                    Replace Drill
+                  </button>
+                  <label className="btn-action btn-video">
+                    Record or Upload Video
+                    <input 
+                      type="file" 
+                      accept="video/*" 
+                      onChange={(e) => handleDrillVideoUpload(e, titleA)}
+                      style={{ display: 'none' }} 
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Station B Details */}
+              <div className="expanded-station-details" style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '4px', borderLeft: '3px solid #fb8500' }}>
+                <h5 style={{ margin: '0 0 8px 0', color: '#fb8500', fontSize: '0.9rem', fontWeight: '700' }}>
+                  {labelB}: {titleB}
+                </h5>
+                {renderDrillTextFramework(cardB)}
+                <div className="action-buttons-strip">
+                  <button
+                    type="button"
+                    className="btn-action btn-manual"
+                    onClick={() => setActiveInspectDrill(resolveFullDrillRecord(cardB))}
+                  >
+                    View Manual
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-action btn-replace"
+                    onClick={() => setReplaceConfirmIndex(isBlock1 ? 2 : 4)}
+                  >
+                    Replace Drill
+                  </button>
+                  <label className="btn-action btn-video">
+                    Record or Upload Video
+                    <input 
+                      type="file" 
+                      accept="video/*" 
+                      onChange={(e) => handleDrillVideoUpload(e, titleB)}
+                      style={{ display: 'none' }} 
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderChronologicalStages = ({
     planCards,
     expandedCards,
@@ -1901,307 +2295,288 @@ export default function TrainingLab({
   }) => {
     if (!planCards || planCards.length === 0) return null;
 
-    const warmUpSeg = planCards[0];
-    const block1Seg = planCards[1];
-    const block2Seg = planCards[2];
-    const finalSeg = planCards[3] || planCards[planCards.length - 1];
+    let cardWu, cardA, cardB, cardC, cardD, cardFn;
+    let wuMins = 10, b1Mins = 15, b2Mins = 15, fnMins = 20;
 
-    const stages = [
-      { id: 'stage_1', seq: 1, title: 'Warm-Up', segment: warmUpSeg, type: 'warmup', duration: warmUpSeg?.duration || 10 },
-      { id: 'stage_2', seq: 2, title: 'Station Rotation 1 (Stations A & B)', segment: block1Seg, type: 'block1', duration: block1Seg?.duration || 15 },
-      { id: 'stage_3', seq: 3, title: 'Station Rotation 2 (Stations C & D)', segment: block2Seg, type: 'block2', duration: block2Seg?.duration || 15 },
-      { id: 'stage_4', seq: 4, title: 'Final Activity', segment: finalSeg, type: 'final', duration: finalSeg?.duration || 20 }
-    ];
+    if (planCards.length >= 6) {
+      cardWu = planCards[0];
+      cardA = planCards[1];
+      cardB = planCards[2];
+      cardC = planCards[3];
+      cardD = planCards[4];
+      cardFn = planCards[5];
+      wuMins = cardWu?.duration || 10;
+      b1Mins = (cardA?.duration || 7.5) + (cardB?.duration || 7.5);
+      b2Mins = (cardC?.duration || 7.5) + (cardD?.duration || 7.5);
+      fnMins = cardFn?.duration || 20;
+    } else {
+      cardWu = planCards[0];
+      wuMins = cardWu?.duration || 10;
+      b1Mins = planCards[1]?.duration || 15;
+      b2Mins = planCards[2]?.duration || 15;
+      cardFn = planCards[3] || planCards[planCards.length - 1];
+      fnMins = cardFn?.duration || 20;
 
-    return stages.map((stg, stgIdx) => {
-      const isExpanded = expandedCards.has(stg.id);
-      const isCurrentActive = isSessionActive && activeStageIndex === stgIdx;
+      const b1Subs = parseStationCards(planCards[1] || {}, group1, group2);
+      cardA = b1Subs[0] || planCards[1];
+      cardB = b1Subs[1] || planCards[1];
 
-      if (!stg.segment) return null;
+      const b2Subs = parseStationCards(planCards[2] || {}, group1, group2);
+      cardC = b2Subs[0] || planCards[2];
+      cardD = b2Subs[1] || planCards[2];
+    }
 
-      // Handle Concurrent Station Blocks (Stations A & B, Stations C & D)
-      if (stg.type === 'block1' || stg.type === 'block2') {
-        const subCards = parseStationCards(stg.segment, group1, group2);
-        const cardA = subCards[0] || stg.segment;
-        const cardB = subCards[1] || stg.segment;
-        const halfMins = Math.max(5, Math.round((stg.duration || 15) / 2));
-        const isBlock1 = stg.type === 'block1';
+    const t0 = 0;
+    const t1 = t0 + wuMins;
+    const b1Half = b1Mins / 2;
+    const t1Switch = t1 + b1Half;
+    const t2 = t1 + b1Mins;
+    const b2Half = b2Mins / 2;
+    const t2Switch = t2 + b2Half;
+    const t3 = t2 + b2Mins;
+    const t4 = t3 + fnMins;
 
-        return (
-          <div 
-            key={stg.id}
-            style={{
-              backgroundColor: isCurrentActive ? '#1c2234' : '#161922',
-              border: isCurrentActive ? '2px solid #3a86ff' : '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '12px',
-              overflow: 'hidden',
-              boxShadow: isCurrentActive ? '0 0 20px rgba(58, 134, 255, 0.2)' : '0 4px 12px rgba(0,0,0,0.3)'
-            }}
-          >
-            {/* Card Header - Min 44px Touch Target */}
+    const totalP = presentIds?.length || (group1 + group2) || 18;
+    const g1Count = Math.ceil(totalP / 2);
+    const g2Count = Math.floor(totalP / 2);
+
+    const titleWu = (cardWu?.title || 'Warm-Up & Activation').replace(/[#*`[\]]/g, '');
+    const titleFn = (cardFn?.title || 'Match Simulation / SSG').replace(/[#*`[\]]/g, '');
+
+    return (
+      <div className="run-sheet-timeline-container" style={{ position: 'relative' }}>
+        {/* Continuous Time Rail Line */}
+        <div className="run-sheet-time-line" />
+
+        {/* BLOCK 1: WARM-UP */}
+        <div style={{ position: 'relative' }}>
+          <div className="timeline-node">
+            <span className="timeline-time-badge">{formatTimeStr(t0)}</span>
+            <div className="timeline-marker-dot" />
+          </div>
+
+          <div style={{
+            backgroundColor: isSessionActive && activeStageIndex === 0 ? '#1a2030' : '#141720',
+            border: isSessionActive && activeStageIndex === 0 ? '2px solid #00e676' : '1px solid rgba(255, 255, 255, 0.08)',
+            borderLeft: '4px solid #00e676',
+            borderRadius: '6px',
+            overflow: 'hidden'
+          }}>
             <div 
-              onClick={() => toggleCardExpanded(stg.id)}
+              onClick={() => toggleCardExpanded('stage_1')}
               style={{
-                padding: '14px 16px',
+                padding: '12px 14px',
                 display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
-                justify: 'space-between',
                 cursor: 'pointer',
-                userSelect: 'none',
                 minHeight: '44px',
-                backgroundColor: isCurrentActive ? 'rgba(58, 134, 255, 0.12)' : 'rgba(255, 255, 255, 0.02)'
+                userSelect: 'none',
+                backgroundColor: isSessionActive && activeStageIndex === 0 ? 'rgba(0, 230, 118, 0.1)' : 'transparent'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                <span className="scoreboard-font" style={{ color: 'var(--color-squad)', fontSize: '1rem', fontWeight: '800', flexShrink: 0 }}>
-                  {stg.seq}.
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+                <span className="scoreboard-font" style={{ color: '#00e676', fontSize: '0.8rem', fontWeight: '800', flexShrink: 0 }}>
+                  BLOCK 1
                 </span>
                 <div style={{ overflow: 'hidden', flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <h4 style={{ margin: 0, color: '#ffffff', fontSize: '1rem', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {stg.title}
+                    <h4 style={{ margin: 0, color: '#ffffff', fontSize: '0.92rem', fontWeight: '800' }}>
+                      WARM-UP: {titleWu}
                     </h4>
-                    <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(255, 183, 3, 0.15)', color: '#ffb703', border: '1px solid rgba(255, 183, 3, 0.3)', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>
-                      {stg.duration} MINS TOTAL
+                    <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(0, 230, 118, 0.12)', color: '#00e676', padding: '2px 6px', borderRadius: '3px', fontWeight: '700' }}>
+                      {wuMins} MIN
                     </span>
                   </div>
                   <div style={{ fontSize: '0.75rem', color: '#8d939e', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    Group 1 ({group1}) @ {isBlock1 ? 'STATION A' : 'STATION C'} | Group 2 ({group2}) @ {isBlock1 ? 'STATION B' : 'STATION D'}
+                    All Players ({totalP} players) · Whole Group Activity
                   </div>
                 </div>
               </div>
 
-              {/* Expand Chevron Indicator */}
-              <div style={{ marginLeft: '10px', flexShrink: 0, display: 'flex', alignItems: 'center', minWidth: '24px', justifyContent: 'center' }}>
-                <svg 
-                  width="18" 
-                  height="18" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2.5" 
-                  viewBox="0 0 24 24"
-                  style={{ 
-                    color: '#8d939e',
-                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.2s ease'
-                  }}
-                >
+              <div style={{ marginLeft: '8px', flexShrink: 0 }}>
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ color: '#8d939e', transform: expandedCards.has('stage_1') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
                 </svg>
               </div>
             </div>
 
-            {/* Card Body (Expanded Content) */}
-            {isExpanded && (
-              <div style={{ padding: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {/* Station Rotation Rule Banner */}
-                <div style={{ backgroundColor: 'rgba(58, 134, 255, 0.08)', border: '1px dashed rgba(58, 134, 255, 0.3)', borderRadius: '8px', padding: '10px 12px', fontSize: '0.8rem', color: '#3a86ff', fontWeight: '600' }}>
-                  🔄 <strong>Rotation Schedule:</strong> Groups rotate at the {halfMins}-minute mark.
-                  <div style={{ color: '#ffffff', marginTop: '4px', fontSize: '0.78rem' }}>
-                    {isBlock1 
-                      ? 'Group 1 moves from Station A → Station B | Group 2 moves from Station B → Station A' 
-                      : 'Group 1 moves from Station C → Station D | Group 2 moves from Station D → Station C'
-                    }
-                  </div>
-                </div>
-
-                {/* STATION A / C DETAILS */}
-                <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', borderLeft: '4px solid #ffb703', borderRadius: '8px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h5 style={{ margin: 0, color: '#ffb703', fontSize: '0.95rem', fontWeight: '700' }}>
-                      {cardA.title || (isBlock1 ? 'Station A' : 'Station C')}
-                    </h5>
-                    <span style={{ fontSize: '0.7rem', color: '#8d939e', fontWeight: '600' }}>
-                      Group 1 ({group1} players)
-                    </span>
-                  </div>
-
-                  {renderDrillTextFramework(cardA)}
-
-                  {/* Actions */}
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                    <button
-                      type="button"
-                      className="btn"
-                      onClick={() => setActiveInspectDrill(resolveFullDrillRecord(cardA))}
-                      style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px' }}
-                    >
-                      View Manual
-                    </button>
-                    <button
-                      type="button"
-                      className="btn"
-                      onClick={() => setReplaceConfirmIndex(1)}
-                      style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px', color: '#ffbe0b' }}
-                    >
-                      Replace Drill
-                    </button>
-                    <label className="btn" style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px', cursor: 'pointer', color: 'var(--color-video)' }}>
-                      Record or Upload Video
-                      <input 
-                        type="file" 
-                        accept="video/*" 
-                        onChange={(e) => handleDrillVideoUpload(e, cardA.title || 'Station Drill')}
-                        style={{ display: 'none' }} 
-                      />
-                    </label>
-                  </div>
-                </div>
-
-                {/* STATION B / D DETAILS */}
-                <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', borderLeft: '4px solid #fb8500', borderRadius: '8px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h5 style={{ margin: 0, color: '#fb8500', fontSize: '0.95rem', fontWeight: '700' }}>
-                      {cardB.title || (isBlock1 ? 'Station B' : 'Station D')}
-                    </h5>
-                    <span style={{ fontSize: '0.7rem', color: '#8d939e', fontWeight: '600' }}>
-                      Group 2 ({group2} players)
-                    </span>
-                  </div>
-
-                  {renderDrillTextFramework(cardB)}
-
-                  {/* Actions */}
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                    <button
-                      type="button"
-                      className="btn"
-                      onClick={() => setActiveInspectDrill(resolveFullDrillRecord(cardB))}
-                      style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px' }}
-                    >
-                      View Manual
-                    </button>
-                    <button
-                      type="button"
-                      className="btn"
-                      onClick={() => setReplaceConfirmIndex(stg.type === 'block1' ? 1 : 2)}
-                      style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px', color: '#ffbe0b' }}
-                    >
-                      Replace Drill
-                    </button>
-                    <label className="btn" style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px', cursor: 'pointer', color: 'var(--color-video)' }}>
-                      Record or Upload Video
-                      <input 
-                        type="file" 
-                        accept="video/*" 
-                        onChange={(e) => handleDrillVideoUpload(e, cardB.title || 'Station Drill')}
-                        style={{ display: 'none' }} 
-                      />
-                    </label>
-                  </div>
+            {expandedCards.has('stage_1') && (
+              <div style={{ padding: '14px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {renderDrillTextFramework(cardWu)}
+                <div className="action-buttons-strip">
+                  <button type="button" className="btn-action btn-manual" onClick={() => setActiveInspectDrill(resolveFullDrillRecord(cardWu))}>
+                    View Manual
+                  </button>
+                  <button type="button" className="btn-action btn-replace" onClick={() => setReplaceConfirmIndex(0)}>
+                    Replace Drill
+                  </button>
+                  <label className="btn-action btn-video">
+                    Record or Upload Video
+                    <input type="file" accept="video/*" onChange={(e) => handleDrillVideoUpload(e, titleWu)} style={{ display: 'none' }} />
+                  </label>
                 </div>
               </div>
             )}
           </div>
-        );
-      }
+        </div>
 
-      // Single Drill Segment (Warm-Up or Final Game)
-      const segCard = stg.segment;
-      const cardTitle = (segCard.title || stg.title).replace(/[#*`[\]]/g, '');
-
-      return (
-        <div 
-          key={stg.id}
-          style={{
-            backgroundColor: isCurrentActive ? '#1c2234' : '#161922',
-            border: isCurrentActive ? '2px solid #3a86ff' : '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            boxShadow: isCurrentActive ? '0 0 20px rgba(58, 134, 255, 0.2)' : '0 4px 12px rgba(0,0,0,0.3)'
-          }}
-        >
-          {/* Card Header - Min 44px Touch Target */}
-          <div 
-            onClick={() => toggleCardExpanded(stg.id)}
-            style={{
-              padding: '14px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              justify: 'space-between',
-              cursor: 'pointer',
-              userSelect: 'none',
-              minHeight: '44px',
-              backgroundColor: isCurrentActive ? 'rgba(58, 134, 255, 0.12)' : 'rgba(255, 255, 255, 0.02)'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-              <span className="scoreboard-font" style={{ color: 'var(--color-squad)', fontSize: '1rem', fontWeight: '800', flexShrink: 0 }}>
-                {stg.seq}.
-              </span>
-              <div style={{ overflow: 'hidden', flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                  <h4 style={{ margin: 0, color: '#ffffff', fontSize: '1rem', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {cardTitle}
-                  </h4>
-                  <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(58, 134, 255, 0.15)', color: '#3a86ff', border: '1px solid rgba(58, 134, 255, 0.3)', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>
-                    {stg.duration} MINS
-                  </span>
-                </div>
-                <div style={{ fontSize: '0.75rem', color: '#8d939e', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {segCard.goal || 'All Players Whole Group Activity'}
-                </div>
-              </div>
-            </div>
-
-            {/* Expand Chevron Indicator */}
-            <div style={{ marginLeft: '10px', flexShrink: 0, display: 'flex', alignItems: 'center', minWidth: '24px', justifyContent: 'center' }}>
-              <svg 
-                width="18" 
-                height="18" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2.5" 
-                viewBox="0 0 24 24"
-                style={{ 
-                  color: '#8d939e',
-                  transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transition: 'transform 0.2s ease'
-                }}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </div>
+        {/* BLOCK 2: STATION BLOCK 1 (STATIONS A & B) */}
+        <div style={{ position: 'relative' }}>
+          <div className="timeline-node">
+            <span className="timeline-time-badge" style={{ color: '#ffb703' }}>{formatTimeStr(t1)}</span>
+            <div className="timeline-marker-diamond" />
           </div>
 
-          {/* Card Body (Expanded Content) */}
-          {isExpanded && (
-            <div style={{ padding: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {renderDrillTextFramework(segCard)}
+          <PairedStationBlockUI 
+            blockIndex={1}
+            blockTitle="STATION BLOCK 1: STATIONS A & B"
+            startTimeStr={formatTimeStr(t1)}
+            switchTimeStr={formatTimeStr(t1Switch)}
+            endTimeStr={formatTimeStr(t2)}
+            totalDuration={b1Mins}
+            halfMins={b1Half}
+            cardA={cardA}
+            cardB={cardB}
+            group1Count={g1Count}
+            group2Count={g2Count}
+            expandedCards={expandedCards}
+            toggleCardExpanded={toggleCardExpanded}
+            setActiveInspectDrill={setActiveInspectDrill}
+            resolveFullDrillRecord={resolveFullDrillRecord}
+            setReplaceConfirmIndex={setReplaceConfirmIndex}
+            handleDrillVideoUpload={handleDrillVideoUpload}
+            isCurrentActive={isSessionActive && activeStageIndex === 1}
+          />
+        </div>
 
-              {/* Actions */}
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => setActiveInspectDrill(resolveFullDrillRecord(segCard))}
-                  style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px' }}
-                >
-                  View Manual
-                </button>
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => setReplaceConfirmIndex(stgIdx)}
-                  style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px', color: '#ffbe0b' }}
-                >
-                  Replace Drill
-                </button>
-                <label className="btn" style={{ fontSize: '0.75rem', fontWeight: '600', padding: '8px 12px', minHeight: '44px', cursor: 'pointer', color: 'var(--color-video)' }}>
-                  Record or Upload Video
-                  <input 
-                    type="file" 
-                    accept="video/*" 
-                    onChange={(e) => handleDrillVideoUpload(e, cardTitle)}
-                    style={{ display: 'none' }} 
-                  />
-                </label>
+        {/* BLOCK 3: STATION BLOCK 2 (STATIONS C & D) */}
+        <div style={{ position: 'relative' }}>
+          <div className="timeline-node">
+            <span className="timeline-time-badge" style={{ color: '#ffb703' }}>{formatTimeStr(t2)}</span>
+            <div className="timeline-marker-diamond" />
+          </div>
+
+          <PairedStationBlockUI 
+            blockIndex={2}
+            blockTitle="STATION BLOCK 2: STATIONS C & D"
+            startTimeStr={formatTimeStr(t2)}
+            switchTimeStr={formatTimeStr(t2Switch)}
+            endTimeStr={formatTimeStr(t3)}
+            totalDuration={b2Mins}
+            halfMins={b2Half}
+            cardA={cardC}
+            cardB={cardD}
+            group1Count={g1Count}
+            group2Count={g2Count}
+            expandedCards={expandedCards}
+            toggleCardExpanded={toggleCardExpanded}
+            setActiveInspectDrill={setActiveInspectDrill}
+            resolveFullDrillRecord={resolveFullDrillRecord}
+            setReplaceConfirmIndex={setReplaceConfirmIndex}
+            handleDrillVideoUpload={handleDrillVideoUpload}
+            isCurrentActive={isSessionActive && activeStageIndex === 2}
+          />
+        </div>
+
+        {/* BLOCK 4: MATCH SIMULATION / SSG */}
+        <div style={{ position: 'relative' }}>
+          <div className="timeline-node">
+            <span className="timeline-time-badge" style={{ color: '#ff4d4d' }}>{formatTimeStr(t3)}</span>
+            <div className="timeline-marker-square" />
+          </div>
+
+          <div style={{
+            backgroundColor: isSessionActive && activeStageIndex === 3 ? '#1a2030' : '#141720',
+            border: isSessionActive && activeStageIndex === 3 ? '2px solid #ff4d4d' : '1px solid rgba(255, 255, 255, 0.08)',
+            borderLeft: '4px solid #ff4d4d',
+            borderRadius: '6px',
+            overflow: 'hidden'
+          }}>
+            <div 
+              onClick={() => toggleCardExpanded('stage_4')}
+              style={{
+                padding: '12px 14px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                cursor: 'pointer',
+                minHeight: '44px',
+                userSelect: 'none',
+                backgroundColor: isSessionActive && activeStageIndex === 3 ? 'rgba(255, 77, 77, 0.1)' : 'transparent'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+                <span className="scoreboard-font" style={{ color: '#ff4d4d', fontSize: '0.8rem', fontWeight: '800', flexShrink: 0 }}>
+                  BLOCK 4
+                </span>
+                <div style={{ overflow: 'hidden', flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <h4 style={{ margin: 0, color: '#ffffff', fontSize: '0.92rem', fontWeight: '800' }}>
+                      FINAL: {titleFn}
+                    </h4>
+                    <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(255, 77, 77, 0.15)', color: '#ff4d4d', padding: '2px 6px', borderRadius: '3px', fontWeight: '700' }}>
+                      {fnMins} MIN
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#8d939e', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    All Players ({totalP} players) · Match Scrimmage / Game Application
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ marginLeft: '8px', flexShrink: 0 }}>
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ color: '#8d939e', transform: expandedCards.has('stage_4') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
               </div>
             </div>
-          )}
+
+            {expandedCards.has('stage_4') && (
+              <div style={{ padding: '14px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {renderDrillTextFramework(cardFn)}
+                <div className="action-buttons-strip">
+                  <button type="button" className="btn-action btn-manual" onClick={() => setActiveInspectDrill(resolveFullDrillRecord(cardFn))}>
+                    View Manual
+                  </button>
+                  <button type="button" className="btn-action btn-replace" onClick={() => setReplaceConfirmIndex(5)}>
+                    Replace Drill
+                  </button>
+                  <label className="btn-action btn-video">
+                    Record / Upload Video
+                    <input type="file" accept="video/*" onChange={(e) => handleDrillVideoUpload(e, titleFn)} style={{ display: 'none' }} />
+                  </label>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      );
-    });
+
+        {/* SESSION COMPLETE MARKER */}
+        <div style={{ position: 'relative', marginTop: '8px' }}>
+          <div className="timeline-node">
+            <span className="timeline-time-badge" style={{ color: '#00e676' }}>{formatTimeStr(t4)}</span>
+            <div className="timeline-marker-finish">✓</div>
+          </div>
+          <div style={{
+            padding: '10px 14px',
+            backgroundColor: 'rgba(0, 230, 118, 0.05)',
+            border: '1px dashed rgba(0, 230, 118, 0.3)',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justify: 'space-between'
+          }}>
+            <span className="scoreboard-font" style={{ fontSize: '0.8rem', color: '#00e676', letterSpacing: '0.04em' }}>
+              🏁 SESSION COMPLETE
+            </span>
+            <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#ffffff' }}>
+              {t4} MINS TOTAL ELAPSED
+            </span>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -2216,64 +2591,83 @@ export default function TrainingLab({
     }}>
       
       {/* Sub-tab Navigation */}
-      <div style={{ display: 'flex', gap: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '12px', marginBottom: '24px' }}>
-        <span
+      <div className="run-sheet-subnav" style={{
+        display: 'flex',
+        backgroundColor: 'rgba(255, 255, 255, 0.04)',
+        borderRadius: '6px',
+        padding: '3px',
+        marginBottom: '20px',
+        border: '1px solid rgba(255, 255, 255, 0.08)'
+      }}>
+        <button
+          type="button"
           onClick={() => {
             setActiveSubTab('plan-builder');
             setSelectedSession(null);
           }}
           style={{
-            fontFamily: 'var(--font-family-locker)',
-            fontSize: '1.1rem',
+            flex: 1,
+            padding: '8px 12px',
+            fontSize: '0.8rem',
             fontWeight: '700',
-            color: activeSubTab === 'plan-builder' ? 'var(--color-training)' : '#8d939e',
-            cursor: 'pointer',
             textTransform: 'uppercase',
-            transition: 'color 0.2s ease',
-            borderBottom: activeSubTab === 'plan-builder' ? '2px solid var(--color-training)' : 'none',
-            paddingBottom: '4px'
+            letterSpacing: '0.04em',
+            borderRadius: '4px',
+            border: 'none',
+            backgroundColor: activeSubTab === 'plan-builder' ? '#00e676' : 'transparent',
+            color: activeSubTab === 'plan-builder' ? '#0b0d12' : '#8d939e',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease'
           }}
         >
           Generator
-        </span>
-        <span
+        </button>
+        <button
+          type="button"
           onClick={() => {
             setActiveSubTab('history');
             setSelectedSession(null);
           }}
           style={{
-            fontFamily: 'var(--font-family-locker)',
-            fontSize: '1.1rem',
+            flex: 1,
+            padding: '8px 12px',
+            fontSize: '0.8rem',
             fontWeight: '700',
-            color: activeSubTab === 'history' ? 'var(--color-training)' : '#8d939e',
-            cursor: 'pointer',
             textTransform: 'uppercase',
-            transition: 'color 0.2s ease',
-            borderBottom: activeSubTab === 'history' ? '2px solid var(--color-training)' : 'none',
-            paddingBottom: '4px'
+            letterSpacing: '0.04em',
+            borderRadius: '4px',
+            border: 'none',
+            backgroundColor: activeSubTab === 'history' ? '#00e676' : 'transparent',
+            color: activeSubTab === 'history' ? '#0b0d12' : '#8d939e',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease'
           }}
         >
           Session History
-        </span>
-        <span
+        </button>
+        <button
+          type="button"
           onClick={() => {
             setActiveSubTab('glossary');
             setSelectedSession(null);
           }}
           style={{
-            fontFamily: 'var(--font-family-locker)',
-            fontSize: '1.1rem',
+            flex: 1,
+            padding: '8px 12px',
+            fontSize: '0.8rem',
             fontWeight: '700',
-            color: activeSubTab === 'glossary' ? 'var(--color-training)' : '#8d939e',
-            cursor: 'pointer',
             textTransform: 'uppercase',
-            transition: 'color 0.2s ease',
-            borderBottom: activeSubTab === 'glossary' ? '2px solid var(--color-training)' : 'none',
-            paddingBottom: '4px'
+            letterSpacing: '0.04em',
+            borderRadius: '4px',
+            border: 'none',
+            backgroundColor: activeSubTab === 'glossary' ? '#00e676' : 'transparent',
+            color: activeSubTab === 'glossary' ? '#0b0d12' : '#8d939e',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease'
           }}
         >
           Volunteer Glossary
-        </span>
+        </button>
       </div>
 
       {activeSubTab === 'history' ? (
@@ -3115,34 +3509,20 @@ export default function TrainingLab({
             </div>
           ) : (
             <>
-              {/* COMPACT SESSION OVERVIEW CARD */}
-              <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ fontSize: '0.7rem', color: '#8d939e', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
-                  SESSION OVERVIEW
-                </div>
-
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--color-training)' }}>{duration} min</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '1.1rem', fontWeight: '800', color: '#ffffff' }}>{presentIds.length || 18} players</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '1.1rem', fontWeight: '800', color: '#3a86ff' }}>4 activities</span>
-                  </div>
-                </div>
-
-                <div style={{ fontSize: '0.85rem', color: '#d1d5db', lineHeight: '1.4' }}>
-                  <strong style={{ color: '#ffffff' }}>Focus:</strong> {focusAreas.join(', ')}
-                </div>
-
-                {getEquipmentSummary(planCards, getGlobalEquipment()) && (
-                  <div style={{ fontSize: '0.85rem', color: '#8d939e', lineHeight: '1.4' }}>
-                    <strong style={{ color: '#ffffff' }}>Equipment:</strong> {getEquipmentSummary(planCards, getGlobalEquipment())}
-                  </div>
-                )}
-              </div>
+              {/* DIGITAL COACH'S RUN SHEET HEADER */}
+              {(() => {
+                const metrics = calculatePlanMetrics(planCards, group1, group2);
+                return (
+                  <RunSheetHeader
+                    activityCount={metrics.activityCount}
+                    blockCount={metrics.blockCount}
+                    totalDuration={metrics.totalDurationMinutes || duration}
+                    playerCount={presentIds.length || squad?.players?.length || 18}
+                    focusAreas={focusAreas}
+                    equipmentSummary={getEquipmentSummary(planCards, getGlobalEquipment())}
+                  />
+                );
+              })()}
 
               {/* ACTIVE COACHING MODE BANNER (When Session is Active) */}
               {isSessionActive && (

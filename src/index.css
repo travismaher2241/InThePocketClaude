@@ -720,4 +720,300 @@ label {
   }
 }
 
+/* ==========================================================================
+   In The Pocket: Digital Coach's Run Sheet UI Design System
+   ========================================================================== */
+
+:root {
+  --color-itp-green: #00e676;
+  --color-itp-green-glow: rgba(0, 230, 118, 0.15);
+  --color-itp-pitch-bg: #0b0d12;
+  --color-itp-surface: #141720;
+  --color-itp-surface-card: #181c27;
+  --color-itp-amber: #ffb703;
+  --color-itp-red: #ff4d4d;
+  --color-itp-blue: #3b82f6;
+  --color-itp-text: #f0f2f5;
+  --color-itp-muted: #8d939e;
+  --color-itp-line: rgba(255, 255, 255, 0.08);
+}
+
+/* Time Rail & Timeline Layout */
+.run-sheet-timeline-container {
+  position: relative;
+  padding-left: 54px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.run-sheet-time-line {
+  position: absolute;
+  left: 22px;
+  top: 16px;
+  bottom: 30px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--color-itp-green) 0%, rgba(0, 230, 118, 0.4) 50%, var(--color-itp-red) 100%);
+  z-index: 1;
+}
+
+.timeline-node {
+  position: absolute;
+  left: -54px;
+  top: 14px;
+  width: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.timeline-time-badge {
+  font-family: var(--font-family-board);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--color-itp-green);
+  line-height: 1;
+  margin-bottom: 3px;
+  letter-spacing: -0.02em;
+}
+
+.timeline-marker-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--color-itp-pitch-bg);
+  border: 2.5px solid var(--color-itp-green);
+  box-shadow: 0 0 8px var(--color-itp-green-glow);
+}
+
+.timeline-marker-diamond {
+  width: 12px;
+  height: 12px;
+  background-color: var(--color-itp-pitch-bg);
+  border: 2.5px solid var(--color-itp-amber);
+  transform: rotate(45deg);
+}
+
+.timeline-marker-square {
+  width: 12px;
+  height: 12px;
+  background-color: var(--color-itp-red);
+  border: 2px solid #ffffff;
+  border-radius: 2px;
+}
+
+.timeline-marker-finish {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--color-itp-green);
+  color: #0b0d12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 900;
+}
+
+/* Paired Stations Grid */
+.paired-stations-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 520px) {
+  .paired-stations-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.station-lane {
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.station-lane-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.station-badge {
+  font-family: var(--font-family-board);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.station-badge-a {
+  color: #ffb703;
+  background-color: rgba(255, 183, 3, 0.15);
+  border: 1px solid rgba(255, 183, 3, 0.3);
+}
+
+.station-badge-b {
+  color: #fb8500;
+  background-color: rgba(251, 133, 0, 0.15);
+  border: 1px solid rgba(251, 133, 0, 0.3);
+}
+
+.group-badge {
+  font-size: 0.68rem;
+  color: var(--color-itp-muted);
+  font-weight: 600;
+}
+
+.drill-title {
+  margin: 0;
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.drill-objective-one-line {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-itp-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Station Switch Banner */
+.station-switch-banner {
+  margin: 10px 0;
+  padding: 10px 12px;
+  background-color: rgba(255, 183, 3, 0.08);
+  border: 1px dashed rgba(255, 183, 3, 0.35);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  text-align: center;
+}
+
+.switch-time-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-family-board);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #ffb703;
+  letter-spacing: 0.04em;
+}
+
+.switch-icon {
+  font-size: 0.95rem;
+  animation: rotateSwitch 4s linear infinite;
+  display: inline-block;
+}
+
+@keyframes rotateSwitch {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(180deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.switch-vectors {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: #ffffff;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.vector-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vector-group {
+  color: #ffb703;
+  font-weight: 700;
+}
+
+.vector-arrow {
+  color: #ffffff;
+  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.06);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.vector-divider {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* Action Buttons Strip */
+.action-buttons-strip {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.btn-action {
+  font-family: var(--font-family-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 8px 12px;
+  min-height: 44px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-action:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.btn-manual {
+  color: var(--color-itp-blue);
+  border-color: rgba(59, 130, 246, 0.3);
+  background-color: rgba(59, 130, 246, 0.08);
+}
+
+.btn-replace {
+  color: var(--color-itp-amber);
+  border-color: rgba(255, 183, 3, 0.3);
+  background-color: rgba(255, 183, 3, 0.08);
+}
+
+.btn-video {
+  color: var(--color-video);
+  border-color: rgba(255, 122, 0, 0.3);
+  background-color: rgba(255, 122, 0, 0.08);
+}
+
+
 

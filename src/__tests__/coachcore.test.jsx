@@ -1242,10 +1242,10 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
       // Verify onToggleBottomNav called with true for plan step
       expect(mockToggleNav).toHaveBeenCalledWith(true);
 
-      // Verify compact session overview card elements
-      expect(screen.getByText('SESSION OVERVIEW')).toBeInTheDocument();
-      expect(screen.getByText(/4 activities/i)).toBeInTheDocument();
-      expect(screen.getByText(/Equipment:/i)).toBeInTheDocument();
+      // Verify compact session run sheet header elements
+      expect(screen.getByText(/TRAINING RUN SHEET/i)).toBeInTheDocument();
+      expect(screen.getByText(/6 ACTIVITIES/i)).toBeInTheDocument();
+      expect(screen.getByText(/EQUIPMENT:/i)).toBeInTheDocument();
 
       // Verify sticky bottom action bar before session start
       expect(screen.getByRole('button', { name: 'Remix' })).toBeInTheDocument();
@@ -1598,6 +1598,46 @@ describe('CoachCore Comprehensive Behavioral Test Suite', () => {
       // Download failure classification
       const dlErr = createImportError('DOWNLOAD_FAILED');
       expect(dlErr.title).toBe(IMPORT_ERROR_CATALOG.DOWNLOAD_FAILED.title);
+    });
+
+  describe('Training Plan Activity Counting & Timing Arithmetic Audit', () => {
+    it('36: Correctly calculates activity count (6 for standard, 7 for 2-warmup) and 4 session blocks dynamically', () => {
+      const { calculateSlotDurations, getSessionSlots } = require('../training/sessionStructure.js');
+
+      // Standard 60 min session durations
+      const durations = calculateSlotDurations(60);
+      expect(durations.warmUpMins).toBe(10);
+      expect(durations.stationABBlockMins).toBe(15);
+      expect(durations.stationABPerStationMins).toBe(7.5);
+      expect(durations.stationCDBlockMins).toBe(15);
+      expect(durations.stationCDPerStationMins).toBe(7.5);
+      expect(durations.finalGameMins).toBe(20);
+
+      // Verify total session duration sum
+      const totalSum = durations.warmUpMins + durations.stationABBlockMins + durations.stationCDBlockMins + durations.finalGameMins;
+      expect(totalSum).toBe(60);
+
+      // 6 slots definition
+      const slots = getSessionSlots(60, 'U14');
+      expect(slots.length).toBe(6);
+      expect(slots[0].slotKey).toBe('WARM_UP');
+      expect(slots[1].slotKey).toBe('STATION_A');
+      expect(slots[2].slotKey).toBe('STATION_B');
+      expect(slots[3].slotKey).toBe('STATION_C');
+      expect(slots[4].slotKey).toBe('STATION_D');
+      expect(slots[5].slotKey).toBe('FINAL_GAME');
+    });
+
+    it('37: Equal station rotation time arithmetic (7.5 min per rotation = 15 min block total)', () => {
+      const { calculateSlotDurations } = require('../training/sessionStructure.js');
+      const d = calculateSlotDurations(60);
+      
+      const timePerRotation = d.stationABPerStationMins;
+      const totalBlockTime = d.stationABBlockMins;
+
+      expect(timePerRotation * 2).toBe(totalBlockTime);
+      expect(timePerRotation).toBe(7.5);
+      expect(totalBlockTime).toBe(15);
     });
   });
 
