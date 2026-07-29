@@ -17,7 +17,21 @@ export default function DrillSetupDiagram({ drill }) {
 
   const drillId = (drill?.drillId || drill?.id || drill?.code || '').toUpperCase();
   const title = (drill?.title || drill?.name || '').toLowerCase();
-  const isTriangleDrill = drillId.includes('WU-059') || title.includes('triangle') || title.includes('triangular') || title.includes('kick-mark-handball');
+
+  // Detect the "3 players rotating through kick / mark / handball" pattern from the
+  // drill's own instructions, not just a hardcoded id/title - WU-059 was the drill this
+  // diagram was originally built for, but many other drills in the library (e.g. WU-058
+  // "Mark, Handball and Move") follow the exact same structure under a different name
+  // and were incorrectly falling back to the generic, unrelated 2-player diagram.
+  const instructionsText = (drill?.howTheDrillWorks || drill?.execution || drill?.instructions || '').toLowerCase();
+  const hasThreePlayerRoles = instructionsText.includes('player one') && instructionsText.includes('player two') && instructionsText.includes('player three');
+  const hasKickMarkHandball = instructionsText.includes('kick') && instructionsText.includes('mark') && instructionsText.includes('handball');
+
+  const isTriangleDrill = drillId.includes('WU-059')
+    || title.includes('triangle')
+    || title.includes('triangular')
+    || title.includes('kick-mark-handball')
+    || (hasThreePlayerRoles && hasKickMarkHandball);
 
   const handleZoomIn = () => setZoom(z => Math.min(z + 0.25, 2.5));
   const handleZoomOut = () => setZoom(z => Math.max(z - 0.25, 0.75));

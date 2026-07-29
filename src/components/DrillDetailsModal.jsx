@@ -725,38 +725,6 @@ export default function DrillDetailsModal({ drill, onClose }) {
               </div>
             )}
 
-            {/* 4. Common Errors and Corrections */}
-            {commonErrors.length > 0 && (
-              <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#c1443b', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
-                  4. Common Errors & Direct Corrections
-                </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {commonErrors.map((errObj, idx) => (
-                    <div key={idx} style={{ backgroundColor: '#211d16', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #c1443b' }}>
-                      <div style={{ color: '#c1443b', fontSize: '0.85rem', fontWeight: '800', marginBottom: '4px' }}>
-                        ❌ ERROR: {errObj.error}
-                      </div>
-                      <div style={{ color: '#7fa65c', fontSize: '0.85rem', fontWeight: '700' }}>
-                        ✓ CORRECTION: {errObj.correction}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* 5. AFL Match Application */}
-            {matchApplication && (
-              <div style={{ backgroundColor: '#1c1913', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: '#ffffff', textTransform: 'uppercase', fontFamily: 'var(--font-family-locker)' }}>
-                  5. AFL Match Application
-                </h4>
-                <p style={{ fontSize: '0.875rem', color: '#d9d2c4', margin: 0, lineHeight: '1.5' }}>
-                  {matchApplication}
-                </p>
-              </div>
-            )}
           </>
         )}
 
