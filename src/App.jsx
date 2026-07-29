@@ -36,6 +36,15 @@ export default function App() {
 
   const [activeTab, setActiveTab] = useState(0); // 0: Squad, 1: Training, 2: Tactics, 3: Match Day, 4: Video
   const [hideGlobalNav, setHideGlobalNav] = useState(false);
+  const [tacticsHasUnsavedChanges, setTacticsHasUnsavedChanges] = useState(false);
+
+  const handleNavTabSwitch = (targetTab) => {
+    if (activeTab === 2 && targetTab !== 2 && tacticsHasUnsavedChanges) {
+      const confirmed = window.confirm('You have unsaved changes on the Tactics Board. Leave without saving?');
+      if (!confirmed) return;
+    }
+    setActiveTab(targetTab);
+  };
 
   // Reset scroll position to top when activeTab changes (forces window/container scroll reset)
   useEffect(() => {
@@ -627,10 +636,11 @@ export default function App() {
             />
           )}
           {activeTab === 2 && (
-            <TacticsBoard 
+            <TacticsBoard
               squad={squad}
-              subscriptionTier={subscriptionTier} 
-              triggerPaywall={triggerPaywall} 
+              subscriptionTier={subscriptionTier}
+              triggerPaywall={triggerPaywall}
+              onHasUnsavedChangesChange={setTacticsHasUnsavedChanges}
             />
           )}
           {activeTab === 3 && (
@@ -754,28 +764,28 @@ export default function App() {
       {/* Navigation tabs bar */}
       {!hideGlobalNav && (
         <nav className="nav-bar">
-          <button className={`nav-tab ${activeTab === 0 ? 'active-tab-0' : ''}`} onClick={() => setActiveTab(0)}>
+          <button className={`nav-tab ${activeTab === 0 ? 'active-tab-0' : ''}`} onClick={() => handleNavTabSwitch(0)}>
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
             </svg>
             <span className="nav-tab-label">Players</span>
           </button>
 
-          <button className={`nav-tab ${activeTab === 1 ? 'active-tab-1' : ''}`} onClick={() => setActiveTab(1)}>
+          <button className={`nav-tab ${activeTab === 1 ? 'active-tab-1' : ''}`} onClick={() => handleNavTabSwitch(1)}>
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
             </svg>
             <span className="nav-tab-label">Training Lab</span>
           </button>
 
-          <button className={`nav-tab ${activeTab === 2 ? 'active-tab-2' : ''}`} onClick={() => setActiveTab(2)}>
+          <button className={`nav-tab ${activeTab === 2 ? 'active-tab-2' : ''}`} onClick={() => handleNavTabSwitch(2)}>
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
             </svg>
             <span className="nav-tab-label">Tactics Board</span>
           </button>
 
-          <button className={`nav-tab ${activeTab === 4 ? 'active-tab-4' : ''}`} onClick={() => setActiveTab(4)}>
+          <button className={`nav-tab ${activeTab === 4 ? 'active-tab-4' : ''}`} onClick={() => handleNavTabSwitch(4)}>
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <rect x="3" y="3" width="18" height="18" rx="2" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M7 3v18M17 3v18M3 8h4M3 13h4M3 18h4M17 8h4M17 13h4M17 18h4" />
@@ -783,14 +793,14 @@ export default function App() {
             <span className="nav-tab-label">Video Analyser</span>
           </button>
 
-          <button className={`nav-tab ${activeTab === 3 ? 'active-tab-3' : ''}`} onClick={() => setActiveTab(3)}>
+          <button className={`nav-tab ${activeTab === 3 ? 'active-tab-3' : ''}`} onClick={() => handleNavTabSwitch(3)}>
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 15a7 7 0 007-7h-2.128A3.001 3.001 0 0015 5h-6a3 3 0 00-1.872 1H5a7 7 0 007 7zm0 0v5m-4 0h8M5 8h2m10 0h2"/>
             </svg>
             <span className="nav-tab-label">Match Day</span>
           </button>
 
-          <button className={`nav-tab ${activeTab === 5 ? 'active-tab-5' : ''}`} onClick={() => setActiveTab(5)}>
+          <button className={`nav-tab ${activeTab === 5 ? 'active-tab-5' : ''}`} onClick={() => handleNavTabSwitch(5)}>
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>

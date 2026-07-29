@@ -18,7 +18,7 @@ export async function enhancePlanWithAI(localPlan, apiKey) {
   }
 
   const { parameters = {} } = localPlan;
-  const { uid, ageGroup = 'U14', coachLevel = 3, focusAreas = [] } = parameters;
+  const { uid, ageGroup = 'U14', coachLevel = 3, focusAreas = [], customPlaybookText = '' } = parameters;
 
   // Retrieve 5-15 highly relevant coaching passages for AI context
   let knowledgePassages = [];
@@ -45,12 +45,16 @@ export async function enhancePlanWithAI(localPlan, apiKey) {
     objective: seg.objective
   }));
 
+  const clubPlaybookSection = customPlaybookText && customPlaybookText.trim()
+    ? `\nCLUB PLAYBOOK (align coaching cues and tactical notes to this club's own terminology/structures where relevant, without changing drill identities):\n${customPlaybookText.trim().substring(0, 4000)}\n`
+    : '';
+
   const promptText = `Refine coaching cues and tactical explanations for this pre-selected AFL training plan using official AFL curriculum guidelines.
 
 Target Age: ${ageGroup}
 Coach Level: ${coachLevel}
 Focus Areas: ${(focusAreas || []).join(', ')}
-
+${clubPlaybookSection}
 AUTHORITATIVE AFL CURRICULUM GUIDELINES (5-15 Compact References):
 ${referenceText}
 

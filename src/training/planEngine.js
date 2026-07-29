@@ -33,6 +33,7 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
     ? engineInput.focusAreas 
     : ['Skills and Ball Handling'];
   const equipment = engineInput.equipment || { footballs: 10, cones: 20, bibs: 15, agilityPoles: 6, tackleMats: 4 };
+  const customPlaybookText = typeof engineInput.customPlaybookText === 'string' ? engineInput.customPlaybookText : '';
   const recentSessions = Array.isArray(engineInput.recentSessions) ? engineInput.recentSessions : [];
   const variationAvoidIds = Array.isArray(engineInput.variationAvoidIds) ? engineInput.variationAvoidIds : [];
   const seed = engineInput.seed || Date.now();
@@ -205,7 +206,8 @@ export async function generateLocalPlan(engineInput = {}, drillsDb = null) {
       playerCount,
       durationMinutes,
       focusAreas,
-      equipment
+      equipment,
+      customPlaybookText
     },
     segments: selectedSegments,
     equipmentSummary,

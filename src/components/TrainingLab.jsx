@@ -679,7 +679,7 @@ export default function TrainingLab({
     }
   }, [squadSettings]);
   const [duration, setDuration] = useState(draft?.duration || 60);
-  const [coachLevel, setCoachLevel] = useState(draft?.coachLevel || '3');
+  const [coachLevel, setCoachLevel] = useState(draft?.coachLevel || userProfile?.coachLevel || '3');
   const [focusAreas, setFocusAreas] = useState(() => {
     return sanitizeFocusAreas(draft?.focusAreas);
   });
@@ -869,6 +869,12 @@ export default function TrainingLab({
   const [lateJersey, setLateJersey] = useState('');
   const [lateArrivalMessage, setLateArrivalMessage] = useState('');
 
+  useEffect(() => {
+    if (!lateArrivalMessage) return;
+    const timer = setTimeout(() => setLateArrivalMessage(''), 8000);
+    return () => clearTimeout(timer);
+  }, [lateArrivalMessage]);
+
 
   const togglePlayer = (id) => {
     if (presentIds.includes(id)) {
@@ -946,7 +952,8 @@ export default function TrainingLab({
         equipment: currentEquipment,
         recentSessions: Array.isArray(historySessions) ? historySessions : [],
         variationAvoidIds,
-        seed: customSeed || Date.now()
+        seed: customSeed || Date.now(),
+        customPlaybookText: hasAccess(subscriptionTier, 'pro') ? customPlaybookText : ''
       };
 
       // 1. Immediate local plan generation using authoritative deterministic engine
@@ -1005,7 +1012,8 @@ export default function TrainingLab({
         equipment: currentEquipment,
         recentSessions: Array.isArray(historySessions) ? historySessions : [],
         variationAvoidIds: currentDrillIds,
-        seed: Date.now()
+        seed: Date.now(),
+        customPlaybookText: hasAccess(subscriptionTier, 'pro') ? customPlaybookText : ''
       };
 
       const newPlan = await generateLocalPlan(engineInput);
@@ -2189,8 +2197,18 @@ export default function TrainingLab({
             }}
           >
             {squad.length === 0 ? (
-              <div style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '40px 0', fontSize: '0.9rem' }}>
-                No players registered in the Team Hub.
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', textAlign: 'center', padding: '40px 20px' }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
+                  No players registered in the Team Hub yet.
+                </p>
+                <button
+                  type="button"
+                  className="btn btn-squad"
+                  onClick={() => setActiveTab && setActiveTab(0)}
+                  style={{ padding: '10px 20px', fontSize: '0.85rem' }}
+                >
+                  Add Players to Team Hub
+                </button>
               </div>
             ) : (
               squad.map((player) => {
@@ -2385,7 +2403,19 @@ export default function TrainingLab({
               </select>
             </div>
 
-
+            <div className="form-group">
+              <label style={{ fontFamily: 'var(--font-family-body)', fontWeight: '600' }}>Coach Experience Level</label>
+              <select value={coachLevel} onChange={(e) => setCoachLevel(e.target.value)}>
+                <option value="1">Level 1 – Beginner / Parent Volunteer</option>
+                <option value="2">Level 2 – Fundamental / Assistant Coach</option>
+                <option value="3">Level 3 – Intermediate / Club Coach</option>
+                <option value="4">Level 4 – Advanced / Tactical Coach</option>
+                <option value="5">Level 5 – Expert / High Performance Coach</option>
+              </select>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                Calibrates drill complexity for this session. Defaults to the level set in your coach profile.
+              </p>
+            </div>
 
             <div className="form-group">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -2793,15 +2823,9 @@ export default function TrainingLab({
   )}
 
       {/* Sticky Floating Action Button (Late Arrival Override) */}
-      {step === 'parameters' && (
-        <button 
-          onClick={() => {
-            if (!hasAccess(subscriptionTier, 'pro')) {
-              triggerPaywall("Mid-Session Late Arrival Override");
-            } else {
-              setIsLateModalOpen(true);
-            }
-          }}
+      {(step === 'parameters' || step === 'plan') && (
+        <button
+          onClick={() => setIsLateModalOpen(true)}
           style={{
             position: 'fixed',
             bottom: '160px', 
@@ -2827,6 +2851,42 @@ export default function TrainingLab({
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
         </button>
+      )}
+
+      {/* Late Arrival Confirmation Banner */}
+      {lateArrivalMessage && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '90px',
+            left: '16px',
+            right: '16px',
+            maxWidth: '480px',
+            margin: '0 auto',
+            backgroundColor: '#1c2a1f',
+            border: '1px solid rgba(0, 230, 118, 0.4)',
+            borderRadius: '10px',
+            padding: '12px 14px',
+            color: '#d1d5db',
+            fontSize: '0.82rem',
+            lineHeight: 1.4,
+            zIndex: 100,
+            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            gap: '10px'
+          }}
+        >
+          <span>{lateArrivalMessage}</span>
+          <button
+            onClick={() => setLateArrivalMessage('')}
+            style={{ background: 'none', border: 'none', color: '#8d939e', cursor: 'pointer', flexShrink: 0, fontSize: '1rem', lineHeight: 1 }}
+            aria-label="Dismiss"
+          >
+            ✕
+          </button>
+        </div>
       )}
 
       {/* Late Arrival Override Modal */}
@@ -3179,9 +3239,21 @@ export default function TrainingLab({
             <h4 style={{ color: '#ffffff', fontSize: '1.15rem', fontWeight: '700', margin: '0 0 10px 0' }}>
               End training session?
             </h4>
-            <p style={{ fontSize: '0.85rem', color: '#8d939e', lineHeight: '1.5', margin: '0 0 20px 0' }}>
+            <p style={{ fontSize: '0.85rem', color: '#8d939e', lineHeight: '1.5', margin: '0 0 14px 0' }}>
               This will complete the current session and save it to Session History.
             </p>
+            <div style={{ textAlign: 'left', marginBottom: '18px' }}>
+              <label style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '700', display: 'block', marginBottom: '4px' }}>
+                Coach's Notes (Optional)
+              </label>
+              <textarea
+                value={coachNotes}
+                onChange={(e) => setCoachNotes(e.target.value)}
+                placeholder="e.g. Kick-in drills worked well, but marking drills need more physical contact next time..."
+                rows="3"
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.06)', color: '#ffffff', fontSize: '0.85rem', resize: 'vertical' }}
+              />
+            </div>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
               <button 
                 type="button" 

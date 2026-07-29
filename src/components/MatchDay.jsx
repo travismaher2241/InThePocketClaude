@@ -390,6 +390,21 @@ export default function MatchDay({
   const benchCount = benchPlayers.length;
   const unfilledSlotsCount = FIELD_POSITIONS.length - onFieldCount;
 
+  // Fairness-based suggestions: longest current stint off, longest time on bench on
+  const suggestedNextOff = squad
+    .filter(p => onFieldPlayerIds.includes(p.id))
+    .reduce((longest, p) => {
+      const stint = (playerTimers[p.id]?.stintSecs) || 0;
+      const longestStint = longest ? ((playerTimers[longest.id]?.stintSecs) || 0) : -1;
+      return stint > longestStint ? p : longest;
+    }, null);
+
+  const suggestedNextOn = benchPlayers.reduce((longest, p) => {
+    const bench = (playerTimers[p.id]?.bench) || 0;
+    const longestBench = longest ? ((playerTimers[longest.id]?.bench) || 0) : -1;
+    return bench > longestBench ? p : longest;
+  }, null);
+
   // Score helper calculation (Items 28-29)
   const calcTotalPoints = (scoreObj) => (scoreObj.goals || 0) * 6 + (scoreObj.behinds || 0);
 
@@ -602,6 +617,30 @@ export default function MatchDay({
   };
 
   const handleConfirmEndMatch = () => {
+    // Flush this match's accumulated time-on-ground/bench time into each player's
+    // permanent profile so Squad Hub's "Match Play Time" reflects real matches played,
+    // then reset the timers so the next match starts from zero.
+    if (onEditPlayer) {
+      Object.keys(playerTimers).forEach(playerId => {
+        const timer = playerTimers[playerId];
+        if (!timer) return;
+        const togMinutes = Math.round((timer.tog || 0) / 60);
+        const benchMinutes = Math.round((timer.bench || 0) / 60);
+        if (togMinutes === 0 && benchMinutes === 0) return;
+
+        const player = squad.find(p => p.id === playerId);
+        const existingStats = player?.stats || {};
+        onEditPlayer(playerId, {
+          stats: {
+            ...existingStats,
+            togMinutes: (existingStats.togMinutes || 0) + togMinutes,
+            benchMinutes: (existingStats.benchMinutes || 0) + benchMinutes
+          }
+        });
+      });
+    }
+
+    setPlayerTimers({});
     setExitMatchGuardModal(false);
     setMatchMode('pregame');
     setIsClockRunning(false);
@@ -1033,17 +1072,17 @@ export default function MatchDay({
             <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <span style={{ fontSize: '0.68rem', color: '#8d939e', fontWeight: '800', textTransform: 'uppercase' }}>SUGGESTED NEXT OFF</span>
               <span style={{ fontSize: '0.95rem', color: '#ffb703', fontWeight: '800' }}>
-                {onFieldPlayerIds.length > 0
-                  ? squad.find(p => p.id === onFieldPlayerIds[0])?.name || 'None'
-                  : 'None'}
+                {suggestedNextOff ? suggestedNextOff.name : 'None'}
               </span>
+              <span style={{ fontSize: '0.68rem', color: '#8d939e' }}>Longest current stint</span>
             </div>
 
             <div style={{ backgroundColor: '#161922', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <span style={{ fontSize: '0.68rem', color: '#8d939e', fontWeight: '800', textTransform: 'uppercase' }}>SUGGESTED NEXT ON</span>
               <span style={{ fontSize: '0.95rem', color: '#2ec4b6', fontWeight: '800' }}>
-                {benchPlayers.length > 0 ? benchPlayers[0].name : 'None'}
+                {suggestedNextOn ? suggestedNextOn.name : 'None'}
               </span>
+              <span style={{ fontSize: '0.68rem', color: '#8d939e' }}>Longest time on bench</span>
             </div>
           </div>
 
@@ -1052,6 +1091,9 @@ export default function MatchDay({
             <div style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '800', textTransform: 'uppercase' }}>
               PLAN A ROTATION
             </div>
+            <p style={{ fontSize: '0.75rem', color: '#8d939e', margin: 0, lineHeight: 1.4 }}>
+              Schedule a swap to happen later - it sits in the queue below until you tap Execute. For an immediate swap right now, use the Roster Rotation Tracker instead.
+            </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {/* Select Incoming Bench Player */}
@@ -1148,12 +1190,16 @@ export default function MatchDay({
             <div style={{ fontSize: '0.75rem', color: '#8d939e', fontWeight: '800', textTransform: 'uppercase' }}>
               ROSTER ROTATION TRACKER
             </div>
+            <p style={{ fontSize: '0.75rem', color: '#8d939e', margin: 0, lineHeight: 1.4 }}>
+              Tap a bench player, then tap an on-field player to swap them immediately.
+            </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {activePlayers.map(p => {
                 const isOnField = onFieldPlayerIds.includes(p.id);
                 const timerData = playerTimers[p.id] || { tog: 0, bench: 0, stintSecs: 0 };
                 const isSelectedBench = selectedIncomingBenchPlayer?.id === p.id;
+                const isOverStint = isOnField && maxStintMinutes > 0 && (timerData.stintSecs || 0) >= maxStintMinutes * 60;
 
                 return (
                   <div
@@ -1164,8 +1210,8 @@ export default function MatchDay({
                     }}
                     style={{
                       padding: '10px 12px',
-                      backgroundColor: isSelectedBench ? 'rgba(46, 196, 182, 0.15)' : 'rgba(255,255,255,0.03)',
-                      border: isSelectedBench ? '1.5px solid #2ec4b6' : '1px solid rgba(255,255,255,0.06)',
+                      backgroundColor: isSelectedBench ? 'rgba(46, 196, 182, 0.15)' : (isOverStint ? 'rgba(230, 57, 70, 0.1)' : 'rgba(255,255,255,0.03)'),
+                      border: isSelectedBench ? '1.5px solid #2ec4b6' : (isOverStint ? '1.5px solid #e63946' : '1px solid rgba(255,255,255,0.06)'),
                       borderRadius: '8px',
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -1177,13 +1223,14 @@ export default function MatchDay({
                       <div style={{ color: '#ffffff', fontWeight: '800', fontSize: '0.9rem' }}>
                         {p.jersey ? `#${p.jersey} ` : ''}{p.name}
                       </div>
-                      <div style={{ fontSize: '0.72rem', color: '#8d939e' }}>
-                        Bench: {formatDuration(timerData.bench)} · TOG: {formatDuration(timerData.tog)}
+                      <div style={{ fontSize: '0.72rem', color: isOverStint ? '#e63946' : '#8d939e', fontWeight: isOverStint ? '700' : '400' }}>
+                        {isOverStint && '⚠ '}Bench: {formatDuration(timerData.bench)} · TOG: {formatDuration(timerData.tog)}
+                        {isOverStint && ` · Stint ${formatDuration(timerData.stintSecs)} (limit ${maxStintMinutes}m)`}
                       </div>
                     </div>
 
-                    <span style={{ fontSize: '0.75rem', fontWeight: '800', color: isOnField ? '#2ec4b6' : '#ffb703', backgroundColor: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '4px' }}>
-                      {isOnField ? 'ON FIELD' : (isSelectedBench ? 'INCOMING' : 'BENCH')}
+                    <span style={{ fontSize: '0.75rem', fontWeight: '800', color: isOverStint ? '#e63946' : (isOnField ? '#2ec4b6' : '#ffb703'), backgroundColor: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '4px' }}>
+                      {isOverStint ? 'ROTATE NOW' : (isOnField ? 'ON FIELD' : (isSelectedBench ? 'INCOMING' : 'BENCH'))}
                     </span>
                   </div>
                 );

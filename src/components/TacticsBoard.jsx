@@ -109,6 +109,9 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
   const startPos = useRef({ x: 0, y: 0 });
   const drawings = useRef([]); // { type: 'brush'|'arrow', points: [...], color: string }
   const laserPoints = useRef([]);
+  // Bumped whenever `drawings` (a ref, so it doesn't trigger re-renders on its own) changes,
+  // so the auto-save draft effect below picks up drawing-only edits, not just token moves.
+  const [drawingsVersion, setDrawingsVersion] = useState(0);
 
   // Active Tokens
   const [tokens, setTokens] = useState(() => {
@@ -171,7 +174,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
       lastModified: Date.now()
     };
     localStorage.setItem(getScoped('inthepocket_unsaved_tactics_board'), JSON.stringify(draftData));
-  }, [tokens, currentBoardName, currentUser]);
+  }, [tokens, currentBoardName, currentUser, drawingsVersion]);
 
   // Sync saved boards to storage
   useEffect(() => {
@@ -398,6 +401,9 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
   const handleEndDraw = (e) => {
     if (!isDrawing || tool === 'select') return;
     setIsDrawing(false);
+    if (tool === 'brush' || tool === 'arrow' || tool === 'eraser') {
+      setDrawingsVersion(v => v + 1);
+    }
 
     if (tool === 'arrow') {
       const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
@@ -441,6 +447,7 @@ export default function TacticsBoard({ squad = [], subscriptionTier, triggerPayw
         pushStateToHistory();
         drawings.current = [];
         laserPoints.current = [];
+        setDrawingsVersion(v => v + 1);
         drawCanvas();
         setConfirmModal(null);
       }

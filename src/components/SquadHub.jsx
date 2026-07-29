@@ -650,7 +650,8 @@ export default function SquadHub({
         
         {/* Simple text link actions */}
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', userSelect: 'none', flexShrink: 0 }}>
-          <span 
+          <button
+            type="button"
             onClick={() => {
               setIsManageMode(!isManageMode);
               setSelectedPlayerIds(new Set());
@@ -663,14 +664,18 @@ export default function SquadHub({
               cursor: 'pointer',
               textTransform: 'uppercase',
               transition: 'color 0.2s ease',
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
+              background: 'none',
+              border: 'none',
+              padding: 0
             }}
             onMouseEnter={(e) => { if (!isManageMode) e.currentTarget.style.color = '#ffffff'; }}
             onMouseLeave={(e) => { if (!isManageMode) e.currentTarget.style.color = '#8d939e'; }}
           >
             {isManageMode ? 'Cancel' : 'Manage Team'}
-          </span>
-          <span 
+          </button>
+          <button
+            type="button"
             onClick={() => setIsImportOpen(true)}
             style={{
               fontFamily: 'var(--font-family-locker)',
@@ -680,13 +685,16 @@ export default function SquadHub({
               cursor: 'pointer',
               textTransform: 'uppercase',
               transition: 'color 0.2s ease',
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
+              background: 'none',
+              border: 'none',
+              padding: 0
             }}
             onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
             onMouseLeave={(e) => e.currentTarget.style.color = '#8d939e'}
           >
             Import Players
-          </span>
+          </button>
         </div>
       </div>
 
@@ -802,10 +810,12 @@ export default function SquadHub({
           filteredAndSortedSquad.map((player) => {
             const isSelected = selectedPlayerIds.has(player.id);
             const jerseyNum = parseInt(player.jersey, 10) || player.jersey;
+            const hasMedicalAlert = Boolean(player.medical && player.medical.trim() && player.medical.trim().toLowerCase() !== 'none');
 
             return (
-              <div 
-                key={player.id} 
+              <button
+                key={player.id}
+                type="button"
                 className="player-row-card"
                 onClick={() => {
                   if (isManageMode) {
@@ -818,31 +828,44 @@ export default function SquadHub({
                     setIsOverflowOpen(false);
                   }
                 }}
-                style={{ 
+                style={{
                   backgroundColor: isSelected ? 'rgba(58, 134, 255, 0.08)' : 'transparent',
                   borderColor: isSelected ? 'rgba(58, 134, 255, 0.2)' : 'transparent',
                   padding: '14px 12px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  width: '100%',
+                  border: 'none',
+                  textAlign: 'left',
+                  font: 'inherit',
+                  color: 'inherit'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
-                  {/* Checkbox (Manage Mode) */}
+                  {/* Selection indicator (Manage Mode) - visual only; the row itself is the real toggle */}
                   {isManageMode && (
-                    <input 
-                      type="checkbox" 
-                      checked={isSelected}
-                      readOnly
+                    <span
+                      aria-hidden="true"
                       style={{
                         width: '16px',
                         height: '16px',
-                        pointerEvents: 'none',
-                        accentColor: 'var(--color-squad)',
-                        flexShrink: 0
+                        borderRadius: '3px',
+                        border: `1.5px solid ${isSelected ? 'var(--color-squad)' : 'rgba(255,255,255,0.3)'}`,
+                        backgroundColor: isSelected ? 'var(--color-squad)' : 'transparent',
+                        flexShrink: 0,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                       }}
-                    />
+                    >
+                      {isSelected && (
+                        <svg width="11" height="11" fill="none" stroke="#ffffff" strokeWidth="3" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                      )}
+                    </span>
                   )}
 
                   {/* Industrial number box (#20) */}
@@ -864,10 +887,32 @@ export default function SquadHub({
                     #{jerseyNum}
                   </div>
 
-                  {/* Player Name ONLY */}
+                  {/* Player Name */}
                   <span style={{ fontWeight: '700', fontSize: '1.05rem', color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {player.name}
                   </span>
+
+                  {/* Medical Alert Badge */}
+                  {hasMedicalAlert && (
+                    <span
+                      title={`Medical note: ${player.medical}`}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(230, 57, 70, 0.15)',
+                        color: '#e63946',
+                        flexShrink: 0
+                      }}
+                    >
+                      <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/>
+                      </svg>
+                    </span>
+                  )}
                 </div>
 
                 {/* Right-facing chevron ONLY */}
@@ -884,7 +929,7 @@ export default function SquadHub({
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
                   </svg>
                 </div>
-              </div>
+              </button>
             );
           })
         )}
